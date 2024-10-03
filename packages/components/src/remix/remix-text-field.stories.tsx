@@ -75,7 +75,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof RemixTextField> = {
-  title: 'Remix/TextField',
+  title: 'Remix/RemixTextField',
   component: RemixTextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
@@ -122,6 +122,9 @@ const testUsernameTaken = async (canvas: BoundFunctions<typeof queries>) => {
   await userEvent.clear(input);
   await userEvent.type(input, USERNAME_TAKEN);
   await userEvent.click(submitButton);
+
+  // wait for response to return
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
