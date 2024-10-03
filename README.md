@@ -24,50 +24,25 @@ To use the form library in your project, you need to install the necessary depen
 The library provides a set of form components that can be used to build complex forms with ease. Below are some of the key components:
 
 - **FormField**: A context provider for form fields, integrating with `react-hook-form`'s `Controller`.
-  ```typescript:packages/components/src/ui/remix-form.tsx
-  startLine: 32
-  endLine: 42
-  ```
+
 
 - **FormItem**: A wrapper component that provides context for individual form items.
-  ```typescript:packages/components/src/ui/remix-form.tsx
-  startLine: 74
-  endLine: 84
-  ```
 
 - **FormLabel, FormControl, FormDescription, FormMessage**: Components for rendering form labels, controls, descriptions, and error messages.
-  ```typescript:packages/components/src/ui/remix-form.tsx
-  startLine: 87
-  endLine: 139
-  ```
+
 
 ### Controlled Components
 
 These components are designed to work with `react-hook-form`'s controlled inputs:
 
 - **ControlledTextField**: A text input field with integrated validation and error handling.
-  ```typescript:packages/components/src/ui/fields/remix-text-field.tsx
-  startLine: 36
-  endLine: 56
-  ```
 
 - **ControlledRadioGroup**: A radio group component for selecting options.
-  ```typescript:packages/components/src/ui/radio-group.tsx
-  startLine: 46
-  endLine: 83
-  ```
 
 - **ControlledCheckbox**: A checkbox component with validation support.
-  ```typescript:packages/components/src/ui/checkbox.tsx
-  startLine: 40
-  endLine: 76
-  ```
 
 - **ControlledDatePicker**: A date picker component for selecting dates.
-  ```typescript:packages/components/src/ui/date-picker.tsx
-  startLine: 19
-  endLine: 60
-  ```
+
 
 ## Usage
 
