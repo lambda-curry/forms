@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -7,9 +7,9 @@ import { expect, userEvent, within } from '@storybook/test';
 import type { BoundFunctions, queries } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../../lib/storybook/remix-stub';
-import { ControlledTextField } from './remix-text-field';
-import { Button } from '../button';
+import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
+import { RemixTextField } from './remix-text-field';
+import { Button } from '../ui/button';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -32,16 +32,12 @@ const ControlledTextFieldExample = () => {
     fetcher,
   });
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    await methods.handleSubmit(event);
-    const formData = new FormData(event.target as HTMLFormElement);
-    fetcher.submit(formData, { method: 'post', action: '/' });
-  };
+
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={onSubmit} method="post" action="/">
-        <ControlledTextField name="username" label="Username" description="Enter a unique username" />
+      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+        <RemixTextField name="username" label="Username" description="Enter a unique username" />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -78,9 +74,9 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof ControlledTextField> = {
-  title: 'UI/Fields/ControlledField',
-  component: ControlledTextField,
+const meta: Meta<typeof RemixTextField> = {
+  title: 'Remix/TextField',
+  component: RemixTextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -92,7 +88,7 @@ const meta: Meta<typeof ControlledTextField> = {
       },
     ]),
   ],
-} satisfies Meta<typeof ControlledTextField>;
+} satisfies Meta<typeof RemixTextField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

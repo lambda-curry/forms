@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
 import { createRemixStub } from '@remix-run/testing';
 import type { Decorator } from '@storybook/react';
@@ -24,7 +25,7 @@ interface StubIndexRouteObject
 }
 
 export const withRemixStubDecorator = (routes: StubRouteObject[] = []): Decorator => {
-  return (Story: React.ComponentType) => {
+  return (Story: ComponentType) => {
     const defaultRoute: StubRouteObject = {
       path: '/*',
       action: () => ({ redirect: '/' }),

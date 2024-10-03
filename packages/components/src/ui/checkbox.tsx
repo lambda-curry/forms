@@ -1,12 +1,9 @@
-
 import { type ComponentPropsWithoutRef, type ReactNode, forwardRef, type ElementRef } from 'react'
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
 import { FormLabel } from './remix-form'
-import { useRemixFormContext } from 'remix-hook-form'
 import { cn } from "@/lib/utils"
-import { FormControl, FormDescription, FormField, FormItem, FormMessage } from './remix-form'
 
 export interface CheckboxProps extends ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
   label?: ReactNode
@@ -36,41 +33,3 @@ const Checkbox = forwardRef<
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }
-
-export const ControlledCheckbox = forwardRef<
-  ElementRef<typeof CheckboxPrimitive.Root>,
-  Omit<CheckboxProps, 'onChange' | 'checked'> & {
-    name: string,
-    label?: string,
-    description?: string,
-    className?: string,
-    labelClassName?: string,
-    checkboxClassName?: string
-  }
->(({ name, label, description, className, labelClassName, checkboxClassName, ...props }, ref) => {
-  const { control } = useRemixFormContext();
-
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
-          <FormControl>
-            <Checkbox
-              ref={ref}
-              checked={field.value}
-              onCheckedChange={field.onChange}
-              className={checkboxClassName}
-              {...props}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-        </FormItem>
-      )}
-    />
-  )
-})
-ControlledCheckbox.displayName = "ControlledCheckbox"
