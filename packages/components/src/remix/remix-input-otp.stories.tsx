@@ -6,21 +6,21 @@ import { expect, userEvent, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { ControlledInput } from './input';
-import { Button } from './button';
+import { Button } from '../ui/button';
+import { RemixInputOTPField } from './remix-input-otp';
 
 const formSchema = z.object({
-  inputText: z.string().min(1, "Input cannot be empty"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const ControlledInputExample = () => {
+const RemixInputOTPExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      inputText: "",
+      otp: "",
     },
     fetcher,
   });
@@ -28,7 +28,12 @@ const ControlledInputExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <ControlledInput name="inputText" label="Input" placeholder="Enter text here" />
+        <RemixInputOTPField
+          name="otp"
+          label="One-Time Password"
+          description="Enter the 6-digit code sent to your phone."
+          maxLength={6}
+        />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -52,43 +57,40 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Form submitted successfully' };
 };
 
-// Storybook configuration
-const meta: Meta<typeof ControlledInput> = {
-  title: 'UI/Fields/ControlledInput',
-  component: ControlledInput,
+const meta: Meta<typeof RemixInputOTPField> = {
+  title: 'Remix/RemixInputOTPField',
+  component: RemixInputOTPField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator([
       {
         path: '/',
-        Component: ControlledInputExample,
+        Component: RemixInputOTPExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     ]),
   ],
-} satisfies Meta<typeof ControlledInput>;
+} satisfies Meta<typeof RemixInputOTPField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Test scenarios
-const testDefaultValues = (canvas: ReturnType<typeof within>) => {
-  const input = canvas.getByPlaceholderText('Enter text here');
-  expect(input).toHaveValue('');
+const testOTPInput = async (canvas: ReturnType<typeof within>) => {
+  const otpInputs = canvas.getAllByRole('textbox');
+  expect(otpInputs).toHaveLength(6);
+
+  for (let i = 0; i < 6; i++) {
+    await userEvent.type(otpInputs[i], `${i + 1}`);
+  }
+
+  for (let i = 0; i < 6; i++) {
+    expect(otpInputs[i]).toHaveValue(`${i + 1}`);
+  }
 };
 
-const testInvalidSubmission = async (canvas: ReturnType<typeof within>) => {
+const testSubmission = async (canvas: ReturnType<typeof within>) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-  await expect(canvas.findByText('Input cannot be empty')).resolves.toBeInTheDocument();
-};
-
-const testValidSubmission = async (canvas: ReturnType<typeof within>) => {
-  const input = canvas.getByPlaceholderText('Enter text here');
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-
-  await userEvent.type(input, 'Hello, World!');
   await userEvent.click(submitButton);
 
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
@@ -97,8 +99,7 @@ const testValidSubmission = async (canvas: ReturnType<typeof within>) => {
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testInvalidSubmission(canvas);
-    await testValidSubmission(canvas);
+    await testOTPInput(canvas);
+    await testSubmission(canvas);
   },
 };

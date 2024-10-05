@@ -1,8 +1,8 @@
 
+import type { Control, FieldValues } from "react-hook-form"
 import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, useContext } from 'react'
 import { OTPInput, OTPInputContext } from "input-otp"
 import { Dot } from "lucide-react"
-import { useRemixFormContext } from 'remix-hook-form'
 import { cn } from "@/lib/utils"
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './remix-form'
 
@@ -70,19 +70,21 @@ const InputOTPSeparator = forwardRef<
 ))
 InputOTPSeparator.displayName = "InputOTPSeparator"
 
-const ControlledInputOTP = forwardRef<
+interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValues> extends Omit<ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> {
+  control: Control<TFieldValues>;
+  name: string,
+  label?: string,
+  description?: string,
+  className?: string,
+  labelClassName?: string,
+  inputClassName?: string,
+  maxLength: number
+}
+
+const InputOTPField = forwardRef<
   ElementRef<typeof OTPInput>,
-  Omit<ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> & {
-    name: string,
-    label?: string,
-    description?: string,
-    className?: string,
-    labelClassName?: string,
-    inputClassName?: string,
-    maxLength: number
-  }
->(({ name, label, description, className, labelClassName, inputClassName, maxLength, ...props }, ref) => {
-  const { control } = useRemixFormContext();
+  InputOTPFieldProps
+>(({ control, name, label, description, className, labelClassName, inputClassName, maxLength, ...props }, ref) => {
   const isEightSlots = maxLength === 8;
 
   return (
@@ -122,6 +124,12 @@ const ControlledInputOTP = forwardRef<
     />
   )
 })
-ControlledInputOTP.displayName = "ControlledInputOTP"
+InputOTPField.displayName = "InputOTPField"
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator, ControlledInputOTP }
+export {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+  InputOTPField,
+}

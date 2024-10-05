@@ -1,7 +1,6 @@
 import { type InputHTMLAttributes, forwardRef } from 'react'
-import { useRemixFormContext } from 'remix-hook-form'
 import { cn } from "@/lib/utils"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './remix-form'
+import { } from './remix-form'
 
 export interface InputProps
   extends InputHTMLAttributes<HTMLInputElement> { }
@@ -25,40 +24,3 @@ Input.displayName = "Input"
 
 export { Input }
 
-export const ControlledInput = forwardRef<
-  HTMLInputElement,
-  Omit<InputProps, 'onChange' | 'value'> & {
-    name: string,
-    label?: string,
-    description?: string,
-    className?: string,
-    labelClassName?: string,
-    inputClassName?: string
-  }
->(({ name, label, description, className, labelClassName, inputClassName, ...props }, ref) => {
-  const { control } = useRemixFormContext();
-
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
-          <FormControl>
-            <Input
-              ref={ref}
-              value={field.value}
-              onChange={field.onChange}
-              className={inputClassName}
-              {...props}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-        </FormItem>
-      )}
-    />
-  )
-})
-ControlledInput.displayName = "ControlledInput"

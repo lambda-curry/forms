@@ -1,12 +1,10 @@
-
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react'
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
-
 import { cn } from "@/lib/utils"
-import { useRemixFormContext } from 'remix-hook-form'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './remix-form'
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./remix-form"
+import type { Control, FieldPath, FieldValues } from "react-hook-form"
+import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react'
 
 const RadioGroup = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -43,44 +41,42 @@ const RadioGroupItem = forwardRef<
 })
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
 
-const ControlledRadioGroup = forwardRef<
-  ElementRef<typeof RadioGroupPrimitive.Root>,
-  Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>, 'onValueChange' | 'value'> & {
-    name: string,
-    label?: string,
-    description?: string,
-    className?: string,
-    labelClassName?: string,
-    groupClassName?: string,
-  }
->(({ name, label, description, className, labelClassName, groupClassName, children, ...props }, ref) => {
-  const { control } = useRemixFormContext();
+export interface RadioGroupFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends Omit<ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
+  control?: Control<TFieldValues>;
+  name: TName;
+  label?: string;
+  description?: string;
+}
 
+const RadioGroupField = forwardRef<
+  ElementRef<typeof RadioGroup>,
+  RadioGroupFieldProps
+>(({ control, name, label, description, className, ...props }, ref) => {
   return (
     <FormField
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
+      render={({ field }) => (
         <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
+          {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <RadioGroup
               ref={ref}
-              value={field.value}
               onValueChange={field.onChange}
-              className={groupClassName}
+              defaultValue={field.value}
               {...props}
-            >
-              {children}
-            </RadioGroup>
+            />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
-          {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+          <FormMessage />
         </FormItem>
       )}
     />
   )
 })
-ControlledRadioGroup.displayName = "ControlledRadioGroup"
+RadioGroupField.displayName = "RadioGroupField"
 
-export { RadioGroup, RadioGroupItem, ControlledRadioGroup }
+export { RadioGroup, RadioGroupItem, RadioGroupField }

@@ -6,23 +6,24 @@ import { expect, userEvent, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { ControlledInputOTP } from './input-otp';
-import { Button } from './button';
+import { Button } from '../ui/button';
+import { RemixRadioGroupField } from './remix-radio-group';
+import { RadioGroupItem } from '../ui/radio-group';
 
-// Form schema definition
 const formSchema = z.object({
-  otp: z.string().length(6, "OTP must be 6 digits"),
+  plan: z.enum(['starter', 'pro', 'enterprise'], {
+    required_error: "You need to select a plan",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-// Component for the form
-const ControlledInputOTPExample = () => {
+const RemixRadioGroupExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      otp: "",
+      plan: undefined,
     },
     fetcher,
   });
@@ -30,7 +31,25 @@ const ControlledInputOTPExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <ControlledInputOTP name="otp" label="OTP" maxLength={6} />
+        <RemixRadioGroupField
+          name="plan"
+          label="Select a plan"
+          description="Choose the plan that best fits your needs."
+          className="space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="starter" id="starter" />
+            <label htmlFor="starter">Starter</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="pro" id="pro" />
+            <label htmlFor="pro">Pro</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="enterprise" id="enterprise" />
+            <label htmlFor="enterprise">Enterprise</label>
+          </div>
+        </RemixRadioGroupField>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -40,7 +59,6 @@ const ControlledInputOTPExample = () => {
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
   const {
     errors,
@@ -55,54 +73,42 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Form submitted successfully' };
 };
 
-// Storybook configuration
-const meta: Meta<typeof ControlledInputOTP> = {
-  title: 'UI/Fields/ControlledInputOTP',
-  component: ControlledInputOTP,
+const meta: Meta<typeof RemixRadioGroupField> = {
+  title: 'Remix/RemixRadioGroupField',
+  component: RemixRadioGroupField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator([
       {
         path: '/',
-        Component: ControlledInputOTPExample,
+        Component: RemixRadioGroupExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     ]),
   ],
-} satisfies Meta<typeof ControlledInputOTP>;
+} satisfies Meta<typeof RemixRadioGroupField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Test scenarios
-const testDefaultValues = (canvas: ReturnType<typeof within>) => {
-  const otpInput = canvas.getByLabelText('OTP');
-  expect(otpInput).toHaveValue('');
+const testRadioGroupSelection = async (canvas: ReturnType<typeof within>) => {
+  const proRadio = canvas.getByLabelText('Pro');
+  await userEvent.click(proRadio);
+  expect(proRadio).toBeChecked();
 };
 
-const testInvalidSubmission = async (canvas: ReturnType<typeof within>) => {
+const testSubmission = async (canvas: ReturnType<typeof within>) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-  await expect(canvas.findByText('OTP must be 6 digits')).resolves.toBeInTheDocument();
-};
-
-const testValidSubmission = async (canvas: ReturnType<typeof within>) => {
-  const otpInput = canvas.getByLabelText('OTP');
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-
-  await userEvent.type(otpInput, '123456');
   await userEvent.click(submitButton);
 
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
 };
 
-// Stories
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testInvalidSubmission(canvas);
-    await testValidSubmission(canvas);
+    await testRadioGroupSelection(canvas);
+    await testSubmission(canvas);
   },
 };
