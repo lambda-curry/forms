@@ -20,6 +20,9 @@
     },
     "test": {
       "cache": true
+    },
+    "build-storybook": {
+      "cache": true
     }
   }
 }

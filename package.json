@@ -1,5 +1,5 @@
 {
-  "name": "agents-repo",
+  "name": "forms",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "shadcn-add": "yarn workspace @lambdacurry/ui shadcn-add",
-    "storybook": "yarn workspace @lambdacurry/ui storybook",
+    "storybook": "yarn workspace @lambdacurry/forms storybook",
+    "build-storybook": "turbo run build-storybook",
     "test": "turbo run test",
     "clean": "find . -name '.turbo' -type d -prune -exec rm -rf {} + && find . -name 'node_modules' -type d -prune -exec rm -rf {} + && find . -name 'yarn.lock' -type f -delete",
     "format-and-lint": "biome check .",

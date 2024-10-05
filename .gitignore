@@ -178,3 +178,5 @@ dist
 # Turbo cache
 .turbo
 *storybook.log
+
+storybook-static

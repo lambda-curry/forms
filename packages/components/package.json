@@ -1,11 +1,10 @@
 {
-  "name": "@lambdacurry/ui",
+  "name": "@lambdacurry/forms",
   "version": "0.0.1",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
   "scripts": {
-    "shadcn-add": "node --experimental-strip-types lib/scripts/shadcn-add.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --apply .",
     "type-check": "tsc --noEmit",

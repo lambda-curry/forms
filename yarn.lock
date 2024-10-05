@@ -1825,9 +1825,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lambdacurry/ui@workspace:packages/components":
+"@lambdacurry/forms@workspace:packages/components":
   version: 0.0.0-use.local
-  resolution: "@lambdacurry/ui@workspace:packages/components"
+  resolution: "@lambdacurry/forms@workspace:packages/components"
   dependencies:
     "@biomejs/biome": "npm:1.5.3"
     "@chromatic-com/storybook": "npm:^2.0.2"
@@ -4625,15 +4625,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agents-repo@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "agents-repo@workspace:."
-  dependencies:
-    "@biomejs/biome": "npm:^1.9.1"
-    turbo: "npm:^2.1.3"
-  languageName: unknown
-  linkType: soft
-
 "aggregate-error@npm:^3.0.0":
   version: 3.1.0
   resolution: "aggregate-error@npm:3.1.0"
@@ -7053,6 +7044,15 @@ __metadata:
   checksum: 10c0/6032ba747541a43abf3e37b402b2f72ee08ebcb58bf84d816443dd228959837f1cddf1e8775b29fa27ff133f4bd146d041bfca5f9cf27f048edf3d493cf8fee6
   languageName: node
   linkType: hard
+
+"forms@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "forms@workspace:."
+  dependencies:
+    "@biomejs/biome": "npm:^1.9.1"
+    turbo: "npm:^2.1.3"
+  languageName: unknown
+  linkType: soft
 
 "forwarded@npm:0.2.0":
   version: 0.2.0
