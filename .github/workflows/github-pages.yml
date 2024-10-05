@@ -35,7 +35,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # or the version you are using
+          node-version: '22.9.0'
+
+      - name: Setup Yarn Corepack
+        run: corepack enable
 
       - name: Install dependencies
         run: yarn install
