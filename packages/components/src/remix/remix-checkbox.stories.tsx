@@ -1,4 +1,3 @@
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -20,7 +19,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const ControlledCheckboxExample = () => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{ message: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,16 +30,18 @@ const ControlledCheckboxExample = () => {
     fetcher,
   });
 
-
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <RemixCheckbox name="terms" label="Accept terms and conditions" />
-        <RemixCheckbox name="marketing" label="Receive marketing emails" description="We will send you weekly updates about our products" />
-        <RemixCheckbox name="required" label="This is a required checkbox" />
+        <div className='grid gap-4'>
+          <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
+          <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you weekly updates about our products" />
+          <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
+        </div>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
+        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -57,7 +58,7 @@ const handleFormSubmission = async (request: Request) => {
     return { errors };
   }
 
-  return { success: true };
+  return { message: 'Form submitted successfully' };
 };
 
 const meta: Meta<typeof RemixCheckbox> = {
@@ -95,10 +96,23 @@ const testInvalidSubmission = async (canvas: BoundFunctions<typeof queries>) => 
   await expect(await canvas.findByText('This field is required')).toBeInTheDocument();
 };
 
+const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
+  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
+  await userEvent.click(termsCheckbox);
+  await userEvent.click(requiredCheckbox);
+
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  await userEvent.click(submitButton);
+
+  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
+};
+
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     testDefaultValues(canvas);
     await testInvalidSubmission(canvas);
+    await testValidSubmission(canvas);
   },
 };

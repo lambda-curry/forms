@@ -1,13 +1,9 @@
-
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from 'react'
+import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, type HTMLAttributes, } from 'react'
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
-import { useRemixFormContext } from "remix-hook-form"
 
 import { cn } from "@/lib/utils"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./remix-form"
-import { Button } from './button'
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -184,52 +180,6 @@ const DropdownMenuShortcut = ({
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
 
-interface ControlledDropdownMenuProps extends Omit<ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>, 'onChange' | 'value'> {
-  name: string;
-  label?: string;
-  description?: string;
-  children: ReactNode;
-}
-
-const ControlledDropdownMenu = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Root>,
-  ControlledDropdownMenuProps & {
-    className?: string,
-    labelClassName?: string,
-    dropdownClassName?: string
-  }
->(({ name, label, description, children, className, labelClassName, dropdownClassName, ...props }) => {
-  const { control } = useRemixFormContext();
-
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
-          <FormControl>
-            <DropdownMenuPrimitive.Root {...field} {...props}>
-              <DropdownMenuPrimitive.Trigger asChild>
-                <Button className={dropdownClassName}>
-                  {field.value ? field.value : "Select an option"}
-                </Button>
-              </DropdownMenuPrimitive.Trigger>
-              <DropdownMenuContent>
-                {children}
-              </DropdownMenuContent>
-            </DropdownMenuPrimitive.Root>
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage>{fieldState.error?.message}</FormMessage>
-        </FormItem>
-      )}
-    />
-  );
-});
-
-ControlledDropdownMenu.displayName = "ControlledDropdownMenu";
-
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -246,5 +196,4 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
-  ControlledDropdownMenu,
 }

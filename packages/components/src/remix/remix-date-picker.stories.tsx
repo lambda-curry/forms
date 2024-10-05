@@ -6,8 +6,8 @@ import { expect, userEvent, waitFor, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { ControlledDatePicker } from './date-picker';
-import { Button } from './button';
+import { RemixDatePicker } from './remix-date-picker';
+import { Button } from '../ui/button';
 
 const formSchema = z.object({
   eventDate: z.coerce.date()
@@ -15,7 +15,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const ControlledDatePickerExample = () => {
+const RemixDatePickerExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -28,7 +28,7 @@ const ControlledDatePickerExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <ControlledDatePicker
+        <RemixDatePicker
           name="eventDate"
           label="Event Date"
           description="Choose the date for your event."
@@ -58,21 +58,21 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof ControlledDatePicker> = {
-  title: 'UI/Fields/ControlledDatePicker',
-  component: ControlledDatePicker,
+const meta: Meta<typeof RemixDatePicker> = {
+  title: 'Remix/RemixDatePicker',
+  component: RemixDatePicker,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator([
       {
         path: '/',
-        Component: ControlledDatePickerExample,
+        Component: RemixDatePickerExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     ]),
   ],
-} satisfies Meta<typeof ControlledDatePicker>;
+} satisfies Meta<typeof RemixDatePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -83,10 +83,8 @@ const testDefaultValues = (canvas: ReturnType<typeof within>) => {
 };
 
 const testDateSelection = async (canvas: ReturnType<typeof within>) => {
-
   const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
   await userEvent.click(datePickerButton);
-
 
   await waitFor(async () => {
     const popover = document.querySelector('[role="dialog"]');
@@ -102,7 +100,6 @@ const testDateSelection = async (canvas: ReturnType<typeof within>) => {
   });
 
   await waitFor(() => {
-    // biome-ignore lint/performance/useTopLevelRegex: ignore for test
     const updatedDatePickerButton = canvas.getByRole('button', { name: /15/ });
     expect(updatedDatePickerButton).toBeInTheDocument();
   });

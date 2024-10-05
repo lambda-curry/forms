@@ -1,4 +1,3 @@
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -17,13 +16,12 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-// Constants
 const INITIAL_USERNAME = 'initialuser';
 const USERNAME_TAKEN = 'taken';
 const USERNAME_TAKEN_ERROR = 'This username is already taken';
 
 const ControlledTextFieldExample = () => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{ message: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,8 +30,6 @@ const ControlledTextFieldExample = () => {
     fetcher,
   });
 
-
-
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
@@ -41,6 +37,7 @@ const ControlledTextFieldExample = () => {
         <Button type="submit" className="mt-4">
           Submit
         </Button>
+        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -58,6 +55,7 @@ const handleFormSubmission = async (request: Request) => {
     return { errors, defaultValues };
   }
 
+
   if (data.username === USERNAME_TAKEN) {
     return {
       errors: {
@@ -70,7 +68,7 @@ const handleFormSubmission = async (request: Request) => {
     };
   }
 
-  return { success: true };
+  return { message: 'Form submitted successfully' };
 };
 
 // Storybook configuration
@@ -129,6 +127,19 @@ const testUsernameTaken = async (canvas: BoundFunctions<typeof queries>) => {
   await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
 
+const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+  const input = canvas.getByLabelText('Username');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.type(input, 'validusername');
+  await userEvent.click(submitButton);
+
+  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
+};
+
 // Stories
 export const Default: Story = {
   play: async ({ canvasElement }) => {
@@ -136,5 +147,6 @@ export const Default: Story = {
     testDefaultValues(canvas);
     await testInvalidSubmission(canvas);
     await testUsernameTaken(canvas);
+    await testValidSubmission(canvas);
   },
 };

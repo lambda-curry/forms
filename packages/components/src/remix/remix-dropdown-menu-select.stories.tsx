@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
-import { } from './remix-form';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, within, } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { Button } from './button';
-import { ControlledDropdownMenu, DropdownMenuItem } from './dropdown-menu';
+import { Button } from '../ui/button';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { RemixDropdownMenuSelect } from './remix-dropdown-menu-select';
 
 // Form schema definition
 const formSchema = z.object({
@@ -18,7 +18,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Component for the form
-const ControlledDropdownMenuExample = () => {
+const RemixDropdownMenuSelectExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -31,7 +31,7 @@ const ControlledDropdownMenuExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <ControlledDropdownMenu
+        <RemixDropdownMenuSelect
           name="favoriteColor"
           label="Favorite Color"
           description="Choose your favorite color."
@@ -40,8 +40,7 @@ const ControlledDropdownMenuExample = () => {
           <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Red")}>Red</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Green")}>Green</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Blue")}>Blue</DropdownMenuItem>
-
-        </ControlledDropdownMenu>
+        </RemixDropdownMenuSelect>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -67,55 +66,74 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof ControlledDropdownMenu> = {
-  title: 'UI/Fields/ControlledDropdownMenu',
-  component: ControlledDropdownMenu,
+const meta: Meta<typeof RemixDropdownMenuSelect> = {
+  title: 'Remix/RemixDropdownMenuSelect',
+  component: RemixDropdownMenuSelect,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator([
       {
         path: '/',
-        Component: ControlledDropdownMenuExample,
+        Component: RemixDropdownMenuSelectExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     ]),
   ],
-} satisfies Meta<typeof ControlledDropdownMenu>;
+} satisfies Meta<typeof RemixDropdownMenuSelect>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-const testDefaultValues = (canvas: ReturnType<typeof within>) => {
+const testDefaultValues = (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
   const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
   expect(dropdownButton).toHaveTextContent('Select an option');
 };
 
-const testColorSelection = async (canvas: ReturnType<typeof within>) => {
-  const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
-  await userEvent.click(dropdownButton);
-
-  const greenOption = canvas.getByRole('menuitem', { name: 'Green' });
-  await userEvent.click(greenOption);
-
-  expect(dropdownButton).toHaveTextContent('Green');
-};
-
-const testInvalidSubmission = async (canvas: ReturnType<typeof within>) => {
+const testInvalidSubmission = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
   await expect(canvas.findByText('Please select a color')).resolves.toBeInTheDocument();
 };
 
-const testValidSubmission = async (canvas: ReturnType<typeof within>) => {
-  const dropdownButton = canvas.getByRole('button', { name: 'Green' });
+
+const testColorSelection = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
   await userEvent.click(dropdownButton);
 
-  const blueOption = canvas.getByRole('menuitem', { name: 'Blue' });
+  // Note: the using the parent container here allows us to find the dropdown menu that is a portal at the bottom of our document
+  const parentContainer = within(canvasElement.parentNode as HTMLElement);
+
+  await expect(parentContainer.findByRole('menuitem', { name: 'Green' })).resolves.toBeInTheDocument();
+
+  const greenOption = parentContainer.getByRole('menuitem', { name: 'Green' });
+  await userEvent.click(greenOption);
+
+  expect(dropdownButton).toHaveTextContent('Green');
+};
+
+
+const testValidSubmission = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+
+
+  // Note: I believe hidden needs to be true now since the portal is open, the test runner doesn't think these buttons are accessible
+  const dropdownButton = canvas.getByRole('button', { name: 'Green', hidden: true });
+  await userEvent.click(dropdownButton);
+
+
+  const parentContainer = within(canvasElement.parentNode as HTMLElement);
+
+
+  const blueOption = parentContainer.getByRole('menuitem', { name: 'Blue' });
   await userEvent.click(blueOption);
 
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  // Note: I believe hidden needs to be true now since the portal is open, the test runner doesn't think these buttons are accessible
+  const submitButton = canvas.getByRole('button', { name: 'Submit', hidden: true });
   await userEvent.click(submitButton);
 
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
@@ -124,10 +142,10 @@ const testValidSubmission = async (canvas: ReturnType<typeof within>) => {
 // Stories
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testInvalidSubmission(canvas);
-    await testColorSelection(canvas);
-    await testValidSubmission(canvas);
+
+    testDefaultValues(canvasElement);
+    await testInvalidSubmission(canvasElement);
+    await testColorSelection(canvasElement);
+    await testValidSubmission(canvasElement);
   },
 };
