@@ -11,9 +11,9 @@ import { RemixCheckbox } from './remix-checkbox';
 import { Button } from '../ui/button';
 
 const formSchema = z.object({
-  terms: z.boolean().optional().refine(val => val === true, 'You must accept the terms and conditions'),
+  terms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
   marketing: z.boolean().optional(),
-  required: z.boolean().optional().refine(val => val === true, 'This field is required'),
+  required: z.boolean().refine(val => val === true, 'This field is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -35,7 +35,7 @@ const ControlledCheckboxExample = () => {
       <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
         <div className='grid gap-4'>
           <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
-          <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you weekly updates about our products" />
+          <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
           <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
         </div>
         <Button type="submit" className="mt-4">
@@ -109,6 +109,50 @@ const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
 };
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'The default checkbox component.'
+      },
+      source: {
+        code: `
+    const formSchema = z.object({
+    terms: z.boolean().optional().refine(val => val === true, 'You must accept the terms and conditions'),
+    marketing: z.boolean().optional(),
+    required: z.boolean().optional().refine(val => val === true, 'This field is required'),
+  });
+
+  const ControlledCheckboxExample = () => {
+    const fetcher = useFetcher<{ message: string }>();
+    const methods = useRemixForm<FormData>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        terms: false as true, // Note: ZOD Schema expects a true value
+        marketing: false,
+        required: false as true //Note: ZOD Schema expects a true value
+      },
+      fetcher,
+    });
+
+    return (
+      <RemixFormProvider {...methods}>
+        <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+          <div className='grid gap-4'>
+            <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
+            <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
+            <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
+          </div>
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        </fetcher.Form>
+      </RemixFormProvider>
+    );
+  };`,
+      },
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     testDefaultValues(canvas);
