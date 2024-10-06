@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from './button';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./remix-form";
+import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 export interface DatePickerProps<
@@ -19,18 +19,19 @@ export interface DatePickerProps<
   className?: string;
   labelClassName?: string;
   buttonClassName?: string;
+  components?: Partial<FieldComponents>;
 }
 
 export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
-  ({ control, name, label, description, className, labelClassName, buttonClassName }, ref) => {
+  ({ control, name, label, description, className, labelClassName, buttonClassName, components }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
         render={({ field, fieldState }) => (
           <FormItem className={className}>
-            {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
-            <FormControl>
+            {label && <FormLabel Component={components?.FormLabel} className={labelClassName}>{label}</FormLabel>}
+            <FormControl Component={components?.FormControl}>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -56,8 +57,8 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
                 </PopoverContent>
               </Popover>
             </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
           </FormItem>
         )}
       />

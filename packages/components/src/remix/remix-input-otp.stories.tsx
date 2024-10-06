@@ -8,9 +8,11 @@ import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
 import { Button } from '../ui/button';
 import { RemixInputOTPField } from './remix-input-otp';
+import type { } from '@testing-library/dom';
+
 
 const formSchema = z.object({
-  otp: z.string().length(6, "OTP must be 6 digits"),
+  otp: z.string().length(6, "Please enter a 6-digit code"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -76,30 +78,29 @@ const meta: Meta<typeof RemixInputOTPField> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testOTPInput = async (canvas: ReturnType<typeof within>) => {
-  const otpInputs = canvas.getAllByRole('textbox');
-  expect(otpInputs).toHaveLength(6);
-
-  for (let i = 0; i < 6; i++) {
-    await userEvent.type(otpInputs[i], `${i + 1}`);
-  }
-
-  for (let i = 0; i < 6; i++) {
-    expect(otpInputs[i]).toHaveValue(`${i + 1}`);
-  }
+const testIncompleteSubmission = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  const input = canvasElement.querySelector('input');
+  await userEvent.type(input as HTMLInputElement, '123');
+  await userEvent.click(submitButton);
+  await expect(canvas.findByText('Please enter a 6-digit code')).resolves.toBeInTheDocument();
 };
 
-const testSubmission = async (canvas: ReturnType<typeof within>) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
 
+const testSubmission = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  const input = canvasElement.querySelector('input');
+  await userEvent.type(input as HTMLInputElement, '123456');
+  await userEvent.click(submitButton);
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
 };
 
+
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await testOTPInput(canvas);
-    await testSubmission(canvas);
+    await testIncompleteSubmission(canvasElement);
+    await testSubmission(canvasElement);
   },
 };

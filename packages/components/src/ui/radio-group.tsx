@@ -2,7 +2,7 @@
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./remix-form"
+import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form"
 import type { Control, FieldPath, FieldValues } from "react-hook-form"
 import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react'
 
@@ -49,20 +49,21 @@ export interface RadioGroupFieldProps<
   name: TName;
   label?: string;
   description?: string;
+  components?: Partial<FieldComponents>;
 }
 
 const RadioGroupField = forwardRef<
   ElementRef<typeof RadioGroup>,
   RadioGroupFieldProps
->(({ control, name, label, description, className, ...props }, ref) => {
+>(({ control, name, label, description, className, components, ...props }, ref) => {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
+          {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+          <FormControl Component={components?.FormControl}>
             <RadioGroup
               ref={ref}
               onValueChange={field.onChange}
@@ -70,8 +71,8 @@ const RadioGroupField = forwardRef<
               {...props}
             />
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          <FormMessage Component={components?.FormMessage} />
         </FormItem>
       )}
     />

@@ -1,7 +1,7 @@
 import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./remix-form"
+import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form"
 import { Button } from './button'
 import { DropdownMenuContent } from './dropdown-menu'
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
@@ -18,19 +18,20 @@ export interface DropdownMenuSelectProps<
   className?: string;
   labelClassName?: string;
   dropdownClassName?: string;
+  components?: Partial<FieldComponents>;
 }
 
 export const DropdownMenuSelect = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Root>,
   DropdownMenuSelectProps
->(({ control, name, label, description, children, className, labelClassName, dropdownClassName, ...props }, ref) => {
+>(({ control, name, label, description, children, className, labelClassName, dropdownClassName, components, ...props }, ref) => {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
+          {label && <FormLabel Component={components?.FormLabel} className={labelClassName}>{label}</FormLabel>}
           <FormControl>
             <DropdownMenuPrimitive.Root {...field} {...props}>
               <DropdownMenuPrimitive.Trigger asChild>
@@ -43,8 +44,8 @@ export const DropdownMenuSelect = forwardRef<
               </DropdownMenuContent>
             </DropdownMenuPrimitive.Root>
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage>{fieldState.error?.message}</FormMessage>
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          <FormMessage Component={components?.FormMessage}>{fieldState.error?.message}</FormMessage>
         </FormItem>
       )}
     />

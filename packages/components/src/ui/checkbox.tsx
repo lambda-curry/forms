@@ -2,7 +2,7 @@ import { type ComponentPropsWithoutRef, type ReactNode, forwardRef, type Element
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './remix-form'
+import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './form'
 import { cn } from "@/lib/utils"
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
@@ -15,18 +15,21 @@ export interface CheckboxProps<
   label?: ReactNode;
   description?: string;
   className?: string;
+  components?: Partial<FieldComponents>;
 }
 
 const Checkbox = forwardRef<
   ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
->(({ control, name, className, label, description, id, ...props }, ref) => (
+>(({ control, name, className, label, description, id, components, ...props }, ref) => (
   <FormField
     control={control}
     name={name}
     render={({ field, fieldState }) => (
-      <FormItem className={cn("flex flex-row items-start space-x-3 space-y-0", className)}>
-        <FormControl>
+      <FormItem
+        className={cn("flex flex-row items-start space-x-3 space-y-0", className)}
+      >
+        <FormControl Component={components?.FormControl} >
           <CheckboxPrimitive.Root
             ref={ref}
             id={id ?? name}
@@ -41,11 +44,11 @@ const Checkbox = forwardRef<
           </CheckboxPrimitive.Root>
         </FormControl>
         <div className="space-y-1 leading-none">
-          {label && <FormLabel htmlFor={id ?? name}
+          {label && <FormLabel Component={components?.FormLabel} htmlFor={id ?? name}
             className="!text-inherit" // Note: adding text-inherit here so the checkbox labels aren't also red during an error state since they are closer to their error text
           >{label}</FormLabel>}
-          {description && <FormDescription>{description}</FormDescription>}
-          {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
         </div>
       </FormItem >
     )}

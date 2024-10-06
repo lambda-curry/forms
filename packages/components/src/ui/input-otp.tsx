@@ -1,12 +1,14 @@
 
 import type { Control, FieldValues } from "react-hook-form"
 import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, useContext } from 'react'
-import { OTPInput, OTPInputContext } from "input-otp"
+import { OTPInput, OTPInputContext, type OTPInputProps } from "input-otp"
 import { Dot } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './remix-form'
+import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormItemContext, FormLabel, FormMessage } from './form'
 
-const InputOTP = forwardRef<
+export type { OTPInputProps };
+
+export const InputOTP = forwardRef<
   ElementRef<typeof OTPInput>,
   ComponentPropsWithoutRef<typeof OTPInput>
 >(({ className, containerClassName, ...props }, ref) => (
@@ -22,7 +24,7 @@ const InputOTP = forwardRef<
 ))
 InputOTP.displayName = "InputOTP"
 
-const InputOTPGroup = forwardRef<
+export const InputOTPGroup = forwardRef<
   ElementRef<"div">,
   ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
@@ -30,7 +32,7 @@ const InputOTPGroup = forwardRef<
 ))
 InputOTPGroup.displayName = "InputOTPGroup"
 
-const InputOTPSlot = forwardRef<
+export const InputOTPSlot = forwardRef<
   ElementRef<"div">,
   ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
@@ -58,7 +60,7 @@ const InputOTPSlot = forwardRef<
 })
 InputOTPSlot.displayName = "InputOTPSlot"
 
-const InputOTPSeparator = forwardRef<
+export const InputOTPSeparator = forwardRef<
   ElementRef<"div">,
   ComponentPropsWithoutRef<"div">
 >(({ ...props }, ref) => (
@@ -70,7 +72,7 @@ const InputOTPSeparator = forwardRef<
 ))
 InputOTPSeparator.displayName = "InputOTPSeparator"
 
-interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValues> extends Omit<ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> {
+export interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValues> extends Omit<ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> {
   control: Control<TFieldValues>;
   name: string,
   label?: string,
@@ -79,24 +81,27 @@ interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValues> ext
   labelClassName?: string,
   inputClassName?: string,
   maxLength: number
+  components?: Partial<FieldComponents>
 }
 
-const InputOTPField = forwardRef<
+export const InputOTPField = forwardRef<
   ElementRef<typeof OTPInput>,
   InputOTPFieldProps
->(({ control, name, label, description, className, labelClassName, inputClassName, maxLength, ...props }, ref) => {
+>(({ control, name, label, description, className, labelClassName, inputClassName, maxLength, components, ...props }, ref) => {
   const isEightSlots = maxLength === 8;
-
+  const { formItemId } = useContext(FormItemContext);
   return (
     <FormField
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
-          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
-          <FormControl>
+          {label && <FormLabel Component={components?.FormLabel} className={labelClassName}>{label}</FormLabel>}
+          <FormControl Component={components?.FormControl}>
             <InputOTP
               ref={ref}
+              id={formItemId}
+              aria-describedby={formItemId}
               value={field.value}
               onChange={field.onChange}
               className={inputClassName}
@@ -117,8 +122,8 @@ const InputOTPField = forwardRef<
               </InputOTPGroup>
             </InputOTP>
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
         </FormItem>
       )}
     />
@@ -126,10 +131,3 @@ const InputOTPField = forwardRef<
 })
 InputOTPField.displayName = "InputOTPField"
 
-export {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-  InputOTPField,
-}

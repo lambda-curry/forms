@@ -1,6 +1,6 @@
 import { type InputHTMLAttributes, forwardRef } from 'react';
 import { Input } from './input';
-import { FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField } from './remix-form';
+import { FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField, type FieldComponents } from './form';
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 export interface TextFieldProps<
@@ -11,22 +11,23 @@ export interface TextFieldProps<
   name: TName;
   label?: string;
   description?: string;
+  components?: Partial<FieldComponents>;
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ control, name, label, description, className, ...props }, ref) => {
+  ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
         render={({ field, fieldState }) => (
           <FormItem className={className}>
-            {label && <FormLabel>{label}</FormLabel>}
-            <FormControl>
+            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+            <FormControl Component={components?.FormControl}>
               <Input {...field} {...props} ref={ref} />
             </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
           </FormItem>
         )}
       />
