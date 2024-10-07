@@ -18,10 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 22.7
+            node-version: '22.9.0'
+  
+      - name: Setup Yarn Corepack
+       run: corepack enable
 
       - name: Install dependencies
         run: yarn install
