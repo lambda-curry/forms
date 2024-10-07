@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import type { BoundFunctions, queries } from '@testing-library/dom';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import { expect, userEvent, } from '@storybook/test';
+import type { } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
@@ -16,7 +16,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const INITIAL_USERNAME = 'initialuser';
+const INITIAL_USERNAME = 'initial_user';
 const USERNAME_TAKEN = 'taken';
 const USERNAME_TAKEN_ERROR = 'This username is already taken';
 
@@ -92,13 +92,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-
-const testDefaultValues = (canvas: BoundFunctions<typeof queries>) => {
+const testDefaultValues = ({ canvas }: StoryContext) => {
   const input = canvas.getByLabelText('Username');
   expect(input).toHaveValue(INITIAL_USERNAME);
 };
 
-const testInvalidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -111,7 +110,7 @@ const testInvalidSubmission = async (canvas: BoundFunctions<typeof queries>) => 
   await expect(await canvas.findByText('Username must be at least 3 characters')).toBeInTheDocument();
 };
 
-const testUsernameTaken = async (canvas: BoundFunctions<typeof queries>) => {
+const testUsernameTaken = async ({ canvas }: StoryContext) => {
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -127,14 +126,14 @@ const testUsernameTaken = async (canvas: BoundFunctions<typeof queries>) => {
   await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
 
-const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+const testValidSubmission = async ({ canvas }: StoryContext) => {
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
   // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
   await userEvent.click(input);
   await userEvent.clear(input);
-  await userEvent.type(input, 'validusername');
+  await userEvent.type(input, 'valid_username');
   await userEvent.click(submitButton);
 
   await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
@@ -142,11 +141,10 @@ const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
 
 // Stories
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testInvalidSubmission(canvas);
-    await testUsernameTaken(canvas);
-    await testValidSubmission(canvas);
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testUsernameTaken(storyContext);
+    await testValidSubmission(storyContext);
   },
 };

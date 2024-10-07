@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import type { BoundFunctions, queries } from '@testing-library/dom';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import { expect, userEvent, } from '@storybook/test';
+import type { } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
@@ -80,7 +80,7 @@ const meta: Meta<typeof RemixCheckbox> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = (canvas: BoundFunctions<typeof queries>) => {
+const testDefaultValues = ({ canvas }: StoryContext) => {
   const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
   const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
   const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
@@ -89,14 +89,14 @@ const testDefaultValues = (canvas: BoundFunctions<typeof queries>) => {
   expect(requiredCheckbox).not.toBeChecked();
 };
 
-const testInvalidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
   await expect(await canvas.findByText('You must accept the terms and conditions')).toBeInTheDocument();
   await expect(await canvas.findByText('This field is required')).toBeInTheDocument();
 };
 
-const testValidSubmission = async (canvas: BoundFunctions<typeof queries>) => {
+const testValidSubmission = async ({ canvas }: StoryContext) => {
   const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
   const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
   await userEvent.click(termsCheckbox);
@@ -153,10 +153,9 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testInvalidSubmission(canvas);
-    await testValidSubmission(canvas);
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testValidSubmission(storyContext);
   },
 };

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, within, } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -86,26 +86,34 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-const testDefaultValues = (canvasElement: HTMLElement) => {
+export const Default: Story = {
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testColorSelection(storyContext);
+    await testValidSubmission(storyContext);
+  },
+};
+
+// Update the test functions to accept storyContext
+const testDefaultValues = ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
   const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
   expect(dropdownButton).toHaveTextContent('Select an option');
 };
 
-const testInvalidSubmission = async (canvasElement: HTMLElement) => {
+const testInvalidSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
   await expect(canvas.findByText('Please select a color')).resolves.toBeInTheDocument();
 };
 
-
-const testColorSelection = async (canvasElement: HTMLElement) => {
+const testColorSelection = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
   const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
   await userEvent.click(dropdownButton);
 
-  // Note: the using the parent container here allows us to find the dropdown menu that is a portal at the bottom of our document
   const parentContainer = within(canvasElement.parentNode as HTMLElement);
 
   await expect(parentContainer.findByRole('menuitem', { name: 'Green' })).resolves.toBeInTheDocument();
@@ -116,36 +124,19 @@ const testColorSelection = async (canvasElement: HTMLElement) => {
   expect(dropdownButton).toHaveTextContent('Green');
 };
 
-
-const testValidSubmission = async (canvasElement: HTMLElement) => {
+const testValidSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
-
-  // Note: I believe hidden needs to be true now since the portal is open, the test runner doesn't think these buttons are accessible
   const dropdownButton = canvas.getByRole('button', { name: 'Green', hidden: true });
   await userEvent.click(dropdownButton);
 
-
   const parentContainer = within(canvasElement.parentNode as HTMLElement);
-
 
   const blueOption = parentContainer.getByRole('menuitem', { name: 'Blue' });
   await userEvent.click(blueOption);
 
-  // Note: I believe hidden needs to be true now since the portal is open, the test runner doesn't think these buttons are accessible
   const submitButton = canvas.getByRole('button', { name: 'Submit', hidden: true });
   await userEvent.click(submitButton);
 
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
-};
-
-// Stories
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-
-    testDefaultValues(canvasElement);
-    await testInvalidSubmission(canvasElement);
-    await testColorSelection(canvasElement);
-    await testValidSubmission(canvasElement);
-  },
 };

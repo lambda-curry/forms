@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -78,7 +78,15 @@ const meta: Meta<typeof RemixInputOTPField> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testIncompleteSubmission = async (canvasElement: HTMLElement) => {
+export const Default: Story = {
+  play: async (storyContext) => {
+    await testIncompleteSubmission(storyContext);
+    await testSubmission(storyContext);
+  },
+};
+
+// Update the test functions to accept storyContext
+const testIncompleteSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   const input = canvasElement.querySelector('input');
@@ -87,20 +95,11 @@ const testIncompleteSubmission = async (canvasElement: HTMLElement) => {
   await expect(canvas.findByText('Please enter a 6-digit code')).resolves.toBeInTheDocument();
 };
 
-
-const testSubmission = async (canvasElement: HTMLElement) => {
+const testSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   const input = canvasElement.querySelector('input');
   await userEvent.type(input as HTMLInputElement, '123456');
   await userEvent.click(submitButton);
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
-};
-
-
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    await testIncompleteSubmission(canvasElement);
-    await testSubmission(canvasElement);
-  },
 };

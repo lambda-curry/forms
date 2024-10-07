@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, waitFor, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -77,12 +77,12 @@ const meta: Meta<typeof RemixDatePicker> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = (canvas: ReturnType<typeof within>) => {
+const testDefaultValues = ({ canvas }: StoryContext) => {
   const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
   expect(datePickerButton).toHaveTextContent('Event Date');
 };
 
-const testDateSelection = async (canvas: ReturnType<typeof within>) => {
+const testDateSelection = async ({ canvas }: StoryContext) => {
   const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
   await userEvent.click(datePickerButton);
 
@@ -105,7 +105,7 @@ const testDateSelection = async (canvas: ReturnType<typeof within>) => {
   });
 };
 
-const testSubmission = async (canvas: ReturnType<typeof within>) => {
+const testSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
 
@@ -114,10 +114,11 @@ const testSubmission = async (canvas: ReturnType<typeof within>) => {
 
 // Stories
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async (storyContext) => {
+    const { canvasElement } = storyContext;
     const canvas = within(canvasElement);
-    testDefaultValues(canvas);
-    await testDateSelection(canvas);
-    await testSubmission(canvas);
+    testDefaultValues(storyContext);
+    await testDateSelection(storyContext);
+    await testSubmission(storyContext);
   },
 };

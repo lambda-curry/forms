@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import { expect, userEvent, } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
@@ -92,13 +92,13 @@ const meta: Meta<typeof RemixRadioGroupField> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testRadioGroupSelection = async (canvas: ReturnType<typeof within>) => {
+const testRadioGroupSelection = async ({ canvas }: StoryContext) => {
   const proRadio = canvas.getByLabelText('Pro');
   await userEvent.click(proRadio);
   expect(proRadio).toBeChecked();
 };
 
-const testSubmission = async (canvas: ReturnType<typeof within>) => {
+const testSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
 
@@ -106,9 +106,8 @@ const testSubmission = async (canvas: ReturnType<typeof within>) => {
 };
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await testRadioGroupSelection(canvas);
-    await testSubmission(canvas);
+  play: async (storyContext) => {
+    await testRadioGroupSelection(storyContext);
+    await testSubmission(storyContext);
   },
 };
