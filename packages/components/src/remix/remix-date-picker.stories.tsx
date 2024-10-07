@@ -113,10 +113,8 @@ const testSubmission = async ({ canvas }: StoryContext) => {
 };
 
 // Stories
-export const Default: Story = {
+export const Tests: Story = {
   play: async (storyContext) => {
-    const { canvasElement } = storyContext;
-    const canvas = within(canvasElement);
     testDefaultValues(storyContext);
     await testDateSelection(storyContext);
     await testSubmission(storyContext);

@@ -140,7 +140,7 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
 };
 
 // Stories
-export const Default: Story = {
+export const Tests: Story = {
   play: async (storyContext) => {
     testDefaultValues(storyContext);
     await testInvalidSubmission(storyContext);

@@ -105,7 +105,7 @@ const testSubmission = async ({ canvas }: StoryContext) => {
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
 };
 
-export const Default: Story = {
+export const Tests: Story = {
   play: async (storyContext) => {
     await testRadioGroupSelection(storyContext);
     await testSubmission(storyContext);

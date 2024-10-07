@@ -78,13 +78,6 @@ const meta: Meta<typeof RemixInputOTPField> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async (storyContext) => {
-    await testIncompleteSubmission(storyContext);
-    await testSubmission(storyContext);
-  },
-};
-
 // Update the test functions to accept storyContext
 const testIncompleteSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
@@ -102,4 +95,11 @@ const testSubmission = async ({ canvasElement }: StoryContext) => {
   await userEvent.type(input as HTMLInputElement, '123456');
   await userEvent.click(submitButton);
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+};
+
+export const Tests: Story = {
+  play: async (storyContext) => {
+    await testIncompleteSubmission(storyContext);
+    await testSubmission(storyContext);
+  },
 };

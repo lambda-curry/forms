@@ -85,15 +85,7 @@ const meta: Meta<typeof RemixDropdownMenuSelect> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Test scenarios
-export const Default: Story = {
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testInvalidSubmission(storyContext);
-    await testColorSelection(storyContext);
-    await testValidSubmission(storyContext);
-  },
-};
+
 
 // Update the test functions to accept storyContext
 const testDefaultValues = ({ canvasElement }: StoryContext) => {
@@ -139,4 +131,14 @@ const testValidSubmission = async ({ canvasElement }: StoryContext) => {
   await userEvent.click(submitButton);
 
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+};
+
+// Test scenarios
+export const Tests: Story = {
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testColorSelection(storyContext);
+    await testValidSubmission(storyContext);
+  },
 };

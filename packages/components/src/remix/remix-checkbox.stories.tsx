@@ -108,7 +108,7 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
 };
 
-export const Default: Story = {
+export const Tests: Story = {
   parameters: {
     docs: {
       description: {

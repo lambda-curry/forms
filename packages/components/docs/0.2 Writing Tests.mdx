@@ -24,7 +24,7 @@ export default meta;
 
 type Story = StoryObj<typeof TextField>;
 
-export const Default: Story = {};
+export const Tests: Story = {};
 ```
 
 ### Write Test Scenarios
@@ -61,7 +61,7 @@ Use the `play` function in your Storybook story to execute the test scenarios. T
 Example:
 
 ```typescript
-export const Default: Story = {
+export const Tests: Story = {
   play: async (storyContext) => {
     await testValidSubmission(storyContext);
     await testInvalidSubmission(storyContext);
