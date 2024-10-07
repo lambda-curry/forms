@@ -57,6 +57,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
                 </PopoverContent>
               </Popover>
             </FormControl>
+
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
           </FormItem>

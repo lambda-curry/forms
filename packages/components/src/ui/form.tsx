@@ -35,14 +35,12 @@ export interface FormItemProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(
-  ({ Component, ...props }, ref) => {
+  ({ Component, className, ...props }, ref) => {
     const id = useId();
 
     if (Component) {
       return <Component id={id} {...props} />;
     }
-
-    const { className } = props;
 
     return (
       <FormItemContext.Provider value={{ id, formItemId: `${id}-form-item`, formDescriptionId: `${id}-form-item-description`, formMessageId: `${id}-form-item-message` }}>
@@ -61,7 +59,7 @@ export interface FormLabelProps extends ComponentPropsWithoutRef<typeof LabelPri
 export const FormLabel = forwardRef<
   ElementRef<typeof LabelPrimitive.Root>,
   FormLabelProps
->(({ Component, htmlFor, ...props }, ref) => {
+>(({ Component, htmlFor, className, ...props }, ref) => {
 
   const { formItemId } = useContext(FormItemContext);
 
@@ -69,7 +67,7 @@ export const FormLabel = forwardRef<
     return <Component {...props} />;
   }
 
-  const { className, error } = props;
+  const { error } = props;
 
   return <Label ref={ref} htmlFor={htmlFor || formItemId} className={cn(error && 'text-destructive', className)} {...props} />;
 });
@@ -118,12 +116,12 @@ export interface FormDescriptionProps extends HTMLAttributes<HTMLParagraphElemen
 export const FormDescription = forwardRef<
   HTMLParagraphElement,
   FormDescriptionProps
->(({ Component, ...props }, ref) => {
+>(({ Component, className, ...props }, ref) => {
   if (Component) {
     return <Component {...props} />;
   }
 
-  const { formDescriptionId, className } = props;
+  const { formDescriptionId } = props;
 
   return (
     <p
@@ -145,13 +143,13 @@ export interface FormMessageProps extends HTMLAttributes<HTMLParagraphElement> {
 export const FormMessage = forwardRef<
   HTMLParagraphElement,
   FormMessageProps
->(({ Component, ...props }, ref) => {
+>(({ Component, className, ...props }, ref) => {
 
   if (Component) {
     return <Component {...props} />;
   }
 
-  const { formMessageId, className, error, children } = props;
+  const { formMessageId, error, children } = props;
 
 
   const body = error ? error : children;
