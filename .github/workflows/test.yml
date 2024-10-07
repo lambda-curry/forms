@@ -1,0 +1,54 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.7
+
+      - name: Install dependencies
+        run: yarn install
+
+      - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Build Storybook
+        run: yarn workspace @lambdacurry/ui build-storybook
+
+      - name: Start Storybook server
+        run: yarn workspace @lambdacurry/ui storybook --ci --port 6006 &
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Wait for Storybook to be ready
+        run: npx wait-on http://localhost:6006
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-failure
+          path: packages/components/storybook-static
+          retention-days: 2
