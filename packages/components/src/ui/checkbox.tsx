@@ -21,7 +21,7 @@ export interface CheckboxProps<
 const Checkbox = forwardRef<
   ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
->(({ control, name, className, label, description, id, components, ...props }, ref) => (
+>(({ control, name, className, label, description, components, ...props }, ref) => (
   <FormField
     control={control}
     name={name}
