@@ -7,9 +7,9 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "yarn dev",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "storybook": "yarn workspace @lambdacurry/forms storybook",
     "build-storybook": "turbo run build-storybook",
     "test": "turbo run test",
     "clean": "find . -name '.turbo' -type d -prune -exec rm -rf {} + && find . -name 'node_modules' -type d -prune -exec rm -rf {} + && find . -name 'yarn.lock' -type f -delete",

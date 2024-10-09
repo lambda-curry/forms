@@ -8,7 +8,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --apply .",
     "type-check": "tsc --noEmit",
-    "storybook": "storybook dev -p 6006",
+    "dev": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "test-storybook"
   },
