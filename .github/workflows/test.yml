@@ -43,7 +43,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Wait for Storybook to be ready
-        run: npx wait-on http://localhost:6007
+        run: npx wait-on http://localhost:6006
 
       - name: Run tests
         run: yarn test
