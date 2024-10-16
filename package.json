@@ -15,7 +15,7 @@
     "clean": "find . -name '.turbo' -type d -prune -exec rm -rf {} + && find . -name 'node_modules' -type d -prune -exec rm -rf {} + && find . -name 'yarn.lock' -type f -delete",
     "format-and-lint": "biome check .",
     "format-and-lint:fix": "biome check . --write",
-    "release": "turbo run build --filter=@lambdacurry/forms-docs && changeset publish"
+    "release": "turbo run build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.1",
