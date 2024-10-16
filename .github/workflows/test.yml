@@ -38,7 +38,7 @@ jobs:
         run: yarn build-storybook
 
       - name: Start Storybook server
-        run: yarn workspace @lambdacurry/forms-docs storybook --ci --port 6007 &
+        run: yarn workspace @lambdacurry/forms-docs storybook --ci --port 6006 &
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
