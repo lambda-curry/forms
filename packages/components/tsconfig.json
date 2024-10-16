@@ -6,6 +6,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["lib", "src"],
+  "include": ["lib", "src", "../../apps/docs/src/lib/storybook"],
   "exclude": ["dist", "build", "node_modules"]
 }

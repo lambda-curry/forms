@@ -6,9 +6,9 @@ import { expect, userEvent, within } from '@storybook/test';
 import type { } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { RemixSwitch } from './remix-switch';
-import { Button } from '../ui/button';
+import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { RemixSwitch } from '@lambdacurry/forms/remix/remix-switch';
+import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   notifications: z.boolean().default(false),

@@ -6,9 +6,9 @@ import { expect, userEvent, } from '@storybook/test';
 import type { } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { RemixTextField } from './remix-text-field';
-import { Button } from '../ui/button';
+import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { RemixTextField } from '@lambdacurry/forms/remix/remix-text-field';
+import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),

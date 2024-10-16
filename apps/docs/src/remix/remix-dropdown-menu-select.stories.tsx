@@ -5,10 +5,10 @@ import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, within, } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { Button } from '../ui/button';
-import { DropdownMenuItem } from '../ui/dropdown-menu';
-import { RemixDropdownMenuSelect } from './remix-dropdown-menu-select';
+import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { Button } from '@lambdacurry/forms/ui/button';
+import { DropdownMenuItem } from '@lambdacurry/forms/ui/dropdown-menu';
+import { RemixDropdownMenuSelect } from '@lambdacurry/forms/remix/remix-dropdown-menu-select';
 
 // Form schema definition
 const formSchema = z.object({

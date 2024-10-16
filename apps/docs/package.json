@@ -1,0 +1,41 @@
+{
+  "name": "@lambdacurry/forms-docs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build",
+    "build-storybook": "storybook build",
+    "test": "test-storybook"
+  },
+  "dependencies": {
+    "@lambdacurry/forms": "*",
+    "@storybook/addon-essentials": "^8.3.0",
+    "@storybook/addon-interactions": "^8.3.0",
+    "@storybook/addon-links": "^8.3.0",
+    "@storybook/blocks": "^8.3.0",
+    "@storybook/react": "^8.3.0",
+    "@storybook/react-vite": "^8.3.0",
+    "@storybook/test": "^8.3.0",
+    "storybook": "^8.3.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^2.0.2",
+    "@remix-run/dev": "^2.12.0",
+    "@remix-run/testing": "^2.12.0",
+    "@storybook/test-runner": "^0.19.1",
+    "@storybook/testing-library": "^0.2.2",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "react": "^18.2.0",
+    "storybook-addon-remix-react-router": "^3.0.0",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.1.6",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
+  }
+}

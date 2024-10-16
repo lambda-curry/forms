@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@lambdacurry/forms/*": ["../../packages/components/src/*"],
+      "@lambdacurry/forms/lib/*": ["../../packages/components/lib/*"]
+    }
+  },
+  "include": ["lib", "src"],
+  "exclude": ["dist", "build", "node_modules"]
+}

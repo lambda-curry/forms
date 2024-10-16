@@ -2,25 +2,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher, Form } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
+import { expect, userEvent, } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { RemixDatePicker } from './remix-date-picker';
-import { Button } from '../ui/button';
+import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { Button } from '@lambdacurry/forms/ui/button';
+import { RemixRadioGroupField } from '@lambdacurry/forms/remix/remix-radio-group';
+import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 
 const formSchema = z.object({
-  eventDate: z.coerce.date()
+  plan: z.enum(['starter', 'pro', 'enterprise'], {
+    required_error: "You need to select a plan",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixDatePickerExample = () => {
+const RemixRadioGroupExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      eventDate: undefined,
+      plan: undefined,
     },
     fetcher,
   });
@@ -28,11 +31,25 @@ const RemixDatePickerExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <RemixDatePicker
-          name="eventDate"
-          label="Event Date"
-          description="Choose the date for your event."
-        />
+        <RemixRadioGroupField
+          name="plan"
+          label="Select a plan"
+          description="Choose the plan that best fits your needs."
+          className="space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="starter" id="starter" />
+            <label htmlFor="starter">Starter</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="pro" id="pro" />
+            <label htmlFor="pro">Pro</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="enterprise" id="enterprise" />
+            <label htmlFor="enterprise">Enterprise</label>
+          </div>
+        </RemixRadioGroupField>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -42,7 +59,6 @@ const RemixDatePickerExample = () => {
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
   const {
     errors,
@@ -57,52 +73,29 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Form submitted successfully' };
 };
 
-// Storybook configuration
-const meta: Meta<typeof RemixDatePicker> = {
-  title: 'Remix/RemixDatePicker',
-  component: RemixDatePicker,
+const meta: Meta<typeof RemixRadioGroupField> = {
+  title: 'Remix/RemixRadioGroupField',
+  component: RemixRadioGroupField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator([
       {
         path: '/',
-        Component: RemixDatePickerExample,
+        Component: RemixRadioGroupExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     ]),
   ],
-} satisfies Meta<typeof RemixDatePicker>;
+} satisfies Meta<typeof RemixRadioGroupField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  expect(datePickerButton).toHaveTextContent('Event Date');
-};
-
-const testDateSelection = async ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  await userEvent.click(datePickerButton);
-
-  await waitFor(async () => {
-    const popover = document.querySelector('[role="dialog"]');
-    expect(popover).not.toBeNull();
-
-    if (popover) {
-      const calendar = within(popover as HTMLElement).getByRole('grid');
-      expect(calendar).toBeInTheDocument();
-
-      const dateCell = within(calendar).getByRole('gridcell', { name: '15' });
-      await userEvent.click(dateCell);
-    }
-  });
-
-  await waitFor(() => {
-    const updatedDatePickerButton = canvas.getByRole('button', { name: /15/ });
-    expect(updatedDatePickerButton).toBeInTheDocument();
-  });
+const testRadioGroupSelection = async ({ canvas }: StoryContext) => {
+  const proRadio = canvas.getByLabelText('Pro');
+  await userEvent.click(proRadio);
+  expect(proRadio).toBeChecked();
 };
 
 const testSubmission = async ({ canvas }: StoryContext) => {
@@ -112,11 +105,9 @@ const testSubmission = async ({ canvas }: StoryContext) => {
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
 };
 
-// Stories
 export const Tests: Story = {
   play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testDateSelection(storyContext);
+    await testRadioGroupSelection(storyContext);
     await testSubmission(storyContext);
   },
 };

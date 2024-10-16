@@ -6,9 +6,9 @@ import { expect, userEvent, } from '@storybook/test';
 import type { } from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../../lib/storybook/remix-stub';
-import { RemixCheckbox } from './remix-checkbox';
-import { Button } from '../ui/button';
+import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   terms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),

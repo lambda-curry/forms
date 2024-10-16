@@ -6,7 +6,7 @@ import type {
   UseFormRegister,
 } from 'react-hook-form';
 import { useRemixFormContext } from 'remix-hook-form';
-import { FormLabel, FormControl, FormDescription, FormMessage, FormFieldContext, FormItemContext } from '@/src/ui/form';
+import { FormLabel, FormControl, FormDescription, FormMessage, FormFieldContext, FormItemContext } from '../ui/form';
 import type { BaseSyntheticEvent, ComponentPropsWithoutRef, } from 'react';
 
 export interface RemixFormProviderProps<T extends FieldValues>
