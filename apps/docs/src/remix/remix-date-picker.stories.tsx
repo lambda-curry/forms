@@ -94,7 +94,8 @@ const testDateSelection = async ({ canvas }: StoryContext) => {
       const calendar = within(popover as HTMLElement).getByRole('grid');
       expect(calendar).toBeInTheDocument();
 
-      const dateCell = within(calendar).getByRole('gridcell', { name: '15' });
+      const dateCell = within(calendar).getByText('15');
+      expect(dateCell).toBeInTheDocument();
       await userEvent.click(dateCell);
     }
   });
