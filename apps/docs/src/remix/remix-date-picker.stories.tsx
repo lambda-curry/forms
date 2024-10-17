@@ -99,8 +99,9 @@ const testDateSelection = async ({ canvas }: StoryContext) => {
     }
   });
 
+  const dateToSelect = '15';
   await waitFor(() => {
-    const updatedDatePickerButton = canvas.getByRole('button', { name: /15/ });
+    const updatedDatePickerButton = canvas.getByRole('button', { name: new RegExp(dateToSelect, 'i') });
     expect(updatedDatePickerButton).toBeInTheDocument();
   });
 };
