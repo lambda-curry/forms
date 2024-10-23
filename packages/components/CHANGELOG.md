@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.2.0
+
+### Minor Changes
+
+- fc92a34: Fixed import errors
+
 ## 0.1.0
 
 ### Minor Changes
