@@ -1,16 +1,24 @@
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { forwardRef } from "react";
-import { cn } from "@/lib/utils";
-import { Calendar } from "./calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { forwardRef } from 'react';
+import { cn } from '../../lib/utils';
+import { Calendar } from './calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Button } from './button';
-import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form";
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import {
+  type FieldComponents,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 export interface DatePickerProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
   control?: Control<TFieldValues>;
   name: TName;
@@ -30,7 +38,11 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
         name={name}
         render={({ field, fieldState }) => (
           <FormItem className={className}>
-            {label && <FormLabel Component={components?.FormLabel} className={labelClassName}>{label}</FormLabel>}
+            {label && (
+              <FormLabel Component={components?.FormLabel} className={labelClassName}>
+                {label}
+              </FormLabel>
+            )}
             <FormControl Component={components?.FormControl}>
               <Popover>
                 <PopoverTrigger asChild>
@@ -38,32 +50,30 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
                     ref={ref}
                     variant="outline"
                     className={cn(
-                      "w-[280px] justify-start text-left font-normal",
-                      !field.value && "text-muted-foreground",
-                      buttonClassName
+                      'w-[280px] justify-start text-left font-normal',
+                      !field.value && 'text-muted-foreground',
+                      buttonClassName,
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? format(field.value, "PPP") : <span>{label || "Pick a date"}</span>}
+                    {field.value ? format(field.value, 'PPP') : <span>{label || 'Pick a date'}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                  />
+                  <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
                 </PopoverContent>
               </Popover>
             </FormControl>
 
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
+            {fieldState.error && (
+              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+            )}
           </FormItem>
         )}
       />
     );
-  }
+  },
 );
 
-DatePicker.displayName = "DatePicker";
+DatePicker.displayName = 'DatePicker';
