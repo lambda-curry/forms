@@ -1,5 +1,12 @@
 # @lambdacurry/forms
 
+## 0.3.0
+
+### Minor Changes
+
+- e8e0429: fix: Corrected file exports
+- a39e4b1: Removed component that is not needed
+
 ## 0.2.0
 
 ### Minor Changes
