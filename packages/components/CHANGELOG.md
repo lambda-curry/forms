@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.4.0
+
+### Minor Changes
+
+- 9150b21: Added ShadCn Textarea
+
 ## 0.3.0
 
 ### Minor Changes
