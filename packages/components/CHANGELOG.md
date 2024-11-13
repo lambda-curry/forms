@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.6.0
+
+### Minor Changes
+
+- 7a02de0: Fixed Textarea by using relative import
+
 ## 0.5.0
 
 ### Minor Changes
