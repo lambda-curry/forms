@@ -17,6 +17,7 @@
     "./popover": "./src/ui/popover.tsx",
     "./radio-group": "./src/ui/radio-group.tsx",
     "./switch": "./src/ui/switch.tsx",
+    "./textarea": "./src/ui/textarea.tsx",
     "./text-field": "./src/ui/text-field.tsx",
     "./remix-checkbox": "./src/remix/remix-checkbox.tsx",
     "./remix-date-picker": "./src/remix/remix-date-picker.tsx",
