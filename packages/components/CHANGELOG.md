@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.5.0
+
+### Minor Changes
+
+- 9cba1b3: Updated export for Textarea
+
 ## 0.4.0
 
 ### Minor Changes
