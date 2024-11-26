@@ -128,17 +128,11 @@ const testBlockedContent = async ({ canvasElement }: { canvasElement: HTMLElemen
   // Submit and wait for response
   await userEvent.click(submitButton);
 
-  // Debug the form submission
-  console.log('Form submitted with blocked content');
-
   // Wait for any state updates
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  console.log('After submission DOM:', canvasElement.innerHTML);
-
   // Check if the error is in the DOM
-  const errorElements = canvas.queryAllByText((content, element) => {
-    console.log('Found element with content:', content);
+  const errorElements = canvas.queryAllByText((content) => {
     return content.includes(BLOCKED_CONTENT_ERROR);
   });
 
