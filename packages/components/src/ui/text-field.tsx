@@ -28,22 +28,18 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
       <FormField
         control={control}
         name={name}
-        render={({ field, fieldState }) => {
-          console.log('field', field);
-          console.log('props', props);
-          return (
-            <FormItem className={className} ref={ref}>
-              {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-              <FormControl Component={components?.FormControl}>
-                <Input {...field} {...props} ref={field.ref} />
-              </FormControl>
-              {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-              {fieldState.error && (
-                <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-              )}
-            </FormItem>
-          );
-        }}
+        render={({ field, fieldState }) => (
+          <FormItem className={className} ref={ref}>
+            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+            <FormControl Component={components?.FormControl}>
+              <Input {...field} {...props} ref={field.ref} />
+            </FormControl>
+            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+            {fieldState.error && (
+              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+            )}
+          </FormItem>
+        )}
       />
     );
   },
