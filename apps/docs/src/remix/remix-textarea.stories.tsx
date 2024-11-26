@@ -37,9 +37,6 @@ const ControlledTextareaExample = () => {
           Submit
         </Button>
         {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
-        {methods.formState.errors.comment && (
-          <p className="mt-2 text-red-600">{methods.formState.errors.comment.message}</p>
-        )}
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -108,6 +105,9 @@ const testInvalidSubmission = async ({ canvasElement }: { canvasElement: HTMLEle
   await userEvent.type(textarea, 'short');
   await userEvent.click(submitButton);
 
+  // Wait for any state updates
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
   expect(canvas.getByText((content) => content.includes('Comment must be at least 10 characters'))).toBeInTheDocument();
 };
 
@@ -148,6 +148,9 @@ const testValidSubmission = async ({ canvasElement }: { canvasElement: HTMLEleme
   await userEvent.clear(textarea);
   await userEvent.type(textarea, 'This is a valid comment that is long enough');
   await userEvent.click(submitButton);
+
+  // Wait for any state updates
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Check for success message
   await expect(canvas.getByText('Comment submitted successfully')).toBeInTheDocument();
