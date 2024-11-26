@@ -29,6 +29,7 @@
     "./remix-label": "./src/remix/remix-label.tsx",
     "./remix-radio-group": "./src/remix/remix-radio-group.tsx",
     "./remix-switch": "./src/remix/remix-switch.tsx",
+    "./remix-textarea": "./src/remix/remix-textarea.tsx",
     "./remix-text-field": "./src/remix/remix-text-field.tsx"
   },
   "scripts": {
