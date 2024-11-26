@@ -51,7 +51,7 @@ const handleFormSubmission = async (request: Request) => {
   } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { defaultValues };
   }
 
   if (data.comment.includes(BLOCKED_CONTENT)) {
