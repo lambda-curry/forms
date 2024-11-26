@@ -14,22 +14,6 @@ export interface TextareaProps<
   components?: Partial<FieldComponents>;
 }
 
-const BaseTextarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <textarea
-        className={cn(
-          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-          className,
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-BaseTextarea.displayName = 'BaseTextarea';
-
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
@@ -40,7 +24,15 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           <FormItem className={className}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
-              <BaseTextarea {...field} {...props} ref={ref} />
+              <textarea
+                className={cn(
+                  'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+                  className,
+                )}
+                {...field}
+                {...props}
+                ref={field.ref}
+              />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
