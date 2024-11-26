@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.7.0
+
+### Minor Changes
+
+- b212565: Added a remix text area
+
 ## 0.6.0
 
 ### Minor Changes
