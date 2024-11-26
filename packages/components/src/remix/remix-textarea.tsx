@@ -1,19 +1,23 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { TextField, type TextFieldProps } from '../ui/text-field';
-import type { FieldComponents } from '../ui/form';
-import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
-
-export type RemixTextareaProps = Omit<TextFieldProps, 'control'>;
+import { Textarea, type TextareaProps } from '../ui/textarea';
+import { FormField, FormItem } from '../ui/form';
+export interface RemixTextareaProps extends Omit<TextareaProps, 'control'> {
+  label?: string;
+  description?: string;
+}
 
 export function RemixTextarea(props: RemixTextareaProps) {
   const { control } = useRemixFormContext();
 
-  const components: Partial<FieldComponents> = {
-    FormControl: RemixFormControl,
-    FormLabel: RemixFormLabel,
-    FormDescription: RemixFormDescription,
-    FormMessage: RemixFormMessage,
-  };
-
-  return <TextField control={control} components={components} {...props} />;
+  return (
+    <FormField
+      control={control}
+      name={props.name ?? ''}
+      render={({ field }) => (
+        <FormItem>
+          <Textarea {...field} {...props} />
+        </FormItem>
+      )}
+    />
+  );
 }
