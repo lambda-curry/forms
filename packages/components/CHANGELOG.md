@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.9.0
+
+### Minor Changes
+
+- 822f1cc: Updated the remix textarea to work correctly
+
 ## 0.8.0
 
 ### Minor Changes
