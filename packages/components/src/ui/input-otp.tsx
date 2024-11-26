@@ -82,7 +82,7 @@ export interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValu
   components?: Partial<FieldComponents>;
 }
 
-export const InputOTPField = forwardRef<ElementRef<typeof OTPInput>, InputOTPFieldProps>(
+export const InputOTPField = forwardRef<HTMLDivElement, InputOTPFieldProps>(
   (
     { control, name, label, description, className, labelClassName, inputClassName, maxLength, components, ...props },
     ref,
@@ -94,7 +94,7 @@ export const InputOTPField = forwardRef<ElementRef<typeof OTPInput>, InputOTPFie
         control={control}
         name={name}
         render={({ field, fieldState }) => (
-          <FormItem className={className}>
+          <FormItem className={className} ref={ref}>
             {label && (
               <FormLabel Component={components?.FormLabel} className={labelClassName}>
                 {label}
@@ -102,7 +102,7 @@ export const InputOTPField = forwardRef<ElementRef<typeof OTPInput>, InputOTPFie
             )}
             <FormControl Component={components?.FormControl}>
               <InputOTP
-                ref={ref}
+                ref={field.ref}
                 id={formItemId}
                 aria-describedby={formItemId}
                 value={field.value}

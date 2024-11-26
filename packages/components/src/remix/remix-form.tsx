@@ -1,13 +1,8 @@
-import { type ReactNode, useContext, forwardRef } from 'react';
-import type {
-  KeepStateOptions,
-  FieldValues,
-  UseFormReturn,
-  UseFormRegister,
-} from 'react-hook-form';
+import { type ReactNode, forwardRef, useContext } from 'react';
+import type { BaseSyntheticEvent, ComponentPropsWithoutRef } from 'react';
+import type { FieldValues, KeepStateOptions, UseFormRegister, UseFormReturn } from 'react-hook-form';
 import { useRemixFormContext } from 'remix-hook-form';
-import { FormLabel, FormControl, FormDescription, FormMessage, FormFieldContext, FormItemContext } from '../ui/form';
-import type { BaseSyntheticEvent, ComponentPropsWithoutRef, } from 'react';
+import { FormControl, FormDescription, FormFieldContext, FormItemContext, FormLabel, FormMessage } from '../ui/form';
 
 export interface RemixFormProviderProps<T extends FieldValues>
   extends Omit<UseFormReturn<T>, 'handleSubmit' | 'reset'> {
@@ -40,36 +35,40 @@ export const useRemixFormField = () => {
   };
 };
 
-
 export const RemixFormLabel = forwardRef<HTMLLabelElement, ComponentPropsWithoutRef<typeof FormLabel>>((props, ref) => (
   <FormLabel ref={ref} {...props} />
 ));
 RemixFormLabel.displayName = 'RemixFormLabel';
 
-export const RemixFormControl = forwardRef<HTMLElement, ComponentPropsWithoutRef<typeof FormControl>>((props, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useRemixFormField();
-  return (
-    <FormControl
-      ref={ref}
-      error={!!error}
-      formItemId={formItemId}
-      formDescriptionId={formDescriptionId}
-      formMessageId={formMessageId}
-      {...props}
-    />
-  );
-});
+export const RemixFormControl = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<typeof FormControl>>(
+  (props, ref) => {
+    const { error, formItemId, formDescriptionId, formMessageId } = useRemixFormField();
+    return (
+      <FormControl
+        ref={ref}
+        error={!!error}
+        formItemId={formItemId}
+        formDescriptionId={formDescriptionId}
+        formMessageId={formMessageId}
+        {...props}
+      />
+    );
+  },
+);
 RemixFormControl.displayName = 'RemixFormControl';
 
-export const RemixFormDescription = forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<typeof FormDescription>>((props, ref) => {
-  const { formDescriptionId } = useRemixFormField();
-  return <FormDescription ref={ref} formDescriptionId={formDescriptionId} {...props} />;
-});
+export const RemixFormDescription = forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<typeof FormDescription>>(
+  (props, ref) => {
+    const { formDescriptionId } = useRemixFormField();
+    return <FormDescription ref={ref} formDescriptionId={formDescriptionId} {...props} />;
+  },
+);
 RemixFormDescription.displayName = 'RemixFormDescription';
 
-export const RemixFormMessage = forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<typeof FormMessage>>((props, ref) => {
-  const { error, formMessageId } = useRemixFormField();
-  return <FormMessage ref={ref} formMessageId={formMessageId} error={error?.message} {...props} />;
-});
+export const RemixFormMessage = forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<typeof FormMessage>>(
+  (props, ref) => {
+    const { error, formMessageId } = useRemixFormField();
+    return <FormMessage ref={ref} formMessageId={formMessageId} error={error?.message} {...props} />;
+  },
+);
 RemixFormMessage.displayName = 'RemixFormMessage';
-

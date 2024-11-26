@@ -30,14 +30,14 @@ export interface DatePickerProps<
   components?: Partial<FieldComponents>;
 }
 
-export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
+export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
   ({ control, name, label, description, className, labelClassName, buttonClassName, components }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
         render={({ field, fieldState }) => (
-          <FormItem className={className}>
+          <FormItem className={className} ref={ref}>
             {label && (
               <FormLabel Component={components?.FormLabel} className={labelClassName}>
                 {label}
@@ -47,7 +47,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    ref={ref}
+                    ref={field.ref}
                     variant="outline"
                     className={cn(
                       'w-[280px] justify-start text-left font-normal',

@@ -14,14 +14,14 @@ export interface TextareaProps<
   components?: Partial<FieldComponents>;
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
         render={({ field, fieldState }) => (
-          <FormItem className={className}>
+          <FormItem className={className} ref={ref}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
               <textarea
