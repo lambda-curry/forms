@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.8.0
+
+### Minor Changes
+
+- 21db17d: Added an export for the remix textarea
+
 ## 0.7.0
 
 ### Minor Changes
