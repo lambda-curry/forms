@@ -60,14 +60,14 @@ const RadioGroupField = forwardRef<ElementRef<typeof RadioGroup>, RadioGroupFiel
       <FormField
         control={control}
         name={name}
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem className={className}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
               <RadioGroup ref={ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            <FormMessage Component={components?.FormMessage} />
+            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
           </FormItem>
         )}
       />
