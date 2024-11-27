@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixTextarea } from '@lambdacurry/forms/remix/remix-textarea';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
@@ -6,8 +8,6 @@ import { expect, userEvent, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { RemixTextarea } from '@lambdacurry/forms/remix/remix-textarea';
-import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   comment: z.string().min(10, 'Comment must be at least 10 characters'),
@@ -37,9 +37,6 @@ const ControlledTextareaExample = () => {
           Submit
         </Button>
         {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
-        {methods.formState.errors.comment && (
-          <p className="mt-2 text-red-600">{methods.formState.errors.comment.message}</p>
-        )}
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -54,7 +51,7 @@ const handleFormSubmission = async (request: Request) => {
   } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { defaultValues };
   }
 
   if (data.comment.includes(BLOCKED_CONTENT)) {
@@ -108,6 +105,9 @@ const testInvalidSubmission = async ({ canvasElement }: { canvasElement: HTMLEle
   await userEvent.type(textarea, 'short');
   await userEvent.click(submitButton);
 
+  // Wait for any state updates
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
   expect(canvas.getByText((content) => content.includes('Comment must be at least 10 characters'))).toBeInTheDocument();
 };
 
@@ -148,6 +148,9 @@ const testValidSubmission = async ({ canvasElement }: { canvasElement: HTMLEleme
   await userEvent.clear(textarea);
   await userEvent.type(textarea, 'This is a valid comment that is long enough');
   await userEvent.click(submitButton);
+
+  // Wait for any state updates
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Check for success message
   await expect(canvas.getByText('Comment submitted successfully')).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef, type ReactNode, forwardRef, type ElementRef } from 'react';
+import { type ComponentPropsWithoutRef, type ReactNode, forwardRef, } from 'react';
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
@@ -26,16 +26,16 @@ export interface CheckboxProps<
   components?: Partial<FieldComponents>;
 }
 
-const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
+const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
   ({ control, name, className, label, description, components, ...props }, ref) => (
     <FormField
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={cn('flex flex-row items-start space-x-3 space-y-0', className)}>
+        <FormItem className={cn('flex flex-row items-start space-x-3 space-y-0', className)} ref={ref}>
           <FormControl Component={components?.FormControl}>
             <CheckboxPrimitive.Root
-              ref={ref}
+              ref={field.ref}
               className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               checked={field.value}
               onCheckedChange={field.onChange}

@@ -54,20 +54,20 @@ export interface RadioGroupFieldProps<
   components?: Partial<FieldComponents>;
 }
 
-const RadioGroupField = forwardRef<ElementRef<typeof RadioGroup>, RadioGroupFieldProps>(
+const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
-        render={({ field }) => (
-          <FormItem className={className}>
+        render={({ field, fieldState }) => (
+          <FormItem className={className} ref={ref}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
-              <RadioGroup ref={ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
+              <RadioGroup ref={field.ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            <FormMessage Component={components?.FormMessage} />
+            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
           </FormItem>
         )}
       />

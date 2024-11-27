@@ -1,24 +1,25 @@
-import { cn } from '../../lib/utils';
-import { Label } from './label';
 import type * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import {
-  createContext,
-  forwardRef,
-  type HTMLAttributes,
-  useId,
-  type ElementRef,
   type ComponentPropsWithoutRef,
   type ComponentType,
+  type ElementRef,
+  type HTMLAttributes,
+  createContext,
+  forwardRef,
   useContext,
+  useId,
 } from 'react';
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { Controller, type ControllerProps, type FieldPath, type FieldValues } from 'react-hook-form';
+import { cn } from '../../lib/utils';
+import { Label } from './label';
 
 export interface FieldComponents {
-  FormControl: typeof FormControl;
-  FormDescription: typeof FormDescription;
-  FormLabel: typeof FormLabel;
-  FormMessage: typeof FormMessage;
+  FormControl: ForwardRefExoticComponent<FormControlProps & RefAttributes<HTMLDivElement>>;
+  FormDescription: ForwardRefExoticComponent<FormDescriptionProps & RefAttributes<HTMLParagraphElement>>;
+  FormLabel: ForwardRefExoticComponent<FormLabelProps & RefAttributes<HTMLLabelElement>>;
+  FormMessage: ForwardRefExoticComponent<FormMessageProps & RefAttributes<HTMLParagraphElement>>;
 }
 
 export type FormFieldContextValue<
@@ -67,18 +68,23 @@ FormItem.displayName = 'FormItem';
 
 export interface FormLabelProps extends ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
   error?: string;
-  Component?: ComponentType<FormLabelProps>;
+  Component?: ForwardRefExoticComponent<FormLabelProps & RefAttributes<HTMLLabelElement>>;
 }
 
 export const FormLabel = forwardRef<ElementRef<typeof LabelPrimitive.Root>, FormLabelProps>(
-  ({ Component, htmlFor, className, ...props }, ref) => {
+  ({ Component, htmlFor, className, error, ...props }, ref) => {
     const { formItemId } = useContext(FormItemContext);
 
     if (Component) {
-      return <Component {...props} />;
+      return (
+        <Component
+          ref={ref}
+          htmlFor={htmlFor || formItemId}
+          className={cn(error && 'text-destructive', className)}
+          {...props}
+        />
+      );
     }
-
-    const { error } = props;
 
     return (
       <Label
@@ -97,40 +103,43 @@ export interface FormControlProps extends ComponentPropsWithoutRef<typeof Slot> 
   formItemId?: string;
   formDescriptionId?: string;
   formMessageId?: string;
-  Component?: ComponentType<FormControlProps>;
+  Component?: ForwardRefExoticComponent<FormControlProps & RefAttributes<HTMLDivElement>>;
 }
 
-export const FormControl = forwardRef<ElementRef<typeof Slot>, FormControlProps>(({ Component, ...props }, ref) => {
+export const FormControl = forwardRef<HTMLDivElement, FormControlProps>(({ Component, ...props }, ref) => {
+  const { formItemId, formDescriptionId, formMessageId, error, ...restProps } = props;
+
+  const ariaProps = {
+    id: formItemId,
+    'aria-describedby': error ? `${formDescriptionId} ${formMessageId}` : formDescriptionId,
+    'aria-invalid': !!error,
+  };
+
   if (Component) {
-    return <Component {...props} />;
+    return <Component {...restProps} {...ariaProps} />;
   }
 
-  const { formItemId, error, formDescriptionId, formMessageId } = props;
-
-  return (
-    <Slot
-      ref={ref}
-      id={formItemId}
-      aria-describedby={error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`}
-      aria-invalid={!!error}
-      {...props}
-    />
-  );
+  return <Slot ref={ref} {...restProps} {...ariaProps} />;
 });
 FormControl.displayName = 'FormControl';
 
 export interface FormDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
   formDescriptionId?: string;
-  Component?: ComponentType<FormDescriptionProps>;
+  Component?: ForwardRefExoticComponent<FormDescriptionProps & RefAttributes<HTMLParagraphElement>>;
 }
 
 export const FormDescription = forwardRef<HTMLParagraphElement, FormDescriptionProps>(
-  ({ Component, className, ...props }, ref) => {
+  ({ Component, className, formDescriptionId, ...props }, ref) => {
     if (Component) {
-      return <Component {...props} />;
+      return (
+        <Component
+          ref={ref}
+          id={formDescriptionId}
+          className={cn('text-sm text-muted-foreground', className)}
+          {...props}
+        />
+      );
     }
-
-    const { formDescriptionId } = props;
 
     return <p ref={ref} id={formDescriptionId} className={cn('text-sm text-muted-foreground', className)} {...props} />;
   },
@@ -140,16 +149,16 @@ FormDescription.displayName = 'FormDescription';
 export interface FormMessageProps extends HTMLAttributes<HTMLParagraphElement> {
   formMessageId?: string;
   error?: string;
-  Component?: ComponentType<FormMessageProps>;
+  Component?: ForwardRefExoticComponent<FormMessageProps & RefAttributes<HTMLParagraphElement>>;
 }
 
 export const FormMessage = forwardRef<HTMLParagraphElement, FormMessageProps>(
   ({ Component, className, ...props }, ref) => {
-    if (Component) {
-      return <Component {...props} />;
-    }
-
     const { formMessageId, error, children } = props;
+
+    if (Component) {
+      return <Component ref={ref} id={formMessageId} className={className} {...props} />;
+    }
 
     const body = error ? error : children;
 
@@ -158,7 +167,12 @@ export const FormMessage = forwardRef<HTMLParagraphElement, FormMessageProps>(
     }
 
     return (
-      <p ref={ref} id={formMessageId} className={cn('text-sm font-medium text-destructive', className)} {...props}>
+      <p
+        ref={ref}
+        id={formMessageId}
+        className={cn('form-message text-sm font-medium text-destructive', className)}
+        {...props}
+      >
         {body}
       </p>
     );
