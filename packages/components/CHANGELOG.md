@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.10.0
+
+### Minor Changes
+
+- 19b0854: Added remix textarea story and fixes a react error
+
 ## 0.9.0
 
 ### Minor Changes
