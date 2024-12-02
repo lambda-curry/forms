@@ -1,7 +1,7 @@
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef, type HTMLAttributes } from 'react';
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes, forwardRef } from 'react';
 
 import { cn } from '../../lib/utils';
 

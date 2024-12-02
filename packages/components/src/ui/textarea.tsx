@@ -1,11 +1,19 @@
 import { type TextareaHTMLAttributes, forwardRef } from 'react';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
-import { FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField, type FieldComponents } from './form';
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import {
+  type FieldComponents,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './form';
 
 export interface TextareaProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'name'> {
   control?: Control<TFieldValues>;
   name: TName;
@@ -35,7 +43,9 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
               />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
+            {fieldState.error && (
+              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+            )}
           </FormItem>
         )}
       />
