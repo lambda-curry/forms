@@ -1,6 +1,8 @@
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
 import {
   type FieldComponents,
@@ -11,8 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react';
 
 const RadioGroup = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -67,7 +67,9 @@ const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
               <RadioGroup ref={field.ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>}
+            {fieldState.error && (
+              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+            )}
           </FormItem>
         )}
       />

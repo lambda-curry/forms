@@ -1,9 +1,9 @@
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as SwitchPrimitives from '@radix-ui/react-switch';
+import { type ComponentPropsWithoutRef, type ReactNode, forwardRef } from 'react';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
 import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 export interface SwitchProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -23,7 +23,10 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn('flex flex-row items-center justify-between rounded-lg border p-4', className)} ref={ref}>
+        <FormItem
+          className={cn('flex flex-row items-center justify-between rounded-lg border p-4', className)}
+          ref={ref}
+        >
           <div className="space-y-0.5">
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
