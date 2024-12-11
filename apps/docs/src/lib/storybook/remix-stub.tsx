@@ -1,7 +1,7 @@
 import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
 import { createRemixStub } from '@remix-run/testing';
 import type { Decorator } from '@storybook/react';
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import type { IndexRouteObject, NonIndexRouteObject } from 'react-router-dom';
 
 export type StubRouteObject = StubIndexRouteObject | StubNonIndexRouteObject;
@@ -47,8 +47,14 @@ interface RemixStubOptions {
 }
 
 export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorator => {
-  return () => {
+  return (Story) => {
     const { root, routes = [] } = options;
+
+    // Map routes to include Story component as fallback if no Component provided
+    const mappedRoutes = routes.map((route) => ({
+      ...route,
+      Component: route.Component ? route.Component : () => <Story />,
+    }));
 
     // Default root configuration that wraps everything
     const rootRoute: StubRouteObject = {
@@ -56,13 +62,11 @@ export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorato
       path: '/',
       ...root,
       // Ensure root has a default action that returns null if none provided
-      Component: root?.Component
-        ? root.Component
-        : ({ children }: { children: ReactNode }) => <div style={{ margin: '3em' }}>{children}</div>,
-      // Make all other routes children of root
+      Component: root?.Component ? root.Component : () => <Story />,
+      // Make all mapped routes children of root
       children:
-        routes.length > 0
-          ? routes.map((route) => ({
+        mappedRoutes.length > 0
+          ? mappedRoutes.map((route) => ({
               action: () => null,
               ...route,
             }))
