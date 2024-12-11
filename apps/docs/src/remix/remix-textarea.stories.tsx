@@ -27,11 +27,15 @@ const ControlledTextareaExample = () => {
       comment: INITIAL_COMMENT,
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <RemixTextarea name="comment" label="Comment" description="Enter your comment (minimum 10 characters)" />
         <Button type="submit" className="mt-4">
           Submit

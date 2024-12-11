@@ -23,11 +23,15 @@ const RemixDatePickerExample = () => {
       eventDate: undefined,
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <Form onSubmit={methods.handleSubmit}>
         <RemixDatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
         <Button type="submit" className="mt-4">
           Submit

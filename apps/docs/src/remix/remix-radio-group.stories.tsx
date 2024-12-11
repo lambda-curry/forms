@@ -26,11 +26,15 @@ const RemixRadioGroupExample = () => {
       plan: undefined,
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <Form onSubmit={methods.handleSubmit}>
         <RemixRadioGroupField
           name="plan"
           label="Select a plan"

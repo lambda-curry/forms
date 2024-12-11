@@ -28,11 +28,15 @@ const ControlledCheckboxExample = () => {
       required: false as true, //Note: ZOD Schema expects a true value
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
           <RemixCheckbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
           <RemixCheckbox

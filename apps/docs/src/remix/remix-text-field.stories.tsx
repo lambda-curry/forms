@@ -28,11 +28,15 @@ const ControlledTextFieldExample = () => {
       username: INITIAL_USERNAME,
     },
     fetcher,
+    submitConfig: {
+      action: '/username',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <RemixTextField name="username" label="Username" description="Enter a unique username" />
         <Button type="submit" className="mt-4">
           Submit
@@ -80,8 +84,13 @@ const meta: Meta<typeof RemixTextField> = {
     withRemixStubDecorator({
       root: {
         Component: ControlledTextFieldExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
+      routes: [
+        {
+          path: '/username',
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof RemixTextField>;
@@ -128,13 +137,14 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
-  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
   await userEvent.click(input);
   await userEvent.clear(input);
   await userEvent.type(input, 'valid_username');
   await userEvent.click(submitButton);
 
-  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
+  // Use findByText which waits for the element to appear
+  const successMessage = await canvas.findByText('Form submitted successfully');
+  expect(successMessage).toBeInTheDocument();
 };
 
 // Stories

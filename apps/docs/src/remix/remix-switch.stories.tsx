@@ -26,11 +26,15 @@ const ControlledSwitchExample = () => {
       darkMode: false,
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
           <RemixSwitch name="notifications" label="Enable notifications" />
           <RemixSwitch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
@@ -45,7 +49,7 @@ const ControlledSwitchExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };

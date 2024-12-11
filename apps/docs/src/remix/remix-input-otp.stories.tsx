@@ -24,11 +24,15 @@ const RemixInputOTPExample = () => {
       otp: '',
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <Form onSubmit={methods.handleSubmit}>
         <RemixInputOTPField
           name="otp"
           label="One-Time Password"

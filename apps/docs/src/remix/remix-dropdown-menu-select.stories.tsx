@@ -26,11 +26,15 @@ const RemixDropdownMenuSelectExample = () => {
       favoriteColor: '',
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <Form onSubmit={methods.handleSubmit}>
         <RemixDropdownMenuSelect
           name="favoriteColor"
           label="Favorite Color"
