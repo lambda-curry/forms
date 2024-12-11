@@ -47,7 +47,7 @@ interface RemixStubOptions {
 }
 
 export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorator => {
-  return (Story: ComponentType) => {
+  return () => {
     const { root, routes = [] } = options;
 
     // Default root configuration that wraps everything
@@ -68,8 +68,6 @@ export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorato
             }))
           : undefined,
     };
-
-    console.log('>>>>', rootRoute.children);
 
     const RemixStub = createRemixStub([rootRoute]);
 

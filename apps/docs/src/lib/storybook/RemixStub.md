@@ -22,30 +22,31 @@ export const Default = {
 
 ## Root Configuration
 
-The decorator now supports root-level configuration for providers and shared data:
+The decorator supports root-level configuration for providers, shared data, and actions:
 
 ```typescript
 export const WithRootConfig = {
   decorators: [
     withRemixStubDecorator({
       root: {
-        // Root-level loader for global data
-        loader: () => ({
-          user: { name: 'John Doe' },
-          theme: 'dark'
-        }),
         // Root layout with providers
         Component: ({ children }) => (
           <ThemeProvider>
-            <UserProvider>
-              <Layout>{children}</Layout>
-            </UserProvider>
+            <Layout>{children}</Layout>
           </ThemeProvider>
         ),
+        // Root-level action handler
+        action: async ({ request }) => {
+          // Handle form submissions
+          return { success: true };
+        },
+        // Root-level loader
+        loader: () => ({
+          user: { name: 'John Doe' }
+        }),
         // Root-level meta tags
         meta: () => [{
-          title: 'My App',
-          description: 'App description'
+          title: 'My App'
         }]
       }
     })
@@ -55,88 +56,23 @@ export const WithRootConfig = {
 
 ## Route Configuration
 
-Configure routes alongside root configuration:
+Configure additional routes alongside root configuration:
 
 ```typescript
 export const WithRoutes = {
   decorators: [
     withRemixStubDecorator({
       root: {
+        // Root layout component
         Component: ({ children }) => (
           <AppShell>{children}</AppShell>
         )
       },
       routes: [
         {
-          path: '/dashboard',
-          loader: () => ({
-            stats: { users: 100, posts: 50 }
-          }),
-          Component: DashboardComponent
-        }
-      ]
-    })
-  ]
-};
-```
-
-## Advanced Examples
-
-### 1. Nested Routes with Root Provider
-
-```typescript
-export const NestedRoutesWithProvider = {
-  decorators: [
-    withRemixStubDecorator({
-      root: {
-        loader: () => ({
-          user: { id: 1, name: 'John' }
-        }),
-        Component: ({ children }) => (
-          <AuthProvider>
-            <Layout>{children}</Layout>
-          </AuthProvider>
-        )
-      },
-      routes: [
-        {
-          path: '/app',
-          Component: AppLayout,
-          children: [
-            {
-              path: 'dashboard',
-              loader: () => ({ dashboardData: [] }),
-              Component: Dashboard
-            }
-          ]
-        }
-      ]
-    })
-  ]
-};
-```
-
-### 2. Form Actions with Error Handling
-
-```typescript
-export const FormWithErrorHandling = {
-  decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ({ children }) => (
-          <ErrorBoundary fallback={GlobalErrorUI}>
-            {children}
-          </ErrorBoundary>
-        )
-      },
-      routes: [
-        {
           path: '/form',
           action: async ({ request }) => {
-            const formData = await request.formData();
-            if (!formData.get('email')) {
-              throw new Error('Email required');
-            }
+            // Handle form submission
             return { success: true };
           },
           Component: FormComponent
@@ -152,7 +88,7 @@ export const FormWithErrorHandling = {
 ```typescript
 interface RemixStubOptions {
   root?: {
-    Component?: ComponentType<{ children: React.ReactNode }>;
+    Component?: ComponentType<any>;
     loader?: LoaderFunction;
     action?: ActionFunction;
     meta?: MetaFunction;
@@ -165,7 +101,7 @@ interface StubRouteObject {
   path?: string;
   loader?: LoaderFunction;
   action?: ActionFunction;
-  Component?: ComponentType;
+  Component?: ComponentType<any>;
   children?: StubRouteObject[];
   meta?: MetaFunction;
   links?: LinksFunction;
@@ -175,43 +111,96 @@ interface StubRouteObject {
 ## Best Practices
 
 1. **Root Configuration**
-   - Use root for global providers (auth, theme, etc.)
-   - Share common data through root loader
-   - Handle global errors at root level
+   - Use root for global providers and layouts
+   - Handle common actions at the root level
+   - Share global data through root loader
+   - Set default meta and link tags
 
 2. **Route Organization**
+   - Define specific routes for form submissions
    - Keep route structure similar to production
-   - Use nested routes for complex layouts
-   - Isolate test-specific logic in route components
+   - Provide default actions for routes that need them
 
-3. **Data Management**
-   - Mock minimal but realistic data
-   - Use TypeScript for data shape validation
-   - Share common data through root loader
+3. **Component Structure**
+   - Place shared UI elements in root Component
+   - Use routes for page-specific components
+   - Handle form submissions in route actions
 
-4. **Error Handling**
-   - Implement error boundaries at appropriate levels
-   - Test both success and error scenarios
-   - Use root error boundary for global error UI
+4. **Form Handling**
+   - Set appropriate action paths in forms
+   - Handle validation in route actions
+   - Return proper response structures
+
+## Common Patterns
+
+### 1. Form Submission Route
+
+```typescript
+export const FormExample = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        Component: ({ children }) => (
+          <div className="p-4">{children}</div>
+        )
+      },
+      routes: [
+        {
+          path: '/submit',
+          action: async ({ request }) => {
+            const formData = await request.formData();
+            return { success: true, data: Object.fromEntries(formData) };
+          }
+        }
+      ]
+    })
+  ]
+};
+```
+
+### 2. Protected Routes
+
+```typescript
+export const ProtectedExample = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        loader: () => {
+          // Check authentication
+          return { user: { isAuthenticated: true } };
+        },
+        Component: ({ children }) => (
+          <AuthProvider>{children}</AuthProvider>
+        )
+      },
+      routes: [
+        {
+          path: '/dashboard',
+          loader: () => {
+            // Protected route data
+            return { dashboardData: [] };
+          },
+          Component: Dashboard
+        }
+      ]
+    })
+  ]
+};
+```
 
 ## Testing Tips
 
-1. Use root configuration for:
-   - Global providers
-   - Authentication state
-   - Theme management
-   - Error boundaries
-   - Common layouts
+1. **Form Testing**
+   - Test form submissions with proper action paths
+   - Verify error handling and validation
+   - Check success messages and redirects
 
-2. Test scenarios:
-   - Authentication flows
-   - Form submissions
-   - Error handling
-   - Route transitions
-   - Data loading states
+2. **Route Testing**
+   - Test route transitions
+   - Verify loader data is available
+   - Check meta tag updates
 
-3. Combine with Storybook features:
-   - Controls for provider props
-   - Actions for form handling
-   - Viewport for responsive testing
-   - Accessibility checks
+3. **Component Integration**
+   - Test component interactions with Remix hooks
+   - Verify form state management
+   - Check data loading states
