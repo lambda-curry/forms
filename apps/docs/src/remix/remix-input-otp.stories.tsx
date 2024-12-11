@@ -1,18 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixInputOTPField } from '@lambdacurry/forms/remix/remix-input-otp';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher, Form } from '@remix-run/react';
+import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
+import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { Button } from '@lambdacurry/forms/ui/button';
-import { RemixInputOTPField } from '@lambdacurry/forms/remix/remix-input-otp';
-import type { } from '@testing-library/dom';
-
 
 const formSchema = z.object({
-  otp: z.string().length(6, "Please enter a 6-digit code"),
+  otp: z.string().length(6, 'Please enter a 6-digit code'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -22,7 +21,7 @@ const RemixInputOTPExample = () => {
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      otp: "",
+      otp: '',
     },
     fetcher,
   });
@@ -45,33 +44,33 @@ const RemixInputOTPExample = () => {
   );
 };
 
+// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
+    request,
+    zodResolver(formSchema),
+  );
 
   if (errors) {
     return { errors, defaultValues };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'OTP verified successfully' };
 };
 
+// Storybook configuration
 const meta: Meta<typeof RemixInputOTPField> = {
-  title: 'Remix/RemixInputOTPField',
+  title: 'Remix/RemixInputOTP',
   component: RemixInputOTPField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: RemixInputOTPExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixInputOTPField>;
 
@@ -94,7 +93,7 @@ const testSubmission = async ({ canvasElement }: StoryContext) => {
   const input = canvasElement.querySelector('input');
   await userEvent.type(input as HTMLInputElement, '123456');
   await userEvent.click(submitButton);
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+  await expect(canvas.findByText('OTP verified successfully')).resolves.toBeInTheDocument();
 };
 
 export const Tests: Story = {

@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixDropdownMenuSelect } from '@lambdacurry/forms/remix/remix-dropdown-menu-select';
+import { Button } from '@lambdacurry/forms/ui/button';
+import { DropdownMenuItem } from '@lambdacurry/forms/ui/dropdown-menu';
 import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher, Form } from '@remix-run/react';
+import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, within, } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { Button } from '@lambdacurry/forms/ui/button';
-import { DropdownMenuItem } from '@lambdacurry/forms/ui/dropdown-menu';
-import { RemixDropdownMenuSelect } from '@lambdacurry/forms/remix/remix-dropdown-menu-select';
 
 // Form schema definition
 const formSchema = z.object({
-  favoriteColor: z.string().min(1, "Please select a color"),
+  favoriteColor: z.string().min(1, 'Please select a color'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -23,7 +23,7 @@ const RemixDropdownMenuSelectExample = () => {
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      favoriteColor: "",
+      favoriteColor: '',
     },
     fetcher,
   });
@@ -35,11 +35,11 @@ const RemixDropdownMenuSelectExample = () => {
           name="favoriteColor"
           label="Favorite Color"
           description="Choose your favorite color."
-          dropdownClassName='border'
+          dropdownClassName="border"
         >
-          <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Red")}>Red</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Green")}>Green</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => methods.setValue("favoriteColor", "Blue")}>Blue</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Red')}>Red</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Green')}>Green</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Blue')}>Blue</DropdownMenuItem>
         </RemixDropdownMenuSelect>
         <Button type="submit" className="mt-4">
           Submit
@@ -52,11 +52,10 @@ const RemixDropdownMenuSelectExample = () => {
 
 // Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
+    request,
+    zodResolver(formSchema),
+  );
 
   if (errors) {
     return { errors, defaultValues };
@@ -72,20 +71,17 @@ const meta: Meta<typeof RemixDropdownMenuSelect> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: RemixDropdownMenuSelectExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixDropdownMenuSelect>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-
 
 // Update the test functions to accept storyContext
 const testDefaultValues = ({ canvasElement }: StoryContext) => {
@@ -133,7 +129,6 @@ const testValidSubmission = async ({ canvasElement }: StoryContext) => {
   await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
 };
 
-// Test scenarios
 export const Tests: Story = {
   play: async (storyContext) => {
     testDefaultValues(storyContext);

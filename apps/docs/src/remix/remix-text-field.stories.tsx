@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixTextField } from '@lambdacurry/forms/remix/remix-text-field';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, } from '@storybook/test';
-import type { } from '@testing-library/dom';
+import { expect, userEvent } from '@storybook/test';
+import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { RemixTextField } from '@lambdacurry/forms/remix/remix-text-field';
-import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -55,7 +55,6 @@ const handleFormSubmission = async (request: Request) => {
     return { errors, defaultValues };
   }
 
-
   if (data.username === USERNAME_TAKEN) {
     return {
       errors: {
@@ -78,13 +77,12 @@ const meta: Meta<typeof RemixTextField> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: ControlledTextFieldExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixTextField>;
 

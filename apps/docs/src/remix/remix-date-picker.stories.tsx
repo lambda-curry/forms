@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixDatePicker } from '@lambdacurry/forms/remix/remix-date-picker';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher, Form } from '@remix-run/react';
+import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, waitFor, within } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { RemixDatePicker } from '@lambdacurry/forms/remix/remix-date-picker';
-import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
-  eventDate: z.coerce.date()
+  eventDate: z.coerce.date(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -28,11 +28,7 @@ const RemixDatePickerExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <RemixDatePicker
-          name="eventDate"
-          label="Event Date"
-          description="Choose the date for your event."
-        />
+        <RemixDatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -44,11 +40,10 @@ const RemixDatePickerExample = () => {
 
 // Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
+    request,
+    zodResolver(formSchema),
+  );
 
   if (errors) {
     return { errors, defaultValues };
@@ -64,13 +59,12 @@ const meta: Meta<typeof RemixDatePicker> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: RemixDatePickerExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixDatePicker>;
 

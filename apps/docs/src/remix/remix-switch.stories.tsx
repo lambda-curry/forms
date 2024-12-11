@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixSwitch } from '@lambdacurry/forms/remix/remix-switch';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
-import type { } from '@testing-library/dom';
+import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { RemixSwitch } from '@lambdacurry/forms/remix/remix-switch';
-import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
   notifications: z.boolean().default(false),
@@ -31,7 +31,7 @@ const ControlledSwitchExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <div className='grid gap-4'>
+        <div className="grid gap-4">
           <RemixSwitch name="notifications" label="Enable notifications" />
           <RemixSwitch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
         </div>
@@ -45,11 +45,7 @@ const ControlledSwitchExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };
@@ -64,13 +60,12 @@ const meta: Meta<typeof RemixSwitch> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: ControlledSwitchExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixSwitch>;
 
@@ -109,7 +104,7 @@ export const Tests: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The default switch component with form integration.'
+        story: 'The default switch component with form integration.',
       },
     },
   },

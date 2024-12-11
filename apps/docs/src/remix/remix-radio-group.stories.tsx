@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixRadioGroupField } from '@lambdacurry/forms/remix/remix-radio-group';
+import { Button } from '@lambdacurry/forms/ui/button';
+import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher, Form } from '@remix-run/react';
+import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, } from '@storybook/test';
+import { expect, userEvent } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { Button } from '@lambdacurry/forms/ui/button';
-import { RemixRadioGroupField } from '@lambdacurry/forms/remix/remix-radio-group';
-import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 
 const formSchema = z.object({
   plan: z.enum(['starter', 'pro', 'enterprise'], {
-    required_error: "You need to select a plan",
+    required_error: 'You need to select a plan',
   }),
 });
 
@@ -70,27 +70,33 @@ const handleFormSubmission = async (request: Request) => {
     return { errors, defaultValues };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'Plan selected successfully' };
 };
 
 const meta: Meta<typeof RemixRadioGroupField> = {
-  title: 'Remix/RemixRadioGroupField',
+  title: 'Remix/RemixRadioGroup',
   component: RemixRadioGroupField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: RemixRadioGroupExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixRadioGroupField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  await userEvent.click(submitButton);
+
+  await expect(canvas.findByText('You need to select a plan')).resolves.toBeInTheDocument();
+};
 
 const testRadioGroupSelection = async ({ canvas }: StoryContext) => {
   const proRadio = canvas.getByLabelText('Pro');
@@ -102,11 +108,12 @@ const testSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
 
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+  await expect(canvas.findByText('Plan selected successfully')).resolves.toBeInTheDocument();
 };
 
 export const Tests: Story = {
   play: async (storyContext) => {
+    await testInvalidSubmission(storyContext);
     await testRadioGroupSelection(storyContext);
     await testSubmission(storyContext);
   },
