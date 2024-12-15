@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixInputOTPField } from '@lambdacurry/forms/remix/remix-input-otp';
+import { RemixOTPInputField } from '@lambdacurry/forms/remix/remix-otp-input';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { Form, useFetcher } from '@remix-run/react';
@@ -16,7 +16,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixInputOTPExample = () => {
+const RemixOTPInputExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -33,7 +33,7 @@ const RemixInputOTPExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RemixInputOTPField
+        <RemixOTPInputField
           name="otp"
           label="One-Time Password"
           description="Enter the 6-digit code sent to your phone."
@@ -63,20 +63,20 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixInputOTPField> = {
-  title: 'Remix/RemixInputOTP',
-  component: RemixInputOTPField,
+const meta: Meta<typeof RemixOTPInputField> = {
+  title: 'Remix/RemixOTPInput',
+  component: RemixOTPInputField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: RemixInputOTPExample,
+        Component: RemixOTPInputExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
   ],
-} satisfies Meta<typeof RemixInputOTPField>;
+} satisfies Meta<typeof RemixOTPInputField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
