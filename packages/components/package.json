@@ -1,36 +1,17 @@
 {
   "name": "@lambdacurry/forms",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "main": "./index.ts",
   "types": "./index.ts",
   "exports": {
-    "./button": "./src/ui/button.tsx",
-    "./calendar": "./src/ui/calendar.tsx",
-    "./checkbox": "./src/ui/checkbox.tsx",
-    "./date-picker": "./src/ui/date-picker.tsx",
-    "./dropdown-menu-select": "./src/ui/dropdown-menu-select.tsx",
-    "./dropdown-menu": "./src/ui/dropdown-menu.tsx",
-    "./form": "./src/ui/form.tsx",
-    "./input-otp": "./src/ui/input-otp.tsx",
-    "./input": "./src/ui/input.tsx",
-    "./label": "./src/ui/label.tsx",
-    "./popover": "./src/ui/popover.tsx",
-    "./radio-group": "./src/ui/radio-group.tsx",
-    "./switch": "./src/ui/switch.tsx",
-    "./textarea": "./src/ui/textarea.tsx",
-    "./text-field": "./src/ui/text-field.tsx",
-    "./remix-checkbox": "./src/remix/remix-checkbox.tsx",
-    "./remix-date-picker": "./src/remix/remix-date-picker.tsx",
-    "./remix-dropdown-menu": "./src/remix/remix-dropdown-menu.tsx",
-    "./remix-dropdown-menu-select": "./src/remix/remix-dropdown-menu-select.tsx",
-    "./remix-form": "./src/remix/remix-form.tsx",
-    "./remix-input-otp": "./src/remix/remix-input-otp.tsx",
-    "./remix-input": "./src/remix/remix-input.tsx",
-    "./remix-label": "./src/remix/remix-label.tsx",
-    "./remix-radio-group": "./src/remix/remix-radio-group.tsx",
-    "./remix-switch": "./src/remix/remix-switch.tsx",
-    "./remix-textarea": "./src/remix/remix-textarea.tsx",
-    "./remix-text-field": "./src/remix/remix-text-field.tsx"
+    "./ui": {
+      "types": "./src/ui/index.ts",
+      "default": "./src/ui/index.ts"
+    },
+    "./remix": {
+      "types": "./src/remix/index.ts",
+      "default": "./src/remix/index.ts"
+    }
   },
   "scripts": {
     "lint": "biome check .",

@@ -16,7 +16,7 @@ import {
 } from './form';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
-export interface DatePickerProps<
+export interface DatePickerFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
@@ -30,7 +30,7 @@ export interface DatePickerProps<
   components?: Partial<FieldComponents>;
 }
 
-export const DatePickerField = forwardRef<HTMLDivElement, DatePickerProps>(
+export const DatePickerField = forwardRef<HTMLDivElement, DatePickerFieldProps>(
   ({ control, name, label, description, className, labelClassName, buttonClassName, components }, ref) => {
     return (
       <FormField
