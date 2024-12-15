@@ -63,7 +63,6 @@ export const WithRoutes = {
   decorators: [
     withRemixStubDecorator({
       root: {
-        // Root layout component
         Component: ({ children }) => (
           <AppShell>{children}</AppShell>
         )
@@ -72,7 +71,6 @@ export const WithRoutes = {
         {
           path: '/form',
           action: async ({ request }) => {
-            // Handle form submission
             return { success: true };
           },
           Component: FormComponent
@@ -166,7 +164,6 @@ export const ProtectedExample = {
     withRemixStubDecorator({
       root: {
         loader: () => {
-          // Check authentication
           return { user: { isAuthenticated: true } };
         },
         Component: ({ children }) => (
@@ -177,7 +174,6 @@ export const ProtectedExample = {
         {
           path: '/dashboard',
           loader: () => {
-            // Protected route data
             return { dashboardData: [] };
           },
           Component: Dashboard

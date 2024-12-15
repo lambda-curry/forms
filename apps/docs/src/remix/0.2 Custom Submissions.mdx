@@ -1,0 +1,89 @@
+# Custom Form Submissions in Remix
+
+When working with forms in Remix, you might want to customize how form data is submitted beyond the default behavior. This guide explains how to use custom submission handlers, particularly focusing on the `onValid` submit handler pattern.
+
+## Basic Usage
+
+The `onValid` submit handler is a powerful feature that allows you to intercept and modify form data before it's submitted. Here's a basic example:
+
+```typescript
+const methods = useRemixForm<FormData>({
+  resolver: zodResolver(formSchema),
+  submitHandlers: {
+    onValid: (data) => {
+      // Transform your data here
+      fetcher.submit(createFormData(transformedData), {
+        method: 'post',
+        action: '/',
+      });
+    },
+  },
+});
+```
+
+## Real-World Example
+
+Let's look at a practical example where we transform checkbox data before submission:
+
+```typescript
+const methods = useRemixForm<FormData>({
+  resolver: zodResolver(formSchema),
+  fetcher,
+  submitConfig: {
+    action: '/',
+    method: 'post',
+  },
+  submitHandlers: {
+    onValid: (data) => {
+      // Extract selected colors from checkbox data
+      const selectedColors = Object.entries(data.colors)
+        .filter(([_, selected]) => selected)
+        .map(([color]) => color);
+
+      // Remove original color data from submission
+      const filteredData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => !(key in AVAILABLE_COLORS))
+      );
+
+      // Submit transformed data
+      fetcher.submit(
+        createFormData({ ...filteredData, selectedColors }), 
+        {
+          method: 'post',
+          action: '/',
+        }
+      );
+    },
+  },
+});
+```
+
+## Key Benefits
+
+1. **Data Transformation**: Transform your form data before submission
+2. **Validation Control**: Only runs after form validation passes
+3. **Flexibility**: Full control over the submission process
+4. **Type Safety**: Maintains TypeScript type safety throughout
+
+## Best Practices
+
+1. Always use `createFormData` to properly format your data for submission
+2. Keep transformations pure and predictable
+3. Handle both success and error cases
+4. Use TypeScript types to ensure type safety
+5. Consider using a fetcher for better loading states and optimistic UI
+
+## Common Use Cases
+
+- Transforming checkbox groups into arrays
+- Formatting dates before submission
+- Removing unnecessary fields
+- Combining multiple form fields
+- Converting between data formats
+
+## Tips
+
+- Use the `fetcher` from Remix for better control over loading states
+- Leverage TypeScript for type safety
+- Keep transformations simple and focused
+- Consider using Zod for validation alongside custom submissions

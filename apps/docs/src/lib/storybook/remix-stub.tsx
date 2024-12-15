@@ -29,9 +29,6 @@ interface StubIndexRouteObject
 }
 
 interface RemixStubOptions {
-  /**
-   * Root configuration for providers and shared data
-   */
   root?: {
     // biome-ignore lint/suspicious/noExplicitAny: allow any here
     Component?: ComponentType<any>;
@@ -40,9 +37,6 @@ interface RemixStubOptions {
     meta?: MetaFunction;
     links?: LinksFunction;
   };
-  /**
-   * Individual route configurations
-   */
   routes?: StubRouteObject[];
 }
 
@@ -55,15 +49,11 @@ export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorato
       ...route,
       Component: route.Component ? route.Component : () => <Story />,
     }));
-
-    // Default root configuration that wraps everything
     const rootRoute: StubRouteObject = {
       id: 'root',
       path: '/',
       ...root,
-      // Ensure root has a default action that returns null if none provided
       Component: root?.Component ? root.Component : () => <Story />,
-      // Make all mapped routes children of root
       children:
         mappedRoutes.length > 0
           ? mappedRoutes.map((route) => ({
