@@ -1,5 +1,5 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { Checkbox, type CheckboxProps } from '../ui/checkbox';
+import { Checkbox, type CheckboxProps } from '../ui/checkbox-field';
 import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
 
 export type RemixCheckboxProps = Omit<CheckboxProps, 'control'>;
