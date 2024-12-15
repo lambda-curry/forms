@@ -1,8 +1,8 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { TextareaField, type TextareaProps } from '../ui/textarea-field';
+import { TextareaField, type TextareaFieldProps } from '../ui/textarea-field';
 import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
 
-export type RemixTextareaProps = Omit<TextareaProps, 'control'>;
+export type RemixTextareaProps = Omit<TextareaFieldProps, 'control'>;
 
 export function RemixTextarea(props: RemixTextareaProps) {
   const { control } = useRemixFormContext();
