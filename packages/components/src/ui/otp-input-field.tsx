@@ -1,4 +1,4 @@
-import { OTPInput, OTPInputContext, type OTPInputProps } from 'input-otp';
+import { OTPInputContext, type OTPInputProps } from 'input-otp';
 import { Dot } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, useContext } from 'react';
 import type { Control, FieldValues } from 'react-hook-form';
@@ -13,27 +13,16 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
+import { OTPInput } from './otp-input';
 
 export type { OTPInputProps };
 
-export const InputOTP = forwardRef<ElementRef<typeof OTPInput>, ComponentPropsWithoutRef<typeof OTPInput>>(
-  ({ className, containerClassName, ...props }, ref) => (
-    <OTPInput
-      ref={ref}
-      containerClassName={cn('flex items-center gap-2 has-[:disabled]:opacity-50', containerClassName)}
-      className={cn('disabled:cursor-not-allowed', className)}
-      {...props}
-    />
-  ),
-);
-InputOTP.displayName = 'InputOTP';
-
-export const InputOTPGroup = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'>>(
+export const OTPInputGroup = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'>>(
   ({ className, ...props }, ref) => <div ref={ref} className={cn('flex items-center', className)} {...props} />,
 );
-InputOTPGroup.displayName = 'InputOTPGroup';
+OTPInputGroup.displayName = 'OTPInputGroup';
 
-export const InputOTPSlot = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'> & { index: number }>(
+export const OTPInputSlot = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'> & { index: number }>(
   ({ index, className, ...props }, ref) => {
     const inputOTPContext = useContext(OTPInputContext);
     const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
@@ -58,18 +47,18 @@ export const InputOTPSlot = forwardRef<ElementRef<'div'>, ComponentPropsWithoutR
     );
   },
 );
-InputOTPSlot.displayName = 'InputOTPSlot';
+OTPInputSlot.displayName = 'OTPInputSlot';
 
-export const InputOTPSeparator = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'>>(({ ...props }, ref) => (
+export const OTPInputSeparator = forwardRef<ElementRef<'div'>, ComponentPropsWithoutRef<'div'>>(({ ...props }, ref) => (
   // biome-ignore lint/a11y/useFocusableInteractive: from ShadCN
   // biome-ignore lint/a11y/useSemanticElements: from ShadCN
   <div ref={ref} role="separator" {...props}>
     <Dot />
   </div>
 ));
-InputOTPSeparator.displayName = 'InputOTPSeparator';
+OTPInputSeparator.displayName = 'OTPInputSeparator';
 
-export interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValues>
+export interface OTPInputFieldProps<TFieldValues extends FieldValues = FieldValues>
   extends Omit<ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> {
   control: Control<TFieldValues>;
   name: string;
@@ -82,7 +71,7 @@ export interface InputOTPFieldProps<TFieldValues extends FieldValues = FieldValu
   components?: Partial<FieldComponents>;
 }
 
-export const InputOTPField = forwardRef<HTMLDivElement, InputOTPFieldProps>(
+export const OTPInputField = forwardRef<HTMLDivElement, OTPInputFieldProps>(
   (
     { control, name, label, description, className, labelClassName, inputClassName, maxLength, components, ...props },
     ref,
@@ -101,7 +90,7 @@ export const InputOTPField = forwardRef<HTMLDivElement, InputOTPFieldProps>(
               </FormLabel>
             )}
             <FormControl Component={components?.FormControl}>
-              <InputOTP
+              <OTPInput
                 ref={field.ref}
                 id={formItemId}
                 aria-describedby={formItemId}
@@ -110,20 +99,20 @@ export const InputOTPField = forwardRef<HTMLDivElement, InputOTPFieldProps>(
                 className={inputClassName}
                 maxLength={maxLength}
               >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  {isEightSlots && <InputOTPSlot index={3} />}
-                </InputOTPGroup>
-                <InputOTPSeparator />
-                <InputOTPGroup>
-                  <InputOTPSlot index={isEightSlots ? 4 : 3} />
-                  <InputOTPSlot index={isEightSlots ? 5 : 4} />
-                  <InputOTPSlot index={isEightSlots ? 6 : 5} />
-                  {isEightSlots && <InputOTPSlot index={7} />}
-                </InputOTPGroup>
-              </InputOTP>
+                <OTPInputGroup>
+                  <OTPInputSlot index={0} />
+                  <OTPInputSlot index={1} />
+                  <OTPInputSlot index={2} />
+                  {isEightSlots && <OTPInputSlot index={3} />}
+                </OTPInputGroup>
+                <OTPInputSeparator />
+                <OTPInputGroup>
+                  <OTPInputSlot index={isEightSlots ? 4 : 3} />
+                  <OTPInputSlot index={isEightSlots ? 5 : 4} />
+                  <OTPInputSlot index={isEightSlots ? 6 : 5} />
+                  {isEightSlots && <OTPInputSlot index={7} />}
+                </OTPInputGroup>
+              </OTPInput>
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
@@ -135,4 +124,4 @@ export const InputOTPField = forwardRef<HTMLDivElement, InputOTPFieldProps>(
     );
   },
 );
-InputOTPField.displayName = 'InputOTPField';
+OTPInputField.displayName = 'OTPInputField';

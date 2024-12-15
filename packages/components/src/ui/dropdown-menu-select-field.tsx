@@ -29,7 +29,10 @@ export interface DropdownMenuSelectProps<
   components?: Partial<FieldComponents>;
 }
 
-export const DropdownMenuSelect = forwardRef<ElementRef<typeof DropdownMenuPrimitive.Root>, DropdownMenuSelectProps>(
+export const DropdownMenuSelectField = forwardRef<
+  ElementRef<typeof DropdownMenuPrimitive.Root>,
+  DropdownMenuSelectProps
+>(
   (
     { control, name, label, description, children, className, labelClassName, dropdownClassName, components, ...props },
     ref,
@@ -39,7 +42,7 @@ export const DropdownMenuSelect = forwardRef<ElementRef<typeof DropdownMenuPrimi
         control={control}
         name={name}
         render={({ field, fieldState }) => (
-          <FormItem className={className}>
+          <FormItem className={className} ref={ref}>
             {label && (
               <FormLabel Component={components?.FormLabel} className={labelClassName}>
                 {label}
@@ -62,4 +65,4 @@ export const DropdownMenuSelect = forwardRef<ElementRef<typeof DropdownMenuPrimi
   },
 );
 
-DropdownMenuSelect.displayName = 'DropdownMenuSelect';
+DropdownMenuSelectField.displayName = 'DropdownMenuSelect';

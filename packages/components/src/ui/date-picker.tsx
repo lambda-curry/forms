@@ -1,79 +1,56 @@
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { forwardRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type * as React from 'react';
+import { type CustomComponents, DayPicker } from 'react-day-picker';
+
 import { cn } from '../../lib/utils';
-import { Calendar } from './calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { Button } from './button';
-import {
-  type FieldComponents,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from './form';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { buttonVariants } from './button';
 
-export interface DatePickerProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> {
-  control?: Control<TFieldValues>;
-  name: TName;
-  label?: string;
-  description?: string;
-  className?: string;
-  labelClassName?: string;
-  buttonClassName?: string;
-  components?: Partial<FieldComponents>;
-}
+export type DatePickerProps = React.ComponentProps<typeof DayPicker>;
 
-export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
-  ({ control, name, label, description, className, labelClassName, buttonClassName, components }, ref) => {
-    return (
-      <FormField
-        control={control}
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className} ref={ref}>
-            {label && (
-              <FormLabel Component={components?.FormLabel} className={labelClassName}>
-                {label}
-              </FormLabel>
-            )}
-            <FormControl Component={components?.FormControl}>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    ref={field.ref}
-                    variant="outline"
-                    className={cn(
-                      'w-[280px] justify-start text-left font-normal',
-                      !field.value && 'text-muted-foreground',
-                      buttonClassName,
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? format(field.value, 'PPP') : <span>{label || 'Pick a date'}</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
-                </PopoverContent>
-              </Popover>
-            </FormControl>
-
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
-    );
-  },
-);
-
+const DatePicker = ({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) => {
+  return (
+    <DayPicker
+      showOutsideDays={showOutsideDays}
+      className={cn('p-3', className)}
+      classNames={{
+        months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
+        month: 'space-y-4',
+        caption: 'flex justify-center pt-1 relative items-center',
+        caption_label: 'text-sm font-medium',
+        nav: 'space-x-1 flex items-center',
+        nav_button: cn(
+          buttonVariants({ variant: 'outline' }),
+          'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+        ),
+        nav_button_previous: 'absolute left-1',
+        nav_button_next: 'absolute right-1',
+        table: 'w-full border-collapse space-y-1',
+        head_row: 'flex',
+        head_cell: 'text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]',
+        row: 'flex w-full mt-2',
+        cell: 'h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
+        day: cn(buttonVariants({ variant: 'ghost' }), 'h-9 w-9 p-0 font-normal aria-selected:opacity-100'),
+        day_range_end: 'day-range-end',
+        day_selected:
+          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+        day_today: 'bg-accent text-accent-foreground',
+        day_outside:
+          'day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30',
+        day_disabled: 'text-muted-foreground opacity-50',
+        day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-foreground',
+        day_hidden: 'invisible',
+        ...classNames,
+      }}
+      components={
+        {
+          IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
+          IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
+        } as Partial<CustomComponents>
+      }
+      {...props}
+    />
+  );
+};
 DatePicker.displayName = 'DatePicker';
+
+export { DatePicker };

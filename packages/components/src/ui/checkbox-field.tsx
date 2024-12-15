@@ -1,7 +1,9 @@
-import { type ComponentPropsWithoutRef, type ReactNode, forwardRef, } from 'react';
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type ReactNode, forwardRef } from 'react';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { cn } from '../../lib/utils';
 import {
   type FieldComponents,
   FormControl,
@@ -11,8 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
-import { cn } from '../../lib/utils';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 export interface CheckboxProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -26,7 +26,7 @@ export interface CheckboxProps<
   components?: Partial<FieldComponents>;
 }
 
-const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
+const CheckboxField = forwardRef<HTMLDivElement, CheckboxProps>(
   ({ control, name, className, label, description, components, ...props }, ref) => (
     <FormField
       control={control}
@@ -66,6 +66,6 @@ const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
   ),
 );
 
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+CheckboxField.displayName = CheckboxPrimitive.Root.displayName;
 
-export { Checkbox };
+export { CheckboxField as Checkbox };

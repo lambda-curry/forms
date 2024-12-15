@@ -1,5 +1,5 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { Textarea, type TextareaProps } from '../ui/textarea';
+import { TextareaField, type TextareaProps } from '../ui/textarea-field';
 import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
 
 export type RemixTextareaProps = Omit<TextareaProps, 'control'>;
@@ -14,5 +14,5 @@ export function RemixTextarea(props: RemixTextareaProps) {
     FormMessage: RemixFormMessage,
   };
 
-  return <Textarea control={control} components={components} {...props} />;
+  return <TextareaField control={control} components={components} {...props} />;
 }

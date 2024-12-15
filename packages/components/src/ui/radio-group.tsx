@@ -2,17 +2,7 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
-import {
-  type FieldComponents,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from './form';
 
 const RadioGroup = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -43,39 +33,4 @@ const RadioGroupItem = forwardRef<
 });
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
-export interface RadioGroupFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
-  control?: Control<TFieldValues>;
-  name: TName;
-  label?: string;
-  description?: string;
-  components?: Partial<FieldComponents>;
-}
-
-const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
-  ({ control, name, label, description, className, components, ...props }, ref) => {
-    return (
-      <FormField
-        control={control}
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className} ref={ref}>
-            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <FormControl Component={components?.FormControl}>
-              <RadioGroup ref={field.ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
-            </FormControl>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
-    );
-  },
-);
-RadioGroupField.displayName = 'RadioGroupField';
-
-export { RadioGroup, RadioGroupItem, RadioGroupField };
+export { RadioGroup, RadioGroupItem };
