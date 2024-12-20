@@ -14,7 +14,7 @@
     }
   },
   "files": [
-    "build/src/*"
+    "build/**/*"
   ],
   "scripts": {
     "prepublishOnly": "yarn run build",
