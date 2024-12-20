@@ -1,6 +1,6 @@
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react';
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
 
 import { cn } from '../../lib/utils';
 

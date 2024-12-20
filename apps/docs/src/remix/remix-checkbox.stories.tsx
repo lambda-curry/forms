@@ -1,19 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, } from '@storybook/test';
-import type { } from '@testing-library/dom';
+import { expect, userEvent } from '@storybook/test';
+import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
-import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
-import { Button } from '@lambdacurry/forms/ui/button';
 
 const formSchema = z.object({
-  terms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
+  terms: z.boolean().refine((val) => val === true, 'You must accept the terms and conditions'),
   marketing: z.boolean().optional(),
-  required: z.boolean().refine(val => val === true, 'This field is required'),
+  required: z.boolean().refine((val) => val === true, 'This field is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -25,18 +25,27 @@ const ControlledCheckboxExample = () => {
     defaultValues: {
       terms: false as true, // Note: ZOD Schema expects a true value
       marketing: false,
-      required: false as true //Note: ZOD Schema expects a true value
+      required: false as true, //Note: ZOD Schema expects a true value
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
-        <div className='grid gap-4'>
-          <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
-          <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
-          <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <div className="grid gap-4">
+          <RemixCheckbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
+          <RemixCheckbox
+            className="rounded-md border p-4"
+            name="marketing"
+            label="Receive marketing emails"
+            description="We will send you hourly updates about our products"
+          />
+          <RemixCheckbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -48,11 +57,7 @@ const ControlledCheckboxExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };
@@ -67,13 +72,12 @@ const meta: Meta<typeof RemixCheckbox> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: ControlledCheckboxExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixCheckbox>;
 
@@ -112,7 +116,7 @@ export const Tests: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The default checkbox component.'
+        story: 'The default checkbox component.',
       },
       source: {
         code: `

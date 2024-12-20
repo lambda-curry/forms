@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
-import { Switch } from '../ui/switch';
+import { SwitchField } from '../ui/switch-field';
 import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
 
 export interface RemixSwitchProps extends Omit<ComponentPropsWithoutRef<typeof Switch>, 'control'> {
@@ -20,6 +20,13 @@ export function RemixSwitch({ name, label, description, ...props }: RemixSwitchP
   };
 
   return (
-    <Switch control={control} name={name} label={label} description={description} components={components} {...props} />
+    <SwitchField
+      control={control}
+      name={name}
+      label={label}
+      description={description}
+      components={components}
+      {...props}
+    />
   );
 }

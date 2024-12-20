@@ -4,7 +4,7 @@ import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent } from '@storybook/test';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
@@ -27,11 +27,15 @@ const ControlledTextareaExample = () => {
       comment: INITIAL_COMMENT,
     },
     fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <RemixTextarea name="comment" label="Comment" description="Enter your comment (minimum 10 characters)" />
         <Button type="submit" className="mt-4">
           Submit
@@ -76,13 +80,12 @@ const meta: Meta<typeof RemixTextarea> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator([
-      {
-        path: '/',
+    withRemixStubDecorator({
+      root: {
         Component: ControlledTextareaExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
-    ]),
+    }),
   ],
 } satisfies Meta<typeof RemixTextarea>;
 
@@ -95,8 +98,7 @@ const testDefaultValues = ({ canvas }: StoryContext) => {
   expect(textarea).toHaveValue(INITIAL_COMMENT);
 };
 
-const testInvalidSubmission = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-  const canvas = within(canvasElement);
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   const textarea = canvas.getByRole('textbox');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -105,42 +107,22 @@ const testInvalidSubmission = async ({ canvasElement }: { canvasElement: HTMLEle
   await userEvent.type(textarea, 'short');
   await userEvent.click(submitButton);
 
-  // Wait for any state updates
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  expect(canvas.getByText((content) => content.includes('Comment must be at least 10 characters'))).toBeInTheDocument();
+  await expect(canvas.findByText('Comment must be at least 10 characters')).resolves.toBeInTheDocument();
 };
 
-const testBlockedContent = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-  const canvas = within(canvasElement);
+const testBlockedContent = async ({ canvas }: StoryContext) => {
   const textarea = canvas.getByRole('textbox');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
-  // First verify we can interact with the form
   await userEvent.click(textarea);
   await userEvent.clear(textarea);
-  const testText = `This is a ${BLOCKED_CONTENT} test`;
-  await userEvent.type(textarea, testText);
-
-  // Verify the text was entered
-  expect(textarea).toHaveValue(testText);
-
-  // Submit and wait for response
+  await userEvent.type(textarea, BLOCKED_CONTENT);
   await userEvent.click(submitButton);
 
-  // Wait for any state updates
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  // Check if the error is in the DOM
-  const errorElements = canvas.queryAllByText((content) => {
-    return content.includes(BLOCKED_CONTENT_ERROR);
-  });
-
-  expect(errorElements.length).toBeGreaterThan(0);
+  await expect(canvas.findByText(BLOCKED_CONTENT_ERROR)).resolves.toBeInTheDocument();
 };
 
-const testValidSubmission = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-  const canvas = within(canvasElement);
+const testValidSubmission = async ({ canvas }: StoryContext) => {
   const textarea = canvas.getByRole('textbox');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -149,19 +131,15 @@ const testValidSubmission = async ({ canvasElement }: { canvasElement: HTMLEleme
   await userEvent.type(textarea, 'This is a valid comment that is long enough');
   await userEvent.click(submitButton);
 
-  // Wait for any state updates
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  // Check for success message
-  await expect(canvas.getByText('Comment submitted successfully')).toBeInTheDocument();
+  await expect(canvas.findByText('Comment submitted successfully')).resolves.toBeInTheDocument();
 };
 
 // Stories
 export const Tests: Story = {
-  play: async (context) => {
-    testDefaultValues(context);
-    await testInvalidSubmission(context);
-    await testBlockedContent(context);
-    await testValidSubmission(context);
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testBlockedContent(storyContext);
+    await testValidSubmission(storyContext);
   },
 };

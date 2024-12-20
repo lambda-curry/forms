@@ -1,7 +1,7 @@
-import type { ComponentType } from 'react';
 import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
 import { createRemixStub } from '@remix-run/testing';
 import type { Decorator } from '@storybook/react';
+import type { ComponentType } from 'react';
 import type { IndexRouteObject, NonIndexRouteObject } from 'react-router-dom';
 
 export type StubRouteObject = StubIndexRouteObject | StubNonIndexRouteObject;
@@ -13,6 +13,8 @@ interface StubNonIndexRouteObject
   children?: StubRouteObject[];
   meta?: MetaFunction;
   links?: LinksFunction;
+  // biome-ignore lint/suspicious/noExplicitAny: allow any here
+  Component?: ComponentType<any>;
 }
 
 interface StubIndexRouteObject
@@ -22,28 +24,48 @@ interface StubIndexRouteObject
   children?: StubRouteObject[];
   meta?: MetaFunction;
   links?: LinksFunction;
+  // biome-ignore lint/suspicious/noExplicitAny: allow any here
+  Component?: ComponentType<any>;
 }
 
-export const withRemixStubDecorator = (routes: StubRouteObject[] = []): Decorator => {
-  return (Story: ComponentType) => {
-    const defaultRoute: StubRouteObject = {
-      path: '/*',
-      action: () => ({ redirect: '/' }),
-      loader: () => ({ redirect: '/' }),
-      Component: () => (
-        <div style={{ margin: '3em' }}>
-          <Story />
-        </div>
-      ),
-    };
+interface RemixStubOptions {
+  root?: {
+    // biome-ignore lint/suspicious/noExplicitAny: allow any here
+    Component?: ComponentType<any>;
+    loader?: LoaderFunction;
+    action?: ActionFunction;
+    meta?: MetaFunction;
+    links?: LinksFunction;
+  };
+  routes?: StubRouteObject[];
+}
 
+export const withRemixStubDecorator = (options: RemixStubOptions = {}): Decorator => {
+  return (Story) => {
+    const { root, routes = [] } = options;
+
+    // Map routes to include Story component as fallback if no Component provided
     const mappedRoutes = routes.map((route) => ({
       ...route,
       Component: route.Component ? route.Component : () => <Story />,
     }));
+    const rootRoute: StubRouteObject = {
+      id: 'root',
+      path: '/',
+      ...root,
+      Component: root?.Component ? root.Component : () => <Story />,
+      children:
+        mappedRoutes.length > 0
+          ? mappedRoutes.map((route) => ({
+              action: () => null,
+              ...route,
+            }))
+          : undefined,
+    };
 
-    const RemixStub = routes.length > 0 ? createRemixStub(mappedRoutes) : createRemixStub([defaultRoute]);
+    const RemixStub = createRemixStub([rootRoute]);
 
+    // You can also provide hydrationData if needed
     return <RemixStub initialEntries={['/']} />;
   };
 };

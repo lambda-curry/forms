@@ -1,0 +1,202 @@
+# Remix Stub Decorator for Storybook
+
+The Remix Stub Decorator provides a mock Remix environment for testing and previewing components in Storybook that depend on Remix's routing and data loading features.
+
+## Basic Usage
+
+The simplest way to use the decorator is to wrap your story with the default configuration:
+
+```typescript
+import { withRemixStubDecorator } from './remix-stub';
+
+export default {
+  title: 'Components/MyComponent',
+  component: MyComponent,
+  decorators: [withRemixStubDecorator()]
+};
+
+export const Default = {
+  render: () => <MyComponent />
+};
+```
+
+## Root Configuration
+
+The decorator supports root-level configuration for providers, shared data, and actions:
+
+```typescript
+export const WithRootConfig = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        // Root layout with providers
+        Component: ({ children }) => (
+          <ThemeProvider>
+            <Layout>{children}</Layout>
+          </ThemeProvider>
+        ),
+        // Root-level action handler
+        action: async ({ request }) => {
+          // Handle form submissions
+          return { success: true };
+        },
+        // Root-level loader
+        loader: () => ({
+          user: { name: 'John Doe' }
+        }),
+        // Root-level meta tags
+        meta: () => [{
+          title: 'My App'
+        }]
+      }
+    })
+  ]
+};
+```
+
+## Route Configuration
+
+Configure additional routes alongside root configuration:
+
+```typescript
+export const WithRoutes = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        Component: ({ children }) => (
+          <AppShell>{children}</AppShell>
+        )
+      },
+      routes: [
+        {
+          path: '/form',
+          action: async ({ request }) => {
+            return { success: true };
+          },
+          Component: FormComponent
+        }
+      ]
+    })
+  ]
+};
+```
+
+## TypeScript Interfaces
+
+```typescript
+interface RemixStubOptions {
+  root?: {
+    Component?: ComponentType<any>;
+    loader?: LoaderFunction;
+    action?: ActionFunction;
+    meta?: MetaFunction;
+    links?: LinksFunction;
+  };
+  routes?: StubRouteObject[];
+}
+
+interface StubRouteObject {
+  path?: string;
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  Component?: ComponentType<any>;
+  children?: StubRouteObject[];
+  meta?: MetaFunction;
+  links?: LinksFunction;
+}
+```
+
+## Best Practices
+
+1. **Root Configuration**
+   - Use root for global providers and layouts
+   - Handle common actions at the root level
+   - Share global data through root loader
+   - Set default meta and link tags
+
+2. **Route Organization**
+   - Define specific routes for form submissions
+   - Keep route structure similar to production
+   - Provide default actions for routes that need them
+
+3. **Component Structure**
+   - Place shared UI elements in root Component
+   - Use routes for page-specific components
+   - Handle form submissions in route actions
+
+4. **Form Handling**
+   - Set appropriate action paths in forms
+   - Handle validation in route actions
+   - Return proper response structures
+
+## Common Patterns
+
+### 1. Form Submission Route
+
+```typescript
+export const FormExample = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        Component: ({ children }) => (
+          <div className="p-4">{children}</div>
+        )
+      },
+      routes: [
+        {
+          path: '/submit',
+          action: async ({ request }) => {
+            const formData = await request.formData();
+            return { success: true, data: Object.fromEntries(formData) };
+          }
+        }
+      ]
+    })
+  ]
+};
+```
+
+### 2. Protected Routes
+
+```typescript
+export const ProtectedExample = {
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        loader: () => {
+          return { user: { isAuthenticated: true } };
+        },
+        Component: ({ children }) => (
+          <AuthProvider>{children}</AuthProvider>
+        )
+      },
+      routes: [
+        {
+          path: '/dashboard',
+          loader: () => {
+            return { dashboardData: [] };
+          },
+          Component: Dashboard
+        }
+      ]
+    })
+  ]
+};
+```
+
+## Testing Tips
+
+1. **Form Testing**
+   - Test form submissions with proper action paths
+   - Verify error handling and validation
+   - Check success messages and redirects
+
+2. **Route Testing**
+   - Test route transitions
+   - Verify loader data is available
+   - Check meta tag updates
+
+3. **Component Integration**
+   - Test component interactions with Remix hooks
+   - Verify form state management
+   - Check data loading states

@@ -1,4 +1,4 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -9,12 +9,12 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
-import { TextInput } from './text-input';
+import { RadioGroup } from './radio-group';
 
-export interface TextFieldProps<
+export interface RadioGroupFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name'> {
+> extends Omit<ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
@@ -22,7 +22,7 @@ export interface TextFieldProps<
   components?: Partial<FieldComponents>;
 }
 
-export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
+const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField
@@ -32,7 +32,7 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
           <FormItem className={className} ref={ref}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
-              <TextInput {...field} {...props} ref={field.ref} />
+              <RadioGroup ref={field.ref} onValueChange={field.onChange} defaultValue={field.value} {...props} />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
@@ -44,5 +44,6 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
     );
   },
 );
+RadioGroupField.displayName = 'RadioGroupField';
 
-TextField.displayName = 'TextField';
+export { RadioGroupField };

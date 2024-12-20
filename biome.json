@@ -39,7 +39,9 @@
       },
       "performance": {
         "all": true,
-        "noAccumulatingSpread": "off"
+        "noAccumulatingSpread": "off",
+        "noReExportAll": "off",
+        "noBarrelFile": "off"
       },
       "suspicious": {
         "noConsoleLog": "off",
