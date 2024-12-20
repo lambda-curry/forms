@@ -1,4 +1,5 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -14,7 +15,7 @@ import { TextInput } from './text-input';
 export interface TextFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name'> {
+> extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
@@ -22,7 +23,7 @@ export interface TextFieldProps<
   components?: Partial<FieldComponents>;
 }
 
-export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
+export const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField

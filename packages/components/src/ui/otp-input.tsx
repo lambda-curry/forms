@@ -1,12 +1,13 @@
 import { OTPInput as OTPInputPrimitive, type OTPInputProps } from 'input-otp';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 export type { OTPInputProps };
 
-export const OTPInput = forwardRef<
-  ElementRef<typeof OTPInputPrimitive>,
-  ComponentPropsWithoutRef<typeof OTPInputPrimitive>
+export const OTPInput = React.forwardRef<
+  React.ElementRef<typeof OTPInputPrimitive>,
+  React.ComponentPropsWithoutRef<typeof OTPInputPrimitive>
 >(({ className, containerClassName, ...props }, ref) => (
   <OTPInputPrimitive
     ref={ref}

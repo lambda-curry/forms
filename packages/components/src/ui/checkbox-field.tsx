@@ -1,7 +1,9 @@
-// biome-ignore lint/style/noNamespaceImport: from Radix
+// biome-ignore lint/style/noNamespaceImport: fromRadix
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ReactNode, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
+
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
 import {
@@ -17,16 +19,16 @@ import {
 export interface CheckboxProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
+> extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
   control?: Control<TFieldValues>;
   name: TName;
-  label?: ReactNode;
+  label?: React.ReactNode;
   description?: string;
   className?: string;
   components?: Partial<FieldComponents>;
 }
 
-const CheckboxField = forwardRef<HTMLDivElement, CheckboxProps>(
+const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
   ({ control, name, className, label, description, components, ...props }, ref) => (
     <FormField
       control={control}
@@ -48,10 +50,7 @@ const CheckboxField = forwardRef<HTMLDivElement, CheckboxProps>(
           </FormControl>
           <div className="space-y-1 leading-none">
             {label && (
-              <FormLabel
-                Component={components?.FormLabel}
-                className="!text-inherit" // Note: adding text-inherit here so the checkbox labels aren't also red during an error state since they are closer to their error text
-              >
+              <FormLabel Component={components?.FormLabel} className="!text-inherit">
                 {label}
               </FormLabel>
             )}

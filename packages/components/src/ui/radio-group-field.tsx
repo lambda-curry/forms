@@ -1,4 +1,5 @@
-import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -14,7 +15,7 @@ import { RadioGroup } from './radio-group';
 export interface RadioGroupFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
+> extends Omit<React.ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
@@ -22,7 +23,7 @@ export interface RadioGroupFieldProps<
   components?: Partial<FieldComponents>;
 }
 
-const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
+const RadioGroupField = React.forwardRef<HTMLDivElement, RadioGroupFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField

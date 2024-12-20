@@ -1,6 +1,7 @@
 // biome-ignore lint/style/noNamespaceImport: from Radix
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { type ComponentPropsWithoutRef, type ElementRef, type ReactNode, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Button } from './button';
 import { DropdownMenuContent } from './dropdown-menu';
@@ -17,20 +18,20 @@ import {
 export interface DropdownMenuSelectProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>, 'onChange' | 'value'> {
+> extends Omit<React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>, 'onChange' | 'value'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
   description?: string;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   labelClassName?: string;
   dropdownClassName?: string;
   components?: Partial<FieldComponents>;
 }
 
-export const DropdownMenuSelectField = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Root>,
+export const DropdownMenuSelectField = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Root>,
   DropdownMenuSelectProps
 >(
   (

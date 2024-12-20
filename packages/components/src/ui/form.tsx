@@ -1,25 +1,16 @@
 import type * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentType,
-  type ElementRef,
-  type HTMLAttributes,
-  createContext,
-  forwardRef,
-  useContext,
-  useId,
-} from 'react';
-import type { ForwardRefExoticComponent, RefAttributes } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import { Controller, type ControllerProps, type FieldPath, type FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
 import { Label } from './label';
 
 export interface FieldComponents {
-  FormControl: ForwardRefExoticComponent<FormControlProps & RefAttributes<HTMLDivElement>>;
-  FormDescription: ForwardRefExoticComponent<FormDescriptionProps & RefAttributes<HTMLParagraphElement>>;
-  FormLabel: ForwardRefExoticComponent<FormLabelProps & RefAttributes<HTMLLabelElement>>;
-  FormMessage: ForwardRefExoticComponent<FormMessageProps & RefAttributes<HTMLParagraphElement>>;
+  FormControl: React.ForwardRefExoticComponent<FormControlProps & React.RefAttributes<HTMLDivElement>>;
+  FormDescription: React.ForwardRefExoticComponent<FormDescriptionProps & React.RefAttributes<HTMLParagraphElement>>;
+  FormLabel: React.ForwardRefExoticComponent<FormLabelProps & React.RefAttributes<HTMLLabelElement>>;
+  FormMessage: React.ForwardRefExoticComponent<FormMessageProps & React.RefAttributes<HTMLParagraphElement>>;
 }
 
 export type FormFieldContextValue<
@@ -29,7 +20,7 @@ export type FormFieldContextValue<
   name: TName;
 };
 
-export const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue);
+export const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 export type FormItemContextValue = {
   id: string;
@@ -38,14 +29,14 @@ export type FormItemContextValue = {
   formMessageId: string;
 };
 
-export const FormItemContext = createContext<FormItemContextValue>({} as FormItemContextValue);
+export const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-export interface FormItemProps extends HTMLAttributes<HTMLDivElement> {
-  Component?: ComponentType<FormItemProps>;
+export interface FormItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  Component?: React.ComponentType<FormItemProps>;
 }
 
-export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(({ Component, className, ...props }, ref) => {
-  const id = useId();
+export const FormItem = React.forwardRef<HTMLDivElement, FormItemProps>(({ Component, className, ...props }, ref) => {
+  const id = React.useId();
 
   if (Component) {
     return <Component id={id} {...props} />;
@@ -66,14 +57,14 @@ export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(({ Component, 
 });
 FormItem.displayName = 'FormItem';
 
-export interface FormLabelProps extends ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
+export interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
   error?: string;
-  Component?: ForwardRefExoticComponent<FormLabelProps & RefAttributes<HTMLLabelElement>>;
+  Component?: React.ForwardRefExoticComponent<FormLabelProps & React.RefAttributes<HTMLLabelElement>>;
 }
 
-export const FormLabel = forwardRef<ElementRef<typeof LabelPrimitive.Root>, FormLabelProps>(
+export const FormLabel = React.forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, FormLabelProps>(
   ({ Component, htmlFor, className, error, ...props }, ref) => {
-    const { formItemId } = useContext(FormItemContext);
+    const { formItemId } = React.useContext(FormItemContext);
 
     if (Component) {
       return (
@@ -98,15 +89,15 @@ export const FormLabel = forwardRef<ElementRef<typeof LabelPrimitive.Root>, Form
 );
 FormLabel.displayName = 'FormLabel';
 
-export interface FormControlProps extends ComponentPropsWithoutRef<typeof Slot> {
+export interface FormControlProps extends React.ComponentPropsWithoutRef<typeof Slot> {
   error?: boolean;
   formItemId?: string;
   formDescriptionId?: string;
   formMessageId?: string;
-  Component?: ForwardRefExoticComponent<FormControlProps & RefAttributes<HTMLDivElement>>;
+  Component?: React.ForwardRefExoticComponent<FormControlProps & React.RefAttributes<HTMLDivElement>>;
 }
 
-export const FormControl = forwardRef<HTMLDivElement, FormControlProps>(({ Component, ...props }, ref) => {
+export const FormControl = React.forwardRef<HTMLDivElement, FormControlProps>(({ Component, ...props }, ref) => {
   const { formItemId, formDescriptionId, formMessageId, error, ...restProps } = props;
 
   const ariaProps = {
@@ -123,12 +114,12 @@ export const FormControl = forwardRef<HTMLDivElement, FormControlProps>(({ Compo
 });
 FormControl.displayName = 'FormControl';
 
-export interface FormDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
+export interface FormDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
   formDescriptionId?: string;
-  Component?: ForwardRefExoticComponent<FormDescriptionProps & RefAttributes<HTMLParagraphElement>>;
+  Component?: React.ForwardRefExoticComponent<FormDescriptionProps & React.RefAttributes<HTMLParagraphElement>>;
 }
 
-export const FormDescription = forwardRef<HTMLParagraphElement, FormDescriptionProps>(
+export const FormDescription = React.forwardRef<HTMLParagraphElement, FormDescriptionProps>(
   ({ Component, className, formDescriptionId, ...props }, ref) => {
     if (Component) {
       return (
@@ -146,13 +137,13 @@ export const FormDescription = forwardRef<HTMLParagraphElement, FormDescriptionP
 );
 FormDescription.displayName = 'FormDescription';
 
-export interface FormMessageProps extends HTMLAttributes<HTMLParagraphElement> {
+export interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {
   formMessageId?: string;
   error?: string;
-  Component?: ForwardRefExoticComponent<FormMessageProps & RefAttributes<HTMLParagraphElement>>;
+  Component?: React.ForwardRefExoticComponent<FormMessageProps & React.RefAttributes<HTMLParagraphElement>>;
 }
 
-export const FormMessage = forwardRef<HTMLParagraphElement, FormMessageProps>(
+export const FormMessage = React.forwardRef<HTMLParagraphElement, FormMessageProps>(
   ({ Component, className, ...props }, ref) => {
     const { formMessageId, error, children } = props;
 
@@ -184,7 +175,7 @@ export interface FormFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends ControllerProps<TFieldValues, TName> {
-  Component?: ComponentType<FormFieldProps<TFieldValues, TName>>;
+  Component?: React.ComponentType<FormFieldProps<TFieldValues, TName>>;
 }
 
 export const FormField = <
