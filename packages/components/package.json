@@ -7,7 +7,7 @@
   "exports": {
     "./ui": {
       "types": "./build/src/ui/index.d.ts",
-      "import": "./build/src/ui/index.js"
+      "default": "./build/src/ui/index.js"
     },
     "./ui/*": {
       "types": "./build/src/ui/*.d.ts",
@@ -19,7 +19,7 @@
     },
     "./remix": {
       "types": "./build/src/remix/index.d.ts",
-      "import": "./build/src/remix/index.js"
+      "default": "./build/src/remix/index.js"
     },
     "./remix/*": {
       "types": "./build/src/remix/*.d.ts",
