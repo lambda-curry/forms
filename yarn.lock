@@ -4415,17 +4415,17 @@ __metadata:
   linkType: hard
 
 "@vanilla-extract/babel-plugin-debug-ids@npm:^1.0.4":
-  version: 1.1.0
-  resolution: "@vanilla-extract/babel-plugin-debug-ids@npm:1.1.0"
+  version: 1.2.0
+  resolution: "@vanilla-extract/babel-plugin-debug-ids@npm:1.2.0"
   dependencies:
     "@babel/core": "npm:^7.23.9"
-  checksum: 10c0/1f06a7ea8bf28af3ef4b9e06690121f394af268992c5e0e706b43cf38f13ba940ad556cd1d424725c143f64d9165ce0c09d6e0bd859366a81b849f997726817d
+  checksum: 10c0/8deacf21394fa400c70f0b5b2c9891b64265036aae2e579ee24e237b92f2350615a98c211a701972ef7287e0de42fcb6ac166d75036663cf660cf4f7a0e2e55e
   languageName: node
   linkType: hard
 
 "@vanilla-extract/css@npm:^1.14.0":
-  version: 1.16.1
-  resolution: "@vanilla-extract/css@npm:1.16.1"
+  version: 1.17.0
+  resolution: "@vanilla-extract/css@npm:1.17.0"
   dependencies:
     "@emotion/hash": "npm:^0.9.0"
     "@vanilla-extract/private": "npm:^1.0.6"
@@ -4439,7 +4439,7 @@ __metadata:
     media-query-parser: "npm:^2.0.2"
     modern-ahocorasick: "npm:^1.0.0"
     picocolors: "npm:^1.0.0"
-  checksum: 10c0/a26236e1a20fd4bb675b01905ccb489978c3cce39902618ee979a830bf3a44929d9183f2a38762ea4d791dccefc3ee8d8022dfec0f8920a5f3a372bf6aac4e70
+  checksum: 10c0/14f3129bd025245515fe8aac2bfff301610ac60b57a3907a5cf2511e4469cfd719c4a3381be343328a49c7994259bd0ef26cfd7868f78500bf7f063e4b886490
   languageName: node
   linkType: hard
 
