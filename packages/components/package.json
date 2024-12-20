@@ -17,6 +17,9 @@
       "default": "./build/lib/utils.js"
     }
   },
+  "files": [
+    "build/src/*"
+  ],
   "scripts": {
     "prepublishOnly": "yarn run build",
     "cleanbuild": "rm -rf build",
