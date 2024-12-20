@@ -1,6 +1,6 @@
 {
   "name": "@lambdacurry/forms",
-  "version": "0.11.14",
+  "version": "0.11.15",
   "main": "./build/src/index.js",
   "source": "./src/index.ts",
   "types": "./build/src/index.d.ts",
