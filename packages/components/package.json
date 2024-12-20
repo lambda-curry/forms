@@ -5,12 +5,16 @@
   "types": "./build/src/index.d.ts",
   "exports": {
     "./remix": {
-      "types": "./build/src/remix/index.d.ts",
-      "default": "./build/src/remix/index.js"
+      "import": {
+        "types": "./build/src/remix/index.d.ts",
+        "default": "./build/src/remix/index.js"
+      }
     },
     "./ui": {
-      "types": "./build/src/ui/index.d.ts",
-      "default": "./build/src/ui/index.js"
+      "import": {
+        "types": "./build/src/ui/index.d.ts",
+        "default": "./build/src/ui/index.js"
+      }
     }
   },
   "files": [
