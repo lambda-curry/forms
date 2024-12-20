@@ -1,4 +1,5 @@
-import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -14,7 +15,7 @@ import { Textarea } from './textarea';
 export interface TextareaFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<ComponentPropsWithoutRef<typeof Textarea>, 'name'> {
+> extends Omit<React.ComponentPropsWithoutRef<typeof Textarea>, 'name'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
@@ -22,7 +23,7 @@ export interface TextareaFieldProps<
   components?: Partial<FieldComponents>;
 }
 
-const TextareaField = forwardRef<HTMLDivElement, TextareaFieldProps>(
+const TextareaField = React.forwardRef<HTMLDivElement, TextareaFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
     return (
       <FormField

@@ -1,4 +1,5 @@
-import { type ComponentPropsWithoutRef, type ReactNode, forwardRef } from 'react';
+// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '../../lib/utils';
 import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
@@ -7,16 +8,16 @@ import { Switch } from './switch';
 export interface SwitchProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends ComponentPropsWithoutRef<typeof Switch> {
+> extends React.ComponentPropsWithoutRef<typeof Switch> {
   control?: Control<TFieldValues>;
   name: TName;
-  label?: ReactNode;
+  label?: React.ReactNode;
   description?: string;
   className?: string;
   components?: Partial<FieldComponents>;
 }
 
-const SwitchField = forwardRef<HTMLDivElement, SwitchProps>(
+const SwitchField = React.forwardRef<HTMLDivElement, SwitchProps>(
   ({ control, name, className, label, description, components, ...props }, ref) => (
     <FormField
       control={control}
