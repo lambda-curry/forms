@@ -4,8 +4,17 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "outDir": "./build",
+    "rootDir": "./",
+    "module": "ESNext",
+    "target": "ESNext",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node"
   },
-  "include": ["lib", "src", "../../apps/docs/src/lib/storybook"],
-  "exclude": ["dist", "build", "node_modules"]
+  "include": ["src"],
+  "exclude": ["node_modules", "build"]
 }

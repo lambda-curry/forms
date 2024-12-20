@@ -1,5 +1,15 @@
 {
-  "cSpell.words": ["autodocs", "biomejs", "Filenaming", "hookform", "isbot", "lucide", "shadcn", "sonner"],
+  "cSpell.words": [
+    "autodocs",
+    "biomejs",
+    "cleanbuild",
+    "Filenaming",
+    "hookform",
+    "isbot",
+    "lucide",
+    "shadcn",
+    "sonner"
+  ],
   "editor.defaultFormatter": "biomejs.biome",
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"

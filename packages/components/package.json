@@ -5,15 +5,22 @@
   "types": "./index.ts",
   "exports": {
     "./ui": {
-      "types": "./src/ui/index.ts",
-      "default": "./src/ui/index.ts"
+      "types": "./build/src/ui/index.d.ts",
+      "default": "./build/src/ui/index.js"
     },
     "./remix": {
-      "types": "./src/remix/index.ts",
-      "default": "./src/remix/index.ts"
+      "types": "./build/src/remix/index.d.ts",
+      "default": "./build/src/remix/index.js"
+    },
+    "./lib/utils": {
+      "types": "./build/lib/utils.d.ts",
+      "default": "./build/lib/utils.js"
     }
   },
   "scripts": {
+    "prepublishOnly": "yarn run build",
+    "cleanbuild": "rm -rf build",
+    "build": "yarn cleanbuild && yarn type-check && tsc",
     "lint": "biome check .",
     "lint:fix": "biome check --apply .",
     "type-check": "tsc --noEmit"
