@@ -6,7 +6,7 @@
       "@/*": ["./*"]
     },
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDir": "./",
     "module": "ESNext",
     "target": "ESNext",
     "declaration": true,
