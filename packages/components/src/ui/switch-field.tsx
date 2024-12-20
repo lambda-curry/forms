@@ -1,9 +1,9 @@
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { cn } from '../../lib/utils';
 import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 import { Switch } from './switch';
+import { cn } from './utils';
 
 export interface SwitchProps<
   TFieldValues extends FieldValues = FieldValues,

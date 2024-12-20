@@ -3,7 +3,6 @@ import { Dot } from 'lucide-react';
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldValues } from 'react-hook-form';
-import { cn } from '../../lib/utils';
 import {
   type FieldComponents,
   FormControl,
@@ -15,6 +14,7 @@ import {
   FormMessage,
 } from './form';
 import { OTPInput } from './otp-input';
+import { cn } from './utils';
 
 export type { OTPInputProps };
 

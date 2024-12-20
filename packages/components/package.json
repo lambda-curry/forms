@@ -11,10 +11,6 @@
     "./remix": {
       "types": "./build/src/remix/index.d.ts",
       "default": "./build/src/remix/index.js"
-    },
-    "./lib/utils": {
-      "types": "./build/lib/utils.d.ts",
-      "default": "./build/lib/utils.js"
     }
   },
   "files": [

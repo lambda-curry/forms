@@ -2,7 +2,7 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from './utils';
 
 const Popover = PopoverPrimitive.Root;
 

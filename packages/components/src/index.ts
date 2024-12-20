@@ -1,3 +1,3 @@
 export * from './ui';
 export * from './remix';
-export * from './util';
+export * from './ui/utils';

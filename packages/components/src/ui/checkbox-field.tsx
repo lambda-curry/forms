@@ -5,7 +5,6 @@ import { Check } from 'lucide-react';
 import * as React from 'react';
 
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { cn } from '../../lib/utils';
 import {
   type FieldComponents,
   FormControl,
@@ -15,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
+import { cn } from './utils';
 
 export interface CheckboxProps<
   TFieldValues extends FieldValues = FieldValues,

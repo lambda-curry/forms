@@ -3,7 +3,6 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { cn } from '../../lib/utils';
 import { Button } from './button';
 import { DatePicker } from './date-picker';
 import {
@@ -16,6 +15,7 @@ import {
   FormMessage,
 } from './form';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { cn } from './utils';
 
 export interface DatePickerFieldProps<
   TFieldValues extends FieldValues = FieldValues,
