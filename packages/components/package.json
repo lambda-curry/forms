@@ -5,25 +5,9 @@
   "source": "./src/index.ts",
   "types": "./build/src/index.d.ts",
   "exports": {
-    "./ui": {
-      "types": "./build/src/ui/index.d.ts",
-      "default": "./build/src/ui/index.js"
-    },
-    "./ui/*": {
-      "types": "./build/src/ui/*.d.ts",
-      "import": "./build/src/ui/*.js"
-    },
-    "./utils/*": {
-      "types": "./build/src/ui/utils/*.d.ts",
-      "import": "./build/src/ui/utils/*.js"
-    },
-    "./remix": {
-      "types": "./build/src/remix/index.d.ts",
-      "default": "./build/src/remix/index.js"
-    },
-    "./remix/*": {
-      "types": "./build/src/remix/*.d.ts",
-      "import": "./build/src/remix/*.js"
+    ".": {
+      "types": "./build/src/index.d.ts",
+      "default": "./build/src/index.js"
     }
   },
   "files": [
