@@ -8,9 +8,21 @@
       "types": "./build/src/ui/index.d.ts",
       "default": "./build/src/ui/index.js"
     },
+    "./ui/*": {
+      "types": "./build/src/ui/*.d.ts",
+      "default": "./build/src/ui/*.js"
+    },
+    "./utils/*": {
+      "types": "./build/src/ui/utils/*.d.ts",
+      "default": "./build/src/ui/utils/*.js"
+    },
     "./remix": {
       "types": "./build/src/remix/index.d.ts",
       "default": "./build/src/remix/index.js"
+    },
+    "./remix/*": {
+      "types": "./build/src/remix/*.d.ts",
+      "default": "./build/src/remix/*.js"
     }
   },
   "files": [
