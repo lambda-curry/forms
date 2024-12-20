@@ -1,6 +1,6 @@
 {
   "name": "@lambdacurry/forms",
-  "version": "0.11.8",
+  "version": "0.11.9",
   "main": "./index.ts",
   "types": "./index.ts",
   "exports": {
