@@ -2,31 +2,32 @@
   "name": "@lambdacurry/forms",
   "version": "0.11.14",
   "main": "./build/src/index.js",
+  "source": "./src/index.ts",
   "types": "./build/src/index.d.ts",
   "exports": {
     "./ui": {
       "types": "./build/src/ui/index.d.ts",
-      "default": "./build/src/ui/index.js"
+      "import": "./build/src/ui/index.js"
     },
     "./ui/*": {
       "types": "./build/src/ui/*.d.ts",
-      "default": "./build/src/ui/*.js"
+      "import": "./build/src/ui/*.js"
     },
     "./utils/*": {
       "types": "./build/src/ui/utils/*.d.ts",
-      "default": "./build/src/ui/utils/*.js"
+      "import": "./build/src/ui/utils/*.js"
     },
     "./remix": {
       "types": "./build/src/remix/index.d.ts",
-      "default": "./build/src/remix/index.js"
+      "import": "./build/src/remix/index.js"
     },
     "./remix/*": {
       "types": "./build/src/remix/*.d.ts",
-      "default": "./build/src/remix/*.js"
+      "import": "./build/src/remix/*.js"
     }
   },
   "files": [
-    "build/**/*"
+    "build"
   ],
   "scripts": {
     "prepublishOnly": "yarn run build",
