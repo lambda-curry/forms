@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.2
+
+### Patch Changes
+
+- c39b177: Fixed versioning
+
 ## 0.12.1
 
 ### Patch Changes
