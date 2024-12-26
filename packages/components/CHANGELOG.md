@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.1
+
+### Patch Changes
+
+- da26669: Updated remix-hook-form
+
 ## 0.10.0
 
 ### Minor Changes
