@@ -24,7 +24,7 @@
     "@remix-run/testing": "^2.15.1",
     "@storybook/test-runner": "^0.20.1",
     "@storybook/testing-library": "^0.2.2",
-    "@types/react": "^18.3.18",
+    "@types/react": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.20",
