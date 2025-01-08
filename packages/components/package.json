@@ -24,9 +24,7 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "prepublishOnly": "yarn run build",
     "build": "vite build",
@@ -35,7 +33,8 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "remix-hook-form": "5.1.1"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
