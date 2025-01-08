@@ -2043,6 +2043,7 @@ __metadata:
     zod: "npm:^3.24.1"
   peerDependencies:
     react: ^18.0.0
+    remix-hook-form: 5.1.1
   languageName: unknown
   linkType: soft
 
