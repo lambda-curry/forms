@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.3
+
+### Patch Changes
+
+- e863d1b: Added remix-hook-form as a peer dependency
+
 ## 0.12.2
 
 ### Patch Changes
