@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.4
+
+### Patch Changes
+
+- b668f74: Added the ability to pass in your own indicator to the radio group
+
 ## 0.12.3
 
 ### Patch Changes
