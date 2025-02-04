@@ -26,10 +26,12 @@ export interface CheckboxProps<
   description?: string;
   className?: string;
   components?: Partial<FieldComponents>;
+  indicatorClassName?: string;
+  checkClassName?: string;
 }
 
 const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
-  ({ control, name, className, label, description, components, ...props }, ref) => (
+  ({ control, name, className, label, description, components, indicatorClassName, checkClassName, ...props }, ref) => (
     <FormField
       control={control}
       name={name}
@@ -43,8 +45,8 @@ const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
               onCheckedChange={field.onChange}
               {...props}
             >
-              <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
-                <Check className="h-4 w-4" />
+              <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current', indicatorClassName)}>
+                <Check className={cn('h-4 w-4', checkClassName)} />
               </CheckboxPrimitive.Indicator>
             </CheckboxPrimitive.Root>
           </FormControl>
