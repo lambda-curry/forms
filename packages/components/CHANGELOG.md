@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.5
+
+### Patch Changes
+
+- 23a31e7: Added classnames to style the checkbox and actually check in the checkbox component
+
 ## 0.12.4
 
 ### Patch Changes
