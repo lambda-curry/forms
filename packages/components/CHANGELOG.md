@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.12.6
+
+### Patch Changes
+
+- 88c5ee5: Fixed spacing for the checkbox label
+
 ## 0.12.5
 
 ### Patch Changes
