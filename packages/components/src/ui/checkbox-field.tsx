@@ -36,7 +36,7 @@ const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={cn('flex flex-row items-start space-x-3 space-y-0', className)} ref={ref}>
+        <FormItem className={cn('flex flex-row items-start space-y-0', className)} ref={ref}>
           <FormControl Component={components?.FormControl}>
             <CheckboxPrimitive.Root
               ref={field.ref}
@@ -45,7 +45,9 @@ const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
               onCheckedChange={field.onChange}
               {...props}
             >
-              <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current', indicatorClassName)}>
+              <CheckboxPrimitive.Indicator
+                className={cn('flex items-center justify-center text-current', indicatorClassName)}
+              >
                 <Check className={cn('h-4 w-4', checkClassName)} />
               </CheckboxPrimitive.Indicator>
             </CheckboxPrimitive.Root>
