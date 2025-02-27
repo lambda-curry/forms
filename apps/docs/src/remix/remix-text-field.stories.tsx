@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RemixTextField } from '@lambdacurry/forms/remix/remix-text-field';
-import { Button } from '@lambdacurry/forms/ui/button';
+import { Button } from '@lambdacurry/forms/test/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
