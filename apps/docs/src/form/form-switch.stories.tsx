@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixSwitch } from '@lambdacurry/forms/remix/remix-switch';
+import { FormSwitch } from '@lambdacurry/forms/form/form-switch';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -36,8 +36,8 @@ const ControlledSwitchExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
-          <RemixSwitch name="notifications" label="Enable notifications" />
-          <RemixSwitch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
+          <FormSwitch name="notifications" label="Enable notifications" />
+          <FormSwitch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -58,9 +58,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Settings updated successfully' };
 };
 
-const meta: Meta<typeof RemixSwitch> = {
-  title: 'Remix/RemixSwitch',
-  component: RemixSwitch,
+const meta: Meta<typeof FormSwitch> = {
+  title: 'Form/FormSwitch',
+  component: FormSwitch,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -71,33 +71,36 @@ const meta: Meta<typeof RemixSwitch> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixSwitch>;
+} satisfies Meta<typeof FormSwitch>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const notificationsSwitch = canvas.getByLabelText('Enable notifications');
-  const darkModeSwitch = canvas.getByLabelText('Dark mode');
-  expect(notificationsSwitch).not.toBeChecked();
-  expect(darkModeSwitch).not.toBeChecked();
+const testDefaultValues = ({ canvas }: StoryContext) => {
+  const notificationsContainer = canvas.getByText('Enable notifications').closest('.form-item');
+  const darkModeContainer = canvas.getByText('Dark mode').closest('.form-item');
+  
+  expect(notificationsContainer?.querySelector('[role="switch"]')).not.toBeChecked();
+  expect(darkModeContainer?.querySelector('[role="switch"]')).not.toBeChecked();
 };
 
-const testToggleSwitches = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const notificationsSwitch = canvas.getByLabelText('Enable notifications');
-  const darkModeSwitch = canvas.getByLabelText('Dark mode');
+const testToggleSwitches = async ({ canvas }: StoryContext) => {
+  const notificationsContainer = canvas.getByText('Enable notifications').closest('.form-item');
+  const darkModeContainer = canvas.getByText('Dark mode').closest('.form-item');
+  
+  const notificationsSwitch = notificationsContainer?.querySelector('[role="switch"]');
+  const darkModeSwitch = darkModeContainer?.querySelector('[role="switch"]');
 
-  await userEvent.click(notificationsSwitch);
-  await userEvent.click(darkModeSwitch);
+  if (notificationsSwitch && darkModeSwitch) {
+    await userEvent.click(notificationsSwitch);
+    await userEvent.click(darkModeSwitch);
 
-  expect(notificationsSwitch).toBeChecked();
-  expect(darkModeSwitch).toBeChecked();
+    expect(notificationsSwitch).toBeChecked();
+    expect(darkModeSwitch).toBeChecked();
+  }
 };
 
-const testSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
+const testSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
 

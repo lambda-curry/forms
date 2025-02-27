@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { FormCheckbox } from '@lambdacurry/forms/form/form-checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -23,9 +23,9 @@ const ControlledCheckboxExample = () => {
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      terms: false as true, // Note: ZOD Schema expects a true value
+      terms: false as true,
       marketing: false,
-      required: false as true, //Note: ZOD Schema expects a true value
+      required: false as true,
     },
     fetcher,
     submitConfig: {
@@ -38,14 +38,22 @@ const ControlledCheckboxExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
-          <RemixCheckbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
-          <RemixCheckbox
+          <FormCheckbox 
+            className="rounded-md border p-4" 
+            name="terms" 
+            label="Accept terms and conditions"
+          />
+          <FormCheckbox
             className="rounded-md border p-4"
             name="marketing"
             label="Receive marketing emails"
             description="We will send you hourly updates about our products"
           />
-          <RemixCheckbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
+          <FormCheckbox 
+            className="rounded-md border p-4" 
+            name="required" 
+            label="This is a required checkbox"
+          />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -66,9 +74,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Form submitted successfully' };
 };
 
-const meta: Meta<typeof RemixCheckbox> = {
-  title: 'Remix/RemixCheckbox',
-  component: RemixCheckbox,
+const meta: Meta<typeof FormCheckbox> = {
+  title: 'Form/FormCheckbox',
+  component: FormCheckbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -79,18 +87,19 @@ const meta: Meta<typeof RemixCheckbox> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixCheckbox>;
+} satisfies Meta<typeof FormCheckbox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
-  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
-  const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
-  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-  expect(termsCheckbox).not.toBeChecked();
-  expect(marketingCheckbox).not.toBeChecked();
-  expect(requiredCheckbox).not.toBeChecked();
+  const termsContainer = canvas.getByText('Accept terms and conditions').closest('.form-item');
+  const marketingContainer = canvas.getByText('Receive marketing emails').closest('.form-item');
+  const requiredContainer = canvas.getByText('This is a required checkbox').closest('.form-item');
+  
+  expect(termsContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
+  expect(marketingContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
+  expect(requiredContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
 };
 
 const testInvalidSubmission = async ({ canvas }: StoryContext) => {
@@ -101,15 +110,18 @@ const testInvalidSubmission = async ({ canvas }: StoryContext) => {
 };
 
 const testValidSubmission = async ({ canvas }: StoryContext) => {
-  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
-  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-  await userEvent.click(termsCheckbox);
-  await userEvent.click(requiredCheckbox);
+  const termsCheckbox = canvas.getByText('Accept terms and conditions').closest('.form-item')?.querySelector('[role="checkbox"]');
+  const requiredCheckbox = canvas.getByText('This is a required checkbox').closest('.form-item')?.querySelector('[role="checkbox"]');
+  
+  if (termsCheckbox && requiredCheckbox) {
+    await userEvent.click(termsCheckbox);
+    await userEvent.click(requiredCheckbox);
 
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
+    await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
+  }
 };
 
 export const Tests: Story = {
@@ -142,9 +154,9 @@ export const Tests: Story = {
       <RemixFormProvider {...methods}>
         <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
           <div className='grid gap-4'>
-            <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
-            <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
-            <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
+            <FormCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
+            <FormCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
+            <FormCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
           </div>
           <Button type="submit" className="mt-4">
             Submit

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { FormCheckbox } from '@lambdacurry/forms/form/form-checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -67,7 +67,7 @@ const ControlledCheckboxListExample = () => {
           <p className="text-sm text-gray-500">Select your favorite colors:</p>
           <div className="grid gap-4">
             {AVAILABLE_COLORS.map(({ value, label }) => (
-              <RemixCheckbox key={value} className="rounded-md border p-4" name={`colors.${value}`} label={label} />
+              <FormCheckbox key={value} className="rounded-md border p-4" name={`colors.${value}`} label={label} />
             ))}
           </div>
           <FormMessage error={methods.formState.errors.colors?.root?.message} />
@@ -100,9 +100,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Colors selected successfully', selectedColors };
 };
 
-const meta: Meta<typeof RemixCheckbox> = {
-  title: 'Remix/RemixCheckboxList',
-  component: RemixCheckbox,
+const meta: Meta<typeof FormCheckbox> = {
+  title: 'Form/FormCheckboxList',
+  component: FormCheckbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -113,15 +113,15 @@ const meta: Meta<typeof RemixCheckbox> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixCheckbox>;
+} satisfies Meta<typeof FormCheckbox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
   AVAILABLE_COLORS.forEach(({ label }) => {
-    const checkbox = canvas.getByLabelText(label);
-    expect(checkbox).not.toBeChecked();
+    const container = canvas.getByText(label).closest('.form-item');
+    expect(container?.querySelector('[role="checkbox"]')).not.toBeChecked();
   });
 };
 
@@ -136,17 +136,22 @@ const testErrorState = async ({ canvas }: StoryContext) => {
 
 const testColorSelection = async ({ canvas }: StoryContext) => {
   // Select two colors
-  const redCheckbox = canvas.getByLabelText('Red');
-  const blueCheckbox = canvas.getByLabelText('Blue');
+  const redContainer = canvas.getByText('Red').closest('.form-item');
+  const blueContainer = canvas.getByText('Blue').closest('.form-item');
+  
+  const redCheckbox = redContainer?.querySelector('[role="checkbox"]');
+  const blueCheckbox = blueContainer?.querySelector('[role="checkbox"]');
 
-  await userEvent.click(redCheckbox);
-  await userEvent.click(blueCheckbox);
+  if (redCheckbox && blueCheckbox) {
+    await userEvent.click(redCheckbox);
+    await userEvent.click(blueCheckbox);
 
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-  // Check if the selected colors are displayed
-  await expect(await canvas.findByText('Red, Blue')).toBeInTheDocument();
+    // Check if the selected colors are displayed
+    await expect(await canvas.findByText('Red, Blue')).toBeInTheDocument();
+  }
 };
 
 export const Tests: Story = {

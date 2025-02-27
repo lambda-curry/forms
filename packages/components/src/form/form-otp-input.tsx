@@ -1,9 +1,9 @@
 import { useRemixFormContext } from 'remix-hook-form';
 import { OTPInputField, type OTPInputFieldProps } from '../ui/otp-input-field';
 
-export type RemixOTPInputFieldProps = Omit<OTPInputFieldProps, 'control'>;
+export type FormOTPInputFieldProps = Omit<OTPInputFieldProps, 'control'>;
 
-export function RemixOTPInputField(props: RemixOTPInputFieldProps) {
+export function FormOTPInputField(props: FormOTPInputFieldProps) {
   const { control } = useRemixFormContext();
   const { name, ...restProps } = props;
 
