@@ -1,26 +1,27 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixDatePicker } from '@lambdacurry/forms/remix/remix-date-picker';
+import { FormOTPInputField } from '@lambdacurry/forms/form/form-otp-input';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
+import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
 
 const formSchema = z.object({
-  eventDate: z.coerce.date(),
+  otp: z.string().length(6, 'Please enter a 6-digit code'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixDatePickerExample = () => {
+const FormOTPInputExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      eventDate: undefined,
+      otp: '',
     },
     fetcher,
     submitConfig: {
@@ -32,7 +33,12 @@ const RemixDatePickerExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RemixDatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
+        <FormOTPInputField
+          name="otp"
+          label="One-Time Password"
+          description="Enter the 6-digit code sent to your phone."
+          maxLength={6}
+        />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -53,70 +59,50 @@ const handleFormSubmission = async (request: Request) => {
     return { errors, defaultValues };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'OTP verified successfully' };
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixDatePicker> = {
-  title: 'Remix/RemixDatePicker',
-  component: RemixDatePicker,
+const meta: Meta<typeof FormOTPInputField> = {
+  title: 'Form/FormOTPInput',
+  component: FormOTPInputField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: RemixDatePickerExample,
+        Component: FormOTPInputExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
   ],
-} satisfies Meta<typeof RemixDatePicker>;
+} satisfies Meta<typeof FormOTPInputField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  expect(datePickerButton).toHaveTextContent('Event Date');
-};
-
-const testDateSelection = async ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  await userEvent.click(datePickerButton);
-
-  await waitFor(async () => {
-    const popover = document.querySelector('[role="dialog"]');
-    expect(popover).not.toBeNull();
-
-    if (popover) {
-      const calendar = within(popover as HTMLElement).getByRole('grid');
-      expect(calendar).toBeInTheDocument();
-
-      const dateCell = within(calendar).getByText('15');
-      expect(dateCell).toBeInTheDocument();
-      await userEvent.click(dateCell);
-    }
-  });
-
-  const dateToSelect = '15';
-  await waitFor(() => {
-    const updatedDatePickerButton = canvas.getByRole('button', { name: new RegExp(dateToSelect, 'i') });
-    expect(updatedDatePickerButton).toBeInTheDocument();
-  });
-};
-
-const testSubmission = async ({ canvas }: StoryContext) => {
+// Update the test functions to accept storyContext
+const testIncompleteSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  const input = canvasElement.querySelector('input');
+  await userEvent.type(input as HTMLInputElement, '123');
   await userEvent.click(submitButton);
-
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+  await expect(canvas.findByText('Please enter a 6-digit code')).resolves.toBeInTheDocument();
 };
 
-// Stories
+const testSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  const input = canvasElement.querySelector('input');
+  await userEvent.type(input as HTMLInputElement, '123456');
+  await userEvent.click(submitButton);
+  await expect(canvas.findByText('OTP verified successfully')).resolves.toBeInTheDocument();
+};
+
 export const Tests: Story = {
   play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testDateSelection(storyContext);
+    await testIncompleteSubmission(storyContext);
     await testSubmission(storyContext);
   },
 };
