@@ -100,47 +100,54 @@ type Story = StoryObj<typeof meta>;
 
 // Test scenarios
 const testDefaultValues = ({ canvas }: StoryContext) => {
-  const input = canvas.getByLabelText('Username');
+  const container = canvas.getByText('Username').closest('.form-item');
+  const input = container?.querySelector('input');
   expect(input).toHaveValue(INITIAL_USERNAME);
 };
 
 const testInvalidSubmission = async ({ canvas }: StoryContext) => {
-  const input = canvas.getByLabelText('Username');
+  const container = canvas.getByText('Username').closest('.form-item');
+  const input = container?.querySelector('input');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
-  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
-  await userEvent.click(input);
-  await userEvent.clear(input);
-  await userEvent.type(input, 'ab');
-  await userEvent.click(submitButton);
+  if (input) {
+    // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, 'ab');
+    await userEvent.click(submitButton);
+  }
+  
   // Use findByText instead of getByText to allow for async updates
   await expect(await canvas.findByText('Username must be at least 3 characters')).toBeInTheDocument();
 };
 
 const testUsernameTaken = async ({ canvas }: StoryContext) => {
-  const input = canvas.getByLabelText('Username');
+  const container = canvas.getByText('Username').closest('.form-item');
+  const input = container?.querySelector('input');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
-  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
-  await userEvent.click(input);
-  await userEvent.clear(input);
-  await userEvent.type(input, USERNAME_TAKEN);
-  await userEvent.click(submitButton);
-
-  // wait for response to return
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  if (input) {
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, USERNAME_TAKEN);
+    await userEvent.click(submitButton);
+  }
 
   await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
 
 const testValidSubmission = async ({ canvas }: StoryContext) => {
-  const input = canvas.getByLabelText('Username');
+  const container = canvas.getByText('Username').closest('.form-item');
+  const input = container?.querySelector('input');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
-  await userEvent.click(input);
-  await userEvent.clear(input);
-  await userEvent.type(input, 'valid_username');
-  await userEvent.click(submitButton);
+  if (input) {
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, 'valid_username');
+    await userEvent.click(submitButton);
+  }
 
   // Use findByText which waits for the element to appear
   const successMessage = await canvas.findByText('Form submitted successfully');

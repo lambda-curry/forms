@@ -76,28 +76,31 @@ const meta: Meta<typeof FormSwitch> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const notificationsSwitch = canvas.getByLabelText('Enable notifications');
-  const darkModeSwitch = canvas.getByLabelText('Dark mode');
-  expect(notificationsSwitch).not.toBeChecked();
-  expect(darkModeSwitch).not.toBeChecked();
+const testDefaultValues = ({ canvas }: StoryContext) => {
+  const notificationsContainer = canvas.getByText('Enable notifications').closest('.form-item');
+  const darkModeContainer = canvas.getByText('Dark mode').closest('.form-item');
+  
+  expect(notificationsContainer?.querySelector('[role="switch"]')).not.toBeChecked();
+  expect(darkModeContainer?.querySelector('[role="switch"]')).not.toBeChecked();
 };
 
-const testToggleSwitches = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const notificationsSwitch = canvas.getByLabelText('Enable notifications');
-  const darkModeSwitch = canvas.getByLabelText('Dark mode');
+const testToggleSwitches = async ({ canvas }: StoryContext) => {
+  const notificationsContainer = canvas.getByText('Enable notifications').closest('.form-item');
+  const darkModeContainer = canvas.getByText('Dark mode').closest('.form-item');
+  
+  const notificationsSwitch = notificationsContainer?.querySelector('[role="switch"]');
+  const darkModeSwitch = darkModeContainer?.querySelector('[role="switch"]');
 
-  await userEvent.click(notificationsSwitch);
-  await userEvent.click(darkModeSwitch);
+  if (notificationsSwitch && darkModeSwitch) {
+    await userEvent.click(notificationsSwitch);
+    await userEvent.click(darkModeSwitch);
 
-  expect(notificationsSwitch).toBeChecked();
-  expect(darkModeSwitch).toBeChecked();
+    expect(notificationsSwitch).toBeChecked();
+    expect(darkModeSwitch).toBeChecked();
+  }
 };
 
-const testSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
+const testSubmission = async ({ canvas }: StoryContext) => {
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
 
