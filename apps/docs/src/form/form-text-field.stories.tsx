@@ -134,7 +134,8 @@ const testUsernameTaken = async ({ canvas }: StoryContext) => {
     await userEvent.click(submitButton);
   }
 
-  await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
+  // Changed from getByText to findByText to handle async rendering
+  await expect(await canvas.findByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
 
 const testValidSubmission = async ({ canvas }: StoryContext) => {
