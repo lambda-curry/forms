@@ -3,7 +3,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { Button } from './button';
+import { Button } from '../test/button';
 import { DropdownMenuContent } from './dropdown-menu';
 import {
   type FieldComponents,
