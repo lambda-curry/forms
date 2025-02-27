@@ -1,22 +1,22 @@
 import type * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
 import { SwitchField } from '../ui/switch-field';
-import { RemixFormControl, RemixFormDescription, RemixFormLabel, RemixFormMessage } from './remix-form';
+import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
 
-export interface RemixSwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof SwitchField>, 'control'> {
+export interface FormSwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof SwitchField>, 'control'> {
   name: string;
   label?: string;
   description?: string;
 }
 
-export function RemixSwitch({ name, label, description, className, ...props }: RemixSwitchProps) {
+export function FormSwitch({ name, label, description, className, ...props }: FormSwitchProps) {
   const { control } = useRemixFormContext();
 
   const components = {
-    FormDescription: RemixFormDescription,
-    FormControl: RemixFormControl,
-    FormLabel: RemixFormLabel,
-    FormMessage: RemixFormMessage,
+    FormDescription: FormDescription,
+    FormControl: FormControl,
+    FormLabel: FormLabel,
+    FormMessage: FormMessage,
   };
 
   return (

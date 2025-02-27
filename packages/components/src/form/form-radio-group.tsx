@@ -1,9 +1,9 @@
 import { useRemixFormContext } from 'remix-hook-form';
 import { RadioGroupField, type RadioGroupFieldProps } from '../ui/radio-group-field';
 
-export type RemixRadioGroupFieldProps = Omit<RadioGroupFieldProps, 'control'>;
+export type FormRadioGroupFieldProps = Omit<RadioGroupFieldProps, 'control'>;
 
-export function RemixRadioGroupField(props: RemixRadioGroupFieldProps) {
+export function FormRadioGroupField(props: FormRadioGroupFieldProps) {
   const { control } = useRemixFormContext();
 
   return <RadioGroupField control={control} {...props} />;
