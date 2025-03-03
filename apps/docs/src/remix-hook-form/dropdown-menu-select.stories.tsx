@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormDropdownMenuSelect } from '@lambdacurry/forms/form/form-dropdown-menu-select';
+import { DropdownMenuSelect } from '@lambdacurry/forms/remix-hook-form/dropdown-menu-select';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { DropdownMenuItem } from '@lambdacurry/forms/ui/dropdown-menu';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -18,7 +18,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Component for the form
-const FormDropdownMenuSelectExample = () => {
+const DropdownMenuSelectExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -35,7 +35,7 @@ const FormDropdownMenuSelectExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <FormDropdownMenuSelect
+        <DropdownMenuSelect
           name="favoriteColor"
           label="Favorite Color"
           description="Choose your favorite color."
@@ -44,7 +44,7 @@ const FormDropdownMenuSelectExample = () => {
           <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Red')}>Red</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Green')}>Green</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Blue')}>Blue</DropdownMenuItem>
-        </FormDropdownMenuSelect>
+        </DropdownMenuSelect>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -69,20 +69,20 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof FormDropdownMenuSelect> = {
-  title: 'Form/FormDropdownMenuSelect',
-  component: FormDropdownMenuSelect,
+const meta: Meta<typeof DropdownMenuSelect> = {
+  title: 'Form/DropdownMenuSelect',
+  component: DropdownMenuSelect,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: FormDropdownMenuSelectExample,
+        Component: DropdownMenuSelectExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
   ],
-} satisfies Meta<typeof FormDropdownMenuSelect>;
+} satisfies Meta<typeof DropdownMenuSelect>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

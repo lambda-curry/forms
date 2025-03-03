@@ -1,10 +1,10 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { TextareaField, type TextareaFieldProps } from '../ui/textarea-field';
+import { TextField as BaseTextField, type TextFieldProps as BaseTextFieldProps } from '../ui/text-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
 
-export type FormTextareaProps = Omit<TextareaFieldProps, 'control'>;
+export type TextFieldProps = Omit<BaseTextFieldProps, 'control'>;
 
-export function FormTextarea(props: FormTextareaProps) {
+export function TextField(props: TextFieldProps) {
   const { control } = useRemixFormContext();
 
   const components = {
@@ -14,5 +14,5 @@ export function FormTextarea(props: FormTextareaProps) {
     FormMessage: FormMessage,
   };
 
-  return <TextareaField control={control} components={components} {...props} />;
+  return <BaseTextField control={control} components={components} {...props} />;
 }

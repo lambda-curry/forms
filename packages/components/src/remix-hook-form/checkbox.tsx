@@ -1,10 +1,10 @@
 import { useRemixFormContext } from 'remix-hook-form';
-import { Checkbox, type CheckboxProps } from '../ui/checkbox-field';
+import { Checkbox as BaseCheckbox, type CheckboxProps as BaseCheckboxProps } from '../ui/checkbox-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
 
-export type FormCheckboxProps = Omit<CheckboxProps, 'control'>;
+export type CheckboxProps = Omit<BaseCheckboxProps, 'control'>;
 
-export function FormCheckbox(props: FormCheckboxProps) {
+export function Checkbox(props: CheckboxProps) {
   const { control } = useRemixFormContext();
 
   const components = {
@@ -14,5 +14,5 @@ export function FormCheckbox(props: FormCheckboxProps) {
     FormMessage: FormMessage,
   };
 
-  return <Checkbox control={control} {...props} components={components} />;
+  return <BaseCheckbox control={control} {...props} components={components} />;
 }

@@ -1,15 +1,15 @@
 import type * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
-import { SwitchField } from '../ui/switch-field';
+import { SwitchField as BaseSwitchField } from '../ui/switch-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
 
-export interface FormSwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof SwitchField>, 'control'> {
+export interface SwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof BaseSwitchField>, 'control'> {
   name: string;
   label?: string;
   description?: string;
 }
 
-export function FormSwitch({ name, label, description, className, ...props }: FormSwitchProps) {
+export function Switch({ name, label, description, className, ...props }: SwitchProps) {
   const { control } = useRemixFormContext();
 
   const components = {
@@ -20,7 +20,7 @@ export function FormSwitch({ name, label, description, className, ...props }: Fo
   };
 
   return (
-    <SwitchField
+    <BaseSwitchField
       control={control}
       name={name}
       label={label}

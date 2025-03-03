@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormSwitch } from '@lambdacurry/forms/form/form-switch';
+import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -36,8 +36,8 @@ const ControlledSwitchExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
-          <FormSwitch name="notifications" label="Enable notifications" />
-          <FormSwitch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
+          <Switch name="notifications" label="Enable notifications" />
+          <Switch name="darkMode" label="Dark mode" description="Toggle dark mode for the application" />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -58,9 +58,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Settings updated successfully' };
 };
 
-const meta: Meta<typeof FormSwitch> = {
-  title: 'Form/FormSwitch',
-  component: FormSwitch,
+const meta: Meta<typeof Switch> = {
+  title: 'Form/Switch',
+  component: Switch,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -71,7 +71,7 @@ const meta: Meta<typeof FormSwitch> = {
       },
     }),
   ],
-} satisfies Meta<typeof FormSwitch>;
+} satisfies Meta<typeof Switch>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

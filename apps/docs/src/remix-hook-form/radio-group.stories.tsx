@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormRadioGroupField } from '@lambdacurry/forms/form/form-radio-group';
+import { RadioGroupField } from '@lambdacurry/forms/remix-hook-form/radio-group';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -18,7 +18,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const FormRadioGroupExample = () => {
+const RadioGroupExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -35,7 +35,7 @@ const FormRadioGroupExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <FormRadioGroupField
+        <RadioGroupField
           name="plan"
           label="Select a plan"
           description="Choose the plan that best fits your needs."
@@ -53,7 +53,7 @@ const FormRadioGroupExample = () => {
             <RadioGroupItem value="enterprise" id="enterprise" />
             <label htmlFor="enterprise">Enterprise</label>
           </div>
-        </FormRadioGroupField>
+        </RadioGroupField>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -77,20 +77,20 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Plan selected successfully' };
 };
 
-const meta: Meta<typeof FormRadioGroupField> = {
+const meta: Meta<typeof RadioGroupField> = {
   title: 'Form/FormRadioGroup',
-  component: FormRadioGroupField,
+  component: RadioGroupField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: FormRadioGroupExample,
+        Component: RadioGroupExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
   ],
-} satisfies Meta<typeof FormRadioGroupField>;
+} satisfies Meta<typeof RadioGroupField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
