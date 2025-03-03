@@ -3,8 +3,14 @@ import { DatePickerField as BaseDatePickerField, type DatePickerFieldProps as Ba
 
 export type DatePickerProps = Omit<BaseDatePickerFieldProps, 'control'>;
 
-export function DatePicker(props: DatePickerProps) {
+export function DatePicker({ components, ...props }: DatePickerProps) {
   const { control } = useRemixFormContext();
 
-  return <BaseDatePickerField control={control} {...props} />;
+  return (
+    <BaseDatePickerField
+      control={control}
+      components={{ ...components }}
+      {...props}
+    />
+  );
 }
