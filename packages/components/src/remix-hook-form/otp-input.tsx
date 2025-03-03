@@ -3,7 +3,7 @@ import { OTPInputField as BaseOTPInputField, type OTPInputFieldProps as BaseOTPI
 
 export type OTPInputFieldProps = Omit<BaseOTPInputFieldProps, 'control'>;
 
-export function OTPInputField(props: OTPInputFieldProps) {
+export function OTPInput(props: OTPInputFieldProps) {
   const { control } = useRemixFormContext();
   const { name, ...restProps } = props;
 

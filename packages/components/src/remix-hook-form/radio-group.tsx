@@ -3,7 +3,7 @@ import { RadioGroupField as BaseRadioGroupField, type RadioGroupFieldProps as Ba
 
 export type RadioGroupFieldProps = Omit<BaseRadioGroupFieldProps, 'control'>;
 
-export function RadioGroupField(props: RadioGroupFieldProps) {
+export function RadioGroup(props: RadioGroupFieldProps) {
   const { control } = useRemixFormContext();
 
   return <BaseRadioGroupField control={control} {...props} />;

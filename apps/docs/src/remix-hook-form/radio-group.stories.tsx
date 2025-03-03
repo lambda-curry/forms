@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RadioGroupField } from '@lambdacurry/forms/remix-hook-form/radio-group';
+import { RadioGroup } from '@lambdacurry/forms/remix-hook-form/radio-group';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -35,7 +35,7 @@ const RadioGroupExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RadioGroupField
+        <RadioGroup
           name="plan"
           label="Select a plan"
           description="Choose the plan that best fits your needs."
@@ -53,7 +53,7 @@ const RadioGroupExample = () => {
             <RadioGroupItem value="enterprise" id="enterprise" />
             <label htmlFor="enterprise">Enterprise</label>
           </div>
-        </RadioGroupField>
+        </RadioGroup>
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -77,9 +77,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Plan selected successfully' };
 };
 
-const meta: Meta<typeof RadioGroupField> = {
+const meta: Meta<typeof RadioGroup> = {
   title: 'Form/FormRadioGroup',
-  component: RadioGroupField,
+  component: RadioGroup,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -90,7 +90,7 @@ const meta: Meta<typeof RadioGroupField> = {
       },
     }),
   ],
-} satisfies Meta<typeof RadioGroupField>;
+} satisfies Meta<typeof RadioGroup>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
