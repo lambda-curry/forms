@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.13.3
+
+### Patch Changes
+
+- e0dde7d: Fixed the correct import paths
+
 ## 0.13.2
 
 ### Patch Changes
