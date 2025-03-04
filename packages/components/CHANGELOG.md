@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.13.4
+
+### Patch Changes
+
+- 381cd02: Another attempt at a fix, this should do it
+
 ## 0.13.3
 
 ### Patch Changes
