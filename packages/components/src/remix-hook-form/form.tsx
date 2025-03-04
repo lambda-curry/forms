@@ -19,7 +19,7 @@ export const useFormField = () => {
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
+    throw new Error('useFormField must be used within a <FormField> component. Ensure this hook is called from a component that is a child of FormField.');
   }
 
   const { id, formItemId, formDescriptionId, formMessageId } = itemContext;
