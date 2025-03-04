@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.13.0
+
+### Minor Changes
+
+- 4cd12c7: Changed the way components are imported and named to better fit and look better, similar to hookform
+
 ## 0.12.6
 
 ### Patch Changes
