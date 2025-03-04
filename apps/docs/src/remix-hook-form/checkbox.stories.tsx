@@ -23,9 +23,9 @@ const ControlledCheckboxExample = () => {
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      terms: false as true,
+      terms: false as true, // Note: ZOD Schema expects a true value
       marketing: false,
-      required: false as true,
+      required: false as true, //Note: ZOD Schema expects a true value
     },
     fetcher,
     submitConfig: {
@@ -38,22 +38,14 @@ const ControlledCheckboxExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
-          <Checkbox 
-            className="rounded-md border p-4" 
-            name="terms" 
-            label="Accept terms and conditions"
-          />
+          <Checkbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
           <Checkbox
             className="rounded-md border p-4"
             name="marketing"
             label="Receive marketing emails"
             description="We will send you hourly updates about our products"
           />
-          <Checkbox 
-            className="rounded-md border p-4" 
-            name="required" 
-            label="This is a required checkbox"
-          />
+          <Checkbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -75,7 +67,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'Form/Checkbox',
+  title: 'Remix/Checkbox',
   component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
@@ -93,13 +85,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
-  const termsContainer = canvas.getByText('Accept terms and conditions').closest('.form-item');
-  const marketingContainer = canvas.getByText('Receive marketing emails').closest('.form-item');
-  const requiredContainer = canvas.getByText('This is a required checkbox').closest('.form-item');
-  
-  expect(termsContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
-  expect(marketingContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
-  expect(requiredContainer?.querySelector('[role="checkbox"]')).not.toBeChecked();
+  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
+  const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
+  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
+  expect(termsCheckbox).not.toBeChecked();
+  expect(marketingCheckbox).not.toBeChecked();
+  expect(requiredCheckbox).not.toBeChecked();
 };
 
 const testInvalidSubmission = async ({ canvas }: StoryContext) => {
@@ -110,18 +101,15 @@ const testInvalidSubmission = async ({ canvas }: StoryContext) => {
 };
 
 const testValidSubmission = async ({ canvas }: StoryContext) => {
-  const termsCheckbox = canvas.getByText('Accept terms and conditions').closest('.form-item')?.querySelector('[role="checkbox"]');
-  const requiredCheckbox = canvas.getByText('This is a required checkbox').closest('.form-item')?.querySelector('[role="checkbox"]');
-  
-  if (termsCheckbox && requiredCheckbox) {
-    await userEvent.click(termsCheckbox);
-    await userEvent.click(requiredCheckbox);
+  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
+  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
+  await userEvent.click(termsCheckbox);
+  await userEvent.click(requiredCheckbox);
 
-    const submitButton = canvas.getByRole('button', { name: 'Submit' });
-    await userEvent.click(submitButton);
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  await userEvent.click(submitButton);
 
-    await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
-  }
+  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
 };
 
 export const Tests: Story = {

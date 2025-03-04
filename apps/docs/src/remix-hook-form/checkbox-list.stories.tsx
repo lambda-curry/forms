@@ -101,7 +101,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'Form/CheckboxList',
+  title: 'Remix/CheckboxList',
   component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
@@ -120,8 +120,8 @@ type Story = StoryObj<typeof meta>;
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
   AVAILABLE_COLORS.forEach(({ label }) => {
-    const container = canvas.getByText(label).closest('.form-item');
-    expect(container?.querySelector('[role="checkbox"]')).not.toBeChecked();
+    const checkbox = canvas.getByLabelText(label);
+    expect(checkbox).not.toBeChecked();
   });
 };
 
@@ -136,22 +136,17 @@ const testErrorState = async ({ canvas }: StoryContext) => {
 
 const testColorSelection = async ({ canvas }: StoryContext) => {
   // Select two colors
-  const redContainer = canvas.getByText('Red').closest('.form-item');
-  const blueContainer = canvas.getByText('Blue').closest('.form-item');
-  
-  const redCheckbox = redContainer?.querySelector('[role="checkbox"]');
-  const blueCheckbox = blueContainer?.querySelector('[role="checkbox"]');
+  const redCheckbox = canvas.getByLabelText('Red');
+  const blueCheckbox = canvas.getByLabelText('Blue');
 
-  if (redCheckbox && blueCheckbox) {
-    await userEvent.click(redCheckbox);
-    await userEvent.click(blueCheckbox);
+  await userEvent.click(redCheckbox);
+  await userEvent.click(blueCheckbox);
 
-    const submitButton = canvas.getByRole('button', { name: 'Submit' });
-    await userEvent.click(submitButton);
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  await userEvent.click(submitButton);
 
-    // Check if the selected colors are displayed
-    await expect(await canvas.findByText('Red, Blue')).toBeInTheDocument();
-  }
+  // Check if the selected colors are displayed
+  await expect(await canvas.findByText('Red, Blue')).toBeInTheDocument();
 };
 
 export const Tests: Story = {

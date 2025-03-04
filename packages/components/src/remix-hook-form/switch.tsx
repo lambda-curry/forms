@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
 import { SwitchField as BaseSwitchField } from '../ui/switch-field';
-import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
+import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 
 export interface SwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof BaseSwitchField>, 'control'> {
   name: string;

@@ -16,7 +16,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const OTPInputExample = () => {
+const RemixOTPInputExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -64,14 +64,14 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof OTPInput> = {
-  title: 'Form/FormOTPInput',
+  title: 'Remix/RemixOTPInput',
   component: OTPInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: OTPInputExample,
+        Component: RemixOTPInputExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),

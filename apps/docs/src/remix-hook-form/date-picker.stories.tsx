@@ -58,7 +58,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof DatePicker> = {
-  title: 'Form/DatePicker',
+  title: 'Remix/DatePicker',
   component: DatePicker,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

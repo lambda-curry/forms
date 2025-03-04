@@ -75,7 +75,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof Textarea> = {
-  title: 'Form/Textarea',
+  title: 'Remix/Textarea',
   component: Textarea,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

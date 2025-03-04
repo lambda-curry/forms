@@ -1,6 +1,6 @@
 import { useRemixFormContext } from 'remix-hook-form';
 import { TextareaField as BaseTextareaField, type TextareaFieldProps as BaseTextareaFieldProps } from '../ui/textarea-field';
-import { FormControl, FormDescription, FormLabel, FormMessage } from '../ui/form';
+import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 
 export type TextareaProps = Omit<BaseTextareaFieldProps, 'control'>;
 

@@ -18,7 +18,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const RadioGroupExample = () => {
+const RemixRadioGroupExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -78,14 +78,14 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof RadioGroup> = {
-  title: 'Form/FormRadioGroup',
+  title: 'Remix/RemixRadioGroup',
   component: RadioGroup,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: RadioGroupExample,
+        Component: RemixRadioGroupExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
