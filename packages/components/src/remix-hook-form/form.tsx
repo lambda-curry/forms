@@ -1,6 +1,6 @@
 // biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
-import type { FieldValues, KeepStateOptions, UseFormRegister, UseFormReturn } from 'react-hook-form';
+import type { FieldValues, KeepStateOptions, UseFormReturn } from 'react-hook-form';
 import { useRemixFormContext } from 'remix-hook-form';
 import { FormControl as BaseFormControl, FormDescription as BaseFormDescription, FormFieldContext as BaseFormFieldContext, FormItemContext as BaseFormItemContext, FormLabel as BaseFormLabel, FormMessage as BaseFormMessage } from '../ui/form';
 
