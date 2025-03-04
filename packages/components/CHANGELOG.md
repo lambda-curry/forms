@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.13.2
+
+### Patch Changes
+
+- 2910e45: First one wasn't correct, but this should fix the exports
+
 ## 0.13.1
 
 ### Patch Changes
