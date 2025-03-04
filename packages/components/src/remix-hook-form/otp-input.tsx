@@ -8,7 +8,7 @@ export function OTPInput(props: OTPInputFieldProps) {
   const { name, ...restProps } = props;
 
   if (!name) {
-    throw new Error('Name is required for Input');
+    throw new Error('Name is required for OTPInput');
   }
 
   return <BaseOTPInputField control={control} name={name} {...restProps} />;
