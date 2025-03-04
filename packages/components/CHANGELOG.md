@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.13.1
+
+### Patch Changes
+
+- 459fa20: Added the correct export paths following the new structure
+
 ## 0.13.0
 
 ### Minor Changes
