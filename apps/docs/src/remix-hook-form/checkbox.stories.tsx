@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -38,14 +38,14 @@ const ControlledCheckboxExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-4">
-          <RemixCheckbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
-          <RemixCheckbox
+          <Checkbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
+          <Checkbox
             className="rounded-md border p-4"
             name="marketing"
             label="Receive marketing emails"
             description="We will send you hourly updates about our products"
           />
-          <RemixCheckbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
+          <Checkbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
         </div>
         <Button type="submit" className="mt-4">
           Submit
@@ -66,9 +66,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Form submitted successfully' };
 };
 
-const meta: Meta<typeof RemixCheckbox> = {
-  title: 'Remix/RemixCheckbox',
-  component: RemixCheckbox,
+const meta: Meta<typeof Checkbox> = {
+  title: 'RemixHookForm/Checkbox',
+  component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -79,7 +79,7 @@ const meta: Meta<typeof RemixCheckbox> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixCheckbox>;
+} satisfies Meta<typeof Checkbox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -142,9 +142,9 @@ export const Tests: Story = {
       <RemixFormProvider {...methods}>
         <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
           <div className='grid gap-4'>
-            <RemixCheckbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
-            <RemixCheckbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
-            <RemixCheckbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
+            <Checkbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
+            <Checkbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
+            <Checkbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
           </div>
           <Button type="submit" className="mt-4">
             Submit

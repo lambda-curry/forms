@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixOTPInputField } from '@lambdacurry/forms/remix/remix-otp-input';
+import { OTPInput } from '@lambdacurry/forms/remix-hook-form/otp-input';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { Form, useFetcher } from '@remix-run/react';
@@ -33,7 +33,7 @@ const RemixOTPInputExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RemixOTPInputField
+        <OTPInput
           name="otp"
           label="One-Time Password"
           description="Enter the 6-digit code sent to your phone."
@@ -63,9 +63,9 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixOTPInputField> = {
-  title: 'Remix/RemixOTPInput',
-  component: RemixOTPInputField,
+const meta: Meta<typeof OTPInput> = {
+  title: 'RemixHookForm/OTPInput',
+  component: OTPInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -76,7 +76,7 @@ const meta: Meta<typeof RemixOTPInputField> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixOTPInputField>;
+} satisfies Meta<typeof OTPInput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

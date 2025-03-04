@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixTextField } from '@lambdacurry/forms/remix/remix-text-field';
+import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -37,7 +37,7 @@ const ControlledTextFieldExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
-        <RemixTextField name="username" label="Username" description="Enter a unique username" />
+        <TextField name="username" label="Username" description="Enter a unique username" />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -75,9 +75,9 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixTextField> = {
-  title: 'Remix/RemixTextField',
-  component: RemixTextField,
+const meta: Meta<typeof TextField> = {
+  title: 'RemixHookForm/TextField',
+  component: TextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -93,7 +93,7 @@ const meta: Meta<typeof RemixTextField> = {
       ],
     }),
   ],
-} satisfies Meta<typeof RemixTextField>;
+} satisfies Meta<typeof TextField>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

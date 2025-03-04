@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixTextarea } from '@lambdacurry/forms/remix/remix-textarea';
+import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
@@ -36,7 +36,7 @@ const ControlledTextareaExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
-        <RemixTextarea name="comment" label="Comment" description="Enter your comment (minimum 10 characters)" />
+        <Textarea name="comment" label="Comment" description="Enter your comment (minimum 10 characters)" />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -74,9 +74,9 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixTextarea> = {
-  title: 'Remix/RemixTextarea',
-  component: RemixTextarea,
+const meta: Meta<typeof Textarea> = {
+  title: 'RemixHookForm/Textarea',
+  component: Textarea,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -87,7 +87,7 @@ const meta: Meta<typeof RemixTextarea> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixTextarea>;
+} satisfies Meta<typeof Textarea>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixDatePicker } from '@lambdacurry/forms/remix/remix-date-picker';
+import { DatePicker } from '@lambdacurry/forms/remix-hook-form/date-picker';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { Form, useFetcher } from '@remix-run/react';
@@ -15,7 +15,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixDatePickerExample = () => {
+const DatePickerExample = () => {
   const fetcher = useFetcher<{ message?: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -32,7 +32,7 @@ const RemixDatePickerExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RemixDatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
+        <DatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
         <Button type="submit" className="mt-4">
           Submit
         </Button>
@@ -57,20 +57,20 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 // Storybook configuration
-const meta: Meta<typeof RemixDatePicker> = {
-  title: 'Remix/RemixDatePicker',
-  component: RemixDatePicker,
+const meta: Meta<typeof DatePicker> = {
+  title: 'RemixHookForm/DatePicker',
+  component: DatePicker,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: RemixDatePickerExample,
+        Component: DatePickerExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
   ],
-} satisfies Meta<typeof RemixDatePicker>;
+} satisfies Meta<typeof DatePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

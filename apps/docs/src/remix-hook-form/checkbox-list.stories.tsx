@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixCheckbox } from '@lambdacurry/forms/remix/remix-checkbox';
+import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -67,7 +67,7 @@ const ControlledCheckboxListExample = () => {
           <p className="text-sm text-gray-500">Select your favorite colors:</p>
           <div className="grid gap-4">
             {AVAILABLE_COLORS.map(({ value, label }) => (
-              <RemixCheckbox key={value} className="rounded-md border p-4" name={`colors.${value}`} label={label} />
+              <Checkbox key={value} className="rounded-md border p-4" name={`colors.${value}`} label={label} />
             ))}
           </div>
           <FormMessage error={methods.formState.errors.colors?.root?.message} />
@@ -100,9 +100,9 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'Colors selected successfully', selectedColors };
 };
 
-const meta: Meta<typeof RemixCheckbox> = {
-  title: 'Remix/RemixCheckboxList',
-  component: RemixCheckbox,
+const meta: Meta<typeof Checkbox> = {
+  title: 'RemixHookForm/CheckboxList',
+  component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -113,7 +113,7 @@ const meta: Meta<typeof RemixCheckbox> = {
       },
     }),
   ],
-} satisfies Meta<typeof RemixCheckbox>;
+} satisfies Meta<typeof Checkbox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
