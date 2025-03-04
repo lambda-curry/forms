@@ -5,8 +5,14 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    "./remix-hook-form": "./dist/remix-hook-form/index.js",
-    "./ui": "./dist/ui/index.js"
+    "./remix-hook-form": {
+      "types": "./dist/remix-hook-form/index.d.ts",
+      "default": "./dist/remix-hook-form/index.js"
+    },
+    "./ui/*": {
+      "types": "./dist/ui/*.d.ts",
+      "default": "./dist/ui/*.js"
+    }
   },
   "files": [
     "dist"
