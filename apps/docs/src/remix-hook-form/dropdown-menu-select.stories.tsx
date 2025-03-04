@@ -70,7 +70,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof DropdownMenuSelect> = {
-  title: 'Remix/DropdownMenuSelect',
+  title: 'RemixHookForm/DropdownMenuSelect',
   component: DropdownMenuSelect,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

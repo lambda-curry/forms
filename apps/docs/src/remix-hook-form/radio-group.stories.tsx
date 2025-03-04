@@ -78,7 +78,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof RadioGroup> = {
-  title: 'Remix/RemixRadioGroup',
+  title: 'RemixHookForm/RadioGroup',
   component: RadioGroup,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

@@ -64,7 +64,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof OTPInput> = {
-  title: 'Remix/RemixOTPInput',
+  title: 'RemixHookForm/OTPInput',
   component: OTPInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

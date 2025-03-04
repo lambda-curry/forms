@@ -76,7 +76,7 @@ const handleFormSubmission = async (request: Request) => {
 
 // Storybook configuration
 const meta: Meta<typeof TextField> = {
-  title: 'Remix/TextField',
+  title: 'RemixHookForm/TextField',
   component: TextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

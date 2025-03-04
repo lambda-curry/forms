@@ -59,7 +59,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof Switch> = {
-  title: 'Remix/Switch',
+  title: 'RemixHookForm/Switch',
   component: Switch,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

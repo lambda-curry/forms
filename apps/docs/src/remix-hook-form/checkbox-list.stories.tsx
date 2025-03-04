@@ -101,7 +101,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'Remix/CheckboxList',
+  title: 'RemixHookForm/CheckboxList',
   component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
