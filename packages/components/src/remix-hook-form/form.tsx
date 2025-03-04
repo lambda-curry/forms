@@ -8,7 +8,6 @@ export interface FormProviderProps<T extends FieldValues>
   extends Omit<UseFormReturn<T>, 'handleSubmit' | 'reset'> {
   children: React.ReactNode;
   handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  register: UseFormRegister<T>;
   reset: (values?: T, keepStateOptions?: KeepStateOptions) => void;
 }
 
@@ -71,6 +70,6 @@ export const FormMessage = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseFormMessage>
 >((props, ref) => {
   const { error, formMessageId } = useFormField();
-  return <BaseFormMessage ref={ref} formMessageId={formMessageId} error={error?.message} {...props} />;
+  return <BaseFormMessage ref={ref} formMessageId={formMessageId} error={error?.message || (error ? String(error) : undefined)} {...props} />;
 });
 FormMessage.displayName = 'FormMessage';
