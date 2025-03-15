@@ -5,7 +5,7 @@ import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import * as React from 'react';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -44,19 +44,27 @@ const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentProp
 PurpleMessage.displayName = 'PurpleMessage';
 
 // Custom Input with icon
-const IconInput = React.forwardRef<
-  HTMLInputElement,
-  React.InputHTMLAttributes<HTMLInputElement> & { icon?: React.ReactNode }
->(({ icon, ...props }, ref) => (
-  <div className="relative">
-    {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{icon}</div>}
-    <input
-      ref={ref}
-      {...props}
-      className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-    />
-  </div>
-));
+const IconInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ ...props }, ref) => (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <title>Lock</title>
+          <path
+            fillRule="evenodd"
+            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+      <input
+        ref={ref}
+        {...props}
+        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      />
+    </div>
+  ),
+);
 IconInput.displayName = 'IconInput';
 
 const CustomTextFieldExample = () => {
@@ -101,25 +109,7 @@ const CustomTextFieldExample = () => {
             type="password"
             placeholder="Enter your password"
             components={{
-              Input: React.forwardRef<
-                HTMLInputElement,
-                React.InputHTMLAttributes<HTMLInputElement> & { icon?: React.ReactNode }
-              >((props, ref) => (
-                <IconInput
-                  {...props}
-                  ref={ref}
-                  icon={
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <title>Lock</title>
-                      <path
-                        fillRule="evenodd"
-                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  }
-                />
-              )),
+              Input: IconInput,
             }}
           />
         </div>
@@ -167,11 +157,24 @@ export const CustomComponents: Story = {
         story: `
 ### TextField Component Customization
 
-This example demonstrates three different approaches to customizing the TextField component:
+This example demonstrates three different approaches to customizing the TextField component with complete control over styling and behavior.
 
-1. **Default Styling**: The first text field uses the default styling with no customization needed.
+#### 1. Default Styling
 
-2. **Custom Styling**: The second text field customizes the Input, FormLabel, and FormMessage components with purple styling.
+The first text field uses the default styling with no customization needed:
+
+\`\`\`tsx
+<TextField 
+  name="username" 
+  label="Username" 
+  placeholder="Enter your username" 
+/>
+\`\`\`
+
+#### 2. Custom Styling with Purple Theme
+
+The second text field customizes the Input, FormLabel, and FormMessage components with purple styling:
+
 \`\`\`tsx
 <TextField
   name="email"
@@ -185,7 +188,35 @@ This example demonstrates three different approaches to customizing the TextFiel
 />
 \`\`\`
 
-3. **Icon Input**: The third text field demonstrates how to create a custom input with an icon. When using inline components, you must use React.forwardRef.
+Where the custom components are defined as:
+
+\`\`\`tsx
+// Custom Input component
+const PurpleInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => (
+  <input
+    ref={ref}
+    {...props}
+    className="w-full rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-2 text-purple-900 placeholder:text-purple-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+  />
+));
+
+// Custom Form Label component
+const PurpleLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
+  ({ className, ...props }, ref) => <FormLabel ref={ref} className="text-lg font-bold text-purple-700" {...props} />,
+);
+
+// Custom Form Message component
+const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
+  ({ className, ...props }, ref) => (
+    <FormMessage ref={ref} className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
+  ),
+);
+\`\`\`
+
+#### 3. Icon Input
+
+The third text field demonstrates how to create a custom input with an icon:
+
 \`\`\`tsx
 <TextField
   name="password"
@@ -193,18 +224,44 @@ This example demonstrates three different approaches to customizing the TextFiel
   type="password"
   placeholder="Enter your password"
   components={{
-    Input: React.forwardRef((props, ref) => (
-      <IconInput
-        {...props}
-        ref={ref}
-        icon={<LockIcon />}
-      />
-    )),
+    Input: IconInput,
   }}
 />
 \`\`\`
 
-The \`components\` prop allows you to override any of the internal components used by the TextField component, giving you complete control over the styling and behavior.
+With the IconInput component defined as:
+
+\`\`\`tsx
+const IconInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ ...props }, ref) => (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <title>Lock</title>
+          <path
+            fillRule="evenodd"
+            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+      <input
+        ref={ref}
+        {...props}
+        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      />
+    </div>
+  ),
+);
+\`\`\`
+
+### Key Points
+
+- Always use React.forwardRef when creating custom components
+- Make sure to spread the props to pass all necessary attributes
+- Include the ref to maintain form functionality
+- Add a displayName to your component for better debugging
+- The components prop accepts replacements for Input, FormLabel, FormMessage, and FormDescription
 `,
       },
     },
@@ -220,21 +277,7 @@ The \`components\` prop allows you to override any of the internal components us
     // Type values
     await userEvent.type(usernameInput, 'johndoe');
     await userEvent.type(emailInput, 'john@example.com');
-    emailInput.blur();
-    await waitFor(
-      () => {
-        passwordInput.focus();
-      },
-      { timeout: 1000 },
-    );
-
-    userEvent.type(passwordInput, 'password123');
-    await waitFor(
-      () => {
-        passwordInput.blur();
-      },
-      { timeout: 1000 },
-    );
+    await userEvent.type(passwordInput, 'password123');
 
     // Submit the form
     const submitButton = canvas.getByRole('button', { name: 'Submit' });
