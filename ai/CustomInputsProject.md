@@ -223,6 +223,132 @@ export interface RadioGroupFieldComponents extends FieldComponents {
   RadioGroupItem?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>>;
   RadioGroupIndicator?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>>;
 }
+
+// Props interface should include radioGroupClassName for styling the container
+export interface RadioGroupFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> extends Omit<React.ComponentPropsWithoutRef<typeof RadioGroup>, 'onValueChange'> {
+  control?: Control<TFieldValues>;
+  name: TName;
+  label?: string;
+  description?: string;
+  components?: Partial<RadioGroupFieldComponents>;
+  radioGroupClassName?: string; // Added prop for styling the RadioGroup container
+}
+```
+
+#### RadioGroup Implementation Examples
+
+Our implementation supports several customization approaches:
+
+1. **Container Styling**: Use the `radioGroupClassName` prop to style the RadioGroup container without changing its behavior.
+
+```tsx
+<RadioGroup
+  name="plan"
+  label="Select a plan"
+  description="Choose the plan that best fits your needs."
+  className="space-y-2"
+  radioGroupClassName="flex flex-col space-y-4 border-2 border-purple-300 rounded-lg p-4 bg-purple-50"
+  components={{
+    FormLabel: PurpleLabel,
+    FormMessage: PurpleErrorMessage,
+  }}
+>
+  {/* Radio items */}
+</RadioGroup>
+```
+
+2. **Custom Radio Items**: Customize individual radio items by passing custom components through the `components` prop of `RadioGroupItem`.
+
+```tsx
+<RadioGroupItem
+  value="starter"
+  id="starter"
+  components={{
+    RadioGroupItem: PurpleRadioGroupItem,
+    RadioGroupIndicator: PurpleRadioGroupIndicator,
+  }}
+/>
+```
+
+3. **Custom Icons**: Replace the default indicator with a custom SVG icon.
+
+```tsx
+<RadioGroupItem
+  value="starter"
+  id="starter"
+  components={{
+    RadioGroupItem: PurpleRadioGroupItem,
+    RadioGroupIndicator: IconRadioGroupIndicator, // Custom SVG icon indicator
+  }}
+/>
+```
+
+4. **Card-Style Radio Buttons**: Completely transform the appearance of radio buttons by creating a custom component that uses `RadioGroupPrimitive.Item`.
+
+```tsx
+// Card-style radio group item component
+const CardRadioGroupItem = React.forwardRef((props, ref) => {
+  const { value, children, className, ...otherProps } = props;
+  
+  return (
+    <RadioGroupPrimitive.Item
+      ref={ref}
+      value={value}
+      className={cn(
+        "relative w-full p-4 border-2 rounded-lg transition-all",
+        "data-[state=checked]:border-purple-500 data-[state=checked]:bg-purple-50",
+        "data-[state=unchecked]:border-gray-200",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
+        className
+      )}
+      {...otherProps}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          {children}
+        </div>
+        <div className="flex items-center justify-center h-5 w-5">
+          <RadioGroupPrimitive.Indicator>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-purple-600"
+              aria-hidden="true"
+            >
+              <title>Selected</title>
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </RadioGroupPrimitive.Indicator>
+        </div>
+      </div>
+    </RadioGroupPrimitive.Item>
+  );
+});
+
+// Usage with card-style radio buttons
+<RadioGroup
+  name="plan"
+  label="Select a plan"
+  description="Choose the plan that best fits your needs."
+  className="space-y-4"
+>
+  <CardRadioGroupItem value="starter" id="starter">
+    <div className="font-medium">Starter</div>
+    <div className="text-sm text-gray-500">Perfect for beginners</div>
+  </CardRadioGroupItem>
+  
+  {/* More card items */}
+</RadioGroup>
 ```
 
 ### 5. Switch
@@ -800,7 +926,7 @@ play: async ({ canvasElement }) => {
 4. **Composition**: Components can be overridden individually or as groups
 5. **Accessibility**: Custom components maintain proper ARIA attributes and keyboard navigation
 
-This approach provides a flexible and consistent way for users to customize any part of our form components while maintaining a clean API and ensuring accessibility.
+This approach provides a flexible and consistent way for users to customize any part of our form components while maintaining a clean API.
 
 ## Conclusion
 
