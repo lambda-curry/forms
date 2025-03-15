@@ -622,6 +622,186 @@ const testAccessibility = async ({ canvas }: StoryContext) => {
 };
 ```
 
+## Implementation Examples
+
+### Custom Checkbox Story Implementation
+
+We've created a comprehensive Storybook example that demonstrates how to override components in our checkbox field. The example can be found in `apps/docs/src/remix-hook-form/custom-checkbox.stories.tsx`.
+
+Here's how we implemented custom components for the checkbox:
+
+```tsx
+// Custom checkbox component
+const PurpleCheckbox = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>((props, ref) => (
+  <CheckboxPrimitive.Root
+    ref={ref}
+    {...props}
+    className="h-8 w-8 rounded-full border-4 border-purple-500 bg-white data-[state=checked]:bg-purple-500"
+  >
+    {props.children}
+  </CheckboxPrimitive.Root>
+));
+PurpleCheckbox.displayName = 'PurpleCheckbox';
+
+// Custom indicator
+const PurpleIndicator = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Indicator>
+>((props, ref) => (
+  <CheckboxPrimitive.Indicator
+    ref={ref}
+    {...props}
+    className="flex h-full w-full items-center justify-center text-white"
+  >
+    ✓
+  </CheckboxPrimitive.Indicator>
+));
+PurpleIndicator.displayName = 'PurpleIndicator';
+
+// Custom form label component
+const CustomLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
+  ({ className, htmlFor, ...props }, ref) => (
+    <label
+      ref={ref}
+      htmlFor={htmlFor}
+      className={`custom-label text-purple-600 font-bold text-lg ${className}`}
+      {...props}
+    >
+      {props.children} ★
+    </label>
+  ),
+);
+CustomLabel.displayName = 'CustomLabel';
+
+// Custom error message component
+const CustomErrorMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
+  ({ className, ...props }, ref) => (
+    <p
+      ref={ref}
+      className={`custom-error flex items-center text-red-500 bg-red-100 p-2 rounded-md ${className}`}
+      {...props}
+    >
+      <span className="mr-1 text-lg">⚠️</span> {props.children}
+    </p>
+  ),
+);
+CustomErrorMessage.displayName = 'CustomErrorMessage';
+```
+
+### Component Overriding Examples
+
+The story demonstrates three different ways to override components:
+
+#### 1. Overriding Just the Checkbox Components
+
+```tsx
+<Checkbox
+  name="terms"
+  label="Accept terms and conditions"
+  description="You must accept our terms to continue"
+  components={{
+    Checkbox: PurpleCheckbox,
+    CheckboxIndicator: PurpleIndicator,
+  }}
+/>
+```
+
+#### 2. Overriding Just the Form Components
+
+```tsx
+<Checkbox
+  name="required"
+  label="This is a required checkbox"
+  components={{
+    FormLabel: CustomLabel,
+    FormMessage: CustomErrorMessage,
+  }}
+/>
+```
+
+#### 3. Overriding All Components
+
+```tsx
+// Create component objects for reuse
+const customCheckboxComponents = {
+  Checkbox: PurpleCheckbox,
+  CheckboxIndicator: PurpleIndicator,
+};
+
+const customLabelComponents = {
+  FormLabel: CustomLabel,
+  FormMessage: CustomErrorMessage,
+};
+
+// Use spread operator to combine them
+<Checkbox
+  name="terms"
+  label="Accept terms and conditions"
+  components={{
+    ...customCheckboxComponents,
+    ...customLabelComponents,
+  }}
+/>
+```
+
+### Testing Custom Components
+
+Our story includes interactive tests that verify:
+
+1. Custom styling is applied correctly
+2. Component functionality works as expected
+3. Form validation still works with custom components
+
+```tsx
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+
+  // Find all checkboxes
+  const checkboxElements = canvas.getAllByRole('checkbox', { hidden: true });
+
+  // Get all button checkboxes
+  const checkboxButtons = Array.from(checkboxElements)
+    .map((checkbox) => checkbox.closest('button'))
+    .filter((button) => button !== null) as HTMLButtonElement[];
+
+  // Find the custom purple checkbox
+  const purpleCheckbox = checkboxButtons.find(
+    (button) => button.classList.contains('rounded-full') && button.classList.contains('border-purple-500'),
+  );
+
+  if (purpleCheckbox) {
+    // Verify custom checkbox styling
+    expect(purpleCheckbox).toHaveClass('rounded-full');
+    expect(purpleCheckbox).toHaveClass('border-purple-500');
+
+    // Check the terms checkbox
+    await userEvent.click(purpleCheckbox);
+    expect(purpleCheckbox).toHaveAttribute('data-state', 'checked');
+
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
+
+    // Verify successful submission
+    const successMessage = await canvas.findByText('Form submitted successfully');
+    expect(successMessage).toBeInTheDocument();
+  }
+}
+```
+
+### Key Takeaways for Component Overriding
+
+1. **Type Safety**: All custom components are properly typed using React's `forwardRef` and `ComponentPropsWithoutRef`
+2. **Prop Forwarding**: Custom components forward all necessary props to maintain functionality
+3. **Ref Handling**: Refs are properly forwarded to maintain form control integration
+4. **Composition**: Components can be overridden individually or as groups
+5. **Accessibility**: Custom components maintain proper ARIA attributes and keyboard navigation
+
+This approach provides a flexible and consistent way for users to customize any part of our form components while maintaining a clean API and ensuring accessibility.
+
 ## Conclusion
 
 This component injection pattern provides a flexible and consistent way for users to customize any part of our form components while maintaining a clean API. By following this approach across all form components, we ensure a unified experience for library users.

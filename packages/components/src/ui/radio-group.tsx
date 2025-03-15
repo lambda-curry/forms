@@ -1,9 +1,16 @@
-// biome-ignore lint/style/noNamespaceImport: from Radix
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import { cn } from './utils';
+
+export interface RadioGroupItemComponents {
+  RadioGroupItem?: React.ComponentType<
+    React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
+      indicator?: React.ReactNode;
+    }
+  >;
+  RadioGroupIndicator?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>>;
+}
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -17,10 +24,18 @@ const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
     indicator?: React.ReactNode;
+    components?: Partial<RadioGroupItemComponents>;
   }
->(({ className, indicator, ...props }, ref) => {
+>(({ className, indicator, components, ...props }, ref) => {
+  // Extract custom components with fallbacks
+  const RadioItem = components?.RadioGroupItem || RadioGroupPrimitive.Item;
+  const RadioIndicator = components?.RadioGroupIndicator || RadioGroupPrimitive.Indicator;
+
+  // Determine the indicator content
+  const indicatorContent = indicator || <Circle className="h-2.5 w-2.5 fill-current text-current" />;
+
   return (
-    <RadioGroupPrimitive.Item
+    <RadioItem
       ref={ref}
       className={cn(
         'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
@@ -28,10 +43,8 @@ const RadioGroupItem = React.forwardRef<
       )}
       {...props}
     >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        {indicator || <Circle className="h-2.5 w-2.5 fill-current text-current" />}
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
+      <RadioIndicator className="flex items-center justify-center">{indicatorContent}</RadioIndicator>
+    </RadioItem>
   );
 });
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
