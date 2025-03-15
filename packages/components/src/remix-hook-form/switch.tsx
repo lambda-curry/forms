@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
-import { SwitchField as BaseSwitchField } from '../ui/switch-field';
+import { SwitchField as BaseSwitchField, type SwitchFieldComponents } from '../ui/switch-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 
 export interface SwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof BaseSwitchField>, 'control'> {
@@ -9,14 +9,15 @@ export interface SwitchProps extends Omit<React.ComponentPropsWithoutRef<typeof 
   description?: string;
 }
 
-export function Switch({ name, label, description, className, ...props }: SwitchProps) {
+export function Switch({ name, label, description, className, components, ...props }: SwitchProps) {
   const { control } = useRemixFormContext();
 
-  const components = {
-    FormDescription: FormDescription,
-    FormControl: FormControl,
-    FormLabel: FormLabel,
-    FormMessage: FormMessage,
+  const mergedComponents: Partial<SwitchFieldComponents> = {
+    FormDescription,
+    FormControl,
+    FormLabel,
+    FormMessage,
+    ...components,
   };
 
   return (
@@ -25,7 +26,8 @@ export function Switch({ name, label, description, className, ...props }: Switch
       name={name}
       label={label}
       description={description}
-      components={components}
+      components={mergedComponents}
+      className={className}
       {...props}
     />
   );
