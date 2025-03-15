@@ -5,7 +5,7 @@ import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, waitFor, within } from '@storybook/test';
 import * as React from 'react';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -101,9 +101,13 @@ const CustomTextFieldExample = () => {
             type="password"
             placeholder="Enter your password"
             components={{
-              Input: (props) => (
+              Input: React.forwardRef<
+                HTMLInputElement,
+                React.InputHTMLAttributes<HTMLInputElement> & { icon?: React.ReactNode }
+              >((props, ref) => (
                 <IconInput
                   {...props}
+                  ref={ref}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <title>Lock</title>
@@ -115,7 +119,7 @@ const CustomTextFieldExample = () => {
                     </svg>
                   }
                 />
-              ),
+              )),
             }}
           />
         </div>
@@ -181,7 +185,7 @@ This example demonstrates three different approaches to customizing the TextFiel
 />
 \`\`\`
 
-3. **Icon Input**: The third text field demonstrates how to create a custom input with an icon.
+3. **Icon Input**: The third text field demonstrates how to create a custom input with an icon. When using inline components, you must use React.forwardRef.
 \`\`\`tsx
 <TextField
   name="password"
@@ -189,12 +193,13 @@ This example demonstrates three different approaches to customizing the TextFiel
   type="password"
   placeholder="Enter your password"
   components={{
-    Input: (props) => (
+    Input: React.forwardRef((props, ref) => (
       <IconInput
         {...props}
+        ref={ref}
         icon={<LockIcon />}
       />
-    ),
+    )),
   }}
 />
 \`\`\`
@@ -208,13 +213,28 @@ The \`components\` prop allows you to override any of the internal components us
     const canvas = within(canvasElement);
 
     // Fill in the form fields
-    const usernameInput = canvas.getByLabelText('Username');
-    const emailInput = canvas.getByLabelText('Email');
-    const passwordInput = canvas.getByLabelText('Password');
+    const usernameInput = canvas.getByPlaceholderText('Enter your username');
+    const emailInput = canvas.getByPlaceholderText('Enter your email');
+    const passwordInput = canvas.getByPlaceholderText('Enter your password');
 
+    // Type values
     await userEvent.type(usernameInput, 'johndoe');
     await userEvent.type(emailInput, 'john@example.com');
-    await userEvent.type(passwordInput, 'password123');
+    emailInput.blur();
+    await waitFor(
+      () => {
+        passwordInput.focus();
+      },
+      { timeout: 1000 },
+    );
+
+    userEvent.type(passwordInput, 'password123');
+    await waitFor(
+      () => {
+        passwordInput.blur();
+      },
+      { timeout: 1000 },
+    );
 
     // Submit the form
     const submitButton = canvas.getByRole('button', { name: 'Submit' });

@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import { cn } from './utils';
 
@@ -10,9 +9,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, CustomTextarea, ...props }, ref) => {
-    if (CustomTextarea) {
-      return <CustomTextarea className={className} {...props} ref={ref} />;
-    }
+    if (CustomTextarea) return <CustomTextarea className={className} {...props} ref={ref} />;
 
     return (
       <textarea
