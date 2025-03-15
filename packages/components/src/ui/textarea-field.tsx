@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
@@ -12,6 +11,12 @@ import {
 } from './form';
 import { Textarea } from './textarea';
 
+export interface TextareaFieldComponents extends FieldComponents {
+  TextArea?: React.ForwardRefExoticComponent<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement> & React.RefAttributes<HTMLTextAreaElement>
+  >;
+}
+
 export interface TextareaFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -20,11 +25,13 @@ export interface TextareaFieldProps<
   name: TName;
   label?: string;
   description?: string;
-  components?: Partial<FieldComponents>;
+  components?: Partial<TextareaFieldComponents>;
 }
 
 const TextareaField = React.forwardRef<HTMLDivElement, TextareaFieldProps>(
   ({ control, name, label, description, className, components, ...props }, ref) => {
+    const TextAreaComponent = components?.TextArea || Textarea;
+
     return (
       <FormField
         control={control}
@@ -33,7 +40,7 @@ const TextareaField = React.forwardRef<HTMLDivElement, TextareaFieldProps>(
           <FormItem className={className} ref={ref}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             <FormControl Component={components?.FormControl}>
-              <Textarea {...field} {...props} ref={field.ref} />
+              <TextAreaComponent {...field} {...props} ref={field.ref} />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
