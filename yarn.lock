@@ -875,13 +875,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@date-fns/tz@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@date-fns/tz@npm:1.2.0"
-  checksum: 10c0/411e9d4303b10951f6fd0189d18fb845f0d934a575df2176bc10daf664282c765fb6b057a977e446bbb1229151d89e7788978600a019f1fc24b5c75276d496bd
-  languageName: node
-  linkType: hard
-
 "@emotion/hash@npm:^0.9.0":
   version: 0.9.2
   resolution: "@emotion/hash@npm:0.9.2"
@@ -2006,7 +1999,7 @@ __metadata:
     "@radix-ui/react-popover": "npm:^1.1.4"
     "@radix-ui/react-radio-group": "npm:^1.2.2"
     "@radix-ui/react-scroll-area": "npm:^1.2.2"
-    "@radix-ui/react-slot": "npm:^1.1.1"
+    "@radix-ui/react-slot": "npm:^1.1.2"
     "@radix-ui/react-switch": "npm:^1.1.2"
     "@radix-ui/react-tooltip": "npm:^1.1.6"
     "@remix-run/dev": "npm:^2.15.1"
@@ -2029,7 +2022,7 @@ __metadata:
     next-themes: "npm:^0.4.4"
     postcss: "npm:^8.4.49"
     react: "npm:^19.0.0"
-    react-day-picker: "npm:9.4.4"
+    react-day-picker: "npm:8.10.1"
     react-hook-form: "npm:^7.53.1"
     remix-hook-form: "npm:5.1.1"
     sonner: "npm:^1.7.1"
@@ -2829,7 +2822,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-slot@npm:1.1.1, @radix-ui/react-slot@npm:^1.1.1":
+"@radix-ui/react-slot@npm:1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/react-slot@npm:1.1.1"
   dependencies:
@@ -2841,6 +2834,21 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/f3cc71c16529c67a8407a89e0ac13a868cafa0cd05ca185b464db609aa5996a3f00588695518e420bd47ffdb4cc2f76c14cc12ea5a38fc2ca3578a30d2ca58b9
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-slot@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@radix-ui/react-slot@npm:1.1.2"
+  dependencies:
+    "@radix-ui/react-compose-refs": "npm:1.1.1"
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/81d45091806c52b507cec80b4477e4f31189d76ffcd7845b382eb3a034e6cf1faef71b881612028d5893f7580bf9ab59daa18fbf2792042dccd755c99a18df67
   languageName: node
   linkType: hard
 
@@ -11625,15 +11633,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:9.4.4":
-  version: 9.4.4
-  resolution: "react-day-picker@npm:9.4.4"
-  dependencies:
-    "@date-fns/tz": "npm:^1.2.0"
-    date-fns: "npm:^4.1.0"
+"react-day-picker@npm:8.10.1":
+  version: 8.10.1
+  resolution: "react-day-picker@npm:8.10.1"
   peerDependencies:
-    react: ">=16.8.0"
-  checksum: 10c0/0a8cfa99863854538cd58bfe28fc68febcf7c7f72e14be2e1a4f108ec9e803838bf5dae946e3f2b1900a6ddef520daf666a49bac4a551de35e8e37a347f694cb
+    date-fns: ^2.28.0 || ^3.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 10c0/a0ff28c4b61b3882e6a825b19e5679e2fdf3256cf1be8eb0a0c028949815c1ae5a6561474c2c19d231c010c8e0e0b654d3a322610881e0655abca05a2e03d9df
   languageName: node
   linkType: hard
 
