@@ -30,23 +30,38 @@ export interface CheckboxProps<
   checkClassName?: string;
 }
 
-const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
-  ({ control, name, className, label, description, components, indicatorClassName, checkClassName, ...props }, ref) => (
+export function CheckboxField<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({ 
+  control, 
+  name, 
+  className, 
+  label, 
+  description, 
+  components, 
+  indicatorClassName, 
+  checkClassName, 
+  ...props 
+}: CheckboxProps<TFieldValues, TName>) {
+  return (
     <FormField
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={cn('flex flex-row items-start space-y-0', className)} ref={ref}>
+        <FormItem className={cn('flex flex-row items-start space-y-0', className)}>
           <FormControl Component={components?.FormControl}>
             <CheckboxPrimitive.Root
               ref={field.ref}
               className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               checked={field.value}
               onCheckedChange={field.onChange}
+              data-slot="checkbox"
               {...props}
             >
               <CheckboxPrimitive.Indicator
                 className={cn('flex items-center justify-center text-current', indicatorClassName)}
+                data-slot="indicator"
               >
                 <Check className={cn('h-4 w-4', checkClassName)} />
               </CheckboxPrimitive.Indicator>
@@ -66,8 +81,8 @@ const CheckboxField = React.forwardRef<HTMLDivElement, CheckboxProps>(
         </FormItem>
       )}
     />
-  ),
-);
+  );
+}
 
 CheckboxField.displayName = CheckboxPrimitive.Root.displayName;
 
