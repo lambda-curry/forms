@@ -247,7 +247,143 @@ export const CustomCheckboxComponentExamples: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Examples of custom checkbox components with different styling options.',
+        story: `
+### Checkbox Component Customization
+
+This example demonstrates three different approaches to customizing the Checkbox component with complete control over styling and behavior.
+
+#### 1. Custom Checkbox Appearance
+
+The first approach customizes the visual appearance of the checkbox itself:
+
+\`\`\`tsx
+<Checkbox
+  name="terms"
+  label="Accept terms and conditions"
+  description="You must accept our terms to continue"
+  components={{
+    Checkbox: PurpleCheckbox,
+    CheckboxIndicator: PurpleIndicator,
+  }}
+/>
+\`\`\`
+
+Where the custom components are defined as:
+
+\`\`\`tsx
+// Custom checkbox component
+const PurpleCheckbox = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>((props, ref) => (
+  <CheckboxPrimitive.Root
+    ref={ref}
+    {...props}
+    className="h-8 w-8 rounded-full border-4 border-purple-500 bg-white data-[state=checked]:bg-purple-500"
+  >
+    {props.children}
+  </CheckboxPrimitive.Root>
+));
+
+// Custom indicator
+const PurpleIndicator = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Indicator>
+>((props, ref) => (
+  <CheckboxPrimitive.Indicator
+    ref={ref}
+    {...props}
+    className="flex h-full w-full items-center justify-center text-white"
+  >
+    ✓
+  </CheckboxPrimitive.Indicator>
+));
+\`\`\`
+
+#### 2. Custom Form Elements
+
+The second approach customizes the form elements (label and error message) while keeping the default checkbox:
+
+\`\`\`tsx
+<Checkbox
+  name="required"
+  label="This is a required checkbox"
+  components={{
+    FormLabel: CustomLabel,
+    FormMessage: CustomErrorMessage,
+  }}
+/>
+\`\`\`
+
+With the custom form components defined as:
+
+\`\`\`tsx
+// Custom form label component
+const CustomLabel = React.forwardRef<
+  HTMLLabelElement,
+  React.ComponentPropsWithoutRef<typeof FormLabel>
+>(({ className, htmlFor, ...props }, ref) => (
+  <label
+    ref={ref}
+    htmlFor={htmlFor}
+    className={\`custom-label text-purple-600 font-bold text-lg \${className}\`}
+    {...props}
+  >
+    {props.children} ★
+  </label>
+));
+
+// Custom error message component
+const CustomErrorMessage = React.forwardRef<
+  HTMLParagraphElement,
+  React.ComponentPropsWithoutRef<typeof FormMessage>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={\`custom-error flex items-center text-red-500 bg-red-100 p-2 rounded-md \${className}\`}
+    {...props}
+  >
+    <span className="mr-1 text-lg">⚠️</span> {props.children}
+  </p>
+));
+\`\`\`
+
+#### 3. Combining Custom Components
+
+The third approach combines both custom checkbox and form elements:
+
+\`\`\`tsx
+// Create component objects for reuse
+const customCheckboxComponents = {
+  Checkbox: PurpleCheckbox,
+  CheckboxIndicator: PurpleIndicator,
+};
+
+const customLabelComponents = {
+  FormLabel: CustomLabel,
+  FormMessage: CustomErrorMessage,
+};
+
+// Use spread operator to combine them
+<Checkbox
+  name="terms"
+  label="Accept terms and conditions"
+  components={{
+    ...customCheckboxComponents,
+    ...customLabelComponents,
+  }}
+/>
+\`\`\`
+
+### Key Points
+
+- Always use React.forwardRef when creating custom components
+- Make sure to spread the props to pass all necessary attributes
+- Include the ref to maintain form functionality
+- Add a displayName to your component for better debugging
+- The components prop accepts replacements for Checkbox, CheckboxIndicator, FormLabel, FormMessage, and FormDescription
+- You can mix and match different custom components as needed
+`,
       },
       source: {
         code: `
