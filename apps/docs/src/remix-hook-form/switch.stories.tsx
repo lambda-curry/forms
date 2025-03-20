@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
-import { useFetcher } from '../lib/storybook/remix-mock';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   notifications: z.boolean().default(false),
@@ -17,7 +16,12 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const ControlledSwitchExample = () => {
-  const fetcher = useFetcher<{ message: string; notifications: boolean; marketing: boolean }>();
+  const fetcher = useFetcher<{
+    message: string;
+    notifications: boolean;
+    marketing: boolean;
+  }>();
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -91,11 +95,14 @@ const meta: Meta<typeof Switch> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledSwitchExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledSwitchExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof Switch>;

@@ -1,5 +1,8 @@
 import path from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+
+const __dirname = path.resolve();
 
 export default defineConfig({
   resolve: {
@@ -9,17 +12,12 @@ export default defineConfig({
       '@/lib/utils': path.resolve(__dirname, '../../packages/components/lib/utils'),
       '@lambdacurry/forms': path.resolve(__dirname, '../../packages/components/src'),
       '@lambdacurry/forms/lib': path.resolve(__dirname, '../../packages/components/lib'),
-      // React Router mocks for Remix compatibility
-      'react-router': path.resolve(__dirname, './src/lib/storybook/remix-mock.tsx'),
-      'react-router-dom': path.resolve(__dirname, './src/lib/storybook/remix-mock.tsx'),
     },
   },
   build: {
     rollupOptions: {
-      external: [
-        'react-router',
-        'react-router-dom',
-      ],
+      external: ['react-router', 'react-router-dom'],
     },
   },
+  plugins: [tailwindcss()],
 });

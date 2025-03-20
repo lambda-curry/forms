@@ -2,13 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DropdownMenuSelect } from '@lambdacurry/forms/remix-hook-form/dropdown-menu-select';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
-import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
-import { Form, useFetcher } from '../lib/storybook/remix-mock';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
+import { Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const AVAILABLE_FRUITS = [
   { value: 'apple', label: 'Apple' },
@@ -57,12 +56,7 @@ const ControlledDropdownMenuSelectExample = () => {
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
-          <DropdownMenuSelect
-            name="fruit"
-            label="Select a fruit"
-            placeholder="Select a fruit"
-            options={AVAILABLE_FRUITS}
-          />
+          <DropdownMenuSelect name="fruit" label="Select a fruit" options={AVAILABLE_FRUITS} />
           <FormMessage error={methods.formState.errors.fruit?.message} />
           <Button type="submit" className="mt-4">
             Submit
@@ -97,7 +91,7 @@ const meta: Meta<typeof DropdownMenuSelect> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
+    withReactRouterStubDecorator({
       root: {
         Component: ControlledDropdownMenuSelectExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),

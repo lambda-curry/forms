@@ -1,7 +1,5 @@
 import { dirname, join } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
-import { mergeConfig } from 'vite';
-import viteConfig from '../vite.config';
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -21,7 +19,9 @@ const config: StorybookConfig = {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},
   },
-  viteFinal: (config) => {
+  viteFinal: async (config) => {
+    const { mergeConfig } = await import('vite');
+    const viteConfig = await import('../vite.config.mjs');
     return mergeConfig(config, viteConfig);
   },
 };

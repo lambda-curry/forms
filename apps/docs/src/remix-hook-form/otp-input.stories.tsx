@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { OtpInput } from '@lambdacurry/forms/remix-hook-form/otp-input';
+import { OTPInput } from '@lambdacurry/forms/remix-hook-form/otp-input';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
-import { Form, useFetcher } from '../lib/storybook/remix-mock';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   otp: z.string().min(6, 'OTP must be 6 digits'),
@@ -16,17 +15,17 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const ControlledOtpInputExample = () => {
-  const fetcher = useFetcher<{ message: string; otp: string }>();
+  const fetcher = useFetcher<{
+    message: string;
+    otp: string;
+  }>();
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       otp: '',
     },
-    fetcher,
-    submitConfig: {
-      action: '/',
-      method: 'post',
-    },
+    fetcher: fetcher,
     submitHandlers: {
       onValid: (data) => {
         fetcher.submit(
@@ -46,7 +45,7 @@ const ControlledOtpInputExample = () => {
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
-          <OtpInput name="otp" label="Enter OTP" length={6} />
+          <OTPInput name="otp" label="Enter OTP" maxLength={6} />
           <Button type="submit" className="mt-4">
             Submit
           </Button>
@@ -72,20 +71,23 @@ const handleFormSubmission = async (request: Request) => {
   return { message: 'OTP submitted successfully', otp: data.otp };
 };
 
-const meta: Meta<typeof OtpInput> = {
-  title: 'RemixHookForm/OtpInput',
-  component: OtpInput,
+const meta: Meta<typeof OTPInput> = {
+  title: 'RemixHookForm/OTPInput',
+  component: OTPInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledOtpInputExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledOtpInputExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
-} satisfies Meta<typeof OtpInput>;
+} satisfies Meta<typeof OTPInput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -1,0 +1,171 @@
+# React Router Stub Decorator for Storybook
+
+The React Router Stub Decorator provides a mock React Router environment for testing and previewing components in Storybook that depend on React Router's routing and data loading features.
+
+## Basic Usage
+
+The simplest way to use the decorator is to wrap your story with the default configuration:
+
+```typescript
+import { withReactRouterStubDecorator } from './react-router-stub';
+
+export default {
+  title: 'Components/MyComponent',
+  component: MyComponent,
+  decorators: [withReactRouterStubDecorator({
+    routes: [{ path: '/' }]
+  })]
+};
+
+export const Default = {
+  render: () => <MyComponent />
+};
+```
+
+## Route Configuration
+
+Configure routes for your components:
+
+```typescript
+export const WithRoutes = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ({ children }) => (
+            <AppShell>{children}</AppShell>
+          )
+        },
+        {
+          path: '/form',
+          action: async ({ request }) => {
+            return { success: true };
+          },
+          Component: FormComponent
+        }
+      ]
+    })
+  ]
+};
+```
+
+## TypeScript Interfaces
+
+```typescript
+interface RemixStubOptions {
+  routes: StubRouteObject[];
+}
+
+export type StubRouteObject = StubIndexRouteObject | StubNonIndexRouteObject;
+
+interface StubNonIndexRouteObject
+  extends Omit<NonIndexRouteObject, 'loader' | 'action' | 'element' | 'errorElement' | 'children'> {
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  children?: StubRouteObject[];
+  meta?: MetaFunction;
+  links?: LinksFunction;
+  Component?: ComponentType<any>;
+}
+
+interface StubIndexRouteObject
+  extends Omit<IndexRouteObject, 'loader' | 'action' | 'element' | 'errorElement' | 'children'> {
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  children?: StubRouteObject[];
+  meta?: MetaFunction;
+  links?: LinksFunction;
+  Component?: ComponentType<any>;
+}
+```
+
+## Best Practices
+
+1. **Route Configuration**
+   - Define specific routes for form submissions
+   - Keep route structure similar to production
+   - Provide default actions for routes that need them
+
+2. **Component Structure**
+   - Use routes for page-specific components
+   - Handle form submissions in route actions
+
+3. **Form Handling**
+   - Set appropriate action paths in forms
+   - Handle validation in route actions
+   - Return proper response structures
+
+## Common Patterns
+
+### 1. Form Submission Route
+
+```typescript
+export const FormExample = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ({ children }) => (
+            <div className="p-4">{children}</div>
+          )
+        },
+        {
+          path: '/submit',
+          action: async ({ request }) => {
+            const formData = await request.formData();
+            return { success: true, data: Object.fromEntries(formData) };
+          }
+        }
+      ]
+    })
+  ]
+};
+```
+
+### 2. Protected Routes
+
+```typescript
+export const ProtectedExample = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          loader: () => {
+            return { user: { isAuthenticated: true } };
+          },
+          Component: ({ children }) => (
+            <AuthProvider>{children}</AuthProvider>
+          )
+        },
+        {
+          path: '/dashboard',
+          loader: () => {
+            return { dashboardData: [] };
+          },
+          Component: Dashboard
+        }
+      ]
+    })
+  ]
+};
+```
+
+## Testing Tips
+
+1. **Form Testing**
+   - Test form submissions with proper action paths
+   - Verify error handling and validation
+   - Check success messages and redirects
+
+2. **Route Testing**
+   - Test route transitions
+   - Verify loader data is available
+   - Check meta tag updates
+
+3. **Component Integration**
+   - Test component interactions with React Router hooks
+   - Verify form state management
+   - Check data loading states

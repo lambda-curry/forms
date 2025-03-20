@@ -51,17 +51,13 @@ export function FormItem({ Component, className, ...props }: FormItemProps) {
         formMessageId: `${id}-form-item-message`,
       }}
     >
-      <div 
-        className={cn('form-item grid gap-2 w-full', className)} 
-        data-slot="form-item"
-        {...props} 
-      />
+      <div className={cn('form-item grid gap-2 w-full', className)} data-slot="form-item" {...props} />
     </FormItemContext.Provider>
   );
 }
 FormItem.displayName = 'FormItem';
 
-export interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
+export interface FormLabelProps extends React.ComponentProps<typeof LabelPrimitive.Root> {
   error?: string;
   Component?: React.ComponentType<FormLabelProps>;
 }
@@ -71,11 +67,7 @@ export function FormLabel({ Component, htmlFor, className, error, ...props }: Fo
 
   if (Component) {
     return (
-      <Component
-        htmlFor={htmlFor || formItemId}
-        className={cn(error && 'text-destructive', className)}
-        {...props}
-      />
+      <Component htmlFor={htmlFor || formItemId} className={cn(error && 'text-destructive', className)} {...props} />
     );
   }
 
@@ -90,7 +82,7 @@ export function FormLabel({ Component, htmlFor, className, error, ...props }: Fo
 }
 FormLabel.displayName = 'FormLabel';
 
-export interface FormControlProps extends React.ComponentPropsWithoutRef<typeof Slot> {
+export interface FormControlProps extends React.ComponentProps<typeof Slot> {
   error?: boolean;
   formItemId?: string;
   formDescriptionId?: string;
@@ -122,21 +114,15 @@ export interface FormDescriptionProps extends React.HTMLAttributes<HTMLParagraph
 
 export function FormDescription({ Component, className, formDescriptionId, ...props }: FormDescriptionProps) {
   if (Component) {
-    return (
-      <Component
-        id={formDescriptionId}
-        className={cn('text-sm text-muted-foreground', className)}
-        {...props}
-      />
-    );
+    return <Component id={formDescriptionId} className={cn('text-sm text-muted-foreground', className)} {...props} />;
   }
 
   return (
-    <p 
-      id={formDescriptionId} 
-      className={cn('text-sm text-muted-foreground', className)} 
+    <p
+      id={formDescriptionId}
+      className={cn('text-sm text-muted-foreground', className)}
       data-slot="form-description"
-      {...props} 
+      {...props}
     />
   );
 }
@@ -181,21 +167,18 @@ export interface FormFieldProps<
   Component?: React.ComponentType<FormFieldProps<TFieldValues, TName>>;
 }
 
-export const FormField = <
+export function FormField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({
-  Component,
-  ...props
-}: FormFieldProps<TFieldValues, TName>) => {
+>({ Component, ...props }: FormFieldProps<TFieldValues, TName>) {
   if (Component) {
     return <Component {...props} />;
   }
 
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
+      <Controller {...props} data-slot="form-field" />
     </FormFieldContext.Provider>
   );
-};
+}
 FormField.displayName = 'FormField';

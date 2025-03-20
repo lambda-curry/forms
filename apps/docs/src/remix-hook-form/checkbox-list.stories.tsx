@@ -2,14 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
-import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
-import { useFetcher, Form } from '../lib/storybook/remix-mock';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent } from '@storybook/test';
 import type {} from '@testing-library/dom';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const AVAILABLE_COLORS = [
   { value: 'red', label: 'Red' },
@@ -57,8 +56,6 @@ const ControlledCheckboxListExample = () => {
     },
   });
 
-  console.log(methods.formState);
-
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
@@ -105,11 +102,14 @@ const meta: Meta<typeof Checkbox> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledCheckboxListExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledCheckboxListExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof Checkbox>;

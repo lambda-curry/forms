@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
-import { useFetcher } from '../lib/storybook/remix-mock';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters'),
@@ -46,12 +45,7 @@ const ControlledTextareaExample = () => {
     <RemixFormProvider {...methods}>
       <form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
-          <Textarea
-            name="message"
-            label="Your message"
-            placeholder="Enter your message here..."
-            rows={5}
-          />
+          <Textarea name="message" label="Your message" placeholder="Enter your message here..." rows={5} />
           <Button type="submit" className="mt-4">
             Submit
           </Button>
@@ -83,11 +77,14 @@ const meta: Meta<typeof Textarea> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledTextareaExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledTextareaExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof Textarea>;
