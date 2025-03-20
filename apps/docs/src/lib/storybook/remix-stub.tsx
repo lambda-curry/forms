@@ -1,5 +1,5 @@
-import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
-import { createRemixStub } from '@remix-run/testing';
+import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from 'react-router';
+import { createRemixStub } from '@react-router/testing';
 import type { Decorator } from '@storybook/react';
 import type { ComponentType } from 'react';
 import type { IndexRouteObject, NonIndexRouteObject } from 'react-router-dom';
