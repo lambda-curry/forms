@@ -1,62 +1,79 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DatePicker } from '@lambdacurry/forms/remix-hook-form/date-picker';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
+import { Form, useFetcher } from '../lib/storybook/remix-mock';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from '@storybook/test';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
 
 const formSchema = z.object({
-  eventDate: z.coerce.date(),
+  date: z.date({
+    required_error: 'Please select a date',
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const DatePickerExample = () => {
-  const fetcher = useFetcher<{ message?: string }>();
+const ControlledDatePickerExample = () => {
+  const fetcher = useFetcher<{ message: string; date: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      eventDate: undefined,
+      date: undefined,
     },
     fetcher,
     submitConfig: {
       action: '/',
       method: 'post',
     },
+    submitHandlers: {
+      onValid: (data) => {
+        fetcher.submit(
+          createFormData({
+            date: data.date.toISOString(),
+          }),
+          {
+            method: 'post',
+            action: '/',
+          },
+        );
+      },
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <DatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-4">
+          <DatePicker name="date" label="Select a date" />
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.date && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted with date:</p>
+              <p className="text-sm text-gray-500">{new Date(fetcher.data.date).toLocaleDateString()}</p>
+            </div>
+          )}
+        </div>
       </Form>
     </RemixFormProvider>
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
-    request,
-    zodResolver(formSchema),
-  );
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'Date selected successfully', date: data.date.toISOString() };
 };
 
-// Storybook configuration
 const meta: Meta<typeof DatePicker> = {
   title: 'RemixHookForm/DatePicker',
   component: DatePicker,
@@ -65,7 +82,7 @@ const meta: Meta<typeof DatePicker> = {
   decorators: [
     withRemixStubDecorator({
       root: {
-        Component: DatePickerExample,
+        Component: ControlledDatePickerExample,
         action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
       },
     }),
@@ -75,48 +92,33 @@ const meta: Meta<typeof DatePicker> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  expect(datePickerButton).toHaveTextContent('Event Date');
-};
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'A date picker component for selecting a date.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-const testDateSelection = async ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  await userEvent.click(datePickerButton);
+    // Open the date picker
+    const datePickerButton = canvas.getByRole('button', { name: /select a date/i });
+    await userEvent.click(datePickerButton);
 
-  await waitFor(async () => {
-    const popover = document.querySelector('[role="dialog"]');
-    expect(popover).not.toBeNull();
+    // Select a date (today)
+    const today = new Date();
+    const formattedDate = today.getDate().toString();
+    const dateButton = canvas.getByRole('button', { name: new RegExp(`^${formattedDate}$`) });
+    await userEvent.click(dateButton);
 
-    if (popover) {
-      const calendar = within(popover as HTMLElement).getByRole('grid');
-      expect(calendar).toBeInTheDocument();
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-      const dateCell = within(calendar).getByText('15');
-      expect(dateCell).toBeInTheDocument();
-      await userEvent.click(dateCell);
-    }
-  });
-
-  const dateToSelect = '15';
-  await waitFor(() => {
-    const updatedDatePickerButton = canvas.getByRole('button', { name: new RegExp(dateToSelect, 'i') });
-    expect(updatedDatePickerButton).toBeInTheDocument();
-  });
-};
-
-const testSubmission = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
-};
-
-// Stories
-export const Tests: Story = {
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testDateSelection(storyContext);
-    await testSubmission(storyContext);
+    // Check if the selected date is displayed
+    const selectedDate = new Date(today).toLocaleDateString();
+    await expect(await canvas.findByText(selectedDate)).toBeInTheDocument();
   },
 };

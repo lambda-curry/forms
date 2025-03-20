@@ -1,15 +1,16 @@
 import React from 'react';
+import { Form as RouterForm } from 'react-router-dom';
 
-// Mock types from @remix-run/node
+// Mock types that were previously from @remix-run/node
 export type ActionFunction = (args: any) => Promise<any>;
 export type ActionFunctionArgs = any;
 export type LoaderFunction = (args: any) => Promise<any>;
 export type LinksFunction = () => Array<{ rel: string; href: string }>;
 export type MetaFunction = () => Record<string, string>;
 
-// Mock components from @remix-run/react
+// Mock components that were previously from @remix-run/react
 export const Form: React.FC<React.FormHTMLAttributes<HTMLFormElement>> = ({ children, ...props }) => (
-  <form {...props}>{children}</form>
+  <RouterForm {...props}>{children}</RouterForm>
 );
 
 export const useFetcher = () => {
@@ -33,9 +34,9 @@ export const useFetcher = () => {
   };
 };
 
-// Mock createRemixStub from @remix-run/testing
+// Mock createRemixStub that was previously from @remix-run/testing
 export const createRemixStub = (options: any) => {
-  const { Component } = options;
+  const { Component } = options[0] || {};
   return {
     Component: () => <Component />,
   };

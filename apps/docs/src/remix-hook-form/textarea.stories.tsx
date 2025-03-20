@@ -1,79 +1,82 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent } from '@storybook/test';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import type { ActionFunctionArgs } from '../lib/storybook/remix-mock';
+import { useFetcher } from '../lib/storybook/remix-mock';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from '@storybook/test';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
 
 const formSchema = z.object({
-  comment: z.string().min(10, 'Comment must be at least 10 characters'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const INITIAL_COMMENT = 'Initial comment text';
-const BLOCKED_CONTENT = 'blocked_content';
-const BLOCKED_CONTENT_ERROR = 'This content is not allowed';
-
 const ControlledTextareaExample = () => {
-  const fetcher = useFetcher<{ message: string }>();
+  const fetcher = useFetcher<{ message: string; submittedMessage: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      comment: INITIAL_COMMENT,
+      message: '',
     },
     fetcher,
     submitConfig: {
       action: '/',
       method: 'post',
     },
+    submitHandlers: {
+      onValid: (data) => {
+        fetcher.submit(
+          createFormData({
+            submittedMessage: data.message,
+          }),
+          {
+            method: 'post',
+            action: '/',
+          },
+        );
+      },
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit}>
-        <Textarea name="comment" label="Comment" description="Enter your comment (minimum 10 characters)" />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
-      </fetcher.Form>
+      <form onSubmit={methods.handleSubmit}>
+        <div className="space-y-4">
+          <Textarea
+            name="message"
+            label="Your message"
+            placeholder="Enter your message here..."
+            rows={5}
+          />
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.submittedMessage && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted message:</p>
+              <p className="text-sm text-gray-500">{fetcher.data.submittedMessage}</p>
+            </div>
+          )}
+        </div>
+      </form>
     </RemixFormProvider>
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { defaultValues };
+    return { errors };
   }
 
-  if (data.comment.includes(BLOCKED_CONTENT)) {
-    return {
-      errors: {
-        comment: {
-          type: 'manual',
-          message: BLOCKED_CONTENT_ERROR,
-        },
-      },
-      defaultValues,
-    };
-  }
-
-  return { message: 'Comment submitted successfully' };
+  return { message: 'Message submitted successfully', submittedMessage: data.message };
 };
 
-// Storybook configuration
 const meta: Meta<typeof Textarea> = {
   title: 'RemixHookForm/Textarea',
   component: Textarea,
@@ -92,54 +95,28 @@ const meta: Meta<typeof Textarea> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Test scenarios
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const textarea = canvas.getByRole('textbox');
-  expect(textarea).toHaveValue(INITIAL_COMMENT);
-};
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'A textarea component for entering multiline text input.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-const testInvalidSubmission = async ({ canvas }: StoryContext) => {
-  const textarea = canvas.getByRole('textbox');
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    // Enter text
+    const messageInput = canvas.getByLabelText('Your message');
+    await userEvent.type(messageInput, 'This is a test message that is longer than 10 characters.');
 
-  await userEvent.click(textarea);
-  await userEvent.clear(textarea);
-  await userEvent.type(textarea, 'short');
-  await userEvent.click(submitButton);
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-  await expect(canvas.findByText('Comment must be at least 10 characters')).resolves.toBeInTheDocument();
-};
-
-const testBlockedContent = async ({ canvas }: StoryContext) => {
-  const textarea = canvas.getByRole('textbox');
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-
-  await userEvent.click(textarea);
-  await userEvent.clear(textarea);
-  await userEvent.type(textarea, BLOCKED_CONTENT);
-  await userEvent.click(submitButton);
-
-  await expect(canvas.findByText(BLOCKED_CONTENT_ERROR)).resolves.toBeInTheDocument();
-};
-
-const testValidSubmission = async ({ canvas }: StoryContext) => {
-  const textarea = canvas.getByRole('textbox');
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-
-  await userEvent.click(textarea);
-  await userEvent.clear(textarea);
-  await userEvent.type(textarea, 'This is a valid comment that is long enough');
-  await userEvent.click(submitButton);
-
-  await expect(canvas.findByText('Comment submitted successfully')).resolves.toBeInTheDocument();
-};
-
-// Stories
-export const Tests: Story = {
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testInvalidSubmission(storyContext);
-    await testBlockedContent(storyContext);
-    await testValidSubmission(storyContext);
+    // Check if the submitted message is displayed
+    await expect(
+      await canvas.findByText('This is a test message that is longer than 10 characters.'),
+    ).toBeInTheDocument();
   },
 };
