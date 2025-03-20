@@ -1,5 +1,4 @@
-import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction } from 'react-router';
-import { createRemixStub } from '@react-router/testing';
+import type { ActionFunction, LinksFunction, LoaderFunction, MetaFunction, createRemixStub } from './remix-mock';
 import type { Decorator } from '@storybook/react';
 import type { ComponentType } from 'react';
 import type { IndexRouteObject, NonIndexRouteObject } from 'react-router-dom';
