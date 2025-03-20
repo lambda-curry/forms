@@ -2,6 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RadioGroup } from '@lambdacurry/forms/remix-hook-form/radio-group';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
+import { Label } from '@lambdacurry/forms/ui/label';
+import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
@@ -56,7 +58,14 @@ const ControlledRadioGroupExample = () => {
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
-          <RadioGroup name="size" label="Select a size" options={AVAILABLE_SIZES} />
+          <RadioGroup name="size" label="Select a size">
+            {AVAILABLE_SIZES.map((size) => (
+              <div key={size.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={size.value} id={size.value} />
+                <Label htmlFor={size.value}>{size.label}</Label>
+              </div>
+            ))}
+          </RadioGroup>
           <FormMessage error={methods.formState.errors.size?.message} />
           <Button type="submit" className="mt-4">
             Submit
@@ -110,7 +119,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A radio group component for selecting a single option from a list.',
+        story:
+          'A radio group component for selecting a single option from a list. Each radio option is wrapped in a flex container to align the radio button with its label.',
       },
     },
   },
