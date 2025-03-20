@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { defineConfig } from 'vite';
 
+// Configuration for Vite with external Remix dependencies
 export default defineConfig({
   resolve: {
     alias: {
