@@ -11,4 +11,14 @@ export default defineConfig({
       '@lambdacurry/forms/lib': path.resolve(__dirname, '../../packages/components/lib'),
     },
   },
+  build: {
+    rollupOptions: {
+      external: [
+        '@remix-run/react',
+        '@remix-run/node',
+        'react-router',
+        'react-router-dom',
+      ],
+    },
+  },
 });
