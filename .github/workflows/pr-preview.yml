@@ -1,0 +1,167 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  pull-requests: write
+
+# Allow only one concurrent deployment per PR
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    # Don't run on closed PRs
+    if: github.event.action != 'closed'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.9.0'
+
+      - name: Setup Yarn Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build Storybook
+        run: yarn build-storybook
+
+      # Verify the build output
+      - name: Verify build output
+        run: |
+          echo "Checking build output directory..."
+          ls -la apps/docs/storybook-static
+          echo "Checking for index.html..."
+          if [ -f apps/docs/storybook-static/index.html ]; then
+            echo "index.html exists"
+          else
+            echo "index.html does not exist"
+            exit 1
+          fi
+
+      # Add a comment to the PR with the preview URL
+      - name: Comment PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const previewUrl = `https://lambda-curry.github.io/forms/pr-${context.issue.number}/`;
+            const commentBody = `📝 **Storybook Preview**: [View Storybook](${previewUrl})
+
+            This preview will be updated automatically when you push new changes to this PR.
+            
+            > Note: The preview will be available after the workflow completes and the PR is approved for deployment.`;
+            
+            // Get existing comments
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            // Check if we already have a comment
+            const botComment = comments.data.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('Storybook Preview')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+      # Create PR-specific directory structure
+      - name: Create PR-specific directory
+        run: |
+          mkdir -p pr-preview/pr-${{ github.event.pull_request.number }}
+          cp -r apps/docs/storybook-static/* pr-preview/pr-${{ github.event.pull_request.number }}/
+
+      # Upload the artifact for the deployment job
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pr-preview
+          retention-days: 30
+
+  # Deploy job
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+    
+    # Use a specific environment with protection rules
+    # This ensures only approved PRs can deploy
+    environment:
+      name: pr-preview
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Clean up when PR is closed
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          
+      - name: Delete PR Preview
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_PREVIEW_PATH="pr-preview/pr-$PR_NUMBER"
+          
+          if [ -d "$PR_PREVIEW_PATH" ]; then
+            echo "Removing PR preview at $PR_PREVIEW_PATH"
+            rm -rf "$PR_PREVIEW_PATH"
+            
+            # Commit and push the changes
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add -A
+            git commit -m "Remove PR preview for PR #$PR_NUMBER" || echo "No changes to commit"
+            git push
+          else
+            echo "PR preview directory not found"
+          fi
