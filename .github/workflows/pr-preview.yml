@@ -37,9 +37,25 @@ jobs:
       - name: Build Storybook
         run: yarn build-storybook
 
+      # Add a step to verify the build output
+      - name: Verify build output
+        run: |
+          echo "Checking build output directory..."
+          ls -la apps/docs/storybook-static
+          echo "Checking for index.html..."
+          if [ -f apps/docs/storybook-static/index.html ]; then
+            echo "index.html exists"
+          else
+            echo "index.html does not exist"
+            exit 1
+          fi
+
+      # Add permissions to GitHub token
       - name: Deploy PR Preview
         uses: rossjrw/pr-preview-action@v1
         with:
           source-dir: 'apps/docs/storybook-static'
           preview-branch: gh-pages
           umbrella-dir: pr-preview
+          # Explicitly set the URL to ensure correct path
+          custom-url: https://lambda-curry.github.io/forms
