@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import type * as React from 'react';
 import { cn } from './utils';
 

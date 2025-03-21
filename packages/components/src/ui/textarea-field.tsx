@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import type * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
@@ -12,6 +11,12 @@ import {
 } from './form';
 import { Textarea } from './textarea';
 
+export interface TextareaFieldComponents extends FieldComponents {
+  TextArea?: React.ForwardRefExoticComponent<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement> & React.RefAttributes<HTMLTextAreaElement>
+  >;
+}
+
 export interface TextareaFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -20,13 +25,12 @@ export interface TextareaFieldProps<
   name: TName;
   label?: string;
   description?: string;
-  components?: Partial<FieldComponents>;
+  components?: Partial<TextareaFieldComponents>;
 }
 
-function TextareaField<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ control, name, label, description, className, components, ...props }: TextareaFieldProps<TFieldValues, TName>) {
+const TextareaField = ({ control, name, label, description, className, components, ...props }: TextareaFieldProps) => {
+  const TextAreaComponent = components?.TextArea || Textarea;
+
   return (
     <FormField
       control={control}
@@ -35,7 +39,7 @@ function TextareaField<
         <FormItem className={className}>
           {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
           <FormControl Component={components?.FormControl}>
-            <Textarea {...field} {...props} data-slot="textarea-field" />
+            <TextAreaComponent {...field} {...props} />
           </FormControl>
           {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
           {fieldState.error && (
@@ -45,7 +49,7 @@ function TextareaField<
       )}
     />
   );
-}
+};
 
 TextareaField.displayName = 'TextareaField';
 

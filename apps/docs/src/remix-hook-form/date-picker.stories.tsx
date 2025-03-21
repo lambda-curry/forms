@@ -74,7 +74,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof DatePicker> = {
-  title: 'RemixHookForm/DatePicker',
+  title: 'RemixHookForm/Date Picker',
   component: DatePicker,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

@@ -2,24 +2,34 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+  price: z.string().min(1, 'Price is required'),
+  email: z.string().email('Invalid email address'),
+  measurement: z.string().min(1, 'Measurement is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+const INITIAL_USERNAME = 'test_user';
+const USERNAME_TAKEN = 'test_user';
+const USERNAME_TAKEN_ERROR = 'Username is already taken';
 
 const ControlledTextFieldExample = () => {
   const fetcher = useFetcher<{ message: string; email: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      username: INITIAL_USERNAME,
+      price: '10.00',
+      email: 'user@example.com',
+      measurement: '10',
     },
     fetcher,
     submitConfig: {
@@ -43,26 +53,30 @@ const ControlledTextFieldExample = () => {
 
   return (
     <RemixFormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit}>
-        <div className="space-y-4">
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <div className="space-y-6">
+          <TextField name="username" label="Username" description="Enter a unique username" />
+
+          <TextField name="price" label="Price" description="Enter the price" prefix="$" />
+
+          <TextField name="email" label="Email" description="Enter your email address" suffix="@example.com" />
+
           <TextField
-            name="email"
-            label="Email address"
-            placeholder="Enter your email"
-            type="email"
-            autoComplete="email"
+            type="number"
+            name="measurement"
+            step={0.1}
+            label="Measurement"
+            description="Enter a measurement"
+            prefix="~"
+            suffix="cm"
           />
+
           <Button type="submit" className="mt-4">
             Submit
           </Button>
-          {fetcher.data?.email && (
-            <div className="mt-4">
-              <p className="text-sm font-medium">Submitted email:</p>
-              <p className="text-sm text-gray-500">{fetcher.data.email}</p>
-            </div>
-          )}
+          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
         </div>
-      </form>
+      </fetcher.Form>
     </RemixFormProvider>
   );
 };
@@ -82,42 +96,76 @@ const meta: Meta<typeof TextField> = {
   component: TextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// Test scenarios
+const testDefaultValues = ({ canvas }: StoryContext) => {
+  const input = canvas.getByLabelText('Username');
+  expect(input).toHaveValue(INITIAL_USERNAME);
+};
+
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+  const input = canvas.getByLabelText('Username');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.type(input, 'ab');
+  await userEvent.click(submitButton);
+  // Use findByText instead of getByText to allow for async updates
+  await expect(await canvas.findByText('Username must be at least 3 characters')).toBeInTheDocument();
+};
+
+const testUsernameTaken = async ({ canvas }: StoryContext) => {
+  const input = canvas.getByLabelText('Username');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  // Note: clicking the input before clearing his helpful to make sure it is ready to be cleared
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.type(input, USERNAME_TAKEN);
+  await userEvent.click(submitButton);
+
+  // wait for response to return
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
+};
+
+const testValidSubmission = async ({ canvas }: StoryContext) => {
+  const input = canvas.getByLabelText('Username');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.type(input, 'valid_username');
+  await userEvent.click(submitButton);
+
+  // Use findByText which waits for the element to appear
+  const successMessage = await canvas.findByText('Form submitted successfully');
+  expect(successMessage).toBeInTheDocument();
+};
+
+// Single story that contains all variants
+export const Examples: Story = {
+  play: async (storyContext) => {
+    testDefaultValues(storyContext);
+    await testInvalidSubmission(storyContext);
+    await testUsernameTaken(storyContext);
+    await testValidSubmission(storyContext);
+  },
   decorators: [
     withReactRouterStubDecorator({
       routes: [
         {
-          path: '/',
-          Component: ControlledTextFieldExample,
+          path: '/username',
           action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
         },
       ],
     }),
   ],
-} satisfies Meta<typeof TextField>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story: 'A text field component for entering text input.',
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Enter text
-    const emailInput = canvas.getByLabelText('Email address');
-    await userEvent.type(emailInput, 'test@example.com');
-
-    // Submit the form
-    const submitButton = canvas.getByRole('button', { name: 'Submit' });
-    await userEvent.click(submitButton);
-
-    // Check if the submitted email is displayed
-    await expect(await canvas.findByText('test@example.com')).toBeInTheDocument();
-  },
 };

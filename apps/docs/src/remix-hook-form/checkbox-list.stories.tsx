@@ -26,6 +26,19 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Custom FormLabel component that makes the entire area clickable
+const FullWidthLabel = ({ className, children, htmlFor, ...props }: React.ComponentPropsWithoutRef<'label'>) => {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className={`absolute inset-0 cursor-pointer flex items-center py-4 px-8 ${className}`}
+      {...props}
+    >
+      <span className="ml-2">{children}</span>
+    </label>
+  );
+};
+
 const ControlledCheckboxListExample = () => {
   const fetcher = useFetcher<{ message: string; selectedColors: string[] }>();
   const methods = useRemixForm<FormData>({
@@ -63,7 +76,15 @@ const ControlledCheckboxListExample = () => {
           <p className="text-sm text-gray-500">Select your favorite colors:</p>
           <div className="grid gap-4">
             {AVAILABLE_COLORS.map(({ value, label }) => (
-              <Checkbox key={value} className="rounded-md border p-4" name={`colors.${value}`} label={label} />
+              <Checkbox
+                key={value}
+                className="relative rounded-md border p-4 hover:bg-gray-50"
+                name={`colors.${value}`}
+                label={label}
+                components={{
+                  FormLabel: FullWidthLabel,
+                }}
+              />
             ))}
           </div>
           <FormMessage error={methods.formState.errors.colors?.root?.message} />
@@ -97,7 +118,7 @@ const handleFormSubmission = async (request: Request) => {
 };
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'RemixHookForm/CheckboxList',
+  title: 'RemixHookForm/Checkbox List',
   component: Checkbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
@@ -152,7 +173,36 @@ export const Tests: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A checkbox list component for selecting multiple colors.',
+        story: 'A checkbox list component for selecting multiple colors with full-width clickable area.',
+      },
+      source: {
+        code: `
+// Custom FormLabel component that makes the entire area clickable
+const FullWidthLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<'label'>>(
+  ({ className, children, htmlFor, ...props }, ref) => {
+    return (
+      <label
+        ref={ref}
+        htmlFor={htmlFor}
+        className={\`absolute inset-0 cursor-pointer flex items-center py-4 px-8 \${className}\`}
+        {...props}
+      >
+        <span className="ml-2">{children}</span>
+      </label>
+    );
+  },
+);
+
+// Usage in your component
+<Checkbox
+  className="relative rounded-md border p-4 hover:bg-gray-50"
+  name="colors.red"
+  label="Red"
+  components={{
+    FormLabel: FullWidthLabel,
+  }}
+/>
+`,
       },
     },
   },

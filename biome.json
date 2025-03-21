@@ -30,7 +30,8 @@
         "noImplicitBoolean": "off",
         "noDefaultExport": "off",
         "noUnusedTemplateLiteral": "off",
-        "useFilenamingConvention": "off"
+        "useFilenamingConvention": "off",
+        "noNamespaceImport": "off"
       },
       "complexity": {
         "all": true,

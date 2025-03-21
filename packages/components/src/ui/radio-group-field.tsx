@@ -1,3 +1,4 @@
+import type * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import type * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
@@ -10,6 +11,11 @@ import {
   FormMessage,
 } from './form';
 import { RadioGroup } from './radio-group';
+import { cn } from './utils';
+
+export interface RadioGroupFieldComponents extends FieldComponents {
+  RadioGroup?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>>;
+}
 
 export interface RadioGroupFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -19,13 +25,23 @@ export interface RadioGroupFieldProps<
   name: TName;
   label?: string;
   description?: string;
-  components?: Partial<FieldComponents>;
+  components?: Partial<RadioGroupFieldComponents>;
+  radioGroupClassName?: string;
 }
+const RadioGroupField = ({
+  control,
+  name,
+  label,
+  description,
+  className,
+  radioGroupClassName,
+  components,
+  children,
+  ...props
+}: RadioGroupFieldProps) => {
+  // Extract custom components with fallbacks
+  const RadioGroupComponent = components?.RadioGroup || RadioGroup;
 
-function RadioGroupField<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ control, name, label, description, className, components, ...props }: RadioGroupFieldProps<TFieldValues, TName>) {
   return (
     <FormField
       control={control}
@@ -34,12 +50,15 @@ function RadioGroupField<
         <FormItem className={className}>
           {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
           <FormControl Component={components?.FormControl}>
-            <RadioGroup
+            <RadioGroupComponent
+              ref={field.ref}
               onValueChange={field.onChange}
               defaultValue={field.value}
-              data-slot="radio-group-field"
+              className={cn('grid gap-2', radioGroupClassName)}
               {...props}
-            />
+            >
+              {children}
+            </RadioGroupComponent>
           </FormControl>
           {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
           {fieldState.error && (
@@ -49,8 +68,7 @@ function RadioGroupField<
       )}
     />
   );
-}
+};
+RadioGroupField.displayName = 'RadioGroupField';
 
 export { RadioGroupField };
-
-RadioGroupField.displayName = 'RadioGroupField';
