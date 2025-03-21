@@ -4,6 +4,7 @@ Checkout our [Storybook Documentation](https://lambda-curry.github.io/forms/?pat
 
 A form library for React applications.
 
+
 ## Getting Started
 
 Step 1: Install dependencies
@@ -38,6 +39,20 @@ The PR preview system:
 4. **Automatically updates the preview when you push new changes to the PR**
 5. Cleans up the preview when the PR is closed
 
+#### GitHub Environment Setup
+
+For PR previews to work properly, you need to set up a GitHub environment:
+
+1. Go to your repository settings
+2. Navigate to "Environments"
+3. Create a new environment named `pr-preview`
+4. Configure environment protection rules as needed:
+   - You can require reviewers to approve deployment
+   - You can limit deployment to specific branches
+   - You can add wait timers before deployment
+
+The main branch will continue to deploy to the `github-pages` environment.
+
 #### Troubleshooting PR Previews
 
 If you encounter a 404 error when accessing the PR preview:
@@ -45,7 +60,8 @@ If you encounter a 404 error when accessing the PR preview:
 1. Make sure the PR build has completed successfully by checking the GitHub Actions tab
 2. Verify that the repository has GitHub Pages enabled and configured to deploy from the `gh-pages` branch
 3. Check that the PR preview comment contains the correct URL
-4. Try clearing your browser cache or using an incognito window
+4. Ensure the PR has been approved for deployment if environment protection rules are enabled
+5. Try clearing your browser cache or using an incognito window
 
 The PR preview is deployed to the `gh-pages` branch in a directory structure like:
 ```

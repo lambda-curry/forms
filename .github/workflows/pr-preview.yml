@@ -58,21 +58,6 @@ jobs:
             exit 1
           fi
 
-      # Create PR-specific directory structure
-      - name: Create PR-specific directory
-        run: |
-          mkdir -p pr-preview
-          cp -r apps/docs/storybook-static pr-preview/pr-${{ github.event.pull_request.number }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pr-preview
-          retention-days: 30
-          
       # Add a comment to the PR with the preview URL
       - name: Comment PR
         uses: actions/github-script@v6
@@ -81,7 +66,9 @@ jobs:
             const previewUrl = `https://lambda-curry.github.io/forms/pr-preview/pr-${context.issue.number}/`;
             const commentBody = `📝 **Storybook Preview**: [View Storybook](${previewUrl})
 
-            This preview will be updated automatically when you push new changes to this PR.`;
+            This preview will be updated automatically when you push new changes to this PR.
+            
+            > Note: The preview will be available after the workflow completes and the PR is approved for deployment.`;
             
             // Get existing comments
             const comments = await github.rest.issues.listComments({
@@ -114,16 +101,35 @@ jobs:
               });
             }
 
+      # Create PR-specific directory structure
+      - name: Create PR-specific directory
+        run: |
+          mkdir -p pr-preview/pr-${{ github.event.pull_request.number }}
+          cp -r apps/docs/storybook-static/* pr-preview/pr-${{ github.event.pull_request.number }}/
+
+      # Upload the artifact for the deployment job
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pr-preview
+          retention-days: 30
+
   # Deploy job
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.event.action != 'closed'
+    
+    # Use a specific environment with protection rules
+    # This ensures only approved PRs can deploy
     environment:
-      name: github-pages
+      name: pr-preview
       url: ${{ steps.deployment.outputs.page_url }}
-
+    
     steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
