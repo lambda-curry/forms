@@ -12,6 +12,9 @@ import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  price: z.string().min(1, 'Price is required'),
+  email: z.string().email('Invalid email address'),
+  measurement: z.string().min(1, 'Measurement is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -26,6 +29,9 @@ const ControlledTextFieldExample = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: INITIAL_USERNAME,
+      price: '10.00',
+      email: 'user@example.com',
+      measurement: '10',
     },
     fetcher,
     submitConfig: {
@@ -37,11 +43,28 @@ const ControlledTextFieldExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
-        <TextField name="username" label="Username" description="Enter a unique username" />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-6">
+          <TextField name="username" label="Username" description="Enter a unique username" />
+
+          <TextField name="price" label="Price" description="Enter the price" prefix="$" />
+
+          <TextField name="email" label="Email" description="Enter your email address" suffix="@example.com" />
+
+          <TextField
+            type="number"
+            name="measurement"
+            step={0.1}
+            label="Measurement"
+            description="Enter a measurement"
+            prefix="~"
+            suffix="cm"
+          />
+
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        </div>
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -80,20 +103,7 @@ const meta: Meta<typeof TextField> = {
   component: TextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledTextFieldExample,
-      },
-      routes: [
-        {
-          path: '/username',
-          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-        },
-      ],
-    }),
-  ],
-} satisfies Meta<typeof TextField>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -147,12 +157,25 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   expect(successMessage).toBeInTheDocument();
 };
 
-// Stories
-export const Tests: Story = {
+// Single story that contains all variants
+export const Examples: Story = {
   play: async (storyContext) => {
     testDefaultValues(storyContext);
     await testInvalidSubmission(storyContext);
     await testUsernameTaken(storyContext);
     await testValidSubmission(storyContext);
   },
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        Component: ControlledTextFieldExample,
+      },
+      routes: [
+        {
+          path: '/username',
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
 };
