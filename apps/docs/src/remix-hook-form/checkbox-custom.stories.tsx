@@ -3,14 +3,14 @@ import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import type { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import * as React from 'react';
+import type { ActionFunctionArgs } from 'react-router';
+import { useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   terms: z.boolean().refine((val) => val === true, 'You must accept the terms and conditions'),
@@ -237,11 +237,14 @@ type Story = StoryObj<typeof meta>;
 export const CustomCheckboxComponentExamples: Story = {
   name: 'Custom Checkbox Component Examples',
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: AllCustomComponentsExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: AllCustomComponentsExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
   parameters: {

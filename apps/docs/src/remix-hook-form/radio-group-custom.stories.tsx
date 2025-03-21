@@ -5,14 +5,14 @@ import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
 import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import { cn } from '@lambdacurry/forms/ui/utils';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import * as React from 'react';
+import type { ActionFunctionArgs } from 'react-router';
+import { Form, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   plan: z.enum(['starter', 'pro', 'enterprise'], {
@@ -397,11 +397,13 @@ type Story = StoryObj<typeof meta>;
 export const CustomComponents: Story = {
   render: () => <CustomRadioGroupExample />,
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: CustomRadioGroupExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
   parameters: {

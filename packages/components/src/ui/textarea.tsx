@@ -17,6 +17,7 @@ const Textarea = ({ className, CustomTextarea, ...props }: TextareaProps) => {
         className,
       )}
       {...props}
+      data-slot="textarea"
     />
   );
 };

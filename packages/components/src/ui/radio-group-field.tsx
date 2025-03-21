@@ -51,7 +51,6 @@ const RadioGroupField = ({
           {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
           <FormControl Component={components?.FormControl}>
             <RadioGroupComponent
-              ref={field.ref}
               onValueChange={field.onChange}
               defaultValue={field.value}
               className={cn('grid gap-2', radioGroupClassName)}

@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RadioGroup } from '@lambdacurry/forms/remix-hook-form/radio-group';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { FormMessage } from '@lambdacurry/forms/ui/form';
 import { Label } from '@lambdacurry/forms/ui/label';
 import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
-import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -20,7 +19,7 @@ const AVAILABLE_SIZES = [
 ] as const;
 
 const formSchema = z.object({
-  size: z.string({
+  size: z.enum(['xs', 'sm', 'md', 'lg', 'xl'], {
     required_error: 'Please select a size',
   }),
 });
@@ -28,29 +27,13 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const ControlledRadioGroupExample = () => {
-  const fetcher = useFetcher<{ message: string; selectedSize: string }>();
+  const fetcher = useFetcher<{ message: string; selectedSize: string; errors?: Record<string, { message: string }> }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      size: '',
-    },
     fetcher,
     submitConfig: {
       action: '/',
       method: 'post',
-    },
-    submitHandlers: {
-      onValid: (data) => {
-        fetcher.submit(
-          createFormData({
-            selectedSize: data.size,
-          }),
-          {
-            method: 'post',
-            action: '/',
-          },
-        );
-      },
     },
   });
 
@@ -66,7 +49,6 @@ const ControlledRadioGroupExample = () => {
               </div>
             ))}
           </RadioGroup>
-          <FormMessage error={methods.formState.errors.size?.message} />
           <Button type="submit" className="mt-4">
             Submit
           </Button>

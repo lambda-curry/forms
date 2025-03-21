@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@source "../../../../packages/components";
+@source "../../../packages/components";
 
 :root {
   --background: hsl(0 0% 100%);

@@ -71,9 +71,13 @@ const CheckboxField = ({
               className={isCustomCheckbox ? undefined : defaultCheckboxClassName}
               checked={field.value}
               onCheckedChange={field.onChange}
+              data-slot="checkbox"
               {...props}
             >
-              <IndicatorComponent className={isCustomIndicator ? undefined : defaultIndicatorClassName}>
+              <IndicatorComponent
+                className={isCustomIndicator ? undefined : defaultIndicatorClassName}
+                data-slot="checkbox-indicator"
+              >
                 <Check className={cn('h-4 w-4', checkClassName)} />
               </IndicatorComponent>
             </CheckboxComponent>

@@ -44,7 +44,9 @@ const RadioGroupItem = ({ className, indicator, components, ...props }: RadioGro
       data-slot="radio-group-item"
       {...props}
     >
-      <RadioIndicator className="flex items-center justify-center">{indicatorContent}</RadioIndicator>
+      <RadioIndicator className="flex items-center justify-center" data-slot="radio-group-indicator">
+        {indicatorContent}
+      </RadioIndicator>
     </RadioItem>
   );
 };
