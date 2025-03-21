@@ -21,8 +21,8 @@
     "@biomejs/biome": "^1.9.4",
     "turbo": "^2.3.3"
   },
-  "packageManager": "yarn@4.4.1",
   "dependencies": {
     "@changesets/cli": "^2.27.11"
-  }
+  },
+  "packageManager": "yarn@4.7.0"
 }
