@@ -10,7 +10,7 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
   pull-requests: write
@@ -21,7 +21,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-preview:
+  # Build job
+  build:
     runs-on: ubuntu-latest
     # Don't run on closed PRs
     if: github.event.action != 'closed'
@@ -57,15 +58,20 @@ jobs:
             exit 1
           fi
 
-      # Deploy to GitHub Pages in a PR-specific directory
-      - name: Deploy PR Preview
-        uses: JamesIves/github-pages-deploy-action@v4
+      # Create PR-specific directory structure
+      - name: Create PR-specific directory
+        run: |
+          mkdir -p pr-preview
+          cp -r apps/docs/storybook-static pr-preview/pr-${{ github.event.pull_request.number }}
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: apps/docs/storybook-static
-          target-folder: pr-preview/pr-${{ github.event.pull_request.number }}
-          clean: true
-          clean-exclude: |
-            pr-preview/pr-*
+          path: pr-preview
+          retention-days: 30
           
       # Add a comment to the PR with the preview URL
       - name: Comment PR
@@ -107,6 +113,20 @@ jobs:
                 body: commentBody
               });
             }
+
+  # Deploy job
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # Clean up when PR is closed
   cleanup:
