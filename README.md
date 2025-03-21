@@ -27,6 +27,15 @@ Preview URLs follow this format:
 https://lambda-curry.github.io/forms/pr-preview/pr-[PR_NUMBER]/
 ```
 
+#### How PR Previews Work
+
+The PR preview system:
+1. Builds the Storybook documentation for each PR
+2. Deploys it to a PR-specific directory on the `gh-pages` branch
+3. Adds a comment to the PR with a link to the preview
+4. Automatically updates the preview when you push new changes to the PR
+5. Cleans up the preview when the PR is closed
+
 #### Troubleshooting PR Previews
 
 If you encounter a 404 error when accessing the PR preview:
