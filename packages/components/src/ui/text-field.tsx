@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
@@ -13,69 +12,94 @@ import {
 import { TextInput } from './text-input';
 import { cn } from './utils';
 
-export const FieldPrefix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+export const FieldPrefix = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <span className={cn("whitespace-nowrap shadow-sm font-bold rounded-md text-base flex items-center px-2.5 pr-5 -mr-2.5 bg-gray-50 text-gray-500", className)}>
-      {children}
-    </span>
+    <div
+      className={cn(
+        'flex h-full text-base items-center pl-3 pr-0 text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200 border-y border-l border-input rounded-l-md bg-background',
+        className,
+      )}
+    >
+      <span className="whitespace-nowrap">{children}</span>
+    </div>
   );
 };
 
-export const FieldSuffix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+export const FieldSuffix = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <span className={cn("whitespace-nowrap shadow-sm font-bold rounded-md text-base flex items-center px-2.5 pl-5 -ml-2.5 bg-gray-50 text-gray-500", className)}>
-      {children}
-    </span>
+    <div
+      className={cn(
+        'flex h-full text-base items-center pr-3 pl-0 text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200 border-y border-r border-input rounded-r-md bg-background',
+        className,
+      )}
+    >
+      <span className="whitespace-nowrap">{children}</span>
+    </div>
   );
 };
 
-export interface TextFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'> {
-  control?: Control<TFieldValues>;
-  name: TName;
+// Create a specific interface for the input props that includes className explicitly
+type TextInputProps = React.ComponentPropsWithRef<typeof TextInput> & {
+  control?: Control<FieldValues>;
+  name: FieldPath<FieldValues>;
   label?: string;
   description?: string;
   components?: Partial<FieldComponents>;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
-}
+  className?: string;
+};
 
-export const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
+export const TextField = React.forwardRef<HTMLDivElement, TextInputProps>(
   ({ control, name, label, description, className, components, prefix, suffix, ...props }, ref) => {
     return (
       <FormField
         control={control}
         name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className} ref={ref}>
-            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <FormControl Component={components?.FormControl}>
-              <div className={cn("flex items-stretch relative", {
-                "field__input--with-prefix": prefix,
-                "field__input--with-suffix": suffix,
-              })}>
-                {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
-                <TextInput 
-                  {...field} 
-                  {...props} 
-                  ref={field.ref} 
-                  className={cn(props.className, {
-                    "z-10": prefix || suffix,
-                    "rounded-l-none": prefix,
-                    "rounded-r-none": suffix,
+        render={({ field, fieldState }) => {
+          return (
+            <FormItem className={className} ref={ref}>
+              {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+              <FormControl Component={components?.FormControl}>
+                <div
+                  className={cn('flex group transition-all duration-200 rounded-md', {
+                    'field__input--with-prefix': prefix,
+                    'field__input--with-suffix': suffix,
+                    'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
                   })}
-                />
-                {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
-              </div>
-            </FormControl>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        )}
+                >
+                  {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+                  <TextInput
+                    {...field}
+                    {...props}
+                    ref={field.ref}
+                    className={cn('focus-visible:ring-0 focus-visible:ring-offset-0', {
+                      'rounded-l-none border-l-0': prefix,
+                      'rounded-r-none border-r-0': suffix,
+                    })}
+                  />
+                  {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
+                </div>
+              </FormControl>
+              {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+              {fieldState.error && (
+                <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+              )}
+            </FormItem>
+          );
+        }}
       />
     );
   },

@@ -14,6 +14,7 @@ const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
   price: z.string().min(1, 'Price is required'),
   email: z.string().email('Invalid email address'),
+  measurement: z.string().min(1, 'Measurement is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -30,6 +31,7 @@ const ControlledTextFieldExample = () => {
       username: INITIAL_USERNAME,
       price: '10.00',
       email: 'user@example.com',
+      measurement: '10',
     },
     fetcher,
     submitConfig: {
@@ -43,21 +45,21 @@ const ControlledTextFieldExample = () => {
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="space-y-6">
           <TextField name="username" label="Username" description="Enter a unique username" />
-          
-          <TextField 
-            name="price" 
-            label="Price" 
-            description="Enter the price" 
-            prefix="$" 
+
+          <TextField name="price" label="Price" description="Enter the price" prefix="$" />
+
+          <TextField name="email" label="Email" description="Enter your email address" suffix="@example.com" />
+
+          <TextField
+            type="number"
+            name="measurement"
+            step={0.1}
+            label="Measurement"
+            description="Enter a measurement"
+            prefix="~"
+            suffix="cm"
           />
-          
-          <TextField 
-            name="email" 
-            label="Email" 
-            description="Enter your email address" 
-            suffix="@example.com" 
-          />
-          
+
           <Button type="submit" className="mt-4">
             Submit
           </Button>
@@ -101,20 +103,7 @@ const meta: Meta<typeof TextField> = {
   component: TextField,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledTextFieldExample,
-      },
-      routes: [
-        {
-          path: '/username',
-          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-        },
-      ],
-    }),
-  ],
-} satisfies Meta<typeof TextField>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -168,41 +157,25 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   expect(successMessage).toBeInTheDocument();
 };
 
-// Stories
-export const Tests: Story = {
+// Single story that contains all variants
+export const Examples: Story = {
   play: async (storyContext) => {
     testDefaultValues(storyContext);
     await testInvalidSubmission(storyContext);
     await testUsernameTaken(storyContext);
     await testValidSubmission(storyContext);
   },
-};
-
-// Additional stories to showcase prefix and suffix
-export const WithPrefix: Story = {
-  name: 'With Prefix',
-  args: {
-    name: 'price',
-    label: 'Price',
-    prefix: '$',
-  },
-};
-
-export const WithSuffix: Story = {
-  name: 'With Suffix',
-  args: {
-    name: 'email',
-    label: 'Email',
-    suffix: '@example.com',
-  },
-};
-
-export const WithBoth: Story = {
-  name: 'With Prefix and Suffix',
-  args: {
-    name: 'measurement',
-    label: 'Measurement',
-    prefix: '~',
-    suffix: 'cm',
-  },
+  decorators: [
+    withRemixStubDecorator({
+      root: {
+        Component: ControlledTextFieldExample,
+      },
+      routes: [
+        {
+          path: '/username',
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
 };
