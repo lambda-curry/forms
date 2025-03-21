@@ -52,7 +52,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Don't remove PR previews when deploying the main branch
           path: 'apps/docs/storybook-static'
+          retention-days: 30
 
       - name: Deploy to GitHub Pages
         id: deployment

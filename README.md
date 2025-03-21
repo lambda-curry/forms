@@ -18,4 +18,13 @@ Step 2: Start Storybook
 yarn storybook
 ```
 
+## Development
 
+### PR Previews
+
+When you create a pull request, a preview of the Storybook documentation will be automatically deployed. You can find the link to the preview in the PR comments. This allows you to review changes to the documentation and components before merging.
+
+Preview URLs follow this format:
+```
+https://lambda-curry.github.io/forms/pr-preview/pr-[PR_NUMBER]/
+```
