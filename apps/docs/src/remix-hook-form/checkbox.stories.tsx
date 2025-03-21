@@ -5,7 +5,6 @@ import type { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent } from '@storybook/test';
-import type {} from '@testing-library/dom';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
@@ -37,17 +36,16 @@ const ControlledCheckboxExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
-        <div className="grid gap-4">
-          <Checkbox className="rounded-md border p-4" name="terms" label="Accept terms and conditions" />
+        <div className="grid gap-8">
+          <Checkbox name="terms" label="Accept terms and conditions" />
           <Checkbox
-            className="rounded-md border p-4"
             name="marketing"
             label="Receive marketing emails"
             description="We will send you hourly updates about our products"
           />
-          <Checkbox className="rounded-md border p-4" name="required" label="This is a required checkbox" />
+          <Checkbox name="required" label="This is a required checkbox" />
         </div>
-        <Button type="submit" className="mt-4">
+        <Button type="submit" className="mt-8">
           Submit
         </Button>
         {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
@@ -112,7 +110,7 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
 };
 
-export const Tests: Story = {
+export const Default: Story = {
   parameters: {
     docs: {
       description: {
@@ -120,40 +118,44 @@ export const Tests: Story = {
       },
       source: {
         code: `
-    const formSchema = z.object({
-    terms: z.boolean().optional().refine(val => val === true, 'You must accept the terms and conditions'),
-    marketing: z.boolean().optional(),
-    required: z.boolean().optional().refine(val => val === true, 'This field is required'),
+const formSchema = z.object({
+  terms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
+  marketing: z.boolean().optional(),
+  required: z.boolean().refine(val => val === true, 'This field is required'),
+});
+
+const ControlledCheckboxExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      terms: false as true, // Note: ZOD Schema expects a true value
+      marketing: false,
+      required: false as true //Note: ZOD Schema expects a true value
+    },
+    fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
   });
 
-  const ControlledCheckboxExample = () => {
-    const fetcher = useFetcher<{ message: string }>();
-    const methods = useRemixForm<FormData>({
-      resolver: zodResolver(formSchema),
-      defaultValues: {
-        terms: false as true, // Note: ZOD Schema expects a true value
-        marketing: false,
-        required: false as true //Note: ZOD Schema expects a true value
-      },
-      fetcher,
-    });
-
-    return (
-      <RemixFormProvider {...methods}>
-        <fetcher.Form onSubmit={methods.handleSubmit} method="post" action="/">
-          <div className='grid gap-4'>
-            <Checkbox className='rounded-md border p-4' name="terms" label="Accept terms and conditions" />
-            <Checkbox className='rounded-md border p-4' name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
-            <Checkbox className='rounded-md border p-4' name="required" label="This is a required checkbox" />
-          </div>
-          <Button type="submit" className="mt-4">
-            Submit
-          </Button>
-          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
-        </fetcher.Form>
-      </RemixFormProvider>
-    );
-  };`,
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <div className='grid gap-8'>
+          <Checkbox name="terms" label="Accept terms and conditions" />
+          <Checkbox name="marketing" label="Receive marketing emails" description="We will send you hourly updates about our products" />
+          <Checkbox name="required" label="This is a required checkbox" />
+        </div>
+        <Button type="submit" className="mt-8">
+          Submit
+        </Button>
+        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};`,
       },
     },
   },
