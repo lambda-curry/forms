@@ -72,15 +72,15 @@ export const TextField = React.forwardRef<HTMLDivElement, TextInputProps>(
           return (
             <FormItem className={className} ref={ref}>
               {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-              <FormControl Component={components?.FormControl}>
-                <div
-                  className={cn('flex group transition-all duration-200 rounded-md', {
-                    'field__input--with-prefix': prefix,
-                    'field__input--with-suffix': suffix,
-                    'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
-                  })}
-                >
-                  {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+              <div
+                className={cn('flex group transition-all duration-200 rounded-md', {
+                  'field__input--with-prefix': prefix,
+                  'field__input--with-suffix': suffix,
+                  'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
+                })}
+              >
+                {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+                <FormControl Component={components?.FormControl}>
                   <TextInput
                     {...field}
                     {...props}
@@ -90,9 +90,9 @@ export const TextField = React.forwardRef<HTMLDivElement, TextInputProps>(
                       'rounded-r-none border-r-0': suffix,
                     })}
                   />
-                  {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
-                </div>
-              </FormControl>
+                </FormControl>
+                {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
+              </div>
               {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
               {fieldState.error && (
                 <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
