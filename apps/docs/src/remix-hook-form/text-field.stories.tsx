@@ -12,6 +12,8 @@ import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  price: z.string().min(1, 'Price is required'),
+  email: z.string().email('Invalid email address'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -26,6 +28,8 @@ const ControlledTextFieldExample = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: INITIAL_USERNAME,
+      price: '10.00',
+      email: 'user@example.com',
     },
     fetcher,
     submitConfig: {
@@ -37,11 +41,28 @@ const ControlledTextFieldExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
-        <TextField name="username" label="Username" description="Enter a unique username" />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-6">
+          <TextField name="username" label="Username" description="Enter a unique username" />
+          
+          <TextField 
+            name="price" 
+            label="Price" 
+            description="Enter the price" 
+            prefix="$" 
+          />
+          
+          <TextField 
+            name="email" 
+            label="Email" 
+            description="Enter your email address" 
+            suffix="@example.com" 
+          />
+          
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        </div>
       </fetcher.Form>
     </RemixFormProvider>
   );
@@ -154,5 +175,34 @@ export const Tests: Story = {
     await testInvalidSubmission(storyContext);
     await testUsernameTaken(storyContext);
     await testValidSubmission(storyContext);
+  },
+};
+
+// Additional stories to showcase prefix and suffix
+export const WithPrefix: Story = {
+  name: 'With Prefix',
+  args: {
+    name: 'price',
+    label: 'Price',
+    prefix: '$',
+  },
+};
+
+export const WithSuffix: Story = {
+  name: 'With Suffix',
+  args: {
+    name: 'email',
+    label: 'Email',
+    suffix: '@example.com',
+  },
+};
+
+export const WithBoth: Story = {
+  name: 'With Prefix and Suffix',
+  args: {
+    name: 'measurement',
+    label: 'Measurement',
+    prefix: '~',
+    suffix: 'cm',
   },
 };
