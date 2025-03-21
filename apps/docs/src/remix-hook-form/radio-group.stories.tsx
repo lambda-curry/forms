@@ -1,30 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RadioGroup } from '@lambdacurry/forms/remix-hook-form/radio-group';
 import { Button } from '@lambdacurry/forms/ui/button';
+import { Label } from '@lambdacurry/forms/ui/label';
 import { RadioGroupItem } from '@lambdacurry/forms/ui/radio-group';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+
+const AVAILABLE_SIZES = [
+  { value: 'xs', label: 'Extra Small' },
+  { value: 'sm', label: 'Small' },
+  { value: 'md', label: 'Medium' },
+  { value: 'lg', label: 'Large' },
+  { value: 'xl', label: 'Extra Large' },
+] as const;
 
 const formSchema = z.object({
-  plan: z.enum(['starter', 'pro', 'enterprise'], {
-    required_error: 'You need to select a plan',
+  size: z.enum(['xs', 'sm', 'md', 'lg', 'xl'], {
+    required_error: 'Please select a size',
   }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixRadioGroupExample = () => {
-  const fetcher = useFetcher<{ message?: string }>();
+const ControlledRadioGroupExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedSize: string; errors?: Record<string, { message: string }> }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      plan: undefined,
-    },
     fetcher,
     submitConfig: {
       action: '/',
@@ -35,46 +40,40 @@ const RemixRadioGroupExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <RadioGroup
-          name="plan"
-          label="Select a plan"
-          description="Choose the plan that best fits your needs."
-          className="space-y-1"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="starter" id="starter" />
-            <label htmlFor="starter">Starter</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="pro" id="pro" />
-            <label htmlFor="pro">Pro</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="enterprise" id="enterprise" />
-            <label htmlFor="enterprise">Enterprise</label>
-          </div>
-        </RadioGroup>
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-4">
+          <RadioGroup name="size" label="Select a size">
+            {AVAILABLE_SIZES.map((size) => (
+              <div key={size.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={size.value} id={size.value} />
+                <Label htmlFor={size.value}>{size.label}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.selectedSize && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted with size:</p>
+              <p className="text-sm text-gray-500">
+                {AVAILABLE_SIZES.find((size) => size.value === fetcher.data?.selectedSize)?.label}
+              </p>
+            </div>
+          )}
+        </div>
       </Form>
     </RemixFormProvider>
   );
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
-  return { message: 'Plan selected successfully' };
+  return { message: 'Size selected successfully', selectedSize: data.size };
 };
 
 const meta: Meta<typeof RadioGroup> = {
@@ -83,11 +82,14 @@ const meta: Meta<typeof RadioGroup> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: RemixRadioGroupExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledRadioGroupExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof RadioGroup>;
@@ -95,30 +97,27 @@ const meta: Meta<typeof RadioGroup> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testInvalidSubmission = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A radio group component for selecting a single option from a list. Each radio option is wrapped in a flex container to align the radio button with its label.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-  await expect(canvas.findByText('You need to select a plan')).resolves.toBeInTheDocument();
-};
+    // Select an option
+    const mediumOption = canvas.getByLabelText('Medium');
+    await userEvent.click(mediumOption);
 
-const testRadioGroupSelection = async ({ canvas }: StoryContext) => {
-  const proRadio = canvas.getByLabelText('Pro');
-  await userEvent.click(proRadio);
-  expect(proRadio).toBeChecked();
-};
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-const testSubmission = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-
-  await expect(canvas.findByText('Plan selected successfully')).resolves.toBeInTheDocument();
-};
-
-export const Tests: Story = {
-  play: async (storyContext) => {
-    await testInvalidSubmission(storyContext);
-    await testRadioGroupSelection(storyContext);
-    await testSubmission(storyContext);
+    // Check if the selected option is displayed
+    await expect(await canvas.findByText('Medium')).toBeInTheDocument();
   },
 };

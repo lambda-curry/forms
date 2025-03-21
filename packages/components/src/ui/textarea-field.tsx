@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -20,7 +20,7 @@ export interface TextareaFieldComponents extends FieldComponents {
 export interface TextareaFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<React.ComponentPropsWithoutRef<typeof Textarea>, 'name'> {
+> extends Omit<React.ComponentProps<typeof Textarea>, 'name'> {
   control?: Control<TFieldValues>;
   name: TName;
   label?: string;
@@ -28,30 +28,28 @@ export interface TextareaFieldProps<
   components?: Partial<TextareaFieldComponents>;
 }
 
-const TextareaField = React.forwardRef<HTMLDivElement, TextareaFieldProps>(
-  ({ control, name, label, description, className, components, ...props }, ref) => {
-    const TextAreaComponent = components?.TextArea || Textarea;
+const TextareaField = ({ control, name, label, description, className, components, ...props }: TextareaFieldProps) => {
+  const TextAreaComponent = components?.TextArea || Textarea;
 
-    return (
-      <FormField
-        control={control}
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className} ref={ref}>
-            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <FormControl Component={components?.FormControl}>
-              <TextAreaComponent {...field} {...props} ref={field.ref} />
-            </FormControl>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
-    );
-  },
-);
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={className}>
+          {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+          <FormControl Component={components?.FormControl}>
+            <TextAreaComponent {...field} {...props} />
+          </FormControl>
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          {fieldState.error && (
+            <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+          )}
+        </FormItem>
+      )}
+    />
+  );
+};
 
 TextareaField.displayName = 'TextareaField';
 
