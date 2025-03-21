@@ -63,7 +63,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const previewUrl = `https://lambda-curry.github.io/forms/pr-preview/pr-${context.issue.number}/`;
+            const previewUrl = `https://lambda-curry.github.io/forms/pr-${context.issue.number}/`;
             const commentBody = `📝 **Storybook Preview**: [View Storybook](${previewUrl})
 
             This preview will be updated automatically when you push new changes to this PR.
