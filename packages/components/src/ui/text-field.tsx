@@ -85,7 +85,7 @@ export const TextField = React.forwardRef<HTMLDivElement, TextInputProps>(
                     {...field}
                     {...props}
                     ref={field.ref}
-                    className={cn('focus-visible:ring-0 focus-visible:ring-offset-0', {
+                    className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
                       'rounded-l-none border-l-0': prefix,
                       'rounded-r-none border-r-0': suffix,
                     })}
