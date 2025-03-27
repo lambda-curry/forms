@@ -484,7 +484,8 @@ import { expect, userEvent } from '@storybook/test';
 import * as React from 'react';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 // Custom checkbox component
 const CustomCheckbox = React.forwardRef<
@@ -597,6 +598,18 @@ const handleFormSubmission = async (request: Request) => {
 // Story definition
 export const CustomComponents: Story = {
   render: () => <CustomCheckboxExample />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          action: async ({ request }: ActionFunctionArgs) => {
+            return handleFormSubmission(request);
+          },
+        },
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {

@@ -1,5 +1,8 @@
 import path from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+
+const __dirname = path.resolve();
 
 export default defineConfig({
   resolve: {
@@ -11,4 +14,10 @@ export default defineConfig({
       '@lambdacurry/forms/lib': path.resolve(__dirname, '../../packages/components/lib'),
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['react-router', 'react-router-dom'],
+    },
+  },
+  plugins: [tailwindcss()],
 });

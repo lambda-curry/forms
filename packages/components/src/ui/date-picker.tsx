@@ -6,11 +6,12 @@ import { cn } from './utils';
 
 export type DatePickerProps = React.ComponentProps<typeof DayPicker>;
 
-const DatePicker = ({ className, classNames, showOutsideDays = true, ...props }: DatePickerProps) => {
+function DatePicker({ className, classNames, showOutsideDays = true, ...props }: DatePickerProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn('p-3', className)}
+      data-slot="date-picker"
       classNames={{
         months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
         month: 'space-y-4',
@@ -49,7 +50,6 @@ const DatePicker = ({ className, classNames, showOutsideDays = true, ...props }:
       {...props}
     />
   );
-};
-DatePicker.displayName = 'DatePicker';
+}
 
 export { DatePicker };

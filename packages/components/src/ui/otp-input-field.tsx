@@ -18,26 +18,22 @@ import { cn } from './utils';
 
 export type { OTPInputProps };
 
-export const OTPInputGroup = React.forwardRef<React.ElementRef<'div'>, React.ComponentPropsWithoutRef<'div'>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn('flex items-center', className)} {...props} />,
-);
-OTPInputGroup.displayName = 'OTPInputGroup';
+export function OTPInputGroup({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={cn('flex items-center', className)} data-slot="otp-input-group" {...props} />;
+}
 
-export const OTPInputSlot = React.forwardRef<
-  React.ElementRef<'div'>,
-  React.ComponentPropsWithoutRef<'div'> & { index: number }
->(({ index, className, ...props }, ref) => {
+export function OTPInputSlot({ index, className, ...props }: React.ComponentProps<'div'> & { index: number }) {
   const inputOTPContext = React.useContext(OTPInputContext);
   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
 
   return (
     <div
-      ref={ref}
       className={cn(
         'relative flex h-10 w-10 items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md',
         isActive && 'z-10 ring-2 ring-ring ring-offset-background',
         className,
       )}
+      data-slot="otp-input-slot"
       {...props}
     >
       {char}
@@ -48,22 +44,20 @@ export const OTPInputSlot = React.forwardRef<
       )}
     </div>
   );
-});
-OTPInputSlot.displayName = 'OTPInputSlot';
+}
 
-export const OTPInputSeparator = React.forwardRef<React.ElementRef<'div'>, React.ComponentPropsWithoutRef<'div'>>(
-  ({ ...props }, ref) => (
+export function OTPInputSeparator({ ...props }: React.ComponentProps<'div'>) {
+  return (
     // biome-ignore lint/a11y/useFocusableInteractive: from ShadCN
     // biome-ignore lint/a11y/useSemanticElements: from ShadCN
-    <div ref={ref} role="separator" {...props}>
+    <div role="separator" data-slot="otp-input-separator" {...props}>
       <Dot />
     </div>
-  ),
-);
-OTPInputSeparator.displayName = 'OTPInputSeparator';
+  );
+}
 
 export interface OTPInputFieldProps<TFieldValues extends FieldValues = FieldValues>
-  extends Omit<React.ComponentPropsWithoutRef<typeof OTPInput>, 'onChange' | 'value'> {
+  extends Omit<React.ComponentProps<typeof OTPInput>, 'onChange' | 'value'> {
   control: Control<TFieldValues>;
   name: string;
   label?: string;
@@ -75,57 +69,63 @@ export interface OTPInputFieldProps<TFieldValues extends FieldValues = FieldValu
   components?: Partial<FieldComponents>;
 }
 
-export const OTPInputField = React.forwardRef<HTMLDivElement, OTPInputFieldProps>(
-  (
-    { control, name, label, description, className, labelClassName, inputClassName, maxLength, components, ...props },
-    ref,
-  ) => {
-    const isEightSlots = maxLength === 8;
-    const { formItemId } = React.useContext(FormItemContext);
-    return (
-      <FormField
-        control={control}
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className} ref={ref}>
-            {label && (
-              <FormLabel Component={components?.FormLabel} className={labelClassName}>
-                {label}
-              </FormLabel>
-            )}
-            <FormControl Component={components?.FormControl}>
-              <OTPInput
-                ref={field.ref}
-                id={formItemId}
-                aria-describedby={formItemId}
-                value={field.value}
-                onChange={field.onChange}
-                className={inputClassName}
-                maxLength={maxLength}
-              >
-                <OTPInputGroup>
-                  <OTPInputSlot index={0} />
-                  <OTPInputSlot index={1} />
-                  <OTPInputSlot index={2} />
-                  {isEightSlots && <OTPInputSlot index={3} />}
-                </OTPInputGroup>
-                <OTPInputSeparator />
-                <OTPInputGroup>
-                  <OTPInputSlot index={isEightSlots ? 4 : 3} />
-                  <OTPInputSlot index={isEightSlots ? 5 : 4} />
-                  <OTPInputSlot index={isEightSlots ? 6 : 5} />
-                  {isEightSlots && <OTPInputSlot index={7} />}
-                </OTPInputGroup>
-              </OTPInput>
-            </FormControl>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
-    );
-  },
-);
+export function OTPInputField({
+  control,
+  name,
+  label,
+  description,
+  className,
+  labelClassName,
+  inputClassName,
+  maxLength,
+  components,
+  ...props
+}: OTPInputFieldProps) {
+  const isEightSlots = maxLength === 8;
+  const { formItemId } = React.useContext(FormItemContext);
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={className}>
+          {label && (
+            <FormLabel Component={components?.FormLabel} className={labelClassName}>
+              {label}
+            </FormLabel>
+          )}
+          <FormControl Component={components?.FormControl}>
+            <OTPInput
+              id={formItemId}
+              aria-describedby={formItemId}
+              value={field.value}
+              onChange={field.onChange}
+              className={inputClassName}
+              maxLength={maxLength}
+              data-slot="otp-input-field"
+            >
+              <OTPInputGroup>
+                <OTPInputSlot index={0} />
+                <OTPInputSlot index={1} />
+                <OTPInputSlot index={2} />
+                {isEightSlots && <OTPInputSlot index={3} />}
+              </OTPInputGroup>
+              <OTPInputSeparator />
+              <OTPInputGroup>
+                <OTPInputSlot index={isEightSlots ? 4 : 3} />
+                <OTPInputSlot index={isEightSlots ? 5 : 4} />
+                <OTPInputSlot index={isEightSlots ? 6 : 5} />
+                {isEightSlots && <OTPInputSlot index={7} />}
+              </OTPInputGroup>
+            </OTPInput>
+          </FormControl>
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          {fieldState.error && (
+            <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+          )}
+        </FormItem>
+      )}
+    />
+  );
+}
 OTPInputField.displayName = 'OTPInputField';
