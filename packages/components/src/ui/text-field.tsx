@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
-import { TextInput } from './text-input';
+import { type InputProps, TextInput } from './text-input';
 import { cn } from './utils';
 
 export const FieldPrefix = ({
@@ -51,7 +51,7 @@ export const FieldSuffix = ({
 };
 
 // Create a specific interface for the input props that includes className explicitly
-interface TextInputProps extends React.ComponentPropsWithoutRef<typeof TextInput> {
+interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   control?: Control<FieldValues>;
   name: FieldPath<FieldValues>;
   label?: string;
@@ -93,7 +93,7 @@ export const TextField = ({
                 <TextInput
                   {...field}
                   {...props}
-                  className={cn('focus-visible:ring-0 focus-visible:ring-offset-0', {
+                  className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
                     'rounded-l-none border-l-0': prefix,
                     'rounded-r-none border-r-0': suffix,
                   })}
