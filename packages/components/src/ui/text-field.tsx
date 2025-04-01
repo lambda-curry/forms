@@ -51,7 +51,7 @@ export const FieldSuffix = ({
 };
 
 // Create a specific interface for the input props that includes className explicitly
-interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
+export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   control?: Control<FieldValues>;
   name: FieldPath<FieldValues>;
   label?: string;

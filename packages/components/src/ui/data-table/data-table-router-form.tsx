@@ -15,6 +15,7 @@ import {
 import * as React from 'react';
 import { Form, useNavigation, useSubmit } from 'react-router-dom';
 
+import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableRouterToolbar } from './data-table-router-toolbar';
@@ -88,7 +89,7 @@ export function DataTableRouterForm<TData, TValue>({
   });
 
   // Auto-submit the form when filters change
-  React.useEffect(() => {
+  useEffect(() => {
     const formElement = document.getElementById('data-table-router-form') as HTMLFormElement;
     if (formElement) {
       submit(formElement);
@@ -136,11 +137,12 @@ export function DataTableRouterForm<TData, TValue>({
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span className="ml-2">Loading...</span>
                     </div>
                   </TableCell>
                 </TableRow>
+                // biome-ignore lint/style/useExplicitLengthCheck: <explanation>
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>

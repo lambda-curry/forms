@@ -40,7 +40,7 @@ export function DataTableRouterToolbar<TData>({
               table.getColumn(column.id as string) && (
                 <React.Fragment key={column.id as string}>
                   <TextInput
-                    name={`search-${column.id}`}
+                    name={`search-${String(column.id)}`}
                     placeholder={`Search ${column.title}...`}
                     value={(table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''}
                     onChange={(event) => table.getColumn(column.id as string)?.setFilterValue(event.target.value)}
