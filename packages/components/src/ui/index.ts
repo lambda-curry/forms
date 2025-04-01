@@ -22,6 +22,6 @@ export * from './table';
 export * from './data-table';
 export * from './badge';
 export * from './command';
-export * from './input';
+
 export * from './select';
 export * from './separator';

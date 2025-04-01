@@ -25,12 +25,14 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
+  formMode?: boolean;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  formMode = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -38,7 +40,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="h-8 border-dashed" type="button">
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (
@@ -138,6 +140,19 @@ export function DataTableFacetedFilter<TData, TValue>({
           </CommandList>
         </Command>
       </PopoverContent>
+      
+      {formMode && selectedValues.size > 0 && column && (
+        <div className="hidden">
+          {Array.from(selectedValues).map((value) => (
+            <input
+              key={`${column.id}-${value}`}
+              type="hidden"
+              name={column.id as string}
+              value={value}
+            />
+          ))}
+        </div>
+      )}
     </Popover>
   );
 }

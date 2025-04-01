@@ -7,7 +7,7 @@ import { TextInput } from '../text-input';
 import { DataTableViewOptions } from './data-table-view-options';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 
-interface DataTableToolbarProps<TData> {
+interface DataTableRouterToolbarProps<TData> {
   table: Table<TData>;
   filterableColumns?: {
     id: keyof TData;
@@ -24,11 +24,11 @@ interface DataTableToolbarProps<TData> {
   }[];
 }
 
-export function DataTableToolbar<TData>({
+export function DataTableRouterToolbar<TData>({
   table,
   filterableColumns = [],
   searchableColumns = [],
-}: DataTableToolbarProps<TData>) {
+}: DataTableRouterToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -38,17 +38,27 @@ export function DataTableToolbar<TData>({
           searchableColumns.map(
             (column) =>
               table.getColumn(column.id as string) && (
-                <TextInput
-                  key={column.id as string}
-                  placeholder={`Search ${column.title}...`}
-                  value={
-                    (table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''
-                  }
-                  onChange={(event) =>
-                    table.getColumn(column.id as string)?.setFilterValue(event.target.value)
-                  }
-                  className="h-8 w-[150px] lg:w-[250px]"
-                />
+                <React.Fragment key={column.id as string}>
+                  <TextInput
+                    name={`search-${column.id}`}
+                    placeholder={`Search ${column.title}...`}
+                    value={
+                      (table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''
+                    }
+                    onChange={(event) =>
+                      table.getColumn(column.id as string)?.setFilterValue(event.target.value)
+                    }
+                    className="h-8 w-[150px] lg:w-[250px]"
+                  />
+                  {/* Hidden input for form submission */}
+                  <input
+                    type="hidden"
+                    name={`search`}
+                    value={
+                      (table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''
+                    }
+                  />
+                </React.Fragment>
               )
           )}
         {filterableColumns.length > 0 &&
@@ -60,6 +70,7 @@ export function DataTableToolbar<TData>({
                   column={table.getColumn(column.id as string)}
                   title={column.title}
                   options={column.options}
+                  formMode={true}
                 />
               )
           )}
@@ -68,6 +79,7 @@ export function DataTableToolbar<TData>({
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
             className="h-8 px-2 lg:px-3"
+            type="button"
           >
             Reset
             <X className="ml-2 h-4 w-4" />
