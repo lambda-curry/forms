@@ -1,9 +1,8 @@
-import * as React from 'react';
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -13,6 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import * as React from 'react';
 import { Form, useNavigation, useSubmit } from 'react-router-dom';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
@@ -57,9 +57,7 @@ export function DataTableRouterForm<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>(
-    defaultSort ? [defaultSort] : []
-  );
+  const [sorting, setSorting] = React.useState<SortingState>(defaultSort ? [defaultSort] : []);
 
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -109,30 +107,14 @@ export function DataTableRouterForm<TData, TValue>({
         {/* Hidden inputs for sorting */}
         {sorting.length > 0 && (
           <>
-            <input
-              type="hidden"
-              name="sortField"
-              value={sorting[0].id}
-            />
-            <input
-              type="hidden"
-              name="sortOrder"
-              value={sorting[0].desc ? 'desc' : 'asc'}
-            />
+            <input type="hidden" name="sortField" value={sorting[0].id} />
+            <input type="hidden" name="sortOrder" value={sorting[0].desc ? 'desc' : 'asc'} />
           </>
         )}
 
         {/* Hidden inputs for pagination */}
-        <input
-          type="hidden"
-          name="page"
-          value={table.getState().pagination.pageIndex}
-        />
-        <input
-          type="hidden"
-          name="pageSize"
-          value={table.getState().pagination.pageSize}
-        />
+        <input type="hidden" name="page" value={table.getState().pagination.pageIndex} />
+        <input type="hidden" name="pageSize" value={table.getState().pagination.pageSize} />
 
         <div className="rounded-md border">
           <Table>
@@ -142,12 +124,7 @@ export function DataTableRouterForm<TData, TValue>({
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     );
                   })}
@@ -157,10 +134,7 @@ export function DataTableRouterForm<TData, TValue>({
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     <div className="flex items-center justify-center">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
                       <span className="ml-2">Loading...</span>
@@ -169,23 +143,15 @@ export function DataTableRouterForm<TData, TValue>({
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>
