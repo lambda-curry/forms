@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
-import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -35,19 +35,6 @@ const ControlledTextFieldExample = () => {
     submitConfig: {
       action: '/',
       method: 'post',
-    },
-    submitHandlers: {
-      onValid: (data) => {
-        fetcher.submit(
-          createFormData({
-            email: data.email,
-          }),
-          {
-            method: 'post',
-            action: '/',
-          },
-        );
-      },
     },
   });
 
@@ -162,7 +149,8 @@ export const Examples: Story = {
     withReactRouterStubDecorator({
       routes: [
         {
-          path: '/username',
+          path: '/',
+          Component: ControlledTextFieldExample,
           action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
         },
       ],
