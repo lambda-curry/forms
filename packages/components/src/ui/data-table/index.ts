@@ -6,3 +6,5 @@ export * from './data-table-toolbar';
 export * from './data-table-view-options';
 export * from './data-table-router-form';
 export * from './data-table-router-toolbar';
+export * from './data-table-schema';
+export * from './data-table-hooks';

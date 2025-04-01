@@ -1,11 +1,13 @@
 import type { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import * as React from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '../button';
 import { TextInput } from '../text-input';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 import { DataTableViewOptions } from './data-table-view-options';
+import { debounce } from '../utils/debounce';
 
 interface DataTableRouterToolbarProps<TData> {
   table: Table<TData>;
@@ -30,6 +32,25 @@ export function DataTableRouterToolbar<TData>({
   searchableColumns = [],
 }: DataTableRouterToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const [searchParams] = useSearchParams();
+
+  const debouncedSearchHandlers = React.useMemo(() => {
+    const handlers: Record<string, (value: string) => void> = {};
+    
+    searchableColumns.forEach((column) => {
+      const columnId = column.id as string;
+      handlers[columnId] = debounce((value: string) => {
+        table.getColumn(columnId)?.setFilterValue(value);
+      }, 300);
+    });
+    
+    return handlers;
+  }, [searchableColumns, table]);
+
+  const getSearchValue = React.useCallback((columnId: string) => {
+    const searchKey = `search_${columnId}`;
+    return searchParams.get(searchKey) || '';
+  }, [searchParams]);
 
   return (
     <div className="flex items-center justify-between">
@@ -40,17 +61,12 @@ export function DataTableRouterToolbar<TData>({
               table.getColumn(column.id as string) && (
                 <React.Fragment key={column.id as string}>
                   <TextInput
-                    name={`search-${String(column.id)}`}
                     placeholder={`Search ${column.title}...`}
-                    value={(table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''}
-                    onChange={(event) => table.getColumn(column.id as string)?.setFilterValue(event.target.value)}
+                    value={getSearchValue(column.id as string)}
+                    onChange={(event) => {
+                      debouncedSearchHandlers[column.id as string](event.target.value);
+                    }}
                     className="h-8 w-[150px] lg:w-[250px]"
-                  />
-                  {/* Hidden input for form submission */}
-                  <input
-                    type="hidden"
-                    name={`search`}
-                    value={(table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''}
                   />
                 </React.Fragment>
               ),
@@ -64,7 +80,6 @@ export function DataTableRouterToolbar<TData>({
                   column={table.getColumn(column.id as string)}
                   title={column.title}
                   options={column.options}
-                  formMode={true}
                 />
               ),
           )}

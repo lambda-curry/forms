@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/react-table';
 import { Check, PlusCircle } from 'lucide-react';
-import type * as React from 'react';
+import * as React from 'react';
 
 import { Badge } from '../badge';
 import { Button } from '../button';
@@ -25,14 +25,12 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
-  formMode?: boolean;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
-  formMode = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -92,12 +90,16 @@ export function DataTableFacetedFilter<TData, TValue>({
                     <div
                       className={cn(
                         'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible',
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'opacity-50 [&_svg]:invisible'
                       )}
                     >
-                      <Check className="h-4 w-4" />
+                      <Check className={cn('h-4 w-4')} />
                     </div>
-                    {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                    {option.icon && (
+                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    )}
                     <span>{option.label}</span>
                     {facets?.get(option.value) && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
@@ -124,14 +126,6 @@ export function DataTableFacetedFilter<TData, TValue>({
           </CommandList>
         </Command>
       </PopoverContent>
-
-      {formMode && selectedValues.size > 0 && column && (
-        <div className="hidden">
-          {Array.from(selectedValues).map((value) => (
-            <input key={`${column.id}-${value}`} type="hidden" name={column.id as string} value={value} />
-          ))}
-        </div>
-      )}
     </Popover>
   );
 }

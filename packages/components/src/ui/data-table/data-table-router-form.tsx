@@ -13,12 +13,13 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-import { Form, useNavigation, useSubmit } from 'react-router-dom';
+import { Form, useNavigation } from 'react-router-dom';
 
-import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableRouterToolbar } from './data-table-router-toolbar';
+import { useDataTableUrlState } from './data-table-hooks';
+import { type DataTableFilterParams } from './data-table-schema';
 
 interface DataTableRouterFormProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -43,6 +44,7 @@ interface DataTableRouterFormProps<TData, TValue> {
   pageCount?: number;
   formAction?: string;
   formMethod?: 'get' | 'post';
+  debounceMs?: number;
 }
 
 export function DataTableRouterForm<TData, TValue>({
@@ -54,15 +56,117 @@ export function DataTableRouterForm<TData, TValue>({
   pageCount,
   formAction,
   formMethod = 'get',
+  debounceMs = 300,
 }: DataTableRouterFormProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>(defaultSort ? [defaultSort] : []);
+  
+  const { filterState, updateFilterState } = useDataTableUrlState<TData>({
+    filterableColumns,
+    searchableColumns,
+    defaultSort,
+    debounceMs,
+  });
+  
+  const columnFilters = React.useMemo(() => {
+    const filters: ColumnFiltersState = [];
+    
+    filterableColumns.forEach((column) => {
+      const columnId = String(column.id);
+      const filterValues = filterState[columnId];
+      
+      if (filterValues && Array.isArray(filterValues) && filterValues.length > 0) {
+        filters.push({
+          id: columnId,
+          value: filterValues,
+        });
+      }
+    });
+    
+    searchableColumns.forEach((column) => {
+      const columnId = String(column.id);
+      const searchValue = filterState[`search_${columnId}`];
+      
+      if (searchValue) {
+        filters.push({
+          id: columnId,
+          value: searchValue,
+        });
+      }
+    });
+    
+    if (filterState.search) {
+      filters.push({
+        id: 'global',
+        value: filterState.search,
+      });
+    }
+    
+    return filters;
+  }, [filterState, filterableColumns, searchableColumns]);
+  
+  const sorting = React.useMemo(() => {
+    const sortState: SortingState = [];
+    
+    if (filterState.sortField) {
+      sortState.push({
+        id: filterState.sortField,
+        desc: filterState.sortOrder === 'desc',
+      });
+    }
+    
+    return sortState;
+  }, [filterState]);
 
-  const submit = useSubmit();
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading' || navigation.state === 'submitting';
+
+  const handleColumnFiltersChange = React.useCallback((filters: ColumnFiltersState) => {
+    const updates: Partial<DataTableFilterParams> = {};
+    
+    filterableColumns.forEach((column) => {
+      updates[String(column.id)] = undefined;
+    });
+    
+    searchableColumns.forEach((column) => {
+      updates[`search_${String(column.id)}`] = undefined;
+    });
+    
+    updates.search = undefined;
+    
+    filters.forEach((filter) => {
+      if (filter.id === 'global') {
+        updates.search = filter.value as string;
+      } else if (searchableColumns.some(col => String(col.id) === filter.id)) {
+        updates[`search_${filter.id}`] = filter.value as string;
+      } else {
+        updates[filter.id] = filter.value as string[];
+      }
+    });
+    
+    updateFilterState(updates);
+  }, [filterableColumns, searchableColumns, updateFilterState]);
+  
+  const handleSortingChange = React.useCallback((newSorting: SortingState) => {
+    if (newSorting.length > 0) {
+      updateFilterState({
+        sortField: newSorting[0].id,
+        sortOrder: newSorting[0].desc ? 'desc' : 'asc',
+      });
+    } else {
+      updateFilterState({
+        sortField: undefined,
+        sortOrder: 'asc',
+      });
+    }
+  }, [updateFilterState]);
+  
+  const handlePaginationChange = React.useCallback((pageIndex: number, pageSize: number) => {
+    updateFilterState({
+      page: pageIndex,
+      pageSize,
+    });
+  }, [updateFilterState]);
 
   const table = useReactTable({
     data,
@@ -72,12 +176,19 @@ export function DataTableRouterForm<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination: {
+        pageIndex: filterState.page,
+        pageSize: filterState.pageSize,
+      },
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: handleSortingChange,
+    onColumnFiltersChange: handleColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: ({ pageIndex, pageSize }) => {
+      handlePaginationChange(pageIndex, pageSize);
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -88,14 +199,6 @@ export function DataTableRouterForm<TData, TValue>({
     pageCount,
   });
 
-  // Auto-submit the form when filters change
-  useEffect(() => {
-    const formElement = document.getElementById('data-table-router-form') as HTMLFormElement;
-    if (formElement) {
-      submit(formElement);
-    }
-  }, [sorting, columnFilters, table.getState().pagination, submit]);
-
   return (
     <div className="space-y-4">
       <Form id="data-table-router-form" method={formMethod} action={formAction}>
@@ -104,18 +207,6 @@ export function DataTableRouterForm<TData, TValue>({
           filterableColumns={filterableColumns}
           searchableColumns={searchableColumns}
         />
-
-        {/* Hidden inputs for sorting */}
-        {sorting.length > 0 && (
-          <>
-            <input type="hidden" name="sortField" value={sorting[0].id} />
-            <input type="hidden" name="sortOrder" value={sorting[0].desc ? 'desc' : 'asc'} />
-          </>
-        )}
-
-        {/* Hidden inputs for pagination */}
-        <input type="hidden" name="page" value={table.getState().pagination.pageIndex} />
-        <input type="hidden" name="pageSize" value={table.getState().pagination.pageSize} />
 
         <div className="rounded-md border">
           <Table>
@@ -163,7 +254,7 @@ export function DataTableRouterForm<TData, TValue>({
         </div>
       </Form>
 
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} onPaginationChange={handlePaginationChange} />
     </div>
   );
 }
