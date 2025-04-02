@@ -4,9 +4,10 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
-    "build-storybook": "storybook build",
     "storybook": "storybook dev -p 6006",
-    "test": "test-storybook"
+    "serve": "http-server ./storybook-static -p 6006 -s",
+    "test": "start-server-and-test serve http://127.0.0.1:6006 'test-storybook --url http://127.0.0.1:6006'",
+    "test:local": "test-storybook"
   },
   "dependencies": {
     "@lambdacurry/forms": "*",
@@ -28,12 +29,15 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.20",
+    "http-server": "^14.1.1",
     "react": "^19.0.0",
     "react-router": "^7.0.0",
     "react-router-dom": "^7.0.0",
+    "start-server-and-test": "^2.0.11",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^6.2.2",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "wait-on": "^8.0.3"
   }
 }
