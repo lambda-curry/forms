@@ -62,11 +62,7 @@
     "input-otp": "^1.4.1",
     "lucide-react": "^0.468.0",
     "next-themes": "^0.4.4",
-<<<<<<< HEAD
     "nuqs": "^2.4.1",
-=======
-    "nuqs": "^1.17.1",
->>>>>>> 546f30594f1d45d1262195ab9e092058199e48ed
     "react-day-picker": "8.10.1",
     "react-hook-form": "^7.53.1",
     "react-router": "^7.0.0",
