@@ -1,9 +1,9 @@
+import { DataTableRouterForm } from '@lambdacurry/forms/remix-hook-form/data-table-router-form';
+import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
-import { DataTableRouterForm } from '@lambdacurry/forms/ui/data-table/data-table-router-form';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
-import { useLoaderData } from 'react-router';
+import { type ActionFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -85,18 +85,10 @@ const columns: ColumnDef<User>[] = [
 ];
 
 // Component to display the data table with router form integration
-const DataTableRouterFormExample = () => {
-  const [data, setData] = useState<User[]>([]);
-  const [pageCount, setPageCount] = useState(0);
+function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
-
-  // Update state when loader data changes
-  useEffect(() => {
-    if (loaderData) {
-      setData(loaderData.data);
-      setPageCount(loaderData.meta.pageCount);
-    }
-  }, [loaderData]);
+  const data = loaderData?.data ?? [];
+  const pageCount = loaderData?.meta.pageCount ?? 0;
 
   return (
     <div className="container mx-auto py-10">
@@ -106,18 +98,15 @@ const DataTableRouterFormExample = () => {
         <li>Form-based filtering with automatic submission</li>
         <li>Loading state while waiting for data</li>
         <li>Server-side filtering and pagination</li>
-        <li>URL-based state management</li>
+        <li>URL-based state management with nuqs</li>
       </ul>
-      <DataTableRouterForm
+      <DataTableRouterForm<User, keyof User>
         columns={columns}
         data={data}
         pageCount={pageCount}
-        formAction="/"
-        formMethod="post"
-        defaultSort={{ id: 'name', desc: false }}
         filterableColumns={[
           {
-            id: 'role',
+            id: 'role' as keyof User,
             title: 'Role',
             options: [
               { label: 'Admin', value: 'admin' },
@@ -126,7 +115,7 @@ const DataTableRouterFormExample = () => {
             ],
           },
           {
-            id: 'status',
+            id: 'status' as keyof User,
             title: 'Status',
             options: [
               { label: 'Active', value: 'active' },
@@ -137,156 +126,115 @@ const DataTableRouterFormExample = () => {
         ]}
         searchableColumns={[
           {
-            id: 'name',
+            id: 'name' as keyof User,
             title: 'Name',
           },
         ]}
       />
     </div>
   );
+}
+
+const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
+  const url = request.url ? new URL(request.url) : new URL('http://localhost');
+  const params = url.searchParams;
+
+  // Use nuqs parsers, providing fallback '' for potentially null values
+  const page = dataTableRouterParsers.page.parse(params.get('page') ?? '');
+  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize') ?? '');
+  const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField') ?? '');
+  const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder') ?? '');
+  const search = dataTableRouterParsers.search.parse(params.get('search') ?? '');
+  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters') ?? '');
+
+  // Apply filters
+  let filteredData = [...users];
+
+  // 1. Apply global search filter
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredData = filteredData.filter(
+      (user) => user.name.toLowerCase().includes(searchLower) || user.email.toLowerCase().includes(searchLower),
+    );
+  }
+
+  // 2. Apply faceted filters from the parsed 'filters' array
+  if (parsedFilters && parsedFilters.length > 0) {
+    // Check if parsedFilters is not null
+    parsedFilters.forEach((filter) => {
+      if (filter.id in users[0] && Array.isArray(filter.value) && filter.value.length > 0) {
+        const filterValues = filter.value as string[];
+        filteredData = filteredData.filter((user) => {
+          const userValue = user[filter.id as keyof User];
+          return filterValues.includes(userValue);
+        });
+      } else {
+        console.warn(`Invalid filter encountered: ${JSON.stringify(filter)}`);
+      }
+    });
+  }
+
+  // 3. Apply sorting
+  if (sortField && sortOrder && sortField in users[0]) {
+    filteredData.sort((a, b) => {
+      const aValue = a[sortField as keyof User];
+      const bValue = b[sortField as keyof User];
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // 4. Apply pagination
+  // Provide defaults again for TS, although parsers guarantee numbers
+  const safePage = page ?? 0;
+  const safePageSize = pageSize ?? 10;
+  const start = safePage * safePageSize;
+  const paginatedData = filteredData.slice(start, start + safePageSize);
+
+  return {
+    data: paginatedData,
+    meta: {
+      total: filteredData.length,
+      page: safePage,
+      pageSize: safePageSize,
+      pageCount: Math.ceil(filteredData.length / safePageSize),
+    },
+  };
 };
 
-const meta: Meta<typeof DataTableRouterForm> = {
-  title: 'UI/DataTableRouterForm',
+const meta = {
+  title: 'RemixHookForm/Data Table',
   component: DataTableRouterForm,
   parameters: {
     layout: 'fullscreen',
   },
-  tags: ['autodocs'],
-};
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
-  render: () => <DataTableRouterFormExample />,
   decorators: [
     withReactRouterStubDecorator({
       routes: [
         {
           path: '/',
           Component: DataTableRouterFormExample,
-          loader: async ({ request }: { request: Request }) => {
-            // Simulate server delay
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            // For initial load without URL params, create a base URL
-            const url = request.url ? new URL(request.url) : new URL('http://localhost');
-
-            // Set default values if not provided
-            const page = Number.parseInt(url.searchParams.get('page') || '0');
-            const pageSize = Number.parseInt(url.searchParams.get('pageSize') || '10');
-            const sortField = url.searchParams.get('sortField') || 'name';
-            const sortOrder = url.searchParams.get('sortOrder') || 'asc';
-            const roleFilter = url.searchParams.getAll('role');
-            const statusFilter = url.searchParams.getAll('status');
-            const search = url.searchParams.get('search');
-
-            // Apply filters
-            let filteredData = [...users];
-
-            if (roleFilter.length > 0) {
-              filteredData = filteredData.filter((user) => roleFilter.includes(user.role));
-            }
-
-            if (statusFilter.length > 0) {
-              filteredData = filteredData.filter((user) => statusFilter.includes(user.status));
-            }
-
-            if (search) {
-              const searchLower = search.toLowerCase();
-              filteredData = filteredData.filter(
-                (user) =>
-                  user.name.toLowerCase().includes(searchLower) || user.email.toLowerCase().includes(searchLower),
-              );
-            }
-
-            // Apply sorting
-            if (sortField && sortOrder) {
-              filteredData.sort((a, b) => {
-                const aValue = a[sortField as keyof User];
-                const bValue = b[sortField as keyof User];
-
-                if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-                if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-                return 0;
-              });
-            }
-
-            // Apply pagination
-            const start = page * pageSize;
-            const paginatedData = filteredData.slice(start, start + pageSize);
-
-            return {
-              data: paginatedData,
-              meta: {
-                total: filteredData.length,
-                page,
-                pageSize,
-                pageCount: Math.ceil(filteredData.length / pageSize),
-              },
-            };
-          },
-          action: async ({ request }: { request: Request }) => {
-            // Simulate server delay
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            const formData = await request.formData();
-            const page = Number.parseInt(formData.get('page')?.toString() || '0');
-            const pageSize = Number.parseInt(formData.get('pageSize')?.toString() || '10');
-            const sortField = formData.get('sortField')?.toString() || 'name';
-            const sortOrder = formData.get('sortOrder')?.toString() || 'asc';
-            const roleFilter = formData.getAll('role').map((val: FormDataEntryValue) => val.toString());
-            const statusFilter = formData.getAll('status').map((val: FormDataEntryValue) => val.toString());
-            const search = formData.get('search')?.toString();
-
-            // Apply filters
-            let filteredData = [...users];
-
-            if (roleFilter.length > 0) {
-              filteredData = filteredData.filter((user) => roleFilter.includes(user.role));
-            }
-
-            if (statusFilter.length > 0) {
-              filteredData = filteredData.filter((user) => statusFilter.includes(user.status));
-            }
-
-            if (search) {
-              const searchLower = search.toLowerCase();
-              filteredData = filteredData.filter(
-                (user) =>
-                  user.name.toLowerCase().includes(searchLower) || user.email.toLowerCase().includes(searchLower),
-              );
-            }
-
-            // Apply sorting
-            if (sortField && sortOrder) {
-              filteredData.sort((a, b) => {
-                const aValue = a[sortField as keyof User];
-                const bValue = b[sortField as keyof User];
-
-                if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-                if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-                return 0;
-              });
-            }
-
-            // Apply pagination
-            const start = page * pageSize;
-            const paginatedData = filteredData.slice(start, start + pageSize);
-
-            return {
-              data: paginatedData,
-              meta: {
-                total: filteredData.length,
-                page,
-                pageSize,
-                pageCount: Math.ceil(filteredData.length / pageSize),
-              },
-            };
-          },
+          loader: handleDataFetch,
         },
       ],
     }),
   ],
+  tags: ['autodocs'],
+} satisfies Meta;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  args: {} as any,
+  render: () => <DataTableRouterFormExample />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'This is a description of the DataTableRouterForm component.',
+      },
+    },
+  },
 };

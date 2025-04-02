@@ -1,5 +1,6 @@
+import { Cross2Icon } from '@radix-ui/react-icons';
 import type { Table } from '@tanstack/react-table';
-import { X } from 'lucide-react';
+import { parseAsString, useQueryState } from 'nuqs';
 import type * as React from 'react';
 
 import { Button } from '../button';
@@ -29,44 +30,49 @@ export function DataTableToolbar<TData>({
   filterableColumns = [],
   searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const [globalFilter, setGlobalFilter] = useQueryState('search', parseAsString);
+
+  const resetFilters = async () => {
+    await setGlobalFilter(null);
+    table.resetColumnFilters();
+  };
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {searchableColumns.length > 0 &&
-          searchableColumns.map(
-            (column) =>
-              table.getColumn(column.id as string) && (
-                <TextInput
-                  key={column.id as string}
-                  placeholder={`Search ${column.title}...`}
-                  value={(table.getColumn(column.id as string)?.getFilterValue() as string) ?? ''}
-                  onChange={(event) => table.getColumn(column.id as string)?.setFilterValue(event.target.value)}
-                  className="h-8 w-[150px] lg:w-[250px]"
-                />
-              ),
-          )}
+        {searchableColumns.length > 0 && (
+          <TextInput
+            placeholder="Search..."
+            value={globalFilter ?? ''}
+            onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
+              await setGlobalFilter(event.target.value || null);
+              searchableColumns.forEach((column) => {
+                table.getColumn(column.id as string)?.setFilterValue(event.target.value);
+              });
+            }}
+            className="h-10 w-[150px] lg:w-[250px]"
+          />
+        )}
         {filterableColumns.length > 0 &&
-          filterableColumns.map(
-            (column) =>
-              table.getColumn(column.id as string) && (
-                <DataTableFacetedFilter
-                  key={column.id as string}
-                  column={table.getColumn(column.id as string)}
-                  title={column.title}
-                  options={column.options}
-                />
-              ),
-          )}
-        {isFiltered && (
-          <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
+          filterableColumns.map((column) => {
+            const tableColumn = table.getColumn(column.id as string);
+            return tableColumn ? (
+              <DataTableFacetedFilter
+                key={column.id as string}
+                column={tableColumn}
+                title={column.title}
+                options={column.options}
+              />
+            ) : null;
+          })}
+        {globalFilter && (
+          <Button variant="ghost" onClick={resetFilters} className="h-8 px-2 lg:px-3">
             Reset
-            <X className="ml-2 h-4 w-4" />
+            <Cross2Icon className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <DataTableViewOptions columns={table.getAllColumns()} />
     </div>
   );
 }

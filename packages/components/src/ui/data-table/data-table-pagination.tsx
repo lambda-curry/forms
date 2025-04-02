@@ -1,36 +1,28 @@
-import type { Table } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import * as React from 'react';
-
+import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import { Button } from '../button';
 import { Select } from '../select';
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+interface DataTablePaginationProps {
+  pageCount: number;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
 
-export function DataTablePagination<TData>({ table, onPaginationChange }: DataTablePaginationProps<TData>) {
-  const { pageSize, pageIndex } = table.getState().pagination;
-
-  React.useEffect(() => {
-    if (onPaginationChange) {
-      onPaginationChange(pageIndex, pageSize);
-    }
-  }, [pageIndex, pageSize, onPaginationChange]);
+export function DataTablePagination({ pageCount, onPaginationChange }: DataTablePaginationProps) {
+  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(0));
+  const [pageSize, setPageSize] = useQueryState('pageSize', parseAsInteger.withDefault(10));
 
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div>
+      <div className="flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
+            value={pageSize.toString()}
+            onValueChange={async (value) => {
+              await setPageSize(Number.parseInt(value));
+              onPaginationChange?.(page, Number.parseInt(value));
             }}
             options={[
               { value: '10', label: '10' },
@@ -42,44 +34,56 @@ export function DataTablePagination<TData>({ table, onPaginationChange }: DataTa
           />
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          Page {page + 1} of {pageCount}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            onClick={async () => {
+              await setPage(0);
+              onPaginationChange?.(0, pageSize);
+            }}
+            disabled={page === 0}
           >
             <span className="sr-only">Go to first page</span>
-            <ChevronsLeft className="h-4 w-4" />
+            <DoubleArrowLeftIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={async () => {
+              await setPage(page - 1);
+              onPaginationChange?.(page - 1, pageSize);
+            }}
+            disabled={page === 0}
           >
             <span className="sr-only">Go to previous page</span>
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={async () => {
+              await setPage(page + 1);
+              onPaginationChange?.(page + 1, pageSize);
+            }}
+            disabled={page === pageCount - 1}
           >
             <span className="sr-only">Go to next page</span>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRightIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            onClick={async () => {
+              await setPage(pageCount - 1);
+              onPaginationChange?.(pageCount - 1, pageSize);
+            }}
+            disabled={page === pageCount - 1}
           >
             <span className="sr-only">Go to last page</span>
-            <ChevronsRight className="h-4 w-4" />
+            <DoubleArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>

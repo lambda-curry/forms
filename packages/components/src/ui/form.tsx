@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 import { Controller, type ControllerProps, type FieldPath, type FieldValues } from 'react-hook-form';
 import { Label } from './label';
+import type { InputProps } from './text-input';
 import { cn } from './utils';
 
 export interface FieldComponents {
@@ -10,6 +11,7 @@ export interface FieldComponents {
   FormDescription: React.ComponentType<FormDescriptionProps>;
   FormLabel: React.ComponentType<FormLabelProps>;
   FormMessage: React.ComponentType<FormMessageProps>;
+  Input?: React.ComponentType<InputProps>;
 }
 
 export type FormFieldContextValue<
