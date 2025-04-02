@@ -204,7 +204,7 @@ const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
 };
 
 const meta = {
-  title: 'UI/DataTableRouterForm',
+  title: 'RemixHookForm/Data Table',
   component: DataTableRouterForm,
   parameters: {
     layout: 'fullscreen',
