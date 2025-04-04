@@ -117,7 +117,8 @@ export const Default: Story = {
     const submitButton = canvas.getByRole('button', { name: 'Submit' });
     await userEvent.click(submitButton);
 
-    // Check if the selected option is displayed
-    await expect(await canvas.findByText('Medium')).toBeInTheDocument();
+    // Check if the selected option is displayed - use a more specific query
+    await expect(await canvas.findByText('Submitted with size:')).toBeInTheDocument();
+    await expect(await canvas.findByText('Medium', { selector: 'p.text-sm.text-gray-500' })).toBeInTheDocument();
   },
 };

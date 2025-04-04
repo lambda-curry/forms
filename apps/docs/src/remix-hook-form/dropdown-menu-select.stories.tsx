@@ -4,7 +4,7 @@ import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
-import { Form, useFetcher } from 'react-router';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
@@ -92,10 +92,13 @@ const meta: Meta<typeof DropdownMenuSelect> = {
   tags: ['autodocs'],
   decorators: [
     withReactRouterStubDecorator({
-      root: {
-        Component: ControlledDropdownMenuSelectExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+      routes: [
+        {
+          path: '/',
+          Component: ControlledDropdownMenuSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof DropdownMenuSelect>;

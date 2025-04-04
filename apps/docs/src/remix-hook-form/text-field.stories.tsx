@@ -75,7 +75,18 @@ const handleFormSubmission = async (request: Request) => {
     return { errors };
   }
 
-  return { message: 'Email submitted successfully', email: data.email };
+  // Check for taken username
+  if (data.username === USERNAME_TAKEN) {
+    return {
+      errors: {
+        username: {
+          message: USERNAME_TAKEN_ERROR,
+        },
+      },
+    };
+  }
+
+  return { message: 'Form submitted successfully', email: data.email };
 };
 
 const meta: Meta<typeof TextField> = {
