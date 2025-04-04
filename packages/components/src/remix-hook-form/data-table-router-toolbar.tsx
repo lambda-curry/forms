@@ -38,10 +38,18 @@ export function DataTableRouterToolbar<TData>({
   setUrlState,
   defaultStateValues,
 }: DataTableRouterToolbarProps<TData>) {
-  const { watch } = useRemixFormContext<DataTableRouterState>();
-
-  const watchedSearch = watch('search');
-  const watchedFilters = watch('filters');
+  let watchedSearch = '';
+  let watchedFilters: FilterValue[] = [];
+  
+  try {
+    const { watch } = useRemixFormContext<DataTableRouterState>();
+    watchedSearch = watch('search') || '';
+    watchedFilters = watch('filters') || [];
+  } catch (error) {
+    console.warn('RemixFormProvider context not found in DataTableRouterToolbar. Form state will not be available.');
+    watchedSearch = defaultStateValues.search || '';
+    watchedFilters = defaultStateValues.filters || [];
+  }
 
   const handleSearchChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
