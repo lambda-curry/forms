@@ -26,6 +26,10 @@
     "test": {
       "dependsOn": ["build"],
       "cache": true
+    },
+    "build-storybook": {
+      "cache": true,
+      "outputs": ["storybook-static/**"]
     }
   }
 }

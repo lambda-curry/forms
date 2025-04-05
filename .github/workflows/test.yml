@@ -34,17 +34,6 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium
 
-      - name: Build Storybook
-        run: yarn build-storybook
-
-      - name: Start Storybook server
-        run: yarn workspace @lambdacurry/forms-docs storybook --ci --port 6006 &
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-
-      - name: Wait for Storybook to be ready
-        run: npx wait-on http://localhost:6006
-
       - name: Run tests
         run: yarn test
 
