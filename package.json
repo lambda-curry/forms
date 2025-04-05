@@ -16,7 +16,8 @@
     "format-and-lint": "biome check .",
     "format-and-lint:fix": "biome check . --write",
     "prerelease": "turbo run build",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "build-storybook": "turbo run build-storybook"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
