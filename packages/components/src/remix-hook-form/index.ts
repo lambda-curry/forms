@@ -5,5 +5,6 @@ export * from './date-picker';
 export * from './dropdown-menu-select';
 export * from './otp-input';
 export * from './radio-group';
+export * from './radio-group-item';
 export * from './switch';
 export * from './textarea';
