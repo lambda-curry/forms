@@ -1,5 +1,5 @@
 // Example of setting up the middleware in root.tsx
-import { unstable_extractFormDataMiddleware } from '@lambdacurry/forms/remix-hook-form/middleware';
+import { unstable_extractFormDataMiddleware } from 'remix-hook-form/middleware';
 import { Outlet } from 'react-router-dom';
 
 // Export the middleware for React Router 7

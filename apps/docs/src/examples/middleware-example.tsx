@@ -4,7 +4,7 @@ import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form';
-import { getValidatedFormData } from '@lambdacurry/forms/remix-hook-form/middleware';
+import { getValidatedFormData } from 'remix-hook-form/middleware';
 import type { ActionFunctionArgs } from 'react-router';
 
 // Define schema and types
