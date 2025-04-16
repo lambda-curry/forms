@@ -1,6 +1,6 @@
 import { Cross2Icon } from '@radix-ui/react-icons';
 import type { Table } from '@tanstack/react-table';
-import { parseAsString, useQueryState } from 'nuqs';
+import { useSearchParams } from 'react-router-dom';
 import type * as React from 'react';
 
 import { Button } from '../button';
@@ -30,11 +30,28 @@ export function DataTableToolbar<TData>({
   filterableColumns = [],
   searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
-  const [globalFilter, setGlobalFilter] = useQueryState('search', parseAsString);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const globalFilter = searchParams.get('search') || '';
 
-  const resetFilters = async () => {
-    await setGlobalFilter(null);
+  const resetFilters = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('search');
+    setSearchParams(newParams, { replace: true });
     table.resetColumnFilters();
+  };
+
+  const updateSearch = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set('search', value);
+    } else {
+      newParams.delete('search');
+    }
+    setSearchParams(newParams, { replace: true });
+    
+    searchableColumns.forEach((column) => {
+      table.getColumn(column.id as string)?.setFilterValue(value);
+    });
   };
 
   return (
@@ -43,12 +60,9 @@ export function DataTableToolbar<TData>({
         {searchableColumns.length > 0 && (
           <TextInput
             placeholder="Search..."
-            value={globalFilter ?? ''}
-            onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
-              await setGlobalFilter(event.target.value || null);
-              searchableColumns.forEach((column) => {
-                table.getColumn(column.id as string)?.setFilterValue(event.target.value);
-              });
+            value={globalFilter}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              updateSearch(event.target.value);
             }}
             className="h-10 w-[150px] lg:w-[250px]"
           />

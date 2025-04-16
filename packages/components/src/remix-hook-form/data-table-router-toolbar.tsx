@@ -1,13 +1,13 @@
 import { Cross2Icon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
 import { type Table } from '@tanstack/react-table';
 import { type ChangeEvent, useCallback } from 'react';
-import { useFormContext } from 'remix-hook-form';
+import { useRemixFormContext } from 'remix-hook-form';
 
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { TextField } from './text-field';
 import { DataTableFacetedFilter } from '../ui/data-table/data-table-faceted-filter';
 import { DataTableViewOptions } from '../ui/data-table/data-table-view-options';
-import { type DataTableRouterState } from './data-table-router-parsers';
+import { type DataTableRouterState, type FilterValue } from './data-table-router-parsers';
 
 export interface DataTableFilterOption {
   label: string;
@@ -41,8 +41,8 @@ export function DataTableRouterToolbar<TData>({
   setUrlState,
   defaultStateValues,
 }: DataTableRouterToolbarProps<TData>) {
-  const { watch } = useFormContext();
-  const watchedFilters = watch('filters') || [];
+  const { watch } = useRemixFormContext();
+  const watchedFilters = (watch('filters') || []) as FilterValue[];
   const watchedSearch = watch('search') || '';
 
   const handleSearchChange = useCallback(
@@ -55,7 +55,7 @@ export function DataTableRouterToolbar<TData>({
   const handleFilterChange = useCallback(
     (columnId: string, value: string[]) => {
       const currentFilters = [...watchedFilters];
-      const existingFilterIndex = currentFilters.findIndex((filter) => filter.id === columnId);
+      const existingFilterIndex = currentFilters.findIndex((filter: FilterValue) => filter.id === columnId);
       let newFilters;
 
       if (value.length === 0) {
@@ -95,25 +95,26 @@ export function DataTableRouterToolbar<TData>({
       {searchableColumns.length > 0 && (
         <div className="flex flex-1 items-center space-x-2">
           <div className="relative flex-1">
-            <Input
+            <TextField
+              name="search"
               placeholder={`Search ${searchableColumns.map((column) => column.title).join(', ')}...`}
               value={watchedSearch}
               onChange={handleSearchChange}
               className="h-8 w-full"
+              suffix={
+                watchedSearch ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 -mr-2"
+                    onClick={() => setUrlState({ search: '', page: 0 })}
+                  >
+                    <Cross2Icon className="h-4 w-4" />
+                    <span className="sr-only">Clear search</span>
+                  </Button>
+                ) : null
+              }
             />
-            {watchedSearch && (
-              <div className="absolute right-1 top-1/2 -translate-y-1/2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 -mr-2"
-                  onClick={() => setUrlState({ search: '', page: 0 })}
-                >
-                  <Cross2Icon className="h-4 w-4" />
-                  <span className="sr-only">Clear search</span>
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -124,17 +125,16 @@ export function DataTableRouterToolbar<TData>({
           <div className="flex flex-wrap gap-1">
             {filterableColumns.map((column) => {
               // Find the current filter value for this column
-              const currentFilter = watchedFilters.find((filter) => filter.id === column.id);
+              const currentFilter = watchedFilters.find((filter: FilterValue) => filter.id === column.id);
               const selectedValues = (currentFilter?.value as string[]) || [];
 
               return (
                 <DataTableFacetedFilter
-                  key={column.id}
-                  column={column}
+                  key={String(column.id)}
                   title={column.title}
                   options={column.options}
                   selectedValues={selectedValues}
-                  onValuesChange={(values) => handleFilterChange(column.id as string, values)}
+                  onValuesChange={(values) => handleFilterChange(String(column.id), values)}
                 />
               );
             })}
@@ -150,7 +150,7 @@ export function DataTableRouterToolbar<TData>({
         )}
 
         {/* View Options */}
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions columns={table.getAllColumns()} />
       </div>
     </div>
   );

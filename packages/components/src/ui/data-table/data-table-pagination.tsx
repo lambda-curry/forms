@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '../button';
 import { Select } from '../select';
 
@@ -9,8 +9,17 @@ interface DataTablePaginationProps {
 }
 
 export function DataTablePagination({ pageCount, onPaginationChange }: DataTablePaginationProps) {
-  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(0));
-  const [pageSize, setPageSize] = useQueryState('pageSize', parseAsInteger.withDefault(10));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = parseInt(searchParams.get('page') || '0', 10);
+  const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+
+  const updateParams = (newPage: number, newPageSize: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', newPage.toString());
+    newParams.set('pageSize', newPageSize.toString());
+    setSearchParams(newParams, { replace: true });
+    onPaginationChange?.(newPage, newPageSize);
+  };
 
   return (
     <div className="flex items-center justify-between px-2">
@@ -20,9 +29,8 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <p className="text-sm font-medium">Rows per page</p>
           <Select
             value={pageSize.toString()}
-            onValueChange={async (value) => {
-              await setPageSize(Number.parseInt(value));
-              onPaginationChange?.(page, Number.parseInt(value));
+            onValueChange={(value) => {
+              updateParams(page, Number.parseInt(value));
             }}
             options={[
               { value: '10', label: '10' },
@@ -40,10 +48,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={async () => {
-              await setPage(0);
-              onPaginationChange?.(0, pageSize);
-            }}
+            onClick={() => updateParams(0, pageSize)}
             disabled={page === 0}
           >
             <span className="sr-only">Go to first page</span>
@@ -52,10 +57,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={async () => {
-              await setPage(page - 1);
-              onPaginationChange?.(page - 1, pageSize);
-            }}
+            onClick={() => updateParams(page - 1, pageSize)}
             disabled={page === 0}
           >
             <span className="sr-only">Go to previous page</span>
@@ -64,10 +66,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={async () => {
-              await setPage(page + 1);
-              onPaginationChange?.(page + 1, pageSize);
-            }}
+            onClick={() => updateParams(page + 1, pageSize)}
             disabled={page === pageCount - 1}
           >
             <span className="sr-only">Go to next page</span>
@@ -76,10 +75,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={async () => {
-              await setPage(pageCount - 1);
-              onPaginationChange?.(pageCount - 1, pageSize);
-            }}
+            onClick={() => updateParams(pageCount - 1, pageSize)}
             disabled={page === pageCount - 1}
           >
             <span className="sr-only">Go to last page</span>
