@@ -11,9 +11,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useQueryStates } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigation } from 'react-router-dom';
+import { useNavigation, useSearchParams } from 'react-router-dom';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 
@@ -21,7 +20,7 @@ import { DataTablePagination } from '../ui/data-table/data-table-pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { DataTableRouterToolbar, type DataTableRouterToolbarProps } from './data-table-router-toolbar';
 
-// Import the nuqs parsers and the inferred type
+// Import the parsers and the inferred type
 import { type DataTableRouterState, type FilterValue, dataTableRouterParsers } from './data-table-router-parsers';
 
 // Schema for form data validation and type safety
@@ -56,23 +55,68 @@ export function DataTableRouterForm<TData, TValue>({
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
-  // --- nuqs state management ---
-  // Use nuqs to manage URL state. Debounce options can be set here per parser if needed.
-  const [urlState, setUrlState] = useQueryStates(dataTableRouterParsers, {
-    // Default nuqs options (shallow routing, replace history, no scroll)
-    history: 'replace', // Default
-    shallow: false, // we want to re-run the loader when the url changes
-    // scroll: false,     // Default
-    // Configure debounce globally if needed (though nuqs batches by default)
-    // throttleMs: 300,
-  });
-  // --- End nuqs state management ---
+  // --- React Router state management ---
+  // Use React Router's useSearchParams hook to manage URL state
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Parse URL search parameters using our custom parsers
+  const urlState: DataTableRouterState = {
+    search: dataTableRouterParsers.search.parse(searchParams.get('search')),
+    filters: dataTableRouterParsers.filters.parse(searchParams.get('filters')),
+    page: dataTableRouterParsers.page.parse(searchParams.get('page')),
+    pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')),
+    sortField: dataTableRouterParsers.sortField.parse(searchParams.get('sortField')),
+    sortOrder: dataTableRouterParsers.sortOrder.parse(searchParams.get('sortOrder')),
+  };
 
-  // Initialize RHF to *reflect* the nuqs state
+  // Function to update URL search parameters
+  const setUrlState = useCallback(
+    (newState: Partial<DataTableRouterState>) => {
+      const updatedState = { ...urlState, ...newState };
+      const newParams = new URLSearchParams();
+
+      // Only add parameters that are not default values
+      if (updatedState.search !== dataTableRouterParsers.search.defaultValue) {
+        const serialized = dataTableRouterParsers.search.serialize(updatedState.search);
+        if (serialized !== null) newParams.set('search', serialized);
+      }
+
+      if (updatedState.filters.length > 0) {
+        const serialized = dataTableRouterParsers.filters.serialize(updatedState.filters);
+        if (serialized !== null) newParams.set('filters', serialized);
+      }
+
+      if (updatedState.page !== dataTableRouterParsers.page.defaultValue) {
+        const serialized = dataTableRouterParsers.page.serialize(updatedState.page);
+        if (serialized !== null) newParams.set('page', serialized);
+      }
+
+      if (updatedState.pageSize !== dataTableRouterParsers.pageSize.defaultValue) {
+        const serialized = dataTableRouterParsers.pageSize.serialize(updatedState.pageSize);
+        if (serialized !== null) newParams.set('pageSize', serialized);
+      }
+
+      if (updatedState.sortField !== dataTableRouterParsers.sortField.defaultValue) {
+        const serialized = dataTableRouterParsers.sortField.serialize(updatedState.sortField);
+        if (serialized !== null) newParams.set('sortField', serialized);
+      }
+
+      if (updatedState.sortOrder !== dataTableRouterParsers.sortOrder.defaultValue) {
+        const serialized = dataTableRouterParsers.sortOrder.serialize(updatedState.sortOrder);
+        if (serialized !== null) newParams.set('sortOrder', serialized);
+      }
+
+      // Update the URL with the new search parameters
+      setSearchParams(newParams, { replace: true });
+    },
+    [urlState, setSearchParams]
+  );
+  // --- End React Router state management ---
+
+  // Initialize RHF to *reflect* the URL state
   const methods = useRemixForm<DataTableRouterState>({
-    // Use the nuqs inferred type
     // No resolver needed if Zod isn't primary validation driver here
-    defaultValues: urlState, // Initialize with current URL state from nuqs
+    defaultValues: urlState, // Initialize with current URL state
   });
 
   // Sync RHF state if urlState changes (e.g., back/forward, external link)
@@ -87,7 +131,7 @@ export function DataTableRouterForm<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  // Table instance uses RHF state (which mirrors nuqs/URL state)
+  // Table instance uses RHF state (which mirrors URL state)
   const table = useReactTable({
     data,
     columns,
@@ -132,7 +176,7 @@ export function DataTableRouterForm<TData, TValue>({
     },
   });
 
-  // Pagination handler updates nuqs state
+  // Pagination handler updates URL state
   const handlePaginationChange = useCallback(
     (pageIndex: number, newPageSize: number) => {
       setUrlState({ page: pageIndex, pageSize: newPageSize });
@@ -142,12 +186,12 @@ export function DataTableRouterForm<TData, TValue>({
 
   // Derive default values directly from parsers for reset
   const standardStateValues: DataTableRouterState = {
-    search: '',
-    filters: [],
-    page: 0,
-    pageSize: 10,
-    sortField: '',
-    sortOrder: 'asc',
+    search: dataTableRouterParsers.search.defaultValue,
+    filters: dataTableRouterParsers.filters.defaultValue,
+    page: dataTableRouterParsers.page.defaultValue,
+    pageSize: dataTableRouterParsers.pageSize.defaultValue,
+    sortField: dataTableRouterParsers.sortField.defaultValue,
+    sortOrder: dataTableRouterParsers.sortOrder.defaultValue,
     ...defaultStateValues,
   };
 

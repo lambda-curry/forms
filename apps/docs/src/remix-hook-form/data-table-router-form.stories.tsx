@@ -98,7 +98,7 @@ function DataTableRouterFormExample() {
         <li>Form-based filtering with automatic submission</li>
         <li>Loading state while waiting for data</li>
         <li>Server-side filtering and pagination</li>
-        <li>URL-based state management with nuqs</li>
+        <li>URL-based state management with React Router</li>
       </ul>
       <DataTableRouterForm<User, keyof User>
         columns={columns}
@@ -139,13 +139,13 @@ const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
   const url = request.url ? new URL(request.url) : new URL('http://localhost');
   const params = url.searchParams;
 
-  // Use nuqs parsers, providing fallback '' for potentially null values
-  const page = dataTableRouterParsers.page.parse(params.get('page') ?? '');
-  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize') ?? '');
-  const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField') ?? '');
-  const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder') ?? '');
-  const search = dataTableRouterParsers.search.parse(params.get('search') ?? '');
-  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters') ?? '');
+  // Use our custom parsers to parse URL search parameters
+  const page = dataTableRouterParsers.page.parse(params.get('page'));
+  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize'));
+  const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField'));
+  const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder'));
+  const search = dataTableRouterParsers.search.parse(params.get('search'));
+  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters'));
 
   // Apply filters
   let filteredData = [...users];

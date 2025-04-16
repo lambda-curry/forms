@@ -1,5 +1,4 @@
 import type { Decorator } from '@storybook/react';
-import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import type { ComponentType } from 'react';
 import {
   type ActionFunction,
@@ -65,13 +64,7 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
       initialEntries: [actualInitialPath], // Use the path combined with window.location.search
     });
 
-    return (
-      // NuqsAdapter will now read the initial state from the MemoryRouter,
-      // which has been initialized using the window's query params.
-      <NuqsAdapter>
-        <RouterProvider router={router} />
-      </NuqsAdapter>
-    );
+    return <RouterProvider router={router} />;
   };
 };
 

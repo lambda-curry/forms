@@ -45,7 +45,7 @@ export function DataTableRouterToolbar<TData>({
 
   const handleSearchChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setUrlState({ search: event.target.value || null, page: 0 });
+      setUrlState({ search: event.target.value || '', page: 0 });
     },
     [setUrlState],
   );
@@ -67,7 +67,7 @@ export function DataTableRouterToolbar<TData>({
       } else {
         newFilters = [...currentFilters, { id: columnId, value }];
       }
-      setUrlState({ filters: newFilters.length > 0 ? newFilters : null, page: 0 });
+      setUrlState({ filters: newFilters, page: 0 });
     },
     [setUrlState, watchedFilters],
   );
@@ -75,8 +75,8 @@ export function DataTableRouterToolbar<TData>({
   const handleReset = useCallback(() => {
     setUrlState({
       ...defaultStateValues,
-      search: null,
-      filters: null,
+      search: '',
+      filters: [],
     });
   }, [setUrlState, defaultStateValues]);
 
@@ -98,7 +98,7 @@ export function DataTableRouterToolbar<TData>({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 -mr-2"
-                    onClick={() => setUrlState({ search: null, page: 0 })}
+                    onClick={() => setUrlState({ search: '', page: 0 })}
                   >
                     <Cross2Icon className="h-4 w-4" />
                     <span className="sr-only">Clear search</span>
