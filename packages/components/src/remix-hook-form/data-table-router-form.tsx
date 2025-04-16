@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigation, useSearchParams } from 'react-router-dom';
+import { useNavigation } from 'react-router-dom';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 
@@ -21,7 +21,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { DataTableRouterToolbar, type DataTableRouterToolbarProps } from './data-table-router-toolbar';
 
 // Import the parsers and the inferred type
-import { type DataTableRouterState, type FilterValue, dataTableRouterParsers } from './data-table-router-parsers';
+import { type DataTableRouterState, type FilterValue } from './data-table-router-parsers';
+import { getDefaultDataTableState, useDataTableUrlState } from './use-data-table-url-state';
 
 // Schema for form data validation and type safety
 const dataTableSchema = z.object({
@@ -55,63 +56,8 @@ export function DataTableRouterForm<TData, TValue>({
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
-  // --- React Router state management ---
-  // Use React Router's useSearchParams hook to manage URL state
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Parse URL search parameters using our custom parsers
-  const urlState: DataTableRouterState = {
-    search: dataTableRouterParsers.search.parse(searchParams.get('search')),
-    filters: dataTableRouterParsers.filters.parse(searchParams.get('filters')),
-    page: dataTableRouterParsers.page.parse(searchParams.get('page')),
-    pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')),
-    sortField: dataTableRouterParsers.sortField.parse(searchParams.get('sortField')),
-    sortOrder: dataTableRouterParsers.sortOrder.parse(searchParams.get('sortOrder')),
-  };
-
-  // Function to update URL search parameters
-  const setUrlState = useCallback(
-    (newState: Partial<DataTableRouterState>) => {
-      const updatedState = { ...urlState, ...newState };
-      const newParams = new URLSearchParams();
-
-      // Only add parameters that are not default values
-      if (updatedState.search !== dataTableRouterParsers.search.defaultValue) {
-        const serialized = dataTableRouterParsers.search.serialize(updatedState.search);
-        if (serialized !== null) newParams.set('search', serialized);
-      }
-
-      if (updatedState.filters.length > 0) {
-        const serialized = dataTableRouterParsers.filters.serialize(updatedState.filters);
-        if (serialized !== null) newParams.set('filters', serialized);
-      }
-
-      if (updatedState.page !== dataTableRouterParsers.page.defaultValue) {
-        const serialized = dataTableRouterParsers.page.serialize(updatedState.page);
-        if (serialized !== null) newParams.set('page', serialized);
-      }
-
-      if (updatedState.pageSize !== dataTableRouterParsers.pageSize.defaultValue) {
-        const serialized = dataTableRouterParsers.pageSize.serialize(updatedState.pageSize);
-        if (serialized !== null) newParams.set('pageSize', serialized);
-      }
-
-      if (updatedState.sortField !== dataTableRouterParsers.sortField.defaultValue) {
-        const serialized = dataTableRouterParsers.sortField.serialize(updatedState.sortField);
-        if (serialized !== null) newParams.set('sortField', serialized);
-      }
-
-      if (updatedState.sortOrder !== dataTableRouterParsers.sortOrder.defaultValue) {
-        const serialized = dataTableRouterParsers.sortOrder.serialize(updatedState.sortOrder);
-        if (serialized !== null) newParams.set('sortOrder', serialized);
-      }
-
-      // Update the URL with the new search parameters
-      setSearchParams(newParams, { replace: true });
-    },
-    [urlState, setSearchParams]
-  );
-  // --- End React Router state management ---
+  // Use our custom hook for URL state management
+  const { urlState, setUrlState } = useDataTableUrlState();
 
   // Initialize RHF to *reflect* the URL state
   const methods = useRemixForm<DataTableRouterState>({
@@ -184,16 +130,8 @@ export function DataTableRouterForm<TData, TValue>({
     [setUrlState],
   );
 
-  // Derive default values directly from parsers for reset
-  const standardStateValues: DataTableRouterState = {
-    search: dataTableRouterParsers.search.defaultValue,
-    filters: dataTableRouterParsers.filters.defaultValue,
-    page: dataTableRouterParsers.page.defaultValue,
-    pageSize: dataTableRouterParsers.pageSize.defaultValue,
-    sortField: dataTableRouterParsers.sortField.defaultValue,
-    sortOrder: dataTableRouterParsers.sortOrder.defaultValue,
-    ...defaultStateValues,
-  };
+  // Get default state values using our utility function
+  const standardStateValues = getDefaultDataTableState(defaultStateValues);
 
   // Handle pagination props separately
   const paginationProps = {

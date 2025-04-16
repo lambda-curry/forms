@@ -11,3 +11,4 @@ export * from './textarea';
 export * from './data-table-router-form';
 export * from './data-table-router-parsers';
 export * from './data-table-router-toolbar';
+export * from './use-data-table-url-state';
