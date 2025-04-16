@@ -24,6 +24,6 @@ export default defineConfig({
     historyApiFallback: true,
   },
   optimizeDeps: {
-    include: ['nuqs'],
+    include: [],
   },
 });

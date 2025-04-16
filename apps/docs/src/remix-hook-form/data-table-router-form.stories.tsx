@@ -136,6 +136,9 @@ function DataTableRouterFormExample() {
 }
 
 const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
+  // Add a small delay to simulate network latency
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
   const url = request.url ? new URL(request.url) : new URL('http://localhost');
   const params = url.searchParams;
 
@@ -192,6 +195,9 @@ const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
   const start = safePage * safePageSize;
   const paginatedData = filteredData.slice(start, start + safePageSize);
 
+  // Log the data being returned for debugging
+  console.log(`Returning ${paginatedData.length} items, page ${safePage}, total ${filteredData.length}`);
+
   return {
     data: paginatedData,
     meta: {
@@ -216,6 +222,7 @@ const meta = {
           path: '/',
           Component: DataTableRouterFormExample,
           loader: handleDataFetch,
+          action: handleDataFetch, // Add action to handle form submissions
         },
       ],
     }),

@@ -22,11 +22,13 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
   };
 
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
+      <div className="flex-1 text-sm text-muted-foreground">
+        {pageSize} rows per page
+      </div>
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => {
@@ -41,13 +43,13 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
             ]}
           />
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="flex w-full sm:w-auto justify-center text-sm font-medium">
           Page {page + 1} of {pageCount}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            className="h-8 w-8 p-0"
             onClick={() => updateParams(0, pageSize)}
             disabled={page === 0}
           >
@@ -74,7 +76,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           </Button>
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            className="h-8 w-8 p-0"
             onClick={() => updateParams(pageCount - 1, pageSize)}
             disabled={page === pageCount - 1}
           >
