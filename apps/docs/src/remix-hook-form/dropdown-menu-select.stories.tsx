@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DropdownMenuSelect } from '@lambdacurry/forms/remix-hook-form/dropdown-menu-select';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { FormMessage } from '@lambdacurry/forms/ui/form';
+import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui/dropdown-menu-select-field';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import { Form, useFetcher } from 'react-router';
+import { expect, screen, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
@@ -41,7 +41,7 @@ const ControlledDropdownMenuSelectExample = () => {
       onValid: (data) => {
         fetcher.submit(
           createFormData({
-            selectedFruit: data.fruit,
+            fruit: data.fruit,
           }),
           {
             method: 'post',
@@ -56,8 +56,13 @@ const ControlledDropdownMenuSelectExample = () => {
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
-          <DropdownMenuSelect name="fruit" label="Select a fruit" options={AVAILABLE_FRUITS} />
-          <FormMessage error={methods.formState.errors.fruit?.message} />
+          <DropdownMenuSelect name="fruit" label="Select a fruit">
+            {AVAILABLE_FRUITS.map((fruit) => (
+              <DropdownMenuSelectItem key={fruit.value} value={fruit.value}>
+                {fruit.label}
+              </DropdownMenuSelectItem>
+            ))}
+          </DropdownMenuSelect>
           <Button type="submit" className="mt-4">
             Submit
           </Button>
@@ -92,10 +97,13 @@ const meta: Meta<typeof DropdownMenuSelect> = {
   tags: ['autodocs'],
   decorators: [
     withReactRouterStubDecorator({
-      root: {
-        Component: ControlledDropdownMenuSelectExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+      routes: [
+        {
+          path: '/',
+          Component: ControlledDropdownMenuSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof DropdownMenuSelect>;
@@ -115,11 +123,11 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     // Open the dropdown
-    const dropdownButton = canvas.getByRole('combobox');
+    const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
     await userEvent.click(dropdownButton);
 
-    // Select an option
-    const option = canvas.getByRole('option', { name: 'Banana' });
+    // Select an option (portal renders outside the canvas)
+    const option = screen.getByRole('menuitem', { name: 'Banana' });
     await userEvent.click(option);
 
     // Submit the form

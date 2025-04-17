@@ -103,17 +103,11 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Get all input fields
-    const inputs = canvas.getAllByRole('textbox');
-    expect(inputs).toHaveLength(6);
+    // Get the main OTP input
+    const otpInput = canvas.getByRole('textbox');
 
-    // Enter OTP
-    await userEvent.type(inputs[0], '1');
-    await userEvent.type(inputs[1], '2');
-    await userEvent.type(inputs[2], '3');
-    await userEvent.type(inputs[3], '4');
-    await userEvent.type(inputs[4], '5');
-    await userEvent.type(inputs[5], '6');
+    // Type the 6-digit OTP directly into the hidden input
+    await userEvent.type(otpInput, '123456');
 
     // Submit the form
     const submitButton = canvas.getByRole('button', { name: 'Submit' });
