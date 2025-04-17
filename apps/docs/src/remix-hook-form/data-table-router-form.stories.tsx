@@ -87,7 +87,7 @@ const columns: ColumnDef<User>[] = [
 // Component to display the data table with router form integration
 function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
-  
+
   // Ensure we have data even if loaderData is undefined
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
@@ -142,8 +142,8 @@ function DataTableRouterFormExample() {
 // Loader function to handle data fetching based on URL parameters
 const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   // Add a small delay to simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
   // Ensure we have a valid URL object
   const url = request?.url ? new URL(request.url) : new URL('http://localhost?page=0&pageSize=10');
   const params = url.searchParams;
@@ -200,9 +200,9 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   }
 
   // 4. Apply pagination
-  // Provide defaults again for TS, although parsers guarantee numbers
-  const safePage = page ?? 0;
-  const safePageSize = pageSize ?? 10;
+  // Determine safe values for page and pageSize using defaultValue when params are missing
+  const safePage = params.has('page') ? page : dataTableRouterParsers.page.defaultValue;
+  const safePageSize = params.has('pageSize') ? pageSize : dataTableRouterParsers.pageSize.defaultValue;
   const start = safePage * safePageSize;
   const paginatedData = filteredData.slice(start, start + safePageSize);
 

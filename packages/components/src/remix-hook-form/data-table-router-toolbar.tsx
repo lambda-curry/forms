@@ -1,13 +1,13 @@
-import { Cross2Icon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
-import { type Table } from '@tanstack/react-table';
+import { Cross2Icon } from '@radix-ui/react-icons';
+import type { Table } from '@tanstack/react-table';
 import { type ChangeEvent, useCallback } from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
 
 import { Button } from '../ui/button';
-import { TextField } from './text-field';
 import { DataTableFacetedFilter } from '../ui/data-table/data-table-faceted-filter';
 import { DataTableViewOptions } from '../ui/data-table/data-table-view-options';
-import { type DataTableRouterState, type FilterValue } from './data-table-router-parsers';
+import type { DataTableRouterState, FilterValue } from './data-table-router-parsers';
+import { TextField } from './text-field';
 
 export interface DataTableFilterOption {
   label: string;
@@ -56,23 +56,17 @@ export function DataTableRouterToolbar<TData>({
     (columnId: string, value: string[]) => {
       const currentFilters = [...watchedFilters];
       const existingFilterIndex = currentFilters.findIndex((filter: FilterValue) => filter.id === columnId);
-      let newFilters;
+      let newFilters: FilterValue[];
 
-      if (value.length === 0) {
-        // Remove filter if no values selected
-        if (existingFilterIndex !== -1) {
-          newFilters = currentFilters.filter((_, index) => index !== existingFilterIndex);
-        } else {
-          newFilters = currentFilters;
-        }
+      if (value.length === 0 && existingFilterIndex !== -1) {
+        newFilters = currentFilters.filter((_, i) => i !== existingFilterIndex);
+      } else if (value.length === 0) {
+        newFilters = currentFilters;
+      } else if (existingFilterIndex !== -1) {
+        newFilters = [...currentFilters];
+        newFilters[existingFilterIndex] = { id: columnId, value };
       } else {
-        // Add or update filter
-        if (existingFilterIndex !== -1) {
-          newFilters = [...currentFilters];
-          newFilters[existingFilterIndex] = { id: columnId, value };
-        } else {
-          newFilters = [...currentFilters, { id: columnId, value }];
-        }
+        newFilters = [...currentFilters, { id: columnId, value }];
       }
       setUrlState({ filters: newFilters, page: 0 });
     },
@@ -100,7 +94,7 @@ export function DataTableRouterToolbar<TData>({
               placeholder={`Search ${searchableColumns.map((column) => column.title).join(', ')}...`}
               value={watchedSearch}
               onChange={handleSearchChange}
-              className="h-8 w-full"
+              className="w-full"
               suffix={
                 watchedSearch ? (
                   <Button

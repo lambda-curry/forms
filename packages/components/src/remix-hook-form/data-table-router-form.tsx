@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from 'react-router-dom';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -21,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { DataTableRouterToolbar, type DataTableRouterToolbarProps } from './data-table-router-toolbar';
 
 // Import the parsers and the inferred type
-import { type DataTableRouterState, type FilterValue } from './data-table-router-parsers';
+import type { DataTableRouterState, FilterValue } from './data-table-router-parsers';
 import { getDefaultDataTableState, useDataTableUrlState } from './use-data-table-url-state';
 
 // Schema for form data validation and type safety
@@ -122,6 +122,15 @@ export function DataTableRouterForm<TData, TValue>({
     },
   });
 
+  // Determine default pageSize and visible columns for skeleton loader
+  const defaultDataTableState = getDefaultDataTableState(defaultStateValues);
+  const visibleColumns = table.getVisibleFlatColumns();
+  // Generate stable IDs for skeleton rows based on current pageSize or fallback
+  const skeletonRowIds = useMemo(() => {
+    const count = urlState.pageSize > 0 ? urlState.pageSize : defaultDataTableState.pageSize;
+    return Array.from({ length: count }, () => window.crypto.randomUUID());
+  }, [urlState.pageSize, defaultDataTableState.pageSize]);
+
   // Pagination handler updates URL state
   const handlePaginationChange = useCallback(
     (pageIndex: number, newPageSize: number) => {
@@ -166,14 +175,19 @@ export function DataTableRouterForm<TData, TValue>({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
+                // Skeleton rows matching pageSize with zebra background
+                skeletonRowIds.map((rowId) => (
+                  <TableRow key={rowId} className="even:bg-gray-50">
+                    {visibleColumns.map((column) => (
+                      <TableCell key={column.id} className="py-2">
+                        <div className="h-6 my-1.5 bg-gray-200 rounded animate-pulse w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="even:bg-gray-50">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
