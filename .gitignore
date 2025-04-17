@@ -180,3 +180,6 @@ dist
 *storybook.log
 
 storybook-static
+
+# React Router v7
+.react-router/

@@ -1,79 +1,90 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { OTPInput } from '@lambdacurry/forms/remix-hook-form/otp-input';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
-import type {} from '@testing-library/dom';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
-  otp: z.string().length(6, 'Please enter a 6-digit code'),
+  otp: z.string().min(6, 'OTP must be 6 digits'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const RemixOTPInputExample = () => {
-  const fetcher = useFetcher<{ message?: string }>();
+const ControlledOtpInputExample = () => {
+  const fetcher = useFetcher<{
+    message: string;
+    otp: string;
+  }>();
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       otp: '',
     },
-    fetcher,
-    submitConfig: {
-      action: '/',
-      method: 'post',
+    fetcher: fetcher,
+    submitHandlers: {
+      onValid: (data) => {
+        fetcher.submit(
+          createFormData({
+            otp: data.otp,
+          }),
+          {
+            method: 'post',
+            action: '/',
+          },
+        );
+      },
     },
   });
 
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <OTPInput
-          name="otp"
-          label="One-Time Password"
-          description="Enter the 6-digit code sent to your phone."
-          maxLength={6}
-        />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-4">
+          <OTPInput name="otp" label="Enter OTP" maxLength={6} />
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.otp && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted OTP:</p>
+              <p className="text-sm text-gray-500">{fetcher.data.otp}</p>
+            </div>
+          )}
+        </div>
       </Form>
     </RemixFormProvider>
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
-    request,
-    zodResolver(formSchema),
-  );
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
-  return { message: 'OTP verified successfully' };
+  return { message: 'OTP submitted successfully', otp: data.otp };
 };
 
-// Storybook configuration
 const meta: Meta<typeof OTPInput> = {
   title: 'RemixHookForm/OTPInput',
   component: OTPInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: RemixOTPInputExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledOtpInputExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof OTPInput>;
@@ -81,28 +92,28 @@ const meta: Meta<typeof OTPInput> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Update the test functions to accept storyContext
-const testIncompleteSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  const input = canvasElement.querySelector('input');
-  await userEvent.type(input as HTMLInputElement, '123');
-  await userEvent.click(submitButton);
-  await expect(canvas.findByText('Please enter a 6-digit code')).resolves.toBeInTheDocument();
-};
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'An OTP input component for entering verification codes.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-const testSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  const input = canvasElement.querySelector('input');
-  await userEvent.type(input as HTMLInputElement, '123456');
-  await userEvent.click(submitButton);
-  await expect(canvas.findByText('OTP verified successfully')).resolves.toBeInTheDocument();
-};
+    // Get the main OTP input
+    const otpInput = canvas.getByRole('textbox');
 
-export const Tests: Story = {
-  play: async (storyContext) => {
-    await testIncompleteSubmission(storyContext);
-    await testSubmission(storyContext);
+    // Type the 6-digit OTP directly into the hidden input
+    await userEvent.type(otpInput, '123456');
+
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
+
+    // Check if the submitted OTP is displayed
+    await expect(await canvas.findByText('123456')).toBeInTheDocument();
   },
 };

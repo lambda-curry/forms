@@ -7,6 +7,7 @@
     "hookform",
     "isbot",
     "lucide",
+    "Nuqs",
     "shadcn",
     "sonner"
   ],
@@ -20,5 +21,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
-  }
+  },
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", "wrapperClassName"]
 }

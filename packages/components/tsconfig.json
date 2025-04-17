@@ -14,8 +14,10 @@
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["@react-router/node", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"]
   },
-  "include": ["src"],
+  "include": ["src", ".react-router/types/**/*"],
   "exclude": ["**/*.stories.tsx", "**/*.test.tsx", "node_modules", "dist"]
 }

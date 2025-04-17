@@ -2,14 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
-import * as React from 'react';
+import type * as React from 'react';
+import type { ActionFunctionArgs } from 'react-router';
+import { useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -20,50 +20,44 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom Input component
-const PurpleInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => (
+const PurpleInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
-    ref={ref}
     {...props}
     className="w-full rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-2 text-purple-900 placeholder:text-purple-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
   />
-));
+);
 PurpleInput.displayName = 'PurpleInput';
 
 // Custom Form Label component
-const PurpleLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
-  ({ className, ...props }, ref) => <FormLabel ref={ref} className="text-lg font-bold text-purple-700" {...props} />,
+const PurpleLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => (
+  <FormLabel className="text-lg font-bold text-purple-700" {...props} />
 );
 PurpleLabel.displayName = 'PurpleLabel';
 
 // Custom Form Message component
-const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
-  ({ className, ...props }, ref) => (
-    <FormMessage ref={ref} className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
-  ),
+const PurpleMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+  <FormMessage className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
 );
 PurpleMessage.displayName = 'PurpleMessage';
 
 // Custom Input with icon
-const IconInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ ...props }, ref) => (
-    <div className="relative">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <title>Lock</title>
-          <path
-            fillRule="evenodd"
-            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </div>
-      <input
-        ref={ref}
-        {...props}
-        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-      />
+const IconInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <div className="relative">
+    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <title>Lock</title>
+        <path
+          fillRule="evenodd"
+          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+          clipRule="evenodd"
+        />
+      </svg>
     </div>
-  ),
+    <input
+      {...props}
+      className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+    />
+  </div>
 );
 IconInput.displayName = 'IconInput';
 
@@ -138,11 +132,14 @@ const meta: Meta<typeof TextField> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: CustomTextFieldExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CustomTextFieldExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof TextField>;
@@ -151,6 +148,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const CustomComponents: Story = {
+  render: () => <CustomTextFieldExample />,
   parameters: {
     docs: {
       description: {
@@ -192,25 +190,20 @@ Where the custom components are defined as:
 
 \`\`\`tsx
 // Custom Input component
-const PurpleInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => (
+const PurpleInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
-    ref={ref}
     {...props}
     className="w-full rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-2 text-purple-900 placeholder:text-purple-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
   />
-));
+);
 
 // Custom Form Label component
-const PurpleLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
-  ({ className, ...props }, ref) => <FormLabel ref={ref} className="text-lg font-bold text-purple-700" {...props} />,
-);
+const PurpleLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => 
+  <FormLabel className="text-lg font-bold text-purple-700" {...props} />;
 
 // Custom Form Message component
-const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
-  ({ className, ...props }, ref) => (
-    <FormMessage ref={ref} className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
-  ),
-);
+const PurpleMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => 
+  <FormMessage className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />;
 \`\`\`
 
 #### 3. Icon Input
@@ -232,26 +225,23 @@ The third text field demonstrates how to create a custom input with an icon:
 With the IconInput component defined as:
 
 \`\`\`tsx
-const IconInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ ...props }, ref) => (
-    <div className="relative">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <title>Lock</title>
-          <path
-            fillRule="evenodd"
-            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </div>
-      <input
-        ref={ref}
-        {...props}
-        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-      />
+const IconInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <div className="relative">
+    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <title>Lock</title>
+        <path
+          fillRule="evenodd"
+          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+          clipRule="evenodd"
+        />
+      </svg>
     </div>
-  ),
+    <input
+      {...props}
+      className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+    />
+  </div>
 );
 \`\`\`
 

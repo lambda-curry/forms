@@ -1,6 +1,6 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
-import * as React from 'react';
+import type * as React from 'react';
 import { cn } from './utils';
 
 export interface RadioGroupItemComponents {
@@ -12,21 +12,22 @@ export interface RadioGroupItemComponents {
   RadioGroupIndicator?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>>;
 }
 
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
-  return <RadioGroupPrimitive.Root className={cn('grid gap-2', className)} {...props} ref={ref} />;
-});
+interface RadioGroupProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+  className?: string;
+}
+
+const RadioGroup = ({ className, ...props }: RadioGroupProps) => {
+  return <RadioGroupPrimitive.Root className={cn('grid gap-2', className)} {...props} />;
+};
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
-const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
-    indicator?: React.ReactNode;
-    components?: Partial<RadioGroupItemComponents>;
-  }
->(({ className, indicator, components, ...props }, ref) => {
+interface RadioGroupItemProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> {
+  indicator?: React.ReactNode;
+  components?: Partial<RadioGroupItemComponents>;
+  className?: string;
+}
+
+const RadioGroupItem = ({ className, indicator, components, ...props }: RadioGroupItemProps) => {
   // Extract custom components with fallbacks
   const RadioItem = components?.RadioGroupItem || RadioGroupPrimitive.Item;
   const RadioIndicator = components?.RadioGroupIndicator || RadioGroupPrimitive.Indicator;
@@ -36,17 +37,19 @@ const RadioGroupItem = React.forwardRef<
 
   return (
     <RadioItem
-      ref={ref}
       className={cn(
         'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
+      data-slot="radio-group-item"
       {...props}
     >
-      <RadioIndicator className="flex items-center justify-center">{indicatorContent}</RadioIndicator>
+      <RadioIndicator className="flex items-center justify-center" data-slot="radio-group-indicator">
+        {indicatorContent}
+      </RadioIndicator>
     </RadioItem>
   );
-});
+};
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 export { RadioGroup, RadioGroupItem };

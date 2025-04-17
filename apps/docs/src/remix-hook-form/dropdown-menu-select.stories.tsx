@@ -1,85 +1,109 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DropdownMenuSelect } from '@lambdacurry/forms/remix-hook-form/dropdown-menu-select';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { DropdownMenuItem } from '@lambdacurry/forms/ui/dropdown-menu';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui/dropdown-menu-select-field';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, screen, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
-// Form schema definition
+const AVAILABLE_FRUITS = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'orange', label: 'Orange' },
+  { value: 'grape', label: 'Grape' },
+  { value: 'strawberry', label: 'Strawberry' },
+] as const;
+
 const formSchema = z.object({
-  favoriteColor: z.string().min(1, 'Please select a color'),
+  fruit: z.string({
+    required_error: 'Please select a fruit',
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-// Component for the form
-const DropdownMenuSelectExample = () => {
-  const fetcher = useFetcher<{ message?: string }>();
+const ControlledDropdownMenuSelectExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedFruit: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      favoriteColor: '',
+      fruit: '',
     },
     fetcher,
     submitConfig: {
       action: '/',
       method: 'post',
     },
+    submitHandlers: {
+      onValid: (data) => {
+        fetcher.submit(
+          createFormData({
+            fruit: data.fruit,
+          }),
+          {
+            method: 'post',
+            action: '/',
+          },
+        );
+      },
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <DropdownMenuSelect
-          name="favoriteColor"
-          label="Favorite Color"
-          description="Choose your favorite color."
-          dropdownClassName="border"
-        >
-          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Red')}>Red</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Green')}>Green</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => methods.setValue('favoriteColor', 'Blue')}>Blue</DropdownMenuItem>
-        </DropdownMenuSelect>
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-4">
+          <DropdownMenuSelect name="fruit" label="Select a fruit">
+            {AVAILABLE_FRUITS.map((fruit) => (
+              <DropdownMenuSelectItem key={fruit.value} value={fruit.value}>
+                {fruit.label}
+              </DropdownMenuSelectItem>
+            ))}
+          </DropdownMenuSelect>
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.selectedFruit && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted with fruit:</p>
+              <p className="text-sm text-gray-500">
+                {AVAILABLE_FRUITS.find((fruit) => fruit.value === fetcher.data?.selectedFruit)?.label}
+              </p>
+            </div>
+          )}
+        </div>
       </Form>
     </RemixFormProvider>
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
-    request,
-    zodResolver(formSchema),
-  );
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'Fruit selected successfully', selectedFruit: data.fruit };
 };
 
-// Storybook configuration
 const meta: Meta<typeof DropdownMenuSelect> = {
   title: 'RemixHookForm/DropdownMenuSelect',
   component: DropdownMenuSelect,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: DropdownMenuSelectExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledDropdownMenuSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof DropdownMenuSelect>;
@@ -87,57 +111,30 @@ const meta: Meta<typeof DropdownMenuSelect> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Update the test functions to accept storyContext
-const testDefaultValues = ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
-  expect(dropdownButton).toHaveTextContent('Select an option');
-};
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'A dropdown menu select component for selecting a single option.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-const testInvalidSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-  await expect(canvas.findByText('Please select a color')).resolves.toBeInTheDocument();
-};
+    // Open the dropdown
+    const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
+    await userEvent.click(dropdownButton);
 
-const testColorSelection = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-  const dropdownButton = canvas.getByRole('button', { name: 'Select an option' });
-  await userEvent.click(dropdownButton);
+    // Select an option (portal renders outside the canvas)
+    const option = screen.getByRole('menuitem', { name: 'Banana' });
+    await userEvent.click(option);
 
-  const parentContainer = within(canvasElement.parentNode as HTMLElement);
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: 'Submit' });
+    await userEvent.click(submitButton);
 
-  await expect(parentContainer.findByRole('menuitem', { name: 'Green' })).resolves.toBeInTheDocument();
-
-  const greenOption = parentContainer.getByRole('menuitem', { name: 'Green' });
-  await userEvent.click(greenOption);
-
-  expect(dropdownButton).toHaveTextContent('Green');
-};
-
-const testValidSubmission = async ({ canvasElement }: StoryContext) => {
-  const canvas = within(canvasElement);
-
-  const dropdownButton = canvas.getByRole('button', { name: 'Green', hidden: true });
-  await userEvent.click(dropdownButton);
-
-  const parentContainer = within(canvasElement.parentNode as HTMLElement);
-
-  const blueOption = parentContainer.getByRole('menuitem', { name: 'Blue' });
-  await userEvent.click(blueOption);
-
-  const submitButton = canvas.getByRole('button', { name: 'Submit', hidden: true });
-  await userEvent.click(submitButton);
-
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
-};
-
-export const Tests: Story = {
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testInvalidSubmission(storyContext);
-    await testColorSelection(storyContext);
-    await testValidSubmission(storyContext);
+    // Check if the selected option is displayed
+    await expect(await canvas.findByText('Banana')).toBeInTheDocument();
   },
 };

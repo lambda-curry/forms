@@ -1,6 +1,6 @@
 {
   "name": "forms",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -10,19 +10,21 @@
     "start": "yarn dev",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "build-storybook": "turbo run build-storybook",
+    "serve": "turbo run serve",
     "test": "turbo run test",
     "clean": "find . -name '.turbo' -type d -prune -exec rm -rf {} + && find . -name 'node_modules' -type d -prune -exec rm -rf {} + && find . -name 'yarn.lock' -type f -delete",
     "format-and-lint": "biome check .",
     "format-and-lint:fix": "biome check . --write",
-    "release": "turbo run build && changeset publish"
+    "prerelease": "turbo run build",
+    "release": "changeset publish",
+    "build-storybook": "turbo run build-storybook"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "turbo": "^2.3.3"
   },
-  "packageManager": "yarn@4.4.1",
   "dependencies": {
     "@changesets/cli": "^2.27.11"
-  }
+  },
+  "packageManager": "yarn@4.7.0"
 }

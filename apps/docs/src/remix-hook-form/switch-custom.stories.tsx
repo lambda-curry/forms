@@ -3,14 +3,14 @@ import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
-import * as React from 'react';
+import type * as React from 'react';
+import type { ActionFunctionArgs } from 'react-router';
+import { useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   notifications: z.boolean().default(false),
@@ -21,27 +21,19 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom Switch component
-const PurpleSwitch = React.forwardRef<
-  React.ComponentRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
->((props, ref) => (
+const PurpleSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>) => (
   <SwitchPrimitives.Root
-    ref={ref}
     {...props}
     className="peer inline-flex h-8 w-16 shrink-0 cursor-pointer items-center rounded-full border-2 border-purple-300 bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-purple-200"
   >
     {props.children}
   </SwitchPrimitives.Root>
-));
+);
 PurpleSwitch.displayName = 'PurpleSwitch';
 
 // Custom Switch Thumb component
-const PurpleSwitchThumb = React.forwardRef<
-  React.ComponentRef<typeof SwitchPrimitives.Thumb>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>
->((props, ref) => (
+const PurpleSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>) => (
   <SwitchPrimitives.Thumb
-    ref={ref}
     {...props}
     className="pointer-events-none flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-8 data-[state=unchecked]:translate-x-0 relative overflow-hidden data-[state=checked]:[--on-opacity:1] data-[state=checked]:[--off-opacity:0] data-[state=unchecked]:[--on-opacity:0] data-[state=unchecked]:[--off-opacity:1]"
   >
@@ -52,45 +44,35 @@ const PurpleSwitchThumb = React.forwardRef<
       OFF
     </span>
   </SwitchPrimitives.Thumb>
-));
+);
 PurpleSwitchThumb.displayName = 'PurpleSwitchThumb';
 
 // Custom Form Label component
-const PurpleLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
-  ({ className, ...props }, ref) => <FormLabel ref={ref} className="text-lg font-bold text-purple-700" {...props} />,
+const PurpleLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => (
+  <FormLabel className="text-lg font-bold text-purple-700" {...props} />
 );
 PurpleLabel.displayName = 'PurpleLabel';
 
 // Custom Form Message component
-const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
-  ({ className, ...props }, ref) => (
-    <FormMessage ref={ref} className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
-  ),
+const PurpleMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+  <FormMessage className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
 );
 PurpleMessage.displayName = 'PurpleMessage';
 
 // Green Switch component
-const GreenSwitch = React.forwardRef<
-  React.ComponentRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
->((props, ref) => (
+const GreenSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>) => (
   <SwitchPrimitives.Root
-    ref={ref}
     {...props}
     className="peer inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-green-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-white"
   >
     {props.children}
   </SwitchPrimitives.Root>
-));
+);
 GreenSwitch.displayName = 'GreenSwitch';
 
 // Green Switch Thumb component
-const GreenSwitchThumb = React.forwardRef<
-  React.ComponentRef<typeof SwitchPrimitives.Thumb>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>
->((props, ref) => (
+const GreenSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>) => (
   <SwitchPrimitives.Thumb
-    ref={ref}
     {...props}
     className="pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-green-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0 data-[state=checked]:bg-white"
   >
@@ -105,7 +87,7 @@ const GreenSwitchThumb = React.forwardRef<
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   </SwitchPrimitives.Thumb>
-));
+);
 GreenSwitchThumb.displayName = 'GreenSwitchThumb';
 
 const CustomSwitchExample = () => {
@@ -184,11 +166,14 @@ const meta: Meta<typeof Switch> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: CustomSwitchExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CustomSwitchExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof Switch>;
@@ -334,6 +319,7 @@ const PurpleMessage = React.forwardRef((props, ref) => (
       },
     },
   },
+  render: () => <CustomSwitchExample />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

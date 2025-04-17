@@ -1,73 +1,92 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DatePicker } from '@lambdacurry/forms/remix-hook-form/date-picker';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
-  eventDate: z.coerce.date(),
+  date: z.coerce.date({
+    required_error: 'Please select a date',
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const DatePickerExample = () => {
-  const fetcher = useFetcher<{ message?: string }>();
+const ControlledDatePickerExample = () => {
+  const fetcher = useFetcher<{ message: string; date: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      eventDate: undefined,
+      date: undefined,
     },
     fetcher,
     submitConfig: {
       action: '/',
       method: 'post',
     },
+    submitHandlers: {
+      onValid: (data) => {
+        fetcher.submit(
+          createFormData({
+            date: data.date.toISOString(),
+          }),
+          {
+            method: 'post',
+            action: '/',
+          },
+        );
+      },
+    },
   });
 
   return (
     <RemixFormProvider {...methods}>
       <Form onSubmit={methods.handleSubmit}>
-        <DatePicker name="eventDate" label="Event Date" description="Choose the date for your event." />
-        <Button type="submit" className="mt-4">
-          Submit
-        </Button>
-        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+        <div className="space-y-4">
+          <DatePicker name="date" label="Select a date" />
+          <Button type="submit" className="mt-4">
+            Submit
+          </Button>
+          {fetcher.data?.date && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Submitted with date:</p>
+              <p className="text-sm text-gray-500">{new Date(fetcher.data.date).toLocaleDateString()}</p>
+            </div>
+          )}
+        </div>
       </Form>
     </RemixFormProvider>
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
-    request,
-    zodResolver(formSchema),
-  );
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'Date selected successfully', date: data.date.toISOString() };
 };
 
-// Storybook configuration
 const meta: Meta<typeof DatePicker> = {
   title: 'RemixHookForm/Date Picker',
   component: DatePicker,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: DatePickerExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledDatePickerExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof DatePicker>;
@@ -75,48 +94,83 @@ const meta: Meta<typeof DatePicker> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  expect(datePickerButton).toHaveTextContent('Event Date');
-};
+// Helper function for sleep delays
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const testDateSelection = async ({ canvas }: StoryContext) => {
-  const datePickerButton = canvas.getByRole('button', { name: 'Event Date' });
-  await userEvent.click(datePickerButton);
+export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'A date picker component for selecting a date.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-  await waitFor(async () => {
-    const popover = document.querySelector('[role="dialog"]');
-    expect(popover).not.toBeNull();
+    // Find all buttons in the form
+    const buttons = await canvas.findAllByRole('button');
 
-    if (popover) {
-      const calendar = within(popover as HTMLElement).getByRole('grid');
-      expect(calendar).toBeInTheDocument();
-
-      const dateCell = within(calendar).getByText('15');
-      expect(dateCell).toBeInTheDocument();
-      await userEvent.click(dateCell);
+    // Select the date picker button (the one with aria-haspopup="dialog")
+    const datePickerButton = buttons.find((btn) => btn.getAttribute('aria-haspopup') === 'dialog');
+    if (!datePickerButton) {
+      throw new Error('Could not find date picker button');
     }
-  });
+    expect(datePickerButton).toBeInTheDocument();
 
-  const dateToSelect = '15';
-  await waitFor(() => {
-    const updatedDatePickerButton = canvas.getByRole('button', { name: new RegExp(dateToSelect, 'i') });
-    expect(updatedDatePickerButton).toBeInTheDocument();
-  });
-};
+    // Click to open the date picker
+    await userEvent.click(datePickerButton);
 
-const testSubmission = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
+    // Wait for date picker dialog to open
+    await sleep(200);
 
-  await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
-};
+    // Find the dialog popup using document.querySelector
+    const dialog = document.querySelector('[role="dialog"]');
 
-// Stories
-export const Tests: Story = {
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testDateSelection(storyContext);
-    await testSubmission(storyContext);
+    // Look for day buttons within the dialog using the dialog element's within scope
+    const dialogContent = within(dialog as HTMLElement);
+
+    // Find all day cells
+    const dayCells = await dialogContent.findAllByRole('gridcell');
+
+    // Click on a day that's not disabled
+    const dayToClick = dayCells.find((day) => day.textContent && /^\d+$/.test(day.textContent.trim()));
+
+    if (dayToClick) {
+      await userEvent.click(dayToClick);
+    } else {
+      // If we can't find a specific day, click the first day cell
+      await userEvent.click(dayCells[0]);
+    }
+
+    // Wait for date picker to close
+    await sleep(100);
+
+    // Now click the submit button
+    const submitButton = buttons.find((btn) => btn.textContent?.includes('Submit'));
+    if (!submitButton) {
+      throw new Error('Could not find submit button');
+    }
+
+    await userEvent.click(submitButton);
+
+    // Wait for form submission to complete
+    await sleep(200);
+
+    // After submission, the date picker button should now show a date value
+    // instead of "Select a date"
+    const updatedPickerButton = await canvas.findByRole('button', {
+      expanded: false,
+    });
+
+    // Check if this is the date picker button
+    expect(updatedPickerButton.getAttribute('aria-haspopup')).toBe('dialog');
+
+    expect(canvas.getByText('Submitted with date:')).toBeInTheDocument();
+
+    // Verify the button's text is no longer just "Select a date"
+    const buttonText = updatedPickerButton.textContent || '';
+    expect(buttonText).not.toContain('Select a date');
+    expect(buttonText).toMatch(/\d/); // Should contain at least one digit
   },
 };

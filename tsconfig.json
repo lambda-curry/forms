@@ -20,7 +20,8 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["@react-router/node", "vite/client"]
   },
   "exclude": ["node_modules"]
 }

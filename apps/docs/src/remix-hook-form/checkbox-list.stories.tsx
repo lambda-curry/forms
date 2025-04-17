@@ -2,16 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/ui/form';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
-import { Form } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent } from '@storybook/test';
 import type {} from '@testing-library/dom';
-import * as React from 'react';
+import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const AVAILABLE_COLORS = [
   { value: 'red', label: 'Red' },
@@ -30,21 +27,17 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom FormLabel component that makes the entire area clickable
-const FullWidthLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<'label'>>(
-  ({ className, children, htmlFor, ...props }, ref) => {
-    return (
-      <label
-        ref={ref}
-        htmlFor={htmlFor}
-        className={`absolute inset-0 cursor-pointer flex items-center py-4 px-8 ${className}`}
-        {...props}
-      >
-        <span className="ml-2">{children}</span>
-      </label>
-    );
-  },
-);
-FullWidthLabel.displayName = 'FullWidthLabel';
+const FullWidthLabel = ({ className, children, htmlFor, ...props }: React.ComponentPropsWithoutRef<'label'>) => {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className={`absolute inset-0 cursor-pointer flex items-center py-4 px-8 ${className}`}
+      {...props}
+    >
+      <span className="ml-2">{children}</span>
+    </label>
+  );
+};
 
 const ControlledCheckboxListExample = () => {
   const fetcher = useFetcher<{ message: string; selectedColors: string[] }>();
@@ -130,11 +123,14 @@ const meta: Meta<typeof Checkbox> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledCheckboxListExample,
-        action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-      },
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ControlledCheckboxListExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
     }),
   ],
 } satisfies Meta<typeof Checkbox>;

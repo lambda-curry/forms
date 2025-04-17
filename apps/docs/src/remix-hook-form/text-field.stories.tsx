@@ -1,14 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
 import { expect, userEvent } from '@storybook/test';
-import type {} from '@testing-library/dom';
+import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import { withRemixStubDecorator } from '../lib/storybook/remix-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -19,12 +17,12 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const INITIAL_USERNAME = 'initial_user';
-const USERNAME_TAKEN = 'taken';
-const USERNAME_TAKEN_ERROR = 'This username is already taken';
+const INITIAL_USERNAME = 'test_user';
+const USERNAME_TAKEN = 'test_user';
+const USERNAME_TAKEN_ERROR = 'Username is already taken';
 
 const ControlledTextFieldExample = () => {
-  const fetcher = useFetcher<{ message: string }>();
+  const fetcher = useFetcher<{ message: string; email: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,7 +33,7 @@ const ControlledTextFieldExample = () => {
     },
     fetcher,
     submitConfig: {
-      action: '/username',
+      action: '/',
       method: 'post',
     },
   });
@@ -70,34 +68,27 @@ const ControlledTextFieldExample = () => {
   );
 };
 
-// Action function for form submission
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
-    return { errors, defaultValues };
+    return { errors };
   }
 
+  // Check for taken username
   if (data.username === USERNAME_TAKEN) {
     return {
       errors: {
         username: {
-          type: 'manual',
           message: USERNAME_TAKEN_ERROR,
         },
       },
-      defaultValues,
     };
   }
 
-  return { message: 'Form submitted successfully' };
+  return { message: 'Form submitted successfully', email: data.email };
 };
 
-// Storybook configuration
 const meta: Meta<typeof TextField> = {
   title: 'RemixHookForm/TextField',
   component: TextField,
@@ -166,13 +157,11 @@ export const Examples: Story = {
     await testValidSubmission(storyContext);
   },
   decorators: [
-    withRemixStubDecorator({
-      root: {
-        Component: ControlledTextFieldExample,
-      },
+    withReactRouterStubDecorator({
       routes: [
         {
-          path: '/username',
+          path: '/',
+          Component: ControlledTextFieldExample,
           action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
         },
       ],
