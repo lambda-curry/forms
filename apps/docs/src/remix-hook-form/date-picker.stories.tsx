@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
-  date: z.date({
+  date: z.coerce.date({
     required_error: 'Please select a date',
   }),
 });
@@ -165,6 +165,8 @@ export const Default: Story = {
 
     // Check if this is the date picker button
     expect(updatedPickerButton.getAttribute('aria-haspopup')).toBe('dialog');
+
+    expect(canvas.getByText('Submitted with date:')).toBeInTheDocument();
 
     // Verify the button's text is no longer just "Select a date"
     const buttonText = updatedPickerButton.textContent || '';
