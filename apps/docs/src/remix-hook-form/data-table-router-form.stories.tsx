@@ -3,7 +3,7 @@ import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { type ActionFunctionArgs, useLoaderData } from 'react-router';
+import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -135,7 +135,8 @@ function DataTableRouterFormExample() {
   );
 }
 
-const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
+// Loader function to handle data fetching based on URL parameters
+const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   // Add a small delay to simulate network latency
   await new Promise(resolve => setTimeout(resolve, 300));
   
@@ -198,6 +199,7 @@ const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
   // Log the data being returned for debugging
   console.log(`Returning ${paginatedData.length} items, page ${safePage}, total ${filteredData.length}`);
 
+  // Return the data response
   return {
     data: paginatedData,
     meta: {
@@ -222,7 +224,6 @@ const meta = {
           path: '/',
           Component: DataTableRouterFormExample,
           loader: handleDataFetch,
-          action: handleDataFetch, // Add action to handle form submissions
         },
       ],
     }),
