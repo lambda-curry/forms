@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from 'lucide-react';
-import { parseAsString, useQueryState } from 'nuqs';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '../button';
 import {
@@ -17,25 +17,30 @@ interface DataTableColumnHeaderProps<TData, TValue> {
 }
 
 export function DataTableColumnHeader<TData, TValue>({ column, title }: DataTableColumnHeaderProps<TData, TValue>) {
-  const [sort, setSort] = useQueryState('sortField', parseAsString);
-  const [order, setOrder] = useQueryState('sortOrder', parseAsString.withDefault('asc'));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = searchParams.get('sortField');
+  const order = searchParams.get('sortOrder') || 'asc';
   const isSorted = sort === column.id;
 
-  const handleSort = async () => {
+  const handleSort = () => {
+    const newParams = new URLSearchParams(searchParams);
+    
     if (isSorted) {
       if (order === 'asc') {
-        await setOrder('desc');
+        newParams.set('sortOrder', 'desc');
         column.toggleSorting(true);
       } else {
-        await setSort(null);
-        await setOrder('asc');
+        newParams.delete('sortField');
+        newParams.set('sortOrder', 'asc');
         column.toggleSorting(false);
       }
     } else {
-      await setSort(column.id);
-      await setOrder('asc');
+      newParams.set('sortField', column.id);
+      newParams.set('sortOrder', 'asc');
       column.toggleSorting(false);
     }
+    
+    setSearchParams(newParams, { replace: true });
   };
 
   if (!column.getCanSort()) {

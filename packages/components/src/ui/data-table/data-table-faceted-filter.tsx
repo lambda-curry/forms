@@ -25,29 +25,27 @@ interface DataTableFacetedFilterProps<TData> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
-  initialValue?: string[];
-  onValueChange?: (value: string[] | undefined) => void;
+  selectedValues?: string[];
+  onValuesChange?: (values: string[]) => void;
 }
 
 export function DataTableFacetedFilter<TData>({
   column,
   title,
   options,
-  initialValue,
-  onValueChange,
+  selectedValues = [],
+  onValuesChange,
 }: DataTableFacetedFilterProps<TData>) {
   const facets = column?.getFacetedUniqueValues();
-  const [selectedValues, setSelectedValues] = useState<Set<string>>(
-    () => new Set(initialValue || (column?.getFilterValue() as string[])),
-  );
+  const [selected, setSelected] = useState<Set<string>>(new Set(selectedValues));
 
   // Sync with external changes
   useEffect(() => {
-    setSelectedValues(new Set(initialValue || (column?.getFilterValue() as string[])));
-  }, [initialValue, column]);
+    setSelected(new Set(selectedValues || (column?.getFilterValue() as string[])));
+  }, [selectedValues, column]);
 
   const handleValueChange = (value: string) => {
-    setSelectedValues((current) => {
+    setSelected((current) => {
       const next = new Set(current);
       if (next.has(value)) {
         next.delete(value);
@@ -55,21 +53,23 @@ export function DataTableFacetedFilter<TData>({
         next.add(value);
       }
       const filterValues = Array.from(next);
-      if (onValueChange) {
-        onValueChange(filterValues.length ? filterValues : undefined);
-      } else {
-        column?.setFilterValue(filterValues.length ? filterValues : undefined);
+      
+      if (onValuesChange) {
+        onValuesChange(filterValues);
+      } else if (column) {
+        column.setFilterValue(filterValues.length ? filterValues : undefined);
       }
+      
       return next;
     });
   };
 
   const handleClear = () => {
-    setSelectedValues(new Set());
-    if (onValueChange) {
-      onValueChange(undefined);
-    } else {
-      column?.setFilterValue(undefined);
+    setSelected(new Set());
+    if (onValuesChange) {
+      onValuesChange([]);
+    } else if (column) {
+      column.setFilterValue(undefined);
     }
   };
 
@@ -79,20 +79,20 @@ export function DataTableFacetedFilter<TData>({
         <Button variant="outline" size="sm" className="h-10 border-dashed">
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           {title}
-          {selectedValues.size > 0 && (
+          {selected.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
-                {selectedValues.size}
+                {selected.size}
               </Badge>
               <div className="hidden space-x-1 lg:flex">
-                {selectedValues.size > 2 ? (
+                {selected.size > 2 ? (
                   <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {selectedValues.size} selected
+                    {selected.size} selected
                   </Badge>
                 ) : (
                   options
-                    .filter((option) => selectedValues.has(option.value))
+                    .filter((option) => selected.has(option.value))
                     .map((option) => (
                       <Badge variant="secondary" key={option.value} className="rounded-sm px-1 font-normal">
                         {option.label}
@@ -111,7 +111,7 @@ export function DataTableFacetedFilter<TData>({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
+                const isSelected = selected.has(option.value);
                 return (
                   <CommandItem key={option.value} onSelect={() => handleValueChange(option.value)}>
                     <div
@@ -133,7 +133,7 @@ export function DataTableFacetedFilter<TData>({
                 );
               })}
             </CommandGroup>
-            {selectedValues.size > 0 && (
+            {selected.size > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup>

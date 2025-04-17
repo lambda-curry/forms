@@ -11,8 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useQueryStates } from 'nuqs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from 'react-router-dom';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -21,8 +20,9 @@ import { DataTablePagination } from '../ui/data-table/data-table-pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { DataTableRouterToolbar, type DataTableRouterToolbarProps } from './data-table-router-toolbar';
 
-// Import the nuqs parsers and the inferred type
-import { type DataTableRouterState, type FilterValue, dataTableRouterParsers } from './data-table-router-parsers';
+// Import the parsers and the inferred type
+import type { DataTableRouterState, FilterValue } from './data-table-router-parsers';
+import { getDefaultDataTableState, useDataTableUrlState } from './use-data-table-url-state';
 
 // Schema for form data validation and type safety
 const dataTableSchema = z.object({
@@ -56,23 +56,13 @@ export function DataTableRouterForm<TData, TValue>({
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
-  // --- nuqs state management ---
-  // Use nuqs to manage URL state. Debounce options can be set here per parser if needed.
-  const [urlState, setUrlState] = useQueryStates(dataTableRouterParsers, {
-    // Default nuqs options (shallow routing, replace history, no scroll)
-    history: 'replace', // Default
-    shallow: false, // we want to re-run the loader when the url changes
-    // scroll: false,     // Default
-    // Configure debounce globally if needed (though nuqs batches by default)
-    // throttleMs: 300,
-  });
-  // --- End nuqs state management ---
+  // Use our custom hook for URL state management
+  const { urlState, setUrlState } = useDataTableUrlState();
 
-  // Initialize RHF to *reflect* the nuqs state
+  // Initialize RHF to *reflect* the URL state
   const methods = useRemixForm<DataTableRouterState>({
-    // Use the nuqs inferred type
     // No resolver needed if Zod isn't primary validation driver here
-    defaultValues: urlState, // Initialize with current URL state from nuqs
+    defaultValues: urlState, // Initialize with current URL state
   });
 
   // Sync RHF state if urlState changes (e.g., back/forward, external link)
@@ -87,7 +77,7 @@ export function DataTableRouterForm<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  // Table instance uses RHF state (which mirrors nuqs/URL state)
+  // Table instance uses RHF state (which mirrors URL state)
   const table = useReactTable({
     data,
     columns,
@@ -132,7 +122,16 @@ export function DataTableRouterForm<TData, TValue>({
     },
   });
 
-  // Pagination handler updates nuqs state
+  // Determine default pageSize and visible columns for skeleton loader
+  const defaultDataTableState = getDefaultDataTableState(defaultStateValues);
+  const visibleColumns = table.getVisibleFlatColumns();
+  // Generate stable IDs for skeleton rows based on current pageSize or fallback
+  const skeletonRowIds = useMemo(() => {
+    const count = urlState.pageSize > 0 ? urlState.pageSize : defaultDataTableState.pageSize;
+    return Array.from({ length: count }, () => window.crypto.randomUUID());
+  }, [urlState.pageSize, defaultDataTableState.pageSize]);
+
+  // Pagination handler updates URL state
   const handlePaginationChange = useCallback(
     (pageIndex: number, newPageSize: number) => {
       setUrlState({ page: pageIndex, pageSize: newPageSize });
@@ -140,16 +139,8 @@ export function DataTableRouterForm<TData, TValue>({
     [setUrlState],
   );
 
-  // Derive default values directly from parsers for reset
-  const standardStateValues: DataTableRouterState = {
-    search: '',
-    filters: [],
-    page: 0,
-    pageSize: 10,
-    sortField: '',
-    sortOrder: 'asc',
-    ...defaultStateValues,
-  };
+  // Get default state values using our utility function
+  const standardStateValues = getDefaultDataTableState(defaultStateValues);
 
   // Handle pagination props separately
   const paginationProps = {
@@ -184,14 +175,19 @@ export function DataTableRouterForm<TData, TValue>({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
+                // Skeleton rows matching pageSize with zebra background
+                skeletonRowIds.map((rowId) => (
+                  <TableRow key={rowId} className="even:bg-gray-50">
+                    {visibleColumns.map((column) => (
+                      <TableCell key={column.id} className="py-2">
+                        <div className="h-6 my-1.5 bg-gray-200 rounded animate-pulse w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="even:bg-gray-50">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}

@@ -3,7 +3,7 @@ import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { type ActionFunctionArgs, useLoaderData } from 'react-router';
+import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -87,8 +87,12 @@ const columns: ColumnDef<User>[] = [
 // Component to display the data table with router form integration
 function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
+
+  // Ensure we have data even if loaderData is undefined
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
+
+  console.log('DataTableRouterFormExample - loaderData:', loaderData);
 
   return (
     <div className="container mx-auto py-10">
@@ -98,7 +102,7 @@ function DataTableRouterFormExample() {
         <li>Form-based filtering with automatic submission</li>
         <li>Loading state while waiting for data</li>
         <li>Server-side filtering and pagination</li>
-        <li>URL-based state management with nuqs</li>
+        <li>URL-based state management with React Router</li>
       </ul>
       <DataTableRouterForm<User, keyof User>
         columns={columns}
@@ -135,17 +139,27 @@ function DataTableRouterFormExample() {
   );
 }
 
-const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
-  const url = request.url ? new URL(request.url) : new URL('http://localhost');
+// Loader function to handle data fetching based on URL parameters
+const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
+  // Add a small delay to simulate network latency
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  // Ensure we have a valid URL object
+  const url = request?.url ? new URL(request.url) : new URL('http://localhost?page=0&pageSize=10');
   const params = url.searchParams;
 
-  // Use nuqs parsers, providing fallback '' for potentially null values
-  const page = dataTableRouterParsers.page.parse(params.get('page') ?? '');
-  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize') ?? '');
-  const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField') ?? '');
-  const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder') ?? '');
-  const search = dataTableRouterParsers.search.parse(params.get('search') ?? '');
-  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters') ?? '');
+  console.log('handleDataFetch - URL:', url.toString());
+  console.log('handleDataFetch - Search Params:', Object.fromEntries(params.entries()));
+
+  // Use our custom parsers to parse URL search parameters
+  const page = dataTableRouterParsers.page.parse(params.get('page'));
+  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize'));
+  const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField'));
+  const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder'));
+  const search = dataTableRouterParsers.search.parse(params.get('search'));
+  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters'));
+
+  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortOrder, search, parsedFilters });
 
   // Apply filters
   let filteredData = [...users];
@@ -186,12 +200,16 @@ const handleDataFetch = async ({ request }: ActionFunctionArgs) => {
   }
 
   // 4. Apply pagination
-  // Provide defaults again for TS, although parsers guarantee numbers
-  const safePage = page ?? 0;
-  const safePageSize = pageSize ?? 10;
+  // Determine safe values for page and pageSize using defaultValue when params are missing
+  const safePage = params.has('page') ? page : dataTableRouterParsers.page.defaultValue;
+  const safePageSize = params.has('pageSize') ? pageSize : dataTableRouterParsers.pageSize.defaultValue;
   const start = safePage * safePageSize;
   const paginatedData = filteredData.slice(start, start + safePageSize);
 
+  // Log the data being returned for debugging
+  console.log(`Returning ${paginatedData.length} items, page ${safePage}, total ${filteredData.length}`);
+
+  // Return the data response
   return {
     data: paginatedData,
     meta: {

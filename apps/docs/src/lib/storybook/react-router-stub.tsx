@@ -1,5 +1,4 @@
 import type { Decorator } from '@storybook/react';
-import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import type { ComponentType } from 'react';
 import {
   type ActionFunction,
@@ -54,8 +53,13 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
 
     // Get the base path (without existing query params from options)
     const basePath = initialPath.split('?')[0];
+    
     // Get the current search string from the actual browser window, if available
-    const currentWindowSearch = typeof window !== 'undefined' ? window.location.search : '';
+    // If not available, use a default search string with parameters needed for the data table
+    const currentWindowSearch = typeof window !== 'undefined' 
+      ? window.location.search 
+      : '?page=0&pageSize=10';
+    
     // Combine them for the initial entry
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
@@ -65,13 +69,7 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
       initialEntries: [actualInitialPath], // Use the path combined with window.location.search
     });
 
-    return (
-      // NuqsAdapter will now read the initial state from the MemoryRouter,
-      // which has been initialized using the window's query params.
-      <NuqsAdapter>
-        <RouterProvider router={router} />
-      </NuqsAdapter>
-    );
+    return <RouterProvider router={router} />;
   };
 };
 
