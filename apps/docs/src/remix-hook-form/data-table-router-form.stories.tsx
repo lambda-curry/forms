@@ -87,8 +87,12 @@ const columns: ColumnDef<User>[] = [
 // Component to display the data table with router form integration
 function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
+  
+  // Ensure we have data even if loaderData is undefined
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
+
+  console.log('DataTableRouterFormExample - loaderData:', loaderData);
 
   return (
     <div className="container mx-auto py-10">
@@ -140,8 +144,12 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   // Add a small delay to simulate network latency
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  const url = request.url ? new URL(request.url) : new URL('http://localhost');
+  // Ensure we have a valid URL object
+  const url = request?.url ? new URL(request.url) : new URL('http://localhost?page=0&pageSize=10');
   const params = url.searchParams;
+
+  console.log('handleDataFetch - URL:', url.toString());
+  console.log('handleDataFetch - Search Params:', Object.fromEntries(params.entries()));
 
   // Use our custom parsers to parse URL search parameters
   const page = dataTableRouterParsers.page.parse(params.get('page'));
@@ -150,6 +158,8 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder'));
   const search = dataTableRouterParsers.search.parse(params.get('search'));
   const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters'));
+
+  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortOrder, search, parsedFilters });
 
   // Apply filters
   let filteredData = [...users];
