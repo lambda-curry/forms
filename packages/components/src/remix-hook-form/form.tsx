@@ -1,11 +1,16 @@
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { FieldValues, KeepStateOptions, UseFormReturn } from 'react-hook-form';
 import { useRemixFormContext } from 'remix-hook-form';
-import { FormControl as BaseFormControl, FormDescription as BaseFormDescription, FormFieldContext as BaseFormFieldContext, FormItemContext as BaseFormItemContext, FormLabel as BaseFormLabel, FormMessage as BaseFormMessage } from '../ui/form';
+import {
+  FormControl as BaseFormControl,
+  FormDescription as BaseFormDescription,
+  FormFieldContext as BaseFormFieldContext,
+  FormItemContext as BaseFormItemContext,
+  FormLabel as BaseFormLabel,
+  FormMessage as BaseFormMessage,
+} from '../ui/form';
 
-export interface FormProviderProps<T extends FieldValues>
-  extends Omit<UseFormReturn<T>, 'handleSubmit' | 'reset'> {
+export interface FormProviderProps<T extends FieldValues> extends Omit<UseFormReturn<T>, 'handleSubmit' | 'reset'> {
   children: React.ReactNode;
   handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   reset: (values?: T, keepStateOptions?: KeepStateOptions) => void;
@@ -19,7 +24,9 @@ export const useFormField = () => {
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
-    throw new Error('useFormField must be used within a <FormField> component. Ensure this hook is called from a component that is a child of FormField.');
+    throw new Error(
+      'useFormField must be used within a <FormField> component. Ensure this hook is called from a component that is a child of FormField.',
+    );
   }
 
   const { id, formItemId, formDescriptionId, formMessageId } = itemContext;
@@ -39,7 +46,7 @@ export const FormLabel = React.forwardRef<HTMLLabelElement, React.ComponentProps
 );
 FormLabel.displayName = 'FormLabel';
 
-export const FormControl = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<typeof BaseFormControl>>(
+export const FormControl = React.forwardRef<HTMLElement, React.ComponentPropsWithoutRef<typeof BaseFormControl>>(
   (props, ref) => {
     const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
     return (
@@ -56,20 +63,20 @@ export const FormControl = React.forwardRef<HTMLDivElement, React.ComponentProps
 );
 FormControl.displayName = 'FormControl';
 
-export const FormDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.ComponentPropsWithoutRef<typeof BaseFormDescription>
->((props, ref) => {
+export const FormDescription = (props: React.ComponentPropsWithoutRef<typeof BaseFormDescription>) => {
   const { formDescriptionId } = useFormField();
-  return <BaseFormDescription ref={ref} formDescriptionId={formDescriptionId} {...props} />;
-});
+  return <BaseFormDescription formDescriptionId={formDescriptionId} {...props} />;
+};
 FormDescription.displayName = 'FormDescription';
 
-export const FormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.ComponentPropsWithoutRef<typeof BaseFormMessage>
->((props, ref) => {
+export const FormMessage = (props: React.ComponentPropsWithoutRef<typeof BaseFormMessage>) => {
   const { error, formMessageId } = useFormField();
-  return <BaseFormMessage ref={ref} formMessageId={formMessageId} error={error?.message || (error ? String(error) : undefined)} {...props} />;
-});
+  return (
+    <BaseFormMessage
+      formMessageId={formMessageId}
+      error={error?.message || (error ? String(error) : undefined)}
+      {...props}
+    />
+  );
+};
 FormMessage.displayName = 'FormMessage';

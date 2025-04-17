@@ -7,7 +7,8 @@ import {
   type LoaderFunction,
   type MetaFunction,
   type NonIndexRouteObject,
-  createRoutesStub,
+  RouterProvider,
+  createMemoryRouter,
 } from 'react-router-dom';
 
 export type StubRouteObject = StubIndexRouteObject | StubNonIndexRouteObject;
@@ -36,21 +37,49 @@ interface StubIndexRouteObject
 
 interface RemixStubOptions {
   routes: StubRouteObject[];
+  initialPath?: string;
 }
 
 export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorator => {
-  const { routes } = options;
-  return (Story) => {
-    // Map routes to include Story component as fallback if no Component provided
+  const { routes, initialPath = '/' } = options;
+  // This outer function runs once when Storybook loads the story meta
+
+  return (Story, context) => {
+    // This inner function runs when the story component actually renders
     const mappedRoutes = routes.map((route) => ({
       ...route,
-      Component: route.Component ?? (() => <Story />),
+      Component: route.Component ?? (() => <Story {...context.args} />),
     }));
 
-    // Use more specific type assertion to fix the incompatibility
-    // @ts-ignore - Types from createRoutesStub are incompatible but the code works at runtime
-    const RemixStub = createRoutesStub(mappedRoutes);
+    // Get the base path (without existing query params from options)
+    const basePath = initialPath.split('?')[0];
+    
+    // Get the current search string from the actual browser window, if available
+    // If not available, use a default search string with parameters needed for the data table
+    const currentWindowSearch = typeof window !== 'undefined' 
+      ? window.location.search 
+      : '?page=0&pageSize=10';
+    
+    // Combine them for the initial entry
+    const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
-    return <RemixStub initialEntries={['/']} />;
+    // Create a memory router, initializing it with the path derived from the window's search params
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const router = createMemoryRouter(mappedRoutes as any, {
+      initialEntries: [actualInitialPath], // Use the path combined with window.location.search
+    });
+
+    return <RouterProvider router={router} />;
   };
+};
+
+/**
+ * A decorator that provides URL state management for stories
+ * Use this when you need URL query parameters in your stories
+ */
+export const withURLState = (initialPath = '/'): Decorator => {
+  return withReactRouterStubDecorator({
+    routes: [{ path: '/' }],
+    initialPath,
+  });
 };

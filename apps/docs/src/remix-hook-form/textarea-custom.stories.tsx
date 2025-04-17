@@ -20,76 +20,64 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom Textarea component
-const PurpleTextarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  (props, ref) => (
-    <textarea
-      ref={ref}
-      {...props}
-      className="w-full rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-2 text-purple-900 placeholder:text-purple-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 min-h-[100px]"
-    />
-  ),
+const PurpleTextarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+  <textarea
+    {...props}
+    className="w-full rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-2 text-purple-900 placeholder:text-purple-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 min-h-[100px]"
+  />
 );
 PurpleTextarea.displayName = 'PurpleTextarea';
 
 // Custom Form Label component
-const PurpleLabel = React.forwardRef<HTMLLabelElement, React.ComponentPropsWithoutRef<typeof FormLabel>>(
-  ({ className, htmlFor, ...props }, ref) => (
-    <FormLabel ref={ref} className="text-lg font-bold text-purple-700" htmlFor={htmlFor} {...props} />
-  ),
-);
+const PurpleLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => {
+  const { className, htmlFor, ...rest } = props;
+  return <FormLabel className="text-lg font-bold text-purple-700" htmlFor={htmlFor} {...rest} />;
+};
 PurpleLabel.displayName = 'PurpleLabel';
 
 // Custom Form Message component
-const PurpleMessage = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof FormMessage>>(
-  ({ className, ...props }, ref) => (
-    <FormMessage ref={ref} className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
-  ),
+const PurpleMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+  <FormMessage className="text-purple-500 bg-purple-50 p-2 rounded-md mt-1" {...props} />
 );
 PurpleMessage.displayName = 'PurpleMessage';
 
 // Custom Textarea with character counter
-const CounterTextarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  (props, ref) => {
-    const [charCount, setCharCount] = React.useState(props.value?.toString().length || 0);
+const CounterTextarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => {
+  const [charCount, setCharCount] = React.useState(props.value?.toString().length || 0);
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setCharCount(e.target.value.length);
-      props.onChange?.(e);
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCharCount(e.target.value.length);
+    props.onChange?.(e);
+  };
 
-    return (
-      <div className="relative">
-        <textarea
-          ref={ref}
-          {...props}
-          onChange={handleChange}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[120px] pr-16"
-        />
-        <div className="absolute bottom-2 right-2 rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
-          {charCount} chars
-        </div>
+  return (
+    <div className="relative">
+      <textarea
+        {...props}
+        onChange={handleChange}
+        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[120px] pr-16"
+      />
+      <div className="absolute bottom-2 right-2 rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
+        {charCount} chars
       </div>
-    );
-  },
-);
+    </div>
+  );
+};
 CounterTextarea.displayName = 'CounterTextarea';
 
 // Custom FormItem component that ensures proper label-control association
-const AccessibleFormItem = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<typeof FormItem>>(
-  ({ className, ...props }, ref) => {
-    const id = React.useId();
+const AccessibleFormItem = (props: React.ComponentPropsWithoutRef<typeof FormItem>) => {
+  const { className, ...rest } = props;
+  const id = React.useId();
 
-    return <FormItem ref={ref} className={className} {...props} data-testid={`form-item-${id}`} />;
-  },
-);
+  return <FormItem className={className} {...rest} data-testid={`form-item-${id}`} />;
+};
 AccessibleFormItem.displayName = 'AccessibleFormItem';
 
 // Custom FormControl component that ensures proper label-control association
-const AccessibleFormControl = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<typeof FormControl>>(
-  (props, ref) => {
-    return <FormControl ref={ref} {...props} />;
-  },
-);
+const AccessibleFormControl = (props: React.ComponentPropsWithoutRef<typeof FormControl>) => {
+  return <FormControl {...props} />;
+};
 AccessibleFormControl.displayName = 'AccessibleFormControl';
 
 const CustomTextareaExample = () => {
@@ -188,6 +176,7 @@ const meta: Meta<typeof Textarea> = {
       routes: [
         {
           path: '/',
+          Component: CustomTextareaExample,
           action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
         },
       ],
@@ -243,6 +232,7 @@ This example uses direct DOM elements with explicit label-for associations to en
       },
     },
   },
+  render: () => <CustomTextareaExample />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
