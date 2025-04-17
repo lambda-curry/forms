@@ -53,8 +53,13 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
 
     // Get the base path (without existing query params from options)
     const basePath = initialPath.split('?')[0];
+    
     // Get the current search string from the actual browser window, if available
-    const currentWindowSearch = typeof window !== 'undefined' ? window.location.search : '';
+    // If not available, use a default search string with parameters needed for the data table
+    const currentWindowSearch = typeof window !== 'undefined' 
+      ? window.location.search 
+      : '?page=0&pageSize=10';
+    
     // Combine them for the initial entry
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
