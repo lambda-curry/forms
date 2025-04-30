@@ -73,6 +73,9 @@ export const TextField = ({
   suffix,
   ...props
 }: TextInputProps) => {
+  // Use the custom Input component if provided, otherwise use the default TextInput
+  const InputComponent = components?.Input || TextInput;
+
   return (
     <FormField
       control={control}
@@ -90,7 +93,7 @@ export const TextField = ({
             >
               {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
               <FormControl Component={components?.FormControl}>
-                <TextInput
+                <InputComponent
                   {...field}
                   {...props}
                   className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
