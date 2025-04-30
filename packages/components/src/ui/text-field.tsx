@@ -56,7 +56,11 @@ export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   name: FieldPath<FieldValues>;
   label?: string;
   description?: string;
-  components?: Partial<FieldComponents>;
+  components?: Partial<FieldComponents> & {
+    Input?: React.ForwardRefExoticComponent<
+      InputProps & React.RefAttributes<HTMLInputElement>
+    >;
+  };
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   className?: string;

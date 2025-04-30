@@ -8,11 +8,17 @@ export type TextFieldProps = Omit<BaseTextFieldProps, 'control'>;
 export function TextField(props: TextFieldProps) {
   const { control } = useRemixFormContext();
 
+  // Merge the provided components with the default form components
+  const defaultComponents = {
+    FormControl,
+    FormLabel,
+    FormDescription,
+    FormMessage,
+  };
+  
   const components = {
-    FormControl: FormControl,
-    FormLabel: FormLabel,
-    FormDescription: FormDescription,
-    FormMessage: FormMessage,
+    ...defaultComponents,
+    ...props.components,
   };
 
   return <BaseTextField control={control} components={components} {...props} />;
