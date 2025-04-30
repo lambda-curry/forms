@@ -220,18 +220,18 @@ SearchInput.displayName = 'SearchInput';
 
 ### Important Implementation Details
 
-1. **Using forwardRef**: Always use `React.forwardRef` when creating custom input components to ensure the ref is properly forwarded to the input element.
+1. **Using forwardRef**: Always use \`React.forwardRef\` when creating custom input components to ensure the ref is properly forwarded to the input element.
 
-2. **Spreading props**: Make sure to spread the `props` to pass all necessary attributes to the input element.
+2. **Spreading props**: Make sure to spread the \`props\` to pass all necessary attributes to the input element.
 
-3. **Maintaining the ref**: Include the `ref` parameter to maintain form functionality and ensure React Hook Form can properly control the input.
+3. **Maintaining the ref**: Include the \`ref\` parameter to maintain form functionality and ensure React Hook Form can properly control the input.
 
 4. **Adding a displayName**: Add a displayName to your component for better debugging in React DevTools.
 
 5. **Styling considerations**: When creating custom inputs, consider how they will interact with the TextField's prefix and suffix props if they are used together.
-`,
-      },
-    },
+`
+      }
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
