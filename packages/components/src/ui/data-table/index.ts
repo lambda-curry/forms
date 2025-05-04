@@ -8,3 +8,4 @@ export * from '../../remix-hook-form/data-table-router-form';
 export * from '../../remix-hook-form/data-table-router-toolbar';
 export * from './data-table-schema';
 export * from './data-table-hooks';
+export * from '../data-table-filter';
