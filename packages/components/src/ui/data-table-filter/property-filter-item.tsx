@@ -109,32 +109,77 @@ export function PropertyFilterItem<TData extends RowData>({
         if (operator === 'between') {
           return (
             <div className="space-y-2">
-              <DatePicker
-                value={filterValue?.values?.[0] ? new Date(filterValue.values[0]) : undefined}
-                onChange={(date) => {
-                  const endDate = filterValue?.values?.[1] ? new Date(filterValue.values[1]) : undefined;
-                  handleValueChange([date, endDate]);
-                }}
-                placeholder={t('startDate')}
-              />
-              <DatePicker
-                value={filterValue?.values?.[1] ? new Date(filterValue.values[1]) : undefined}
-                onChange={(date) => {
-                  const startDate = filterValue?.values?.[0] ? new Date(filterValue.values[0]) : undefined;
-                  handleValueChange([startDate, date]);
-                }}
-                placeholder={t('endDate')}
-              />
+              <div className="relative">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-full justify-start text-left font-normal"
+                    >
+                      {filterValue?.values?.[0] ? new Date(filterValue.values[0]).toLocaleDateString() : t('startDate')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <DatePicker
+                      mode="single"
+                      selected={filterValue?.values?.[0] ? new Date(filterValue.values[0]) : undefined}
+                      onSelect={(date) => {
+                        const endDate = filterValue?.values?.[1] ? new Date(filterValue.values[1]) : undefined;
+                        handleValueChange([date, endDate]);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="relative">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-full justify-start text-left font-normal"
+                    >
+                      {filterValue?.values?.[1] ? new Date(filterValue.values[1]).toLocaleDateString() : t('endDate')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <DatePicker
+                      mode="single"
+                      selected={filterValue?.values?.[1] ? new Date(filterValue.values[1]) : undefined}
+                      onSelect={(date) => {
+                        const startDate = filterValue?.values?.[0] ? new Date(filterValue.values[0]) : undefined;
+                        handleValueChange([startDate, date]);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           );
         }
         
         return (
-          <DatePicker
-            value={filterValue?.values ? new Date(filterValue.values) : undefined}
-            onChange={handleValueChange}
-            placeholder={t('selectDate')}
-          />
+          <div className="relative">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-full justify-start text-left font-normal"
+                >
+                  {filterValue?.values ? new Date(filterValue.values).toLocaleDateString() : t('selectDate')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <DatePicker
+                  mode="single"
+                  selected={filterValue?.values ? new Date(filterValue.values) : undefined}
+                  onSelect={handleValueChange}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         );
       
       case 'option':
@@ -418,4 +463,3 @@ function getColumnOptions<TData extends RowData>(
   // This would typically be done by the parent component
   return [];
 }
-

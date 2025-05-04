@@ -1,6 +1,6 @@
 import { useRemixFormContext } from 'remix-hook-form';
 import {
-  Checkbox as BaseCheckbox,
+  CheckboxField as BaseCheckbox,
   type CheckboxProps as BaseCheckboxProps,
   type CheckboxFieldComponents,
 } from '../ui/checkbox-field';

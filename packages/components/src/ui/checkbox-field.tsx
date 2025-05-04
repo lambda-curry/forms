@@ -101,4 +101,4 @@ const CheckboxField = ({
 
 CheckboxField.displayName = CheckboxPrimitive.Root.displayName;
 
-export { CheckboxField as Checkbox };
+export { CheckboxField };

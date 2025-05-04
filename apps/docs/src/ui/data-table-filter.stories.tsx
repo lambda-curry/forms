@@ -6,7 +6,7 @@ import {
   defineMeta,
   filterFn,
   type DataTableFilterState,
-} from '@lambda-curry/components/ui/data-table-filter';
+} from '../../../packages/components/src/ui/data-table-filter';
 import {
   Table,
   TableBody,
@@ -14,9 +14,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@lambda-curry/components/ui/table';
+} from '../../../packages/components/src/ui/table';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
-import { Badge } from '@lambda-curry/components/ui/badge';
+import { Badge } from '../../../packages/components/src/ui/badge';
 import { CalendarIcon, CircleDotDashedIcon, TagIcon, UserIcon } from 'lucide-react';
 
 // Define the data type
