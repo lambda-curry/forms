@@ -318,20 +318,6 @@ const columns: ColumnDef<Issue>[] = [
   },
 ];
 
-const meta: Meta<typeof DataTableFilterDemo> = {
-  title: 'UI/DataTableFilter',
-  component: DataTableFilterDemo,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
-};
-
-export default meta;
-type Story = StoryObj<typeof DataTableFilterDemo>;
-
-export const Default: Story = {};
-
 function DataTableFilterDemo() {
   const [filters, setFilters] = React.useState<DataTableFilterState>([]);
   
@@ -463,3 +449,18 @@ function DataTableFilterDemo() {
     </div>
   );
 }
+
+const meta: Meta<typeof DataTableFilterDemo> = {
+  title: 'UI/DataTableFilter',
+  component: DataTableFilterDemo,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof DataTableFilterDemo>;
+
+export const Default: Story = {};
+
