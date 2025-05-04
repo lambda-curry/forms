@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { type ColumnDef } from '@tanstack/react-table';
 import {
   DataTableFilter,
@@ -317,7 +318,21 @@ const columns: ColumnDef<Issue>[] = [
   },
 ];
 
-export default function DataTableFilterDemo() {
+const meta: Meta<typeof DataTableFilterDemo> = {
+  title: 'UI/DataTableFilter',
+  component: DataTableFilterDemo,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof DataTableFilterDemo>;
+
+export const Default: Story = {};
+
+function DataTableFilterDemo() {
   const [filters, setFilters] = React.useState<DataTableFilterState>([]);
   
   // Create table instance
@@ -448,4 +463,3 @@ export default function DataTableFilterDemo() {
     </div>
   );
 }
-
