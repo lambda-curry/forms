@@ -1,5 +1,9 @@
+import { Command } from '@lambdacurry/forms/ui';
 import type { Decorator } from '@storybook/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import type { ComponentType } from 'react';
+import { DayPickerProvider } from 'react-day-picker';
 import {
   type ActionFunction,
   type IndexRouteObject,
@@ -40,6 +44,9 @@ interface RemixStubOptions {
   initialPath?: string;
 }
 
+// Create a single QueryClient instance outside the decorator
+const queryClient = new QueryClient();
+
 export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorator => {
   const { routes, initialPath = '/' } = options;
   // This outer function runs once when Storybook loads the story meta
@@ -53,13 +60,11 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
 
     // Get the base path (without existing query params from options)
     const basePath = initialPath.split('?')[0];
-    
+
     // Get the current search string from the actual browser window, if available
     // If not available, use a default search string with parameters needed for the data table
-    const currentWindowSearch = typeof window !== 'undefined' 
-      ? window.location.search 
-      : '?page=0&pageSize=10';
-    
+    const currentWindowSearch = typeof window !== 'undefined' ? window.location.search : '?page=0&pageSize=10';
+
     // Combine them for the initial entry
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
@@ -69,7 +74,18 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
       initialEntries: [actualInitialPath], // Use the path combined with window.location.search
     });
 
-    return <RouterProvider router={router} />;
+    // Wrap existing providers with QueryClientProvider and DayPickerProvider
+    return (
+      <QueryClientProvider client={queryClient}>
+        <DayPickerProvider initialProps={{}}>
+          <NuqsAdapter>
+            <Command>
+              <RouterProvider router={router} />
+            </Command>
+          </NuqsAdapter>
+        </DayPickerProvider>
+      </QueryClientProvider>
+    );
   };
 };
 

@@ -4,15 +4,7 @@ import type * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Badge } from '../badge';
 import { Button } from '../button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '../command';
+import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '../command';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { Separator } from '../separator';
 import { cn } from '../utils';
@@ -53,13 +45,13 @@ export function DataTableFacetedFilter<TData>({
         next.add(value);
       }
       const filterValues = Array.from(next);
-      
+
       if (onValuesChange) {
         onValuesChange(filterValues);
       } else if (column) {
         column.setFilterValue(filterValues.length ? filterValues : undefined);
       }
-      
+
       return next;
     });
   };
@@ -105,46 +97,44 @@ export function DataTableFacetedFilter<TData>({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder={title} />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selected.has(option.value);
-                return (
-                  <CommandItem key={option.value} onSelect={() => handleValueChange(option.value)}>
-                    <div
-                      className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible',
-                      )}
-                    >
-                      <CheckIcon className={cn('h-4 w-4')} />
-                    </div>
-                    {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
-                    <span>{option.label}</span>
-                    {facets?.get(option.value) && (
-                      <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
-                      </span>
+        <CommandInput placeholder={title} />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((option) => {
+              const isSelected = selected.has(option.value);
+              return (
+                <CommandItem key={option.value} onSelect={() => handleValueChange(option.value)}>
+                  <div
+                    className={cn(
+                      'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                      isSelected ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible',
                     )}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-            {selected.size > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem onSelect={handleClear} className="justify-center text-center">
-                    Clear filters
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
+                  >
+                    <CheckIcon className={cn('h-4 w-4')} />
+                  </div>
+                  {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                  <span>{option.label}</span>
+                  {facets?.get(option.value) && (
+                    <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                      {facets.get(option.value)}
+                    </span>
+                  )}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+          {selected.size > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup>
+                <CommandItem onSelect={handleClear} className="justify-center text-center">
+                  Clear filters
+                </CommandItem>
+              </CommandGroup>
+            </>
+          )}
+        </CommandList>
       </PopoverContent>
     </Popover>
   );
