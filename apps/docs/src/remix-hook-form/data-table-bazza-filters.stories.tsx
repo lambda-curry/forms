@@ -311,60 +311,31 @@ const columns: ColumnDef<MockIssue>[] = [
 // --- NEW Wrapper Component using Loader Data ---
 function DataTableWithBazzaFilters() {
   const loaderData = useLoaderData<DataResponse>();
+  const location = useLocation();
   const navigate = useNavigate();
-  const location = useLocation(); // Get location for reading initial params
 
-  // Extract data and meta from loader, provide defaults
-  const data = useMemo(() => loaderData?.data ?? [], [loaderData?.data]);
-  const pageCount = useMemo(() => loaderData?.meta.pageCount ?? 0, [loaderData?.meta.pageCount]);
+  // Ensure we have data even if loaderData is undefined
+  const data = loaderData?.data ?? [];
+  const pageCount = loaderData?.meta.pageCount ?? 0;
+  const facetedCounts = loaderData?.facetedCounts ?? {};
 
-  // NEW: Convert to Map of Maps
-  const facetedCounts = useMemo(() => {
-    const rawCounts = loaderData?.facetedCounts ?? {};
-    const mapOfMaps = new Map<string, Map<string, number>>();
-    for (const columnId in rawCounts) {
-      const innerObject = rawCounts[columnId as keyof typeof rawCounts];
-      const innerMap = new Map<string, number>();
-      if (innerObject) {
-        // Check if innerObject is not undefined
-        for (const optionValue in innerObject) {
-          innerMap.set(optionValue, innerObject[optionValue as keyof typeof innerObject]);
-        }
-      }
-      mapOfMaps.set(columnId, innerMap);
-    }
-    return mapOfMaps;
-  }, [loaderData?.facetedCounts]);
+  // Default pagination values
+  const defaultPageIndex = 0;
+  const defaultPageSize = 10;
 
-  // Use filter sync hook (this manages filters in the URL)
-  const [filters, setFilters] = useFilterSync();
-
-  // Ensure all filter changes update the URL and trigger loader reload
-  const handleFiltersChange: React.Dispatch<React.SetStateAction<FiltersState>> = (updater) => {
-    if (typeof updater === 'function') {
-      setFilters((prev) => updater(prev));
-    } else {
-      setFilters(updater);
-    }
-  };
-
-  // --- REVISED PAGINATION STATE MANAGEMENT ---
-  // Define defaults for pagination
-  const defaultPageIndex = dataTableRouterParsers.page.defaultValue;
-  const defaultPageSize = dataTableRouterParsers.pageSize.defaultValue;
-
-  // Get current pagination values from URL (via loaderData) or use defaults
-  const currentPageIndexFromUrl = loaderData?.meta.page ?? defaultPageIndex;
-  const currentPageSizeFromUrl = loaderData?.meta.pageSize ?? defaultPageSize;
-
-  // Manage local pagination and sorting state
-  // Initialize from URL-derived values
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: currentPageIndexFromUrl,
-    pageSize: currentPageSizeFromUrl,
+  // Use useFilterSync to synchronize filters with URL
+  const { filters, handleFiltersChange } = useFilterSync({
+    defaultValue: [],
+    paramName: 'filters',
   });
 
-  // Initialize sorting state from URL params if they exist
+  // Local state for pagination and sorting
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: loaderData?.meta.page ?? defaultPageIndex,
+    pageSize: loaderData?.meta.pageSize ?? defaultPageSize,
+  });
+
+  // Extract sorting from URL
   const [sorting, setSorting] = useState<SortingState>(() => {
     const params = new URLSearchParams(location.search);
     const sortField = params.get('sortField');
@@ -444,7 +415,7 @@ function DataTableWithBazzaFilters() {
   // Setup TanStack Table instance
   const table = useReactTable({
     data,
-    columns: columns, // <-- FIX: Use original columns for cell rendering
+    columns: columns, // <-- Use original columns for cell rendering
     state: {
       pagination, // Controlled by local state, which is synced from URL
       sorting, // Controlled by local state, which is synced from URL
@@ -571,9 +542,10 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const start = page * pageSize;
   const paginatedData = processedData.slice(start, start + pageSize);
 
-  // Calculate faceted counts based on the *original* database
+  // Calculate faceted counts based on the filtered data (not the original database)
+  // This ensures counts reflect the current filtered dataset
   const facetedColumns: Array<keyof MockIssue> = ['status', 'assignee', 'priority'];
-  const facetedCounts = calculateFacetedCounts(mockDatabase, facetedColumns, allDefinedOptions);
+  const facetedCounts = calculateFacetedCounts(processedData, facetedColumns, allDefinedOptions);
 
   const response: DataResponse = {
     data: paginatedData,
