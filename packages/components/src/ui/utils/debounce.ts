@@ -7,6 +7,8 @@
  * @param options The options object
  * @returns The debounced function
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: debounce is a utility function that is used to debounce a function
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait = 300,
@@ -14,21 +16,22 @@ export function debounce<T extends (...args: any[]) => any>(
     leading?: boolean;
     trailing?: boolean;
     maxWait?: number;
-  } = {}
+  } = {},
 ): {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   cancel: () => void;
   flush: () => ReturnType<T> | undefined;
 } {
   let lastArgs: Parameters<T> | undefined;
+  // biome-ignore lint/suspicious/noExplicitAny: lastThis is used to store the context of the function
   let lastThis: any;
-  let maxWait: number | undefined = options.maxWait;
+  const maxWait: number | undefined = options.maxWait;
   let result: ReturnType<T> | undefined;
   let timerId: ReturnType<typeof setTimeout> | undefined;
   let lastCallTime: number | undefined;
   let lastInvokeTime = 0;
-  let leading = !!options.leading;
-  let trailing = 'trailing' in options ? !!options.trailing : true;
+  const leading = !!options.leading;
+  const trailing = 'trailing' in options ? !!options.trailing : true;
 
   function invokeFunc(time: number) {
     const args = lastArgs;
@@ -62,9 +65,7 @@ export function debounce<T extends (...args: any[]) => any>(
     const timeSinceLastInvoke = time - lastInvokeTime;
     const timeWaiting = wait - timeSinceLastCall;
 
-    return maxWait !== undefined
-      ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke)
-      : timeWaiting;
+    return maxWait !== undefined ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting;
   }
 
   function shouldInvoke(time: number) {
@@ -116,6 +117,7 @@ export function debounce<T extends (...args: any[]) => any>(
     return timerId === undefined ? result : trailingEdge(Date.now());
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: debounced is a utility function that is used to debounce a function
   function debounced(this: any, ...args: Parameters<T>) {
     const time = Date.now();
     const isInvoking = shouldInvoke(time);
@@ -145,4 +147,3 @@ export function debounce<T extends (...args: any[]) => any>(
 
   return debounced;
 }
-

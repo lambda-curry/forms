@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, type DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
-import type * as React from 'react';
+import * as React from 'react';
 
 import { cn } from './utils';
 
@@ -30,10 +30,14 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   );
 };
 
-const CommandInput = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>) => (
+const CommandInput = React.forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+>(({ className, ...props }, ref) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
+      ref={ref}
       className={cn(
         'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
         className,
@@ -41,7 +45,7 @@ const CommandInput = ({ className, ...props }: React.ComponentPropsWithoutRef<ty
       {...props}
     />
   </div>
-);
+));
 
 CommandInput.displayName = CommandPrimitive.Input.displayName;
 
@@ -78,15 +82,19 @@ const CommandSeparator = ({
 
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
-const CommandItem = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>) => (
+const CommandItem = React.forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
+>(({ className, ...props }, ref) => (
   <CommandPrimitive.Item
+    ref={ref}
     className={cn(
       'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
       className,
     )}
     {...props}
   />
-);
+));
 
 CommandItem.displayName = CommandPrimitive.Item.displayName;
 

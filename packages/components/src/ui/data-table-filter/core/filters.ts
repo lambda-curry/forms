@@ -16,7 +16,7 @@ import type {
 
 class ColumnConfigBuilder<
   TData,
-  TType extends ColumnDataType = any,
+  TType extends ColumnDataType = ColumnDataType,
   TVal = unknown,
   TId extends string = string, // Add TId generic
 > {
@@ -33,15 +33,15 @@ class ColumnConfigBuilder<
   }
 
   id<TNewId extends string>(value: TNewId): ColumnConfigBuilder<TData, TType, TVal, TNewId> {
-    const newInstance = this.clone() as any; // We'll refine this
-    newInstance.config.id = value;
-    return newInstance as ColumnConfigBuilder<TData, TType, TVal, TNewId>;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, TType, TVal, TNewId>>).id = value;
+    return newInstance as unknown as ColumnConfigBuilder<TData, TType, TVal, TNewId>;
   }
 
   accessor<TNewVal>(accessor: TAccessorFn<TData, TNewVal>): ColumnConfigBuilder<TData, TType, TNewVal, TId> {
-    const newInstance = this.clone() as any;
-    newInstance.config.accessor = accessor;
-    return newInstance as ColumnConfigBuilder<TData, TType, TNewVal, TId>;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, TType, TNewVal, TId>>).accessor = accessor;
+    return newInstance as unknown as ColumnConfigBuilder<TData, TType, TNewVal, TId>;
   }
 
   displayName(value: string): ColumnConfigBuilder<TData, TType, TVal, TId> {
@@ -50,61 +50,62 @@ class ColumnConfigBuilder<
     return newInstance;
   }
 
-  icon(value: any): ColumnConfigBuilder<TData, TType, TVal, TId> {
+  // biome-ignore lint/suspicious/noExplicitAny: any allows for flexibility
+  icon(value: ElementType<any>): ColumnConfigBuilder<TData, TType, TVal, TId> {
     const newInstance = this.clone();
     newInstance.config.icon = value;
     return newInstance;
   }
 
-  min(value: number): ColumnConfigBuilder<TData, TType extends 'number' ? TType : never, TVal, TId> {
+  min(value: number): ColumnConfigBuilder<TData, 'number', TVal, TId> {
     if (this.config.type !== 'number') {
       throw new Error('min() is only applicable to number columns');
     }
-    const newInstance = this.clone() as any;
-    newInstance.config.min = value;
-    return newInstance;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, 'number', TVal, TId>>).min = value;
+    return newInstance as unknown as ColumnConfigBuilder<TData, 'number', TVal, TId>;
   }
 
-  max(value: number): ColumnConfigBuilder<TData, TType extends 'number' ? TType : never, TVal, TId> {
+  max(value: number): ColumnConfigBuilder<TData, 'number', TVal, TId> {
     if (this.config.type !== 'number') {
       throw new Error('max() is only applicable to number columns');
     }
-    const newInstance = this.clone() as any;
-    newInstance.config.max = value;
-    return newInstance;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, 'number', TVal, TId>>).max = value;
+    return newInstance as unknown as ColumnConfigBuilder<TData, 'number', TVal, TId>;
   }
 
-  options(
-    value: ColumnOption[],
-  ): ColumnConfigBuilder<TData, TType extends 'option' | 'multiOption' ? TType : never, TVal, TId> {
+  options(value: ColumnOption[]): ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId> {
     if (!isAnyOf(this.config.type, ['option', 'multiOption'])) {
       throw new Error('options() is only applicable to option or multiOption columns');
     }
-    const newInstance = this.clone() as any;
-    newInstance.config.options = value;
-    return newInstance;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>>).options =
+      value;
+    return newInstance as unknown as ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>;
   }
 
   transformOptionFn(
     fn: TTransformOptionFn<TVal>,
-  ): ColumnConfigBuilder<TData, TType extends 'option' | 'multiOption' ? TType : never, TVal, TId> {
+  ): ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId> {
     if (!isAnyOf(this.config.type, ['option', 'multiOption'])) {
       throw new Error('transformOptionFn() is only applicable to option or multiOption columns');
     }
-    const newInstance = this.clone() as any;
-    newInstance.config.transformOptionFn = fn;
-    return newInstance;
+    const newInstance = this.clone();
+    (
+      newInstance.config as Partial<ColumnConfig<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>>
+    ).transformOptionFn = fn;
+    return newInstance as unknown as ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>;
   }
 
-  orderFn(
-    fn: TOrderFn<TVal>,
-  ): ColumnConfigBuilder<TData, TType extends 'option' | 'multiOption' ? TType : never, TVal, TId> {
+  orderFn(fn: TOrderFn<TVal>): ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId> {
     if (!isAnyOf(this.config.type, ['option', 'multiOption'])) {
       throw new Error('orderFn() is only applicable to option or multiOption columns');
     }
-    const newInstance = this.clone() as any;
-    newInstance.config.orderFn = fn;
-    return newInstance;
+    const newInstance = this.clone();
+    (newInstance.config as Partial<ColumnConfig<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>>).orderFn =
+      fn;
+    return newInstance as unknown as ColumnConfigBuilder<TData, Extract<TType, 'option' | 'multiOption'>, TVal, TId>;
   }
 
   build(): ColumnConfig<TData, TType, TVal, TId> {
@@ -159,16 +160,18 @@ export function getColumnOptions<TData, TType extends ColumnDataType, TVal>(
   let models = uniq(filtered);
 
   if (column.orderFn) {
+    const orderFunction = column.orderFn;
     models = models.sort((m1, m2) =>
-      column.orderFn!(m1 as ElementType<NonNullable<TVal>>, m2 as ElementType<NonNullable<TVal>>),
+      orderFunction(m1 as ElementType<NonNullable<TVal>>, m2 as ElementType<NonNullable<TVal>>),
     );
   }
 
   if (column.transformOptionFn) {
+    const transformFunction = column.transformOptionFn;
     // Memoize transformOptionFn calls
     const memoizedTransform = memo(
       () => [models],
-      (deps) => deps[0].map((m) => column.transformOptionFn!(m as ElementType<NonNullable<TVal>>)),
+      (deps) => deps[0].map((m) => transformFunction(m as ElementType<NonNullable<TVal>>)),
       { key: `transform-${column.id}` },
     );
     return memoizedTransform();
@@ -210,7 +213,8 @@ export function getColumnValues<TData, TType extends ColumnDataType, TVal>(
   if (column.transformOptionFn) {
     const memoizedTransform = memo(
       () => [raw],
-      (deps) => deps[0].map((v) => column.transformOptionFn!(v) as ElementType<NonNullable<TVal>>),
+      (deps) =>
+        deps[0].map((v) => column.transformOptionFn && (column.transformOptionFn(v) as ElementType<NonNullable<TVal>>)),
       { key: `transform-values-${column.id}` },
     );
     return memoizedTransform();
@@ -287,17 +291,18 @@ export function getFacetedMinMaxValues<TData, TType extends ColumnDataType, TVal
 
 export function createColumns<TData>(
   data: TData[],
-  columnConfigs: ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  // biome-ignore lint/suspicious/noExplicitAny: any allows for flexibility
+  columnConfigs: readonly ColumnConfig<TData, any, any, any>[],
   strategy: FilterStrategy,
 ): Column<TData>[] {
   return columnConfigs.map((columnConfig) => {
     const getOptions: () => ColumnOption[] = memo(
       () => [data, strategy, columnConfig.options],
-      ([data, strategy]) => getColumnOptions(columnConfig, data as any, strategy as any),
+      ([data, strategy]) => getColumnOptions(columnConfig, data as TData[], strategy as FilterStrategy),
       { key: `options-${columnConfig.id}` },
     );
 
-    const getValues: () => ElementType<NonNullable<any>>[] = memo(
+    const getValues: () => ElementType<NonNullable<unknown>>[] = memo(
       () => [data, strategy],
       () => (strategy === 'client' ? getColumnValues(columnConfig, data) : []),
       { key: `values-${columnConfig.id}` },
@@ -305,7 +310,8 @@ export function createColumns<TData>(
 
     const getUniqueValues: () => Map<string, number> | undefined = memo(
       () => [getValues(), strategy],
-      ([values, strategy]) => getFacetedUniqueValues(columnConfig, values as any, strategy as any),
+      ([values, strategy]) =>
+        getFacetedUniqueValues(columnConfig, values as ColumnOption[], strategy as FilterStrategy),
       { key: `faceted-${columnConfig.id}` },
     );
 
@@ -323,10 +329,18 @@ export function createColumns<TData>(
       getFacetedUniqueValues: getUniqueValues,
       getFacetedMinMaxValues: getMinMaxValues,
       // Prefetch methods will be added below
-      prefetchOptions: async () => {}, // Placeholder, defined below
-      prefetchValues: async () => {},
-      prefetchFacetedUniqueValues: async () => {},
-      prefetchFacetedMinMaxValues: async () => {},
+      prefetchOptions: async () => {
+        // Placeholder, defined below
+      },
+      prefetchValues: async () => {
+        // Placeholder, defined below
+      },
+      prefetchFacetedUniqueValues: async () => {
+        // Placeholder, defined below
+      },
+      prefetchFacetedMinMaxValues: async () => {
+        // Placeholder, defined below
+      },
       _prefetchedOptionsCache: null, // Initialize private cache
       _prefetchedValuesCache: null,
       _prefetchedFacetedUniqueValuesCache: null,

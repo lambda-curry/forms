@@ -7,7 +7,7 @@ import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filte
 import { DataTable } from '@lambdacurry/forms/ui/data-table/data-table';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 // Import the filters schema and types from the new location
-import type { Filter, FiltersState } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
+import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
 import { filtersArraySchema } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
 // --- Re-add useDataTableFilters import ---
 import { useDataTableFilters } from '@lambdacurry/forms/ui/utils/use-data-table-filters';
@@ -168,44 +168,6 @@ const mockDatabase: MockIssue[] = [
   },
   // --- END ADDED DATA ---
 ];
-
-// --- Helper Functions (copied from deleted API route) ---
-// Function to apply filters to the mock data
-function applyFilters(data: MockIssue[], filters: FiltersState): MockIssue[] {
-  if (filters.length === 0) return data;
-  return data.filter((item) => {
-    return filters.every((filter: Filter) => {
-      const itemValue = item[filter.columnId as keyof MockIssue];
-      // Ensure filter.values exists and is an array before accessing
-      const filterValues = Array.isArray(filter.values) ? filter.values : [];
-
-      switch (filter.operator) {
-        // --- FIX: Remove 'is' case as loader now converts it ---
-        // case 'is': // Removed
-        case 'is any of':
-          return filterValues.includes(itemValue as string | number | boolean | null);
-        case 'is none of':
-          return !filterValues.includes(itemValue as string | number | boolean | null);
-        case 'contains':
-          return (
-            typeof itemValue === 'string' &&
-            typeof filterValues[0] === 'string' &&
-            itemValue.toLowerCase().includes(filterValues[0].toLowerCase())
-          );
-        case 'does not contain':
-          return (
-            typeof itemValue === 'string' &&
-            typeof filterValues[0] === 'string' &&
-            !itemValue.toLowerCase().includes(filterValues[0].toLowerCase())
-          );
-        default:
-          // Log unexpected operators if they occur
-          console.warn(`applyFilters: Unknown operator '${filter.operator}' encountered.`);
-          return true;
-      }
-    });
-  });
-}
 
 // Function to calculate faceted counts based on the *original* data
 // --- FIX: Ensure all defined options have counts (even 0) ---
@@ -377,6 +339,15 @@ function DataTableWithBazzaFilters() {
   // Use filter sync hook (this manages filters in the URL)
   const [filters, setFilters] = useFilterSync();
 
+  // Ensure all filter changes update the URL and trigger loader reload
+  const handleFiltersChange: React.Dispatch<React.SetStateAction<FiltersState>> = (updater) => {
+    if (typeof updater === 'function') {
+      setFilters((prev) => updater(prev));
+    } else {
+      setFilters(updater);
+    }
+  };
+
   // --- REVISED PAGINATION STATE MANAGEMENT ---
   // Define defaults for pagination
   const defaultPageIndex = dataTableRouterParsers.page.defaultValue;
@@ -466,8 +437,8 @@ function DataTableWithBazzaFilters() {
     columnsConfig: columnConfigs, // Pass the configurations
     data: data, // Pass the data from the loader
     faceted: facetedCounts, // Pass faceted counts from loader
-    filters: filters, // Pass current filters from useFilterSync
-    onFiltersChange: setFilters, // Pass setter from useFilterSync
+    filters: filters, // Use filters directly from useFilterSync
+    onFiltersChange: handleFiltersChange, // Use robust handler
   });
 
   // Setup TanStack Table instance
@@ -510,13 +481,6 @@ function DataTableWithBazzaFilters() {
 }
 // --- END Wrapper Component ---
 
-// Define a type for the raw filter structure before Zod validation
-interface RawFilter {
-  columnId: string;
-  operator: string; // Expecting string initially
-  values?: unknown[]; // Values can be anything before validation
-}
-
 // Updated Loader function to return fake data matching DataResponse structure
 const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataResponse> => {
   await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate latency
@@ -531,76 +495,83 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const sortDesc = params.get('sortDesc') === 'true'; // Convert to boolean
   const filtersParam = params.get('filters');
 
-  // --- FIX: Ensure a valid default pageSize ---
   if (!pageSize || pageSize <= 0) {
     console.log(`[Loader] - Invalid or missing pageSize (${pageSize}), defaulting to 10.`);
-    pageSize = 10; // Set a sensible default
+    pageSize = 10;
   }
-  // --- END FIX ---
 
   let parsedFilters: FiltersState = [];
   try {
     if (filtersParam) {
-      // --- FIX: Pre-process filters before Zod validation ---
-      const rawJson: unknown = JSON.parse(filtersParam);
-      let processedFilters: unknown[] = []; // Initialize array for processed filters
-
-      if (Array.isArray(rawJson)) {
-        // Use the RawFilter type and perform mapping
-        processedFilters = rawJson.map((filter): RawFilter | unknown => {
-          // Basic check if it's an object with expected properties
-          if (typeof filter === 'object' && filter !== null && 'operator' in filter && 'columnId' in filter) {
-            const typedFilter = filter as RawFilter;
-            // Replace 'is' with 'is any of'
-            if (typedFilter.operator === 'is') {
-              return { ...typedFilter, operator: 'is any of' };
-            }
-            return typedFilter; // Return potentially typed filter
-          }
-          return filter; // Return unchanged if not matching structure
-        });
-      }
-      // Now validate the potentially modified filters
-      parsedFilters = filtersArraySchema.parse(processedFilters);
-      // --- END FIX ---
-    } else {
-      // No filters provided
+      // Parse and validate filters strictly according to Bazza v0.2 model
+      parsedFilters = filtersArraySchema.parse(JSON.parse(filtersParam));
     }
   } catch (error) {
-    console.error('[Loader] - Filter parsing/processing error:', error);
-    parsedFilters = []; // Reset filters on error
+    console.error('[Loader] - Filter parsing/validation error (expecting Bazza v0.2 model):', error);
+    parsedFilters = [];
   }
 
   // --- Apply filtering, sorting, pagination ---
   let processedData = [...mockDatabase];
 
-  // 1. Apply filters
-  processedData = applyFilters(processedData, parsedFilters);
+  // 1. Apply filters (support option and text types)
+  if (parsedFilters.length > 0) {
+    parsedFilters.forEach((filter) => {
+      processedData = processedData.filter((item) => {
+        switch (filter.type) {
+          case 'option': {
+            // Option filter: support multi-value (is any of)
+            if (Array.isArray(filter.values) && filter.values.length > 0) {
+              const value = item[filter.columnId as keyof MockIssue];
+              if (
+                typeof value === 'string' ||
+                typeof value === 'number' ||
+                typeof value === 'boolean' ||
+                value === null
+              ) {
+                return filter.values.includes(value);
+              }
+              // If value is not a supported type (e.g., Date), skip filtering
+              return true;
+            }
+            return true;
+          }
+          case 'text': {
+            // Text filter: support contains
+            if (Array.isArray(filter.values) && filter.values.length > 0 && typeof filter.values[0] === 'string') {
+              const value = item[filter.columnId as keyof MockIssue];
+              return typeof value === 'string' && value.toLowerCase().includes(String(filter.values[0]).toLowerCase());
+            }
+            return true;
+          }
+          // Add more filter types as needed (number, date, etc.)
+          default:
+            return true;
+        }
+      });
+    });
+  }
 
   // 2. Apply sorting
   if (sortField && sortField in mockDatabase[0]) {
     processedData.sort((a, b) => {
       const aValue = a[sortField as keyof MockIssue];
       const bValue = b[sortField as keyof MockIssue];
-      // Basic comparison, adjust for specific types if needed (e.g., dates)
       let comparison = 0;
       if (aValue < bValue) comparison = -1;
       if (aValue > bValue) comparison = 1;
       return sortDesc ? comparison * -1 : comparison;
     });
-  } else {
-    // No sort
   }
 
   const totalItems = processedData.length;
-  const totalPages = Math.ceil(totalItems / pageSize); // Now pageSize is guaranteed > 0
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   // 3. Apply pagination
   const start = page * pageSize;
   const paginatedData = processedData.slice(start, start + pageSize);
 
   // Calculate faceted counts based on the *original* database
-  // --- FIX: Pass allDefinedOptions to calculateFacetedCounts ---
   const facetedColumns: Array<keyof MockIssue> = ['status', 'assignee', 'priority'];
   const facetedCounts = calculateFacetedCounts(mockDatabase, facetedColumns, allDefinedOptions);
 

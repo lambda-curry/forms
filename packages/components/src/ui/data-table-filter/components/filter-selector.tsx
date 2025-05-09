@@ -6,7 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../popover';
 
 import { Button } from '../../button';
 import { cn } from '../../utils';
-import type { Column, ColumnDataType, DataTableFilterActions, FilterStrategy, FiltersState } from '../core/types';
+import type {
+  Column,
+  ColumnDataType,
+  DataTableFilterActions,
+  FilterModel,
+  FilterStrategy,
+  FiltersState,
+} from '../core/types';
 import { isAnyOf } from '../lib/array';
 import { getColumn } from '../lib/helpers';
 import { type Locale, t } from '../lib/i18n';
@@ -49,7 +56,7 @@ function __FilterSelector<TData>({ filters, columns, actions, strategy, locale =
     () =>
       property && column ? (
         <FilterValueController
-          filter={filter!}
+          filter={filter as FilterModel<ColumnDataType>}
           column={column as Column<TData, ColumnDataType>}
           actions={actions}
           strategy={strategy}
@@ -58,8 +65,8 @@ function __FilterSelector<TData>({ filters, columns, actions, strategy, locale =
       ) : (
         <Command
           loop
-          filter={(value: string, search: string, keywords: string[]) => {
-            const extendValue = `${value} ${keywords.join(' ')}`;
+          filter={(value: string, search: string, keywords?: string[]) => {
+            const extendValue = `${value} ${keywords ? keywords.join(' ') : ''}`;
             return extendValue.includes(search) ? 1 : 0;
           }}
         >
