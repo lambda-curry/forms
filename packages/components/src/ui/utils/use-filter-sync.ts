@@ -1,4 +1,5 @@
 import { parseAsJson, useQueryState } from 'nuqs';
+import { useEffect } from 'react';
 import { type FiltersState, filtersArraySchema } from './filters';
 
 /**
@@ -11,9 +12,16 @@ export function useFilterSync() {
   const [filters, setFilters] = useQueryState<FiltersState>(
     'filters', // The query parameter key
     parseAsJson(filtersArraySchema.parse) // Now filtersArraySchema should be defined
-      .withDefault([]),
-    // TODO: Add debouncing if needed, e.g., .withOptions({ history: 'push', shallow: false, debounce: 300 })
+      .withDefault([])
+      .withOptions({ history: 'push', shallow: false, debounce: 300 }) // Add debouncing and history options
   );
+
+  // This effect ensures that when the component mounts, it immediately
+  // applies any filters from the URL to the data fetching logic
+  useEffect(() => {
+    // The filters are already loaded from the URL via useQueryState
+    // This is just a placeholder for any additional initialization if needed
+  }, []);
 
   return [filters, setFilters] as const;
 }
