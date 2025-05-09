@@ -27,7 +27,8 @@ import {
 
 export interface DataTableFiltersOptions<
   TData,
-  TColumns extends ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  // biome-ignore lint/suspicious/noExplicitAny: can be any
+  TColumns extends readonly ColumnConfig<TData, any, any, any>[],
   TStrategy extends FilterStrategy,
 > {
   strategy: TStrategy;
@@ -45,7 +46,8 @@ export interface DataTableFiltersOptions<
 
 export function useDataTableFilters<
   TData,
-  TColumns extends ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  // biome-ignore lint/suspicious/noExplicitAny: can be any
+  TColumns extends readonly ColumnConfig<TData, any, any, any>[],
   TStrategy extends FilterStrategy,
 >({
   strategy,
@@ -74,33 +76,57 @@ export function useDataTableFilters<
       // Set options, if exists
       if (options && (config.type === 'option' || config.type === 'multiOption')) {
         const optionsInput = options[config.id as OptionColumnIds<TColumns>];
-        if (!optionsInput || !isColumnOptionArray(optionsInput)) return config;
+        if (!(optionsInput && isColumnOptionArray(optionsInput))) return config;
 
         final = { ...final, options: optionsInput };
       }
 
       // Set faceted options, if exists
-      if (faceted && (config.type === 'option' || config.type === 'multiOption')) {
-        const facetedOptionsInput = faceted[config.id as OptionColumnIds<TColumns>];
-        if (!facetedOptionsInput || !isColumnOptionMap(facetedOptionsInput)) return config;
-
-        final = { ...final, facetedOptions: facetedOptionsInput };
+      if (faceted instanceof Map && (config.type === 'option' || config.type === 'multiOption')) {
+        const potentialMapForColumn = faceted.get(config.id as OptionColumnIds<TColumns>);
+        if (potentialMapForColumn && isColumnOptionMap(potentialMapForColumn)) {
+          final = { ...final, facetedOptions: potentialMapForColumn };
+        } else {
+          // If faceted is a Map but the entry for this column isn't a Map or doesn't exist, return original config.
+          return config;
+        }
+      } else if (config.type === 'option' || config.type === 'multiOption') {
+        // If faceted is not a Map (or not provided) but it's an option column, return original config.
+        return config;
       }
 
       // Set faceted min/max values, if exists
-      if (config.type === 'number' && faceted) {
-        const minMaxTuple = faceted[config.id as NumberColumnIds<TColumns>];
-        if (!minMaxTuple || !isMinMaxTuple(minMaxTuple)) return config;
-
-        final = {
-          ...final,
-          min: minMaxTuple[0],
-          max: minMaxTuple[1],
-        };
+      if (faceted instanceof Map && config.type === 'number') {
+        const potentialTupleForColumn = faceted.get(config.id as NumberColumnIds<TColumns>);
+        if (potentialTupleForColumn && isMinMaxTuple(potentialTupleForColumn)) {
+          final = {
+            ...final,
+            min: potentialTupleForColumn[0],
+            max: potentialTupleForColumn[1],
+          };
+        } else {
+          // If faceted is a Map but the entry for this column isn't a tuple or doesn't exist, return original config.
+          return config;
+        }
+      } else if (config.type === 'number') {
+        // If faceted is not a Map (or not provided) but it's a number column, return original config.
+        return config;
       }
 
       return final;
     });
+
+    // --- MODIFIED DEBUG LOG HERE ---
+    console.log('[useDataTableFilters] Inspecting enhancedConfigs before passing to createColumns:');
+    enhancedConfigs.forEach((config, index) => {
+      console.log(`  [Enhanced Config Index: ${index}, ID: ${config.id}]`, config);
+      if (config.facetedOptions instanceof Map) {
+        console.log(`    ↳ Faceted Options (Map entries):`, Array.from(config.facetedOptions.entries()));
+      } else {
+        console.log(`    ↳ Faceted Options:`, config.facetedOptions); // Log it directly if not a map, to see what it is
+      }
+    });
+    // --- END DEBUG LOG ---
 
     return createColumns(data, enhancedConfigs, strategy);
   }, [data, columnsConfig, options, faceted, strategy]);
@@ -270,7 +296,7 @@ export function useDataTableFilters<
             columnId: column.id,
             type: column.type,
             operator: newOperator,
-            values: newValues as any,
+            values: newValues as FilterModel<TType>['values'],
           } satisfies FilterModel<TType>;
           return prev.map((f) => (f.columnId === column.id ? newFilter : f));
         });

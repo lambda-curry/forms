@@ -22,5 +22,6 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", "wrapperClassName"]
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", "wrapperClassName"],
+  "cursor.general.disableHttp2": true
 }

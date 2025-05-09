@@ -1,4 +1,4 @@
-import type { Column, DataTableFilterActions, FilterOperators, FilterStrategy, FiltersState } from '../core/types';
+import type { Column, DataTableFilterActions, FilterStrategy, FiltersState } from '../core/types';
 import type { Locale } from '../lib/i18n';
 import { ActiveFilters, ActiveFiltersMobileContainer } from './active-filters';
 import { FilterActions } from './filter-actions';
@@ -11,14 +11,6 @@ interface DataTableFilterProps<TData> {
   strategy: FilterStrategy;
   locale?: Locale;
 }
-
-// Define default operators based on column type
-const defaultOperatorMap: Record<string, FilterOperators> = {
-  option: 'is any of' as unknown as FilterOperators, // Use double assertion
-  text: 'contains' as unknown as FilterOperators, // Use double assertion
-  date: 'is' as unknown as FilterOperators, // Use double assertion
-  number: 'eq' as unknown as FilterOperators, // Use double assertion
-};
 
 export function DataTableFilter<TData>({
   columns,

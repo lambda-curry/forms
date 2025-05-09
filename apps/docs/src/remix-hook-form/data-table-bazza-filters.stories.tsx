@@ -7,18 +7,19 @@ import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filte
 import { DataTable } from '@lambdacurry/forms/ui/data-table/data-table';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 // Import the filters schema and types from the new location
-import { type Filter, type FiltersState, filtersArraySchema } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
+import type { Filter, FiltersState } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
+import { filtersArraySchema } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
 // --- Re-add useDataTableFilters import ---
 import { useDataTableFilters } from '@lambdacurry/forms/ui/utils/use-data-table-filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync'; // Ensure this is the correct path for filter sync
 // Add icon imports
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react'; // FIX: Add Meta, StoryObj
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'; // Added PaginationState, SortingState
 import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { useEffect, useMemo, useState } from 'react'; // Added useState, useEffect
 import { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate } from 'react-router'; // Added LoaderFunctionArgs, useLoaderData, useNavigate, useLocation
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub'; // FIX: Add withReactRouterStubDecorator
 
 // --- Use MockIssue Schema and Data ---
 interface MockIssue {
@@ -93,6 +94,79 @@ const mockDatabase: MockIssue[] = [
     priority: 'medium',
     createdDate: new Date('2024-03-01'),
   },
+  {
+    id: 'TASK-7',
+    title: 'Design new landing page',
+    status: 'todo',
+    assignee: 'Alice',
+    priority: 'high',
+    createdDate: new Date('2024-03-05'),
+  },
+  {
+    id: 'TASK-8',
+    title: 'Write API integration tests',
+    status: 'in progress',
+    assignee: 'Bob',
+    priority: 'medium',
+    createdDate: new Date('2024-03-10'),
+  },
+  {
+    id: 'TASK-9',
+    title: 'Deploy to staging environment',
+    status: 'todo',
+    assignee: 'Charlie',
+    priority: 'high',
+    createdDate: new Date('2024-03-15'),
+  },
+  {
+    id: 'TASK-10',
+    title: 'User feedback session',
+    status: 'done',
+    assignee: 'Alice',
+    priority: 'low',
+    createdDate: new Date('2024-03-20'),
+  },
+  {
+    id: 'TASK-11',
+    title: 'Fix critical bug in payment module',
+    status: 'in progress',
+    assignee: 'Bob',
+    priority: 'high',
+    createdDate: new Date('2024-03-22'),
+  },
+  {
+    id: 'TASK-12',
+    title: 'Update third-party libraries',
+    status: 'backlog',
+    assignee: 'Charlie',
+    priority: 'low',
+    createdDate: new Date('2024-03-25'),
+  },
+  {
+    id: 'TASK-13',
+    title: 'Onboard new developer',
+    status: 'done',
+    assignee: 'Alice',
+    priority: 'medium',
+    createdDate: new Date('2024-04-01'),
+  },
+  {
+    id: 'TASK-14',
+    title: 'Research new caching strategy',
+    status: 'todo',
+    assignee: 'Bob',
+    priority: 'medium',
+    createdDate: new Date('2024-04-05'),
+  },
+  {
+    id: 'TASK-15',
+    title: 'Accessibility audit',
+    status: 'in progress',
+    assignee: 'Charlie',
+    priority: 'high',
+    createdDate: new Date('2024-04-10'),
+  },
+  // --- END ADDED DATA ---
 ];
 
 // --- Helper Functions (copied from deleted API route) ---
@@ -281,26 +355,42 @@ function DataTableWithBazzaFilters() {
   // Extract data and meta from loader, provide defaults
   const data = useMemo(() => loaderData?.data ?? [], [loaderData?.data]);
   const pageCount = useMemo(() => loaderData?.meta.pageCount ?? 0, [loaderData?.meta.pageCount]);
-  const facetedCounts = useMemo(() => loaderData?.facetedCounts ?? {}, [loaderData?.facetedCounts]);
+
+  // NEW: Convert to Map of Maps
+  const facetedCounts = useMemo(() => {
+    const rawCounts = loaderData?.facetedCounts ?? {};
+    const mapOfMaps = new Map<string, Map<string, number>>();
+    for (const columnId in rawCounts) {
+      const innerObject = rawCounts[columnId as keyof typeof rawCounts];
+      const innerMap = new Map<string, number>();
+      if (innerObject) {
+        // Check if innerObject is not undefined
+        for (const optionValue in innerObject) {
+          innerMap.set(optionValue, innerObject[optionValue as keyof typeof innerObject]);
+        }
+      }
+      mapOfMaps.set(columnId, innerMap);
+    }
+    return mapOfMaps;
+  }, [loaderData?.facetedCounts]);
 
   // Use filter sync hook (this manages filters in the URL)
   const [filters, setFilters] = useFilterSync();
 
-  // Initialize state from URL params (via loader meta) or defaults
-  const initialPage = loaderData?.meta.page ?? dataTableRouterParsers.page.defaultValue;
-  let initialPageSize = loaderData?.meta.pageSize ?? dataTableRouterParsers.pageSize.defaultValue;
+  // --- REVISED PAGINATION STATE MANAGEMENT ---
+  // Define defaults for pagination
+  const defaultPageIndex = dataTableRouterParsers.page.defaultValue;
+  const defaultPageSize = dataTableRouterParsers.pageSize.defaultValue;
 
-  // --- FIX: Ensure a valid default pageSize ---
-  if (!initialPageSize || initialPageSize <= 0) {
-    console.log(`[Loader] - Invalid or missing pageSize (${initialPageSize}), defaulting to 10.`);
-    initialPageSize = 10; // Set a sensible default
-  }
-  // --- END FIX ---
+  // Get current pagination values from URL (via loaderData) or use defaults
+  const currentPageIndexFromUrl = loaderData?.meta.page ?? defaultPageIndex;
+  const currentPageSizeFromUrl = loaderData?.meta.pageSize ?? defaultPageSize;
 
   // Manage local pagination and sorting state
+  // Initialize from URL-derived values
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: initialPage,
-    pageSize: initialPageSize,
+    pageIndex: currentPageIndexFromUrl,
+    pageSize: currentPageSizeFromUrl,
   });
 
   // Initialize sorting state from URL params if they exist
@@ -311,29 +401,60 @@ function DataTableWithBazzaFilters() {
     return sortField ? [{ id: sortField, desc: sortDesc }] : [];
   });
 
-  // Effect to navigate when pagination or sorting changes locally
-  // This triggers the loader to refetch data
+  // Effect to synchronize pagination and sorting state FROM URL/loaderData if it changes
   useEffect(() => {
-    const params = new URLSearchParams(location.search); // Start with current params
-    params.set('page', String(pagination.pageIndex));
-    params.set('pageSize', String(pagination.pageSize));
+    const newPageIndex = loaderData?.meta.page ?? defaultPageIndex;
+    const newPageSize = loaderData?.meta.pageSize ?? defaultPageSize;
 
-    if (sorting.length > 0) {
-      params.set('sortField', sorting[0].id);
-      params.set('sortDesc', String(sorting[0].desc));
+    if (pagination.pageIndex !== newPageIndex || pagination.pageSize !== newPageSize) {
+      setPagination({ pageIndex: newPageIndex, pageSize: newPageSize });
+    }
+
+    const params = new URLSearchParams(location.search);
+    const sortFieldFromUrl = params.get('sortField');
+    const sortDescFromUrl = params.get('sortDesc') === 'true';
+
+    const currentSorting = sorting.length > 0 ? sorting[0] : null;
+    const urlHasSorting = !!sortFieldFromUrl;
+
+    if (urlHasSorting) {
+      // Ensure sortFieldFromUrl is not null before using it with !
+      if (
+        sortFieldFromUrl &&
+        (!currentSorting || currentSorting.id !== sortFieldFromUrl || currentSorting.desc !== sortDescFromUrl)
+      ) {
+        setSorting([{ id: sortFieldFromUrl, desc: sortDescFromUrl }]);
+      }
+    } else if (currentSorting) {
+      setSorting([]);
+    }
+  }, [loaderData, location.search, pagination, sorting, defaultPageIndex, defaultPageSize]);
+
+  // Handlers for pagination and sorting changes that navigate
+  const handlePaginationChange = (updater: ((prevState: PaginationState) => PaginationState) | PaginationState) => {
+    const newState = typeof updater === 'function' ? updater(pagination) : updater;
+    const params = new URLSearchParams(location.search); // Preserve existing params like filters
+    params.set('page', String(newState.pageIndex));
+    params.set('pageSize', String(newState.pageSize));
+    // Sorting is not changed by pagination, so it's already in location.search or not
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  const handleSortingChange = (updater: ((prevState: SortingState) => SortingState) | SortingState) => {
+    const newState = typeof updater === 'function' ? updater(sorting) : updater;
+    const params = new URLSearchParams(location.search); // Preserve existing params
+
+    if (newState.length > 0) {
+      params.set('sortField', newState[0].id);
+      params.set('sortDesc', String(newState[0].desc));
     } else {
       params.delete('sortField');
       params.delete('sortDesc');
     }
-
-    // Preserve filters from useFilterSync (which should already be in the URL)
-    // No need to explicitly set 'filters' param here if useFilterSync handles it.
-
-    // Only navigate if the search params actually changed
-    if (params.toString() !== location.search.substring(1)) {
-      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-    }
-  }, [pagination, sorting, navigate, location.search, location.pathname]);
+    // Optionally reset page to 0 on sort change
+    // params.set('page', '0');
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
 
   // Use Bazza UI hook (strategy: 'server' means it expects externally filtered/faceted data)
   const {
@@ -349,21 +470,18 @@ function DataTableWithBazzaFilters() {
     onFiltersChange: setFilters, // Pass setter from useFilterSync
   });
 
-  // --- DEBUG LOG ---
-  console.log('DataTable Component - bazzaProcessedColumns:', bazzaProcessedColumns);
-
   // Setup TanStack Table instance
   const table = useReactTable({
     data,
     columns: columns, // <-- FIX: Use original columns for cell rendering
     state: {
-      pagination, // Controlled pagination state
-      sorting, // Controlled sorting state
+      pagination, // Controlled by local state, which is synced from URL
+      sorting, // Controlled by local state, which is synced from URL
       // columnFilters are implicitly handled by the loader via the 'filters' state
     },
     pageCount: pageCount, // Total pages from loader meta
-    onPaginationChange: setPagination, // Update local pagination state
-    onSortingChange: setSorting, // Update local sorting state
+    onPaginationChange: handlePaginationChange, // Use new handler
+    onSortingChange: handleSortingChange, // Use new handler
     manualPagination: true, // Pagination is handled by the loader
     manualFiltering: true, // Filtering is handled by the loader (triggered by filters state)
     manualSorting: true, // Sorting is handled by the loader
@@ -385,13 +503,8 @@ function DataTableWithBazzaFilters() {
 
       {/* Render Bazza UI Filters - Pass Bazza's processed columns */}
       <DataTableFilter columns={bazzaProcessedColumns} filters={filters} actions={actions} strategy={strategy} />
-
-      {/* Render TanStack Table */}
-      <div className="mt-4">
-        {/* Pass table instance (which now uses original columns for rendering) */}
-        <DataTable table={table} columns={columns.length} pagination />
-      </div>
-      {/* Remove isLoading check, loader handles loading state via router */}
+      {/* Pass table instance (which now uses original columns for rendering) */}
+      <DataTable className="mt-4" table={table} columns={columns.length} pagination />
     </div>
   );
 }
