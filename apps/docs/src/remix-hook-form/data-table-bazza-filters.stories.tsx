@@ -321,103 +321,85 @@ function DataTableWithBazzaFilters() {
   const facetedCounts = loaderData?.facetedCounts ?? {};
 
   // Default pagination values
-  const defaultPageIndex = 0;
+  const defaultPage = 0;
   const defaultPageSize = 10;
 
-  // Use useFilterSync to synchronize filters with URL
-  const [filters, setFilters] = useFilterSync();
-
-  // Local state for pagination and sorting
+  // Parse URL parameters for initial state
+  const searchParams = new URLSearchParams(location.search);
+  
+  // Initialize states from URL parameters
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: loaderData?.meta.page ?? defaultPageIndex,
-    pageSize: loaderData?.meta.pageSize ?? defaultPageSize,
+    pageIndex: dataTableRouterParsers.page.parse(searchParams.get('page')) ?? defaultPage,
+    pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')) ?? defaultPageSize,
   });
 
-  // Extract sorting from URL
   const [sorting, setSorting] = useState<SortingState>(() => {
-    const params = new URLSearchParams(location.search);
-    const sortField = params.get('sortField');
-    const sortDesc = params.get('sortDesc') === 'true';
-    return sortField ? [{ id: sortField, desc: sortDesc }] : [];
+    const sortField = searchParams.get('sortField');
+    const sortDesc = searchParams.get('sortDesc') === 'true';
+    
+    if (sortField) {
+      return [{ id: sortField, desc: sortDesc }];
+    }
+    return [];
   });
 
-  // Effect to synchronize pagination and sorting state FROM URL/loaderData if it changes
-  useEffect(() => {
-    const newPageIndex = loaderData?.meta.page ?? defaultPageIndex;
-    const newPageSize = loaderData?.meta.pageSize ?? defaultPageSize;
-
-    if (pagination.pageIndex !== newPageIndex || pagination.pageSize !== newPageSize) {
-      setPagination({ pageIndex: newPageIndex, pageSize: newPageSize });
-    }
-
-    const params = new URLSearchParams(location.search);
-    const sortFieldFromUrl = params.get('sortField');
-    const sortDescFromUrl = params.get('sortDesc') === 'true';
-
-    const currentSorting = sorting.length > 0 ? sorting[0] : null;
-    const urlHasSorting = !!sortFieldFromUrl;
-
-    if (urlHasSorting) {
-      // Ensure sortFieldFromUrl is not null before using it with !
-      if (
-        sortFieldFromUrl &&
-        (!currentSorting || currentSorting.id !== sortFieldFromUrl || currentSorting.desc !== sortDescFromUrl)
-      ) {
-        setSorting([{ id: sortFieldFromUrl, desc: sortDescFromUrl }]);
-      }
-    } else if (currentSorting) {
-      setSorting([]);
-    }
-  }, [loaderData, location.search, pagination, sorting, defaultPageIndex, defaultPageSize]);
-
-  // Handlers for pagination and sorting changes that navigate
-  const handlePaginationChange = (updater: ((prevState: PaginationState) => PaginationState) | PaginationState) => {
-    const newState = typeof updater === 'function' ? updater(pagination) : updater;
-    const params = new URLSearchParams(location.search); // Preserve existing params like filters
-    params.set('page', String(newState.pageIndex));
-    params.set('pageSize', String(newState.pageSize));
-    // Sorting is not changed by pagination, so it's already in location.search or not
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-  };
-
-  const handleSortingChange = (updater: ((prevState: SortingState) => SortingState) | SortingState) => {
-    const newState = typeof updater === 'function' ? updater(sorting) : updater;
-    const params = new URLSearchParams(location.search); // Preserve existing params
-
-    if (newState.length > 0) {
-      params.set('sortField', newState[0].id);
-      params.set('sortDesc', String(newState[0].desc));
-    } else {
-      params.delete('sortField');
-      params.delete('sortDesc');
-    }
-    // Optionally reset page to 0 on sort change
-    // params.set('page', '0');
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-  };
-
-  // Use Bazza UI hook (strategy: 'server' means it expects externally filtered/faceted data)
-  const {
-    columns: bazzaProcessedColumns, // These columns have filter components integrated
-    actions,
-    strategy,
-  } = useDataTableFilters<MockIssue, typeof columnConfigs, 'server'>({
+  // Create Bazza UI filters instance with server strategy
+  const { columns: bazzaProcessedColumns, filters, actions, strategy } = useDataTableFilters({
     strategy: 'server',
-    columnsConfig: columnConfigs, // Pass the configurations
-    data: data, // Pass the data from the loader
-    faceted: facetedCounts, // Pass faceted counts from loader
-    filters: filters, // Use filters directly from useFilterSync
-    onFiltersChange: setFilters, // Use the setFilters function from useFilterSync
+    data: data,
+    columnsConfig,
+    faceted: facetedCounts,
   });
 
-  // Setup TanStack Table instance
+  // Sync filters state with URL
+  useFilterSync({
+    filters,
+    actions,
+    searchParams,
+    navigate,
+    location,
+  });
+
+  // Sync pagination and sorting with URL
+  useEffect(() => {
+    const newParams = new URLSearchParams(location.search);
+    
+    // Update pagination params
+    newParams.set('page', pagination.pageIndex.toString());
+    newParams.set('pageSize', pagination.pageSize.toString());
+    
+    // Update sorting params
+    if (sorting.length > 0) {
+      newParams.set('sortField', sorting[0].id);
+      newParams.set('sortDesc', sorting[0].desc.toString());
+    } else {
+      newParams.delete('sortField');
+      newParams.delete('sortDesc');
+    }
+    
+    // Only navigate if params have changed to avoid unnecessary rerenders
+    if (newParams.toString() !== new URLSearchParams(location.search).toString()) {
+      navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
+    }
+  }, [pagination, sorting, location, navigate]);
+
+  // Handle pagination changes
+  const handlePaginationChange = (newPagination: PaginationState) => {
+    setPagination(newPagination);
+  };
+
+  // Handle sorting changes
+  const handleSortingChange = (newSorting: SortingState) => {
+    setSorting(newSorting);
+  };
+
+  // Create table instance
   const table = useReactTable({
     data,
-    columns: columns, // <-- Use original columns for cell rendering
+    columns,
     state: {
-      pagination, // Controlled by local state, which is synced from URL
-      sorting, // Controlled by local state, which is synced from URL
-      filters, // Controlled by useFilterSync hook
+      pagination,
+      sorting,
     },
     pageCount: pageCount, // Total pages from loader meta
     onPaginationChange: handlePaginationChange, // Use new handler
@@ -458,8 +440,8 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const params = url.searchParams;
 
   // Parse pagination, sorting, and filters from URL using helpers/schemas
-  const page = dataTableRouterParsers.page.parse(params.get('page'));
-  let pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize'));
+  const page = dataTableRouterParsers.page.parse(params.get('page')) ?? 0;
+  let pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize')) ?? 10;
   const sortField = params.get('sortField'); // Get raw string or null
   const sortDesc = params.get('sortDesc') === 'true'; // Convert to boolean
   const filtersParam = params.get('filters');
