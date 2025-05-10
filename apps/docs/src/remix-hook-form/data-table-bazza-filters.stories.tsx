@@ -426,7 +426,7 @@ function DataTableWithBazzaFilters() {
       {/* Render Bazza UI Filters - Pass Bazza's processed columns */}
       <DataTableFilter columns={bazzaProcessedColumns} filters={filters} actions={actions} strategy={strategy} />
       {/* Pass table instance (which now uses original columns for rendering) */}
-      <DataTable className="mt-4" table={table} columns={columns.length} pagination />
+      <DataTable className="mt-4" table={table} columns={columns} pagination />
     </div>
   );
 }
