@@ -347,7 +347,7 @@ function DataTableWithBazzaFilters() {
   const { columns: bazzaProcessedColumns, filters, actions, strategy } = useDataTableFilters({
     strategy: 'server',
     data: data,
-    columnsConfig,
+    columnsConfig: columnConfigs,
     faceted: facetedCounts,
   });
 
