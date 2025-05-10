@@ -151,6 +151,11 @@ export function useDataTableFilters<
         column: ColumnConfig<TData, TType>,
         values: FilterModel<TType>['values'],
       ) {
+        if (!column || !column.type) {
+          console.warn('[data-table-filter] addFilterValue() called with invalid column:', column);
+          return;
+        }
+
         if (column.type === 'option') {
           setFilters((prev) => {
             const filter = prev.find((f) => f.columnId === column.id);
