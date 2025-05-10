@@ -311,78 +311,77 @@ const columns: ColumnDef<MockIssue>[] = [
 
 // --- NEW Wrapper Component using Loader Data ---
 function DataTableWithBazzaFilters() {
+  // Get the loader data (filtered/paginated/sorted data from server)
   const loaderData = useLoaderData<DataResponse>();
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Ensure we have data even if loaderData is undefined
+  // Initialize data from loader response
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
   const facetedCounts = loaderData?.facetedCounts ?? {};
 
-  // Default pagination values
-  const defaultPage = 0;
-  const defaultPageSize = 10;
+  // --- Bazza UI Filter Setup ---
+  // 1. Initialize filters state with useFilterSync (syncs with URL)
+  const [filters, setFilters] = useFilterSync();
 
-  // Parse URL parameters for initial state
-  const searchParams = new URLSearchParams(location.search);
-  
-  // Initialize states from URL parameters
+  // 2. Initialize pagination state (local state, synced to URL via useEffect)
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: dataTableRouterParsers.page.parse(searchParams.get('page')) ?? defaultPage,
-    pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')) ?? defaultPageSize,
+    pageIndex: 0,
+    pageSize: 10,
   });
 
-  const [sorting, setSorting] = useState<SortingState>(() => {
+  // 3. Initialize sorting state (local state, synced to URL via useEffect)
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  // --- URL Synchronization for Pagination and Sorting ---
+  // This effect syncs pagination and sorting state to URL parameters
+  useEffect(() => {
+    // Create a new URLSearchParams object from the current location search
+    const searchParams = new URLSearchParams(location.search);
+
+    // Update pagination parameters
+    searchParams.set('page', pagination.pageIndex.toString());
+    searchParams.set('pageSize', pagination.pageSize.toString());
+
+    // Update sorting parameters
+    if (sorting.length > 0) {
+      searchParams.set('sortField', sorting[0].id);
+      searchParams.set('sortDesc', sorting[0].desc ? 'true' : 'false');
+    } else {
+      searchParams.delete('sortField');
+      searchParams.delete('sortDesc');
+    }
+
+    // Navigate to the new URL with updated parameters
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+  }, [pagination, sorting, navigate, location.pathname]);
+
+  // --- Initialize state from URL on component mount ---
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    // Initialize pagination from URL
+    const pageParam = searchParams.get('page');
+    const pageSizeParam = searchParams.get('pageSize');
+    
+    if (pageParam !== null || pageSizeParam !== null) {
+      setPagination({
+        pageIndex: pageParam !== null ? parseInt(pageParam, 10) : 0,
+        pageSize: pageSizeParam !== null ? parseInt(pageSizeParam, 10) : 10,
+      });
+    }
+    
+    // Initialize sorting from URL
     const sortField = searchParams.get('sortField');
     const sortDesc = searchParams.get('sortDesc') === 'true';
     
     if (sortField) {
-      return [{ id: sortField, desc: sortDesc }];
+      setSorting([{ id: sortField, desc: sortDesc }]);
     }
-    return [];
-  });
+  }, []);
 
-  // Create Bazza UI filters instance with server strategy
-  const { columns: bazzaProcessedColumns, filters, actions, strategy } = useDataTableFilters({
-    strategy: 'server',
-    data: data,
-    columnsConfig: columnConfigs,
-    faceted: facetedCounts,
-  });
-
-  // Sync filters state with URL
-  useFilterSync({
-    filters,
-    actions,
-    searchParams,
-    navigate,
-    location,
-  });
-
-  // Sync pagination and sorting with URL
-  useEffect(() => {
-    const newParams = new URLSearchParams(location.search);
-    
-    // Update pagination params
-    newParams.set('page', pagination.pageIndex.toString());
-    newParams.set('pageSize', pagination.pageSize.toString());
-    
-    // Update sorting params
-    if (sorting.length > 0) {
-      newParams.set('sortField', sorting[0].id);
-      newParams.set('sortDesc', sorting[0].desc.toString());
-    } else {
-      newParams.delete('sortField');
-      newParams.delete('sortDesc');
-    }
-    
-    // Only navigate if params have changed to avoid unnecessary rerenders
-    if (newParams.toString() !== new URLSearchParams(location.search).toString()) {
-      navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
-    }
-  }, [pagination, sorting, location, navigate]);
-
+  // --- Event Handlers ---
   // Handle pagination changes
   const handlePaginationChange = (newPagination: PaginationState) => {
     setPagination(newPagination);
@@ -393,7 +392,19 @@ function DataTableWithBazzaFilters() {
     setSorting(newSorting);
   };
 
-  // Create table instance
+  // --- Bazza UI Filter Setup ---
+  // Process columns for Bazza UI
+  const bazzaProcessedColumns = useMemo(() => columnConfigs, []);
+
+  // Setup filter actions and strategy
+  const { actions, strategy } = useDataTableFilters({
+    columns: bazzaProcessedColumns,
+    initialFilters: filters,
+    onFiltersChange: setFilters,
+    facetedCounts,
+  });
+
+  // --- Table Setup ---
   const table = useReactTable({
     data,
     columns,
@@ -439,12 +450,17 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const url = new URL(request.url);
   const params = url.searchParams;
 
+  console.log('handleDataFetch - URL:', url.toString());
+  console.log('handleDataFetch - Search Params:', Object.fromEntries(params.entries()));
+
   // Parse pagination, sorting, and filters from URL using helpers/schemas
   const page = dataTableRouterParsers.page.parse(params.get('page')) ?? 0;
   let pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize')) ?? 10;
   const sortField = params.get('sortField'); // Get raw string or null
   const sortDesc = params.get('sortDesc') === 'true'; // Convert to boolean
   const filtersParam = params.get('filters');
+
+  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortDesc, filtersParam });
 
   if (!pageSize || pageSize <= 0) {
     console.log(`[Loader] - Invalid or missing pageSize (${pageSize}), defaulting to 10.`);
@@ -456,6 +472,7 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
     if (filtersParam) {
       // Parse and validate filters strictly according to Bazza v0.2 model
       parsedFilters = filtersArraySchema.parse(JSON.parse(filtersParam));
+      console.log('handleDataFetch - Parsed Filters:', parsedFilters);
     }
   } catch (error) {
     console.error('[Loader] - Filter parsing/validation error (expecting Bazza v0.2 model):', error);
@@ -526,6 +543,8 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   // This ensures counts reflect the current filtered dataset
   const facetedColumns: Array<keyof MockIssue> = ['status', 'assignee', 'priority'];
   const facetedCounts = calculateFacetedCounts(processedData, facetedColumns, allDefinedOptions);
+
+  console.log(`Returning ${paginatedData.length} items, page ${page}, total ${totalItems}`);
 
   const response: DataResponse = {
     data: paginatedData,
