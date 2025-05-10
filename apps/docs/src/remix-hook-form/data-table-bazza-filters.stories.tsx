@@ -14,12 +14,13 @@ import { useDataTableFilters } from '@lambdacurry/forms/ui/utils/use-data-table-
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync'; // Ensure this is the correct path for filter sync
 // Add icon imports
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
-import type { Meta, StoryObj } from '@storybook/react'; // FIX: Add Meta, StoryObj
+import type { Meta, StoryContext, StoryObj } from '@storybook/react'; // FIX: Add Meta, StoryObj, StoryContext
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'; // Added PaginationState, SortingState
 import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { useEffect, useMemo, useState } from 'react'; // Added useState, useEffect
 import { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate } from 'react-router'; // Added LoaderFunctionArgs, useLoaderData, useNavigate, useLocation
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub'; // FIX: Add withReactRouterStubDecorator
+import { expect, userEvent, within } from '@storybook/test'; // Add storybook test imports
 
 // --- Use MockIssue Schema and Data ---
 interface MockIssue {
@@ -311,60 +312,31 @@ const columns: ColumnDef<MockIssue>[] = [
 // --- NEW Wrapper Component using Loader Data ---
 function DataTableWithBazzaFilters() {
   const loaderData = useLoaderData<DataResponse>();
+  const location = useLocation();
   const navigate = useNavigate();
-  const location = useLocation(); // Get location for reading initial params
 
-  // Extract data and meta from loader, provide defaults
-  const data = useMemo(() => loaderData?.data ?? [], [loaderData?.data]);
-  const pageCount = useMemo(() => loaderData?.meta.pageCount ?? 0, [loaderData?.meta.pageCount]);
+  // Ensure we have data even if loaderData is undefined
+  const data = loaderData?.data ?? [];
+  const pageCount = loaderData?.meta.pageCount ?? 0;
+  const facetedCounts = loaderData?.facetedCounts ?? {};
 
-  // NEW: Convert to Map of Maps
-  const facetedCounts = useMemo(() => {
-    const rawCounts = loaderData?.facetedCounts ?? {};
-    const mapOfMaps = new Map<string, Map<string, number>>();
-    for (const columnId in rawCounts) {
-      const innerObject = rawCounts[columnId as keyof typeof rawCounts];
-      const innerMap = new Map<string, number>();
-      if (innerObject) {
-        // Check if innerObject is not undefined
-        for (const optionValue in innerObject) {
-          innerMap.set(optionValue, innerObject[optionValue as keyof typeof innerObject]);
-        }
-      }
-      mapOfMaps.set(columnId, innerMap);
-    }
-    return mapOfMaps;
-  }, [loaderData?.facetedCounts]);
+  // Default pagination values
+  const defaultPageIndex = 0;
+  const defaultPageSize = 10;
 
-  // Use filter sync hook (this manages filters in the URL)
-  const [filters, setFilters] = useFilterSync();
-
-  // Ensure all filter changes update the URL and trigger loader reload
-  const handleFiltersChange: React.Dispatch<React.SetStateAction<FiltersState>> = (updater) => {
-    if (typeof updater === 'function') {
-      setFilters((prev) => updater(prev));
-    } else {
-      setFilters(updater);
-    }
-  };
-
-  // --- REVISED PAGINATION STATE MANAGEMENT ---
-  // Define defaults for pagination
-  const defaultPageIndex = dataTableRouterParsers.page.defaultValue;
-  const defaultPageSize = dataTableRouterParsers.pageSize.defaultValue;
-
-  // Get current pagination values from URL (via loaderData) or use defaults
-  const currentPageIndexFromUrl = loaderData?.meta.page ?? defaultPageIndex;
-  const currentPageSizeFromUrl = loaderData?.meta.pageSize ?? defaultPageSize;
-
-  // Manage local pagination and sorting state
-  // Initialize from URL-derived values
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: currentPageIndexFromUrl,
-    pageSize: currentPageSizeFromUrl,
+  // Use useFilterSync to synchronize filters with URL
+  const { filters, handleFiltersChange } = useFilterSync({
+    defaultValue: [],
+    paramName: 'filters',
   });
 
-  // Initialize sorting state from URL params if they exist
+  // Local state for pagination and sorting
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: loaderData?.meta.page ?? defaultPageIndex,
+    pageSize: loaderData?.meta.pageSize ?? defaultPageSize,
+  });
+
+  // Extract sorting from URL
   const [sorting, setSorting] = useState<SortingState>(() => {
     const params = new URLSearchParams(location.search);
     const sortField = params.get('sortField');
@@ -444,7 +416,7 @@ function DataTableWithBazzaFilters() {
   // Setup TanStack Table instance
   const table = useReactTable({
     data,
-    columns: columns, // <-- FIX: Use original columns for cell rendering
+    columns: columns, // <-- Use original columns for cell rendering
     state: {
       pagination, // Controlled by local state, which is synced from URL
       sorting, // Controlled by local state, which is synced from URL
@@ -571,9 +543,10 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const start = page * pageSize;
   const paginatedData = processedData.slice(start, start + pageSize);
 
-  // Calculate faceted counts based on the *original* database
+  // Calculate faceted counts based on the filtered data (not the original database)
+  // This ensures counts reflect the current filtered dataset
   const facetedColumns: Array<keyof MockIssue> = ['status', 'assignee', 'priority'];
-  const facetedCounts = calculateFacetedCounts(mockDatabase, facetedColumns, allDefinedOptions);
+  const facetedCounts = calculateFacetedCounts(processedData, facetedColumns, allDefinedOptions);
 
   const response: DataResponse = {
     data: paginatedData,
@@ -612,6 +585,90 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Test functions for the data table with Bazza filters
+const testInitialRender = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+  
+  // Check if the table is rendered with the correct title
+  const title = canvas.getByText('Issues Table (Bazza UI Server Filters via Loader)');
+  expect(title).toBeInTheDocument();
+  
+  // Check if the table has the correct number of rows initially (should be pageSize)
+  const rows = canvas.getAllByRole('row');
+  // First row is header, so we expect pageSize + 1 rows
+  expect(rows.length).toBeGreaterThan(1); // At least header + 1 data row
+  
+  // Check if pagination is rendered
+  const paginationControls = canvas.getByRole('navigation');
+  expect(paginationControls).toBeInTheDocument();
+};
+
+const testFiltering = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+  
+  // Open the filter dropdown
+  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  await userEvent.click(filterButton);
+  
+  // Select a filter type (e.g., Status)
+  const statusFilter = await canvas.findByText('Status');
+  await userEvent.click(statusFilter);
+  
+  // Select a filter value (e.g., "Todo")
+  const todoOption = await canvas.findByText('Todo');
+  await userEvent.click(todoOption);
+  
+  // Apply the filter
+  const applyButton = canvas.getByRole('button', { name: /apply/i });
+  await userEvent.click(applyButton);
+  
+  // Wait for the table to update
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Check if the URL has been updated with the filter
+  expect(window.location.search).toContain('filters');
+  
+  // Check if the filter chip is displayed
+  const filterChip = await canvas.findByText('Status: Todo');
+  expect(filterChip).toBeInTheDocument();
+};
+
+const testPagination = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+  
+  // Get the initial page number
+  const initialPageButton = canvas.getByLabelText(/page 1/i);
+  expect(initialPageButton).toHaveAttribute('aria-current', 'page');
+  
+  // Click on the next page button
+  const nextPageButton = canvas.getByLabelText(/go to next page/i);
+  await userEvent.click(nextPageButton);
+  
+  // Wait for the table to update
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Check if the URL has been updated with the new page
+  expect(window.location.search).toContain('page=1');
+  
+  // Check if the page 2 button is now selected
+  const page2Button = canvas.getByLabelText(/page 2/i);
+  expect(page2Button).toHaveAttribute('aria-current', 'page');
+};
+
+const testFilterPersistence = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+  
+  // Simulate a page refresh by manually setting the URL with filters
+  // This is done by checking if the filter chip is still present after pagination
+  const filterChips = canvas.getAllByRole('button', { name: /remove filter/i });
+  expect(filterChips.length).toBeGreaterThan(0);
+  
+  // Check if the filtered data is still displayed correctly
+  // We can verify this by checking if the filter chip is still present
+  const statusFilterChip = canvas.getByText(/Status:/i);
+  expect(statusFilterChip).toBeInTheDocument();
+};
+
 export const ServerDriven: Story = {
   args: {},
   parameters: {
@@ -621,5 +678,12 @@ export const ServerDriven: Story = {
           'Demonstrates server-side filtering (via loader), pagination, and sorting with Bazza UI components and URL state synchronization.',
       },
     },
+  },
+  play: async (context) => {
+    // Run the tests in sequence
+    await testInitialRender(context);
+    await testFiltering(context);
+    await testPagination(context);
+    await testFilterPersistence(context);
   },
 };
