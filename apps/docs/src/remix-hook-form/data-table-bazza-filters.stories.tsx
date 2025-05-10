@@ -325,10 +325,7 @@ function DataTableWithBazzaFilters() {
   const defaultPageSize = 10;
 
   // Use useFilterSync to synchronize filters with URL
-  const { filters, handleFiltersChange } = useFilterSync({
-    defaultValue: [],
-    paramName: 'filters',
-  });
+  const [filters, setFilters] = useFilterSync();
 
   // Local state for pagination and sorting
   const [pagination, setPagination] = useState<PaginationState>({
@@ -410,7 +407,7 @@ function DataTableWithBazzaFilters() {
     data: data, // Pass the data from the loader
     faceted: facetedCounts, // Pass faceted counts from loader
     filters: filters, // Use filters directly from useFilterSync
-    onFiltersChange: handleFiltersChange, // Use robust handler
+    onFiltersChange: setFilters, // Use the setFilters function from useFilterSync
   });
 
   // Setup TanStack Table instance
@@ -420,7 +417,7 @@ function DataTableWithBazzaFilters() {
     state: {
       pagination, // Controlled by local state, which is synced from URL
       sorting, // Controlled by local state, which is synced from URL
-      // columnFilters are implicitly handled by the loader via the 'filters' state
+      filters, // Controlled by useFilterSync hook
     },
     pageCount: pageCount, // Total pages from loader meta
     onPaginationChange: handlePaginationChange, // Use new handler
