@@ -179,6 +179,21 @@ function calculateFacetedCounts(
 ): Record<string, Record<string, number>> {
   const counts: Record<string, Record<string, number>> = {};
 
+  // Ensure data is an array
+  if (!Array.isArray(data) || data.length === 0) {
+    // Return empty counts if no data
+    countColumns.forEach((columnId) => {
+      counts[columnId] = {};
+      const definedOptions = allOptions[columnId];
+      if (definedOptions) {
+        definedOptions.forEach((option) => {
+          counts[columnId][option.value] = 0;
+        });
+      }
+    });
+    return counts;
+  }
+
   countColumns.forEach((columnId) => {
     counts[columnId] = {};
     // Initialize counts for all defined options for this column to 0
@@ -317,7 +332,7 @@ function DataTableWithBazzaFilters() {
 
   // Ensure we have data even if loaderData is undefined
   const data = loaderData?.data ?? [];
-  const pageCount = loaderData?.meta.pageCount ?? 0;
+  const pageCount = loaderData?.meta?.pageCount ?? 0;
   const facetedCounts = loaderData?.facetedCounts ?? {};
 
   // Default pagination values
@@ -325,15 +340,12 @@ function DataTableWithBazzaFilters() {
   const defaultPageSize = 10;
 
   // Use useFilterSync to synchronize filters with URL
-  const { filters, handleFiltersChange } = useFilterSync({
-    defaultValue: [],
-    paramName: 'filters',
-  });
+  const [filters, setFilters] = useFilterSync();
 
   // Local state for pagination and sorting
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: loaderData?.meta.page ?? defaultPageIndex,
-    pageSize: loaderData?.meta.pageSize ?? defaultPageSize,
+    pageIndex: loaderData?.meta?.page ?? defaultPageIndex,
+    pageSize: loaderData?.meta?.pageSize ?? defaultPageSize,
   });
 
   // Extract sorting from URL
@@ -346,8 +358,8 @@ function DataTableWithBazzaFilters() {
 
   // Effect to synchronize pagination and sorting state FROM URL/loaderData if it changes
   useEffect(() => {
-    const newPageIndex = loaderData?.meta.page ?? defaultPageIndex;
-    const newPageSize = loaderData?.meta.pageSize ?? defaultPageSize;
+    const newPageIndex = loaderData?.meta?.page ?? defaultPageIndex;
+    const newPageSize = loaderData?.meta?.pageSize ?? defaultPageSize;
 
     if (pagination.pageIndex !== newPageIndex || pagination.pageSize !== newPageSize) {
       setPagination({ pageIndex: newPageIndex, pageSize: newPageSize });
@@ -410,7 +422,7 @@ function DataTableWithBazzaFilters() {
     data: data, // Pass the data from the loader
     faceted: facetedCounts, // Pass faceted counts from loader
     filters: filters, // Use filters directly from useFilterSync
-    onFiltersChange: handleFiltersChange, // Use robust handler
+    onFiltersChange: setFilters, // Use setFilters from useFilterSync
   });
 
   // Setup TanStack Table instance

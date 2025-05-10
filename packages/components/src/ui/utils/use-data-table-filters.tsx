@@ -70,11 +70,23 @@ export function useDataTableFilters<
 
   // Convert ColumnConfig to Column, applying options and faceted options if provided
   const columns = useMemo(() => {
+    // Ensure columnsConfig is an array before proceeding
+    if (!Array.isArray(columnsConfig) || columnsConfig.length === 0) {
+      console.warn('[useDataTableFilters] columnsConfig is not a valid array:', columnsConfig);
+      return [];
+    }
+
     const enhancedConfigs = columnsConfig.map((config) => {
+      // Add null check for config
+      if (!config) {
+        console.warn('[useDataTableFilters] Encountered null or undefined config in columnsConfig');
+        return null;
+      }
+
       let final = config;
 
       // Set options, if exists
-      if (options && (config.type === 'option' || config.type === 'multiOption')) {
+      if (options && config.type && (config.type === 'option' || config.type === 'multiOption')) {
         const optionsInput = options[config.id as OptionColumnIds<TColumns>];
         if (!(optionsInput && isColumnOptionArray(optionsInput))) return config;
 
@@ -82,7 +94,7 @@ export function useDataTableFilters<
       }
 
       // Set faceted options, if exists
-      if (faceted instanceof Map && (config.type === 'option' || config.type === 'multiOption')) {
+      if (faceted instanceof Map && config.type && (config.type === 'option' || config.type === 'multiOption')) {
         const potentialMapForColumn = faceted.get(config.id as OptionColumnIds<TColumns>);
         if (potentialMapForColumn && isColumnOptionMap(potentialMapForColumn)) {
           final = { ...final, facetedOptions: potentialMapForColumn };
@@ -90,13 +102,13 @@ export function useDataTableFilters<
           // If faceted is a Map but the entry for this column isn't a Map or doesn't exist, return original config.
           return config;
         }
-      } else if (config.type === 'option' || config.type === 'multiOption') {
+      } else if (config.type && (config.type === 'option' || config.type === 'multiOption')) {
         // If faceted is not a Map (or not provided) but it's an option column, return original config.
         return config;
       }
 
       // Set faceted min/max values, if exists
-      if (faceted instanceof Map && config.type === 'number') {
+      if (faceted instanceof Map && config.type && config.type === 'number') {
         const potentialTupleForColumn = faceted.get(config.id as NumberColumnIds<TColumns>);
         if (potentialTupleForColumn && isMinMaxTuple(potentialTupleForColumn)) {
           final = {
@@ -108,13 +120,13 @@ export function useDataTableFilters<
           // If faceted is a Map but the entry for this column isn't a tuple or doesn't exist, return original config.
           return config;
         }
-      } else if (config.type === 'number') {
+      } else if (config.type && config.type === 'number') {
         // If faceted is not a Map (or not provided) but it's a number column, return original config.
         return config;
       }
 
       return final;
-    });
+    }).filter(Boolean) as ColumnConfig<TData, any, any, any>[];
 
     // --- MODIFIED DEBUG LOG HERE ---
     console.log('[useDataTableFilters] Inspecting enhancedConfigs before passing to createColumns:');
@@ -128,7 +140,9 @@ export function useDataTableFilters<
     });
     // --- END DEBUG LOG ---
 
-    return createColumns(data, enhancedConfigs, strategy);
+    // Ensure data is an array before passing to createColumns
+    const safeData = Array.isArray(data) ? data : [];
+    return createColumns(safeData, enhancedConfigs, strategy);
   }, [data, columnsConfig, options, faceted, strategy]);
 
   const actions: DataTableFilterActions = useMemo(
