@@ -1,6 +1,6 @@
 import {
   type ColumnDef,
-  type ColumnFilter,
+  // type ColumnFilter, // No longer directly used for state.columnFilters
   type VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -14,95 +14,121 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from 'react-router-dom';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
-import { z } from 'zod';
+// import { z } from 'zod'; // Schema is now more for URL state structure
 
 import { DataTablePagination } from '../ui/data-table/data-table-pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { DataTableRouterToolbar, type DataTableRouterToolbarProps } from './data-table-router-toolbar';
+import { DataTableRouterToolbar } from './data-table-router-toolbar';
 
-// Import the parsers and the inferred type
-import type { DataTableRouterState, FilterValue } from './data-table-router-parsers';
+// Bazza UI imports - assuming types for ColumnConfig and output of useDataTableFilters
+// For now, using 'any' for some bazza types if not precisely known.
+import {
+  useDataTableFilters, // The hook from bazza/ui
+  // createColumnConfigHelper, // Assume columnsConfig is pre-built and passed in
+} from '../ui/data-table-filter'; // Adjusted path
+
+import type { BazzaFiltersState, DataTableRouterState } from './data-table-router-parsers';
 import { getDefaultDataTableState, useDataTableUrlState } from './use-data-table-url-state';
 
-// Schema for form data validation and type safety
-const dataTableSchema = z.object({
-  search: z.string().optional(),
-  filters: z.array(z.object({ id: z.string(), value: z.any() })).optional(),
-  page: z.number().min(0).optional(),
-  pageSize: z.number().min(1).optional(),
-  sortField: z.string().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-});
-
-type DataTableFormData = z.infer<typeof dataTableSchema>;
+// dataTableSchema can remain to validate the shape of URL params if desired, but RemixForm doesn't use a resolver here.
 
 export interface DataTableRouterFormProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  filterableColumns?: DataTableRouterToolbarProps<TData>['filterableColumns'];
-  searchableColumns?: DataTableRouterToolbarProps<TData>['searchableColumns'];
+  columns: ColumnDef<TData, TValue>[]; // For TanStack Table display
+  data: TData[]; // Data from server (already filtered/sorted/paginated)
   pageCount?: number;
   defaultStateValues?: Partial<DataTableRouterState>;
+  // New prop for Bazza UI filter configurations
+  // This should be typed according to bazza/ui's ColumnConfig type (e.g., from createColumnConfigHelper(...).build())
+  filterColumnConfigs: any[]; // Placeholder type for Bazza UI ColumnConfig[]
+  // Props for server-fetched options/faceted data for bazza/ui, if needed for server strategy
+  dtfOptions?: Record<string, any[]>;
+  dtfFacetedData?: Record<string, any>;
 }
 
 export function DataTableRouterForm<TData, TValue>({
   columns,
   data,
-  filterableColumns = [],
-  searchableColumns = [],
   pageCount,
   defaultStateValues,
+  filterColumnConfigs,
+  dtfOptions,
+  dtfFacetedData,
 }: DataTableRouterFormProps<TData, TValue>) {
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
-  // Use our custom hook for URL state management
   const { urlState, setUrlState } = useDataTableUrlState();
 
-  // Initialize RHF to *reflect* the URL state
   const methods = useRemixForm<DataTableRouterState>({
-    // No resolver needed if Zod isn't primary validation driver here
-    defaultValues: urlState, // Initialize with current URL state
+    defaultValues: urlState,
   });
+
+  const {
+    columns: dtfGeneratedColumns,
+    filters: dtfInternalFilters, // Filters state internal to useDataTableFilters
+    actions: dtfActions,
+    strategy: dtfStrategyReturned,
+  } = useDataTableFilters({
+    strategy: 'server',
+    data: data,
+    columnsConfig: filterColumnConfigs,
+    options: dtfOptions,
+    faceted: dtfFacetedData,
+    // initialFilters: urlState.filters, // Assuming an initialFilters prop if available for first load
+  });
+
+  // Sync Bazza internal filters TO URL
+  useEffect(() => {
+    // Avoid loop if urlState.filters already matches dtfInternalFilters
+    // Deep comparison might be needed if objects are complex
+    if (JSON.stringify(dtfInternalFilters) !== JSON.stringify(urlState.filters)) {
+      setUrlState({ filters: dtfInternalFilters as BazzaFiltersState, page: 0 });
+    }
+  }, [dtfInternalFilters, urlState.filters, setUrlState]);
+
+  // Sync URL filters TO Bazza internal filters (e.g., on back/forward nav)
+  useEffect(() => {
+    // Check if an action to set filters exists, e.g., dtfActions.setFiltersState
+    if (dtfActions.setFiltersState && JSON.stringify(urlState.filters) !== JSON.stringify(dtfInternalFilters)) {
+      dtfActions.setFiltersState(urlState.filters);
+    }
+    // This effect should also handle initial hydration if `initialFilters` prop wasn't used/available
+  }, [urlState.filters, dtfActions, dtfInternalFilters]);
 
   // Sync RHF state if urlState changes (e.g., back/forward, external link)
   useEffect(() => {
-    // Only reset if the urlState differs from current RHF values
     if (JSON.stringify(urlState) !== JSON.stringify(methods.getValues())) {
       methods.reset(urlState);
     }
   }, [urlState, methods]);
 
-  // Local UI state (column visibility, row selection)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  // Table instance uses RHF state (which mirrors URL state)
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting: [{ id: urlState.sortField, desc: urlState.sortOrder === 'desc' }],
-      columnFilters: urlState.filters as ColumnFilter[],
+      // columnFilters: urlState.filters as ColumnFilter[], // REMOVED: Filtering is server-side
       pagination: { pageIndex: urlState.page, pageSize: urlState.pageSize },
       columnVisibility,
       rowSelection,
     },
     manualPagination: true,
     manualSorting: true,
-    manualFiltering: true,
+    manualFiltering: true, // Crucial for server-side filtering
     pageCount,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    getFilteredRowModel: getFilteredRowModel(), // Still useful for table structure
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(), // If using any client-side faceting with TST
     getFacetedUniqueValues: getFacetedUniqueValues(),
 
-    // Define callbacks inline
     onSortingChange: (updater) => {
       const currentSorting = table.getState().sorting;
       const sorting = typeof updater === 'function' ? updater(currentSorting) : updater;
@@ -112,26 +138,16 @@ export function DataTableRouterForm<TData, TValue>({
         page: 0,
       });
     },
-    onColumnFiltersChange: (updater) => {
-      const currentFilters = table.getState().columnFilters;
-      const filters = typeof updater === 'function' ? updater(currentFilters) : updater;
-      setUrlState({
-        filters: filters as FilterValue[],
-        page: 0,
-      });
-    },
+    // onColumnFiltersChange: // REMOVED: Not used for server-side filtering control
   });
 
-  // Determine default pageSize and visible columns for skeleton loader
   const defaultDataTableState = getDefaultDataTableState(defaultStateValues);
   const visibleColumns = table.getVisibleFlatColumns();
-  // Generate stable IDs for skeleton rows based on current pageSize or fallback
   const skeletonRowIds = useMemo(() => {
     const count = urlState.pageSize > 0 ? urlState.pageSize : defaultDataTableState.pageSize;
     return Array.from({ length: count }, () => window.crypto.randomUUID());
   }, [urlState.pageSize, defaultDataTableState.pageSize]);
 
-  // Pagination handler updates URL state
   const handlePaginationChange = useCallback(
     (pageIndex: number, newPageSize: number) => {
       setUrlState({ page: pageIndex, pageSize: newPageSize });
@@ -139,24 +155,50 @@ export function DataTableRouterForm<TData, TValue>({
     [setUrlState],
   );
 
-  // Get default state values using our utility function
   const standardStateValues = getDefaultDataTableState(defaultStateValues);
 
-  // Handle pagination props separately
   const paginationProps = {
     pageCount: pageCount || 0,
     onPaginationChange: handlePaginationChange,
   };
+
+  const handleSearchChange = (newSearch: string) => {
+    setUrlState({ search: newSearch, page: 0 });
+  };
+
+  const handleResetFiltersAndSearch = () => {
+    if (dtfActions.setFiltersState) {
+      dtfActions.setFiltersState([]); // Reset Bazza UI filters
+    } else if (dtfActions.clearAllFilters) {
+      // Alternative action name
+      dtfActions.clearAllFilters();
+    }
+    // Then update URL, which will also clear Bazza filters via the effect if setFiltersState was not called
+    setUrlState({
+      ...standardStateValues,
+      search: '',
+      filters: [],
+    });
+  };
+
+  const hasActiveBazzaFilters = dtfInternalFilters && dtfInternalFilters.length > 0;
+  const hasActiveSearch = !!urlState.search;
+  const hasActiveFiltersOrSearch = hasActiveBazzaFilters || hasActiveSearch;
 
   return (
     <RemixFormProvider {...methods}>
       <div className="space-y-4">
         <DataTableRouterToolbar<TData>
           table={table}
-          filterableColumns={filterableColumns}
-          searchableColumns={searchableColumns}
-          setUrlState={setUrlState}
-          defaultStateValues={standardStateValues}
+          search={urlState.search}
+          onSearchChange={handleSearchChange}
+          onResetFiltersAndSearch={handleResetFiltersAndSearch}
+          hasActiveFiltersOrSearch={hasActiveFiltersOrSearch}
+          // Pass Bazza UI filter props
+          dtfColumns={dtfGeneratedColumns} // Generated by useDataTableFilters
+          dtfFilters={dtfInternalFilters as BazzaFiltersState} // Display Bazza's current internal state
+          dtfActions={dtfActions}
+          dtfStrategy={dtfStrategyReturned || 'server'}
         />
 
         {/* Table Rendering */}
@@ -175,7 +217,6 @@ export function DataTableRouterForm<TData, TValue>({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                // Skeleton rows matching pageSize with zebra background
                 skeletonRowIds.map((rowId) => (
                   <TableRow key={rowId} className="even:bg-gray-50">
                     {visibleColumns.map((column) => (

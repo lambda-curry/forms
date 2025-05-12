@@ -1,11 +1,21 @@
 import { DataTableRouterForm } from '@lambdacurry/forms/remix-hook-form/data-table-router-form';
-import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers';
+import {
+  type BazzaFilterItem,
+  type BazzaFiltersState,
+  dataTableRouterParsers,
+} from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ColumnDef } from '@tanstack/react-table';
+import { ActivityIcon, ShieldIcon, UserIcon } from 'lucide-react';
+import type { ComponentType } from 'react';
 import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+
+// Assuming createColumnConfigHelper is available from bazza/ui
+// For the story, we'll simulate its output if direct import is problematic.
+// import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/column-config-helper'; // Example path
 
 // Define the data schema
 const userSchema = z.object({
@@ -40,8 +50,8 @@ interface DataResponse {
   };
 }
 
-// Define the columns
-const columns: ColumnDef<User>[] = [
+// TanStack Table Column Definitions (for display)
+const tanstackTableColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'id',
     header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
@@ -63,19 +73,12 @@ const columns: ColumnDef<User>[] = [
     accessorKey: 'role',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
     cell: ({ row }) => <div className="capitalize">{row.getValue('role')}</div>,
-    enableColumnFilter: true,
-    filterFn: (row, id, value: string[]) => {
-      return value.includes(row.getValue(id));
-    },
+    // Filter-related properties like enableColumnFilter, filterFn are now handled by Bazza UI config
   },
   {
     accessorKey: 'status',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
-    enableColumnFilter: true,
-    filterFn: (row, id, value: string[]) => {
-      return value.includes(row.getValue(id));
-    },
   },
   {
     accessorKey: 'createdAt',
@@ -84,19 +87,90 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-// Component to display the data table with router form integration
+interface BazzaFilterColumnConfig {
+  id: string;
+  type: string;
+  displayName: string;
+  filterType: string;
+  options?: { label: string; value: string }[];
+  icon: ComponentType<{ className?: string }>;
+}
+
+// Updated Bazza UI Filter Column Configurations
+const bazzaFilterColumnConfigs: BazzaFilterColumnConfig[] = [
+  {
+    id: 'name',
+    type: 'text',
+    displayName: 'Name',
+    filterType: 'text',
+    icon: UserIcon,
+  },
+  {
+    id: 'role',
+    type: 'option',
+    displayName: 'Role',
+    filterType: 'option',
+    icon: ShieldIcon,
+    options: [
+      { label: 'Admin', value: 'admin' },
+      { label: 'User', value: 'user' },
+      { label: 'Editor', value: 'editor' },
+    ],
+  },
+  {
+    id: 'status',
+    type: 'option',
+    displayName: 'Status',
+    filterType: 'option',
+    icon: ActivityIcon,
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Inactive', value: 'inactive' },
+      { label: 'Pending', value: 'pending' },
+    ],
+  },
+  // Add more configs for other filterable columns as needed
+];
+
+// Log all options for each config to help debug undefined labels
+bazzaFilterColumnConfigs.forEach((config) => {
+  console.log('>>>>> config', config);
+  // Log the options array for each config, if present
+  console.log(`Config id: ${config.id}, options:`, config.options);
+  if (config.options) {
+    config.options.forEach((opt, idx) => {
+      // Log if label is missing or undefined
+      if (!opt || typeof opt.label !== 'string') {
+        // eslint-disable-next-line no-console
+        console.warn(`Option label is missing or not a string in config '${config.id}' at index ${idx}:`, opt);
+      }
+    });
+  }
+});
+
 function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
-
-  // Ensure we have data even if loaderData is undefined
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
 
-  console.log('DataTableRouterFormExample - loaderData:', loaderData);
+  // Log options before rendering to catch runtime issues
+  bazzaFilterColumnConfigs.forEach((config) => {
+    if (config.options) {
+      config.options.forEach((opt, idx) => {
+        if (!opt || typeof opt.label !== 'string') {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[Render] Option label is missing or not a string in config '${config.id}' at index ${idx}:`,
+            opt,
+          );
+        }
+      });
+    }
+  });
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-4">Users Table (React Router Form Integration)</h1>
+      <h1 className="text-2xl font-bold mb-4">Users Table (Bazza UI Filters)</h1>
       <p className="mb-4">This example demonstrates integration with React Router forms, including:</p>
       <ul className="list-disc pl-5 mb-4">
         <li>Form-based filtering with automatic submission</li>
@@ -105,66 +179,33 @@ function DataTableRouterFormExample() {
         <li>URL-based state management with React Router</li>
       </ul>
       <DataTableRouterForm<User, keyof User>
-        columns={columns}
+        columns={tanstackTableColumns} // For table display
         data={data}
         pageCount={pageCount}
-        filterableColumns={[
-          {
-            id: 'role' as keyof User,
-            title: 'Role',
-            options: [
-              { label: 'Admin', value: 'admin' },
-              { label: 'User', value: 'user' },
-              { label: 'Editor', value: 'editor' },
-            ],
-          },
-          {
-            id: 'status' as keyof User,
-            title: 'Status',
-            options: [
-              { label: 'Active', value: 'active' },
-              { label: 'Inactive', value: 'inactive' },
-              { label: 'Pending', value: 'pending' },
-            ],
-          },
-        ]}
-        searchableColumns={[
-          {
-            id: 'name' as keyof User,
-            title: 'Name',
-          },
-        ]}
+        filterColumnConfigs={bazzaFilterColumnConfigs} // Pass Bazza UI config
+        // dtfOptions and dtfFacetedData would be fetched and passed for server-driven options/facets
       />
     </div>
   );
 }
 
-// Loader function to handle data fetching based on URL parameters
 const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
-  // Add a small delay to simulate network latency
   await new Promise((resolve) => setTimeout(resolve, 300));
-
-  // Ensure we have a valid URL object
   const url = request?.url ? new URL(request.url) : new URL('http://localhost?page=0&pageSize=10');
   const params = url.searchParams;
 
-  console.log('handleDataFetch - URL:', url.toString());
-  console.log('handleDataFetch - Search Params:', Object.fromEntries(params.entries()));
-
-  // Use our custom parsers to parse URL search parameters
   const page = dataTableRouterParsers.page.parse(params.get('page'));
   const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize'));
   const sortField = dataTableRouterParsers.sortField.parse(params.get('sortField'));
   const sortOrder = dataTableRouterParsers.sortOrder.parse(params.get('sortOrder'));
   const search = dataTableRouterParsers.search.parse(params.get('search'));
-  const parsedFilters = dataTableRouterParsers.filters.parse(params.get('filters'));
 
-  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortOrder, search, parsedFilters });
+  // Parse BazzaFiltersState
+  const bazzaFilters = dataTableRouterParsers.filters.parse(params.get('filters')) as BazzaFiltersState;
 
-  // Apply filters
   let filteredData = [...users];
 
-  // 1. Apply global search filter
+  // 1. Apply global search (if still used)
   if (search) {
     const searchLower = search.toLowerCase();
     filteredData = filteredData.filter(
@@ -172,23 +213,40 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
     );
   }
 
-  // 2. Apply faceted filters from the parsed 'filters' array
-  if (parsedFilters && parsedFilters.length > 0) {
-    // Check if parsedFilters is not null
-    parsedFilters.forEach((filter) => {
-      if (filter.id in users[0] && Array.isArray(filter.value) && filter.value.length > 0) {
-        const filterValues = filter.value as string[];
-        filteredData = filteredData.filter((user) => {
-          const userValue = user[filter.id as keyof User];
-          return filterValues.includes(userValue);
-        });
-      } else {
-        console.warn(`Invalid filter encountered: ${JSON.stringify(filter)}`);
-      }
+  // 2. Apply Bazza UI filters
+  if (bazzaFilters && bazzaFilters.length > 0) {
+    bazzaFilters.forEach((filter: BazzaFilterItem) => {
+      const { columnId, type, operator, values } = filter;
+      if (!values || values.length === 0) return;
+
+      filteredData = filteredData.filter((user) => {
+        const userValue = user[columnId as keyof User];
+
+        switch (type) {
+          case 'text': {
+            if (operator === 'contains' && typeof userValue === 'string' && typeof values[0] === 'string') {
+              return userValue.toLowerCase().includes(values[0].toLowerCase());
+            }
+            // Add other text operators: equals, startsWith, etc.
+            return true; // Default pass if operator not handled
+          }
+
+          case 'option': {
+            if (operator === 'is any of' && Array.isArray(values)) return values.includes(userValue as string);
+            if (operator === 'is' && typeof values[0] === 'string') return userValue === values[0];
+            // Add other option operators
+            return true;
+          }
+
+          // Add cases for 'number', 'date' filters based on bazza/ui operators
+          default:
+            return true;
+        }
+      });
     });
   }
 
-  // 3. Apply sorting
+  // 3. Apply sorting (same as before)
   if (sortField && sortOrder && sortField in users[0]) {
     filteredData.sort((a, b) => {
       const aValue = a[sortField as keyof User];
@@ -199,17 +257,12 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
     });
   }
 
-  // 4. Apply pagination
-  // Determine safe values for page and pageSize using defaultValue when params are missing
+  // 4. Apply pagination (same as before)
   const safePage = params.has('page') ? page : dataTableRouterParsers.page.defaultValue;
   const safePageSize = params.has('pageSize') ? pageSize : dataTableRouterParsers.pageSize.defaultValue;
   const start = safePage * safePageSize;
   const paginatedData = filteredData.slice(start, start + safePageSize);
 
-  // Log the data being returned for debugging
-  console.log(`Returning ${paginatedData.length} items, page ${safePage}, total ${filteredData.length}`);
-
-  // Return the data response
   return {
     data: paginatedData,
     meta: {
@@ -246,7 +299,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  args: {} as any,
+  args: {} as any, // Args for DataTableRouterForm if needed, handled by Example component
   render: () => <DataTableRouterFormExample />,
   parameters: {
     docs: {
