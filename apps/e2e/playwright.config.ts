@@ -27,10 +27,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
+  // In CI, we'll skip starting the web server and assume it's already running
+  webServer: process.env.CI ? undefined : {
     command: 'cd ../.. && yarn dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120000,
   },
 });
