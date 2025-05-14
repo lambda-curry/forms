@@ -3,13 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug",
-    "report": "playwright show-report"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.14.0"
+    "install-playwright": "npx playwright@1.40.0 install --with-deps",
+    "test": "npx playwright@1.40.0 test",
+    "test:ui": "npx playwright@1.40.0 test --ui",
+    "test:debug": "npx playwright@1.40.0 test --debug",
+    "report": "npx playwright@1.40.0 show-report"
   }
 }
-

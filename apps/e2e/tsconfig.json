@@ -8,8 +8,9 @@
     "outDir": "dist",
     "baseUrl": ".",
     "strict": true,
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "**/*.js"]
 }
-

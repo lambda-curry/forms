@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
-export default defineConfig({
+// Use require instead of import to avoid TypeScript errors
+// when @playwright/test is not in node_modules
+const { defineConfig, devices } = require('@playwright/test');
+
+module.exports = defineConfig({
   testDir: './tests',
   timeout: 60000,
   fullyParallel: true,
@@ -31,8 +35,7 @@ export default defineConfig({
   webServer: process.env.CI ? undefined : {
     command: 'cd ../.. && yarn dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
 });
-
