@@ -74,26 +74,15 @@ export function DataTableRouterForm<TData, TValue>({
     columnsConfig: filterColumnConfigs,
     options: dtfOptions,
     faceted: dtfFacetedData,
-    // initialFilters: urlState.filters, // Assuming an initialFilters prop if available for first load
+    filters: urlState.filters, // Use URL filters as the source of truth
+    onFiltersChange: (newFilters) => {
+      // Update URL state when filters change
+      setUrlState({ filters: newFilters as BazzaFiltersState, page: 0 });
+    },
   });
 
-  // Sync Bazza internal filters TO URL
-  useEffect(() => {
-    // Avoid loop if urlState.filters already matches dtfInternalFilters
-    // Deep comparison might be needed if objects are complex
-    if (JSON.stringify(dtfInternalFilters) !== JSON.stringify(urlState.filters)) {
-      setUrlState({ filters: dtfInternalFilters as BazzaFiltersState, page: 0 });
-    }
-  }, [dtfInternalFilters, urlState.filters, setUrlState]);
-
   // Sync URL filters TO Bazza internal filters (e.g., on back/forward nav)
-  useEffect(() => {
-    // Check if an action to set filters exists, e.g., dtfActions.setFiltersState
-    if (dtfActions.setFiltersState && JSON.stringify(urlState.filters) !== JSON.stringify(dtfInternalFilters)) {
-      dtfActions.setFiltersState(urlState.filters);
-    }
-    // This effect should also handle initial hydration if `initialFilters` prop wasn't used/available
-  }, [urlState.filters, dtfActions, dtfInternalFilters]);
+  // This is now handled by the controlled state pattern with filters and onFiltersChange
 
   // Sync RHF state if urlState changes (e.g., back/forward, external link)
   useEffect(() => {
@@ -167,11 +156,8 @@ export function DataTableRouterForm<TData, TValue>({
   };
 
   const handleResetFiltersAndSearch = () => {
-    if (dtfActions.setFiltersState) {
-      dtfActions.setFiltersState([]); // Reset Bazza UI filters
-    } else if (dtfActions.clearAllFilters) {
-      // Alternative action name
-      dtfActions.clearAllFilters();
+    if (dtfActions.removeAllFilters) {
+      dtfActions.removeAllFilters(); // Use the action from useDataTableFilters
     }
     // Then update URL, which will also clear Bazza filters via the effect if setFiltersState was not called
     setUrlState({
