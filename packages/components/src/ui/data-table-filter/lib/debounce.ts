@@ -1,138 +1,74 @@
-type ControlFunctions = {
-  cancel: () => void
-  flush: () => void
-  isPending: () => boolean
-}
-
-type DebounceOptions = {
-  leading?: boolean
-  trailing?: boolean
-  maxWait?: number
-}
-
+/**
+ * Debounce function for handling user input
+ * @param fn Function to debounce
+ * @param delay Delay in milliseconds
+ * @returns Debounced function
+ */
 export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number,
-  options: DebounceOptions = {},
-): ((...args: Parameters<T>) => ReturnType<T> | undefined) & ControlFunctions {
-  const { leading = false, trailing = true, maxWait } = options
-  let timeout: NodeJS.Timeout | null = null
-  let lastArgs: Parameters<T> | null = null
-  let lastThis: any
-  let result: ReturnType<T> | undefined
-  let lastCallTime: number | null = null
-  let lastInvokeTime = 0
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  /**
+   * Timeout ID for the debounced function
+   * Using ReturnType<typeof setTimeout> instead of NodeJS.Timeout for better compatibility
+   */
+  let timeout: ReturnType<typeof setTimeout> | null = null
 
-  const maxWaitTime = maxWait !== undefined ? Math.max(wait, maxWait) : null
+  /**
+   * Debounced function
+   * @param args Arguments to pass to the original function
+   */
+  return function (this: any, ...args: Parameters<T>): void {
+    const context = this
 
-  function invokeFunc(time: number): ReturnType<T> | undefined {
-    if (lastArgs === null) return undefined
-    const args = lastArgs
-    const thisArg = lastThis
-    lastArgs = null
-    lastThis = null
-    lastInvokeTime = time
-    result = func.apply(thisArg, args)
-    return result
-  }
-
-  function shouldInvoke(time: number): boolean {
-    if (lastCallTime === null) return false
-    const timeSinceLastCall = time - lastCallTime
-    const timeSinceLastInvoke = time - lastInvokeTime
-    return (
-      lastCallTime === null ||
-      timeSinceLastCall >= wait ||
-      timeSinceLastCall < 0 ||
-      (maxWaitTime !== null && timeSinceLastInvoke >= maxWaitTime)
-    )
-  }
-
-  function startTimer(
-    pendingFunc: () => void,
-    waitTime: number,
-  ): NodeJS.Timeout {
-    return setTimeout(pendingFunc, waitTime)
-  }
-
-  function remainingWait(time: number): number {
-    if (lastCallTime === null) return wait
-    const timeSinceLastCall = time - lastCallTime
-    const timeSinceLastInvoke = time - lastInvokeTime
-    const timeWaiting = wait - timeSinceLastCall
-    return maxWaitTime !== null
-      ? Math.min(timeWaiting, maxWaitTime - timeSinceLastInvoke)
-      : timeWaiting
-  }
-
-  function timerExpired() {
-    const time = Date.now()
-    if (shouldInvoke(time)) {
-      return trailingEdge(time)
-    }
-    timeout = startTimer(timerExpired, remainingWait(time))
-  }
-
-  function leadingEdge(time: number): ReturnType<T> | undefined {
-    lastInvokeTime = time
-    timeout = startTimer(timerExpired, wait)
-    return leading ? invokeFunc(time) : undefined
-  }
-
-  function trailingEdge(time: number): ReturnType<T> | undefined {
-    timeout = null
-    if (trailing && lastArgs) {
-      return invokeFunc(time)
-    }
-    lastArgs = null
-    lastThis = null
-    return result
-  }
-
-  function debounced(
-    this: any,
-    ...args: Parameters<T>
-  ): ReturnType<T> | undefined {
-    const time = Date.now()
-    const isInvoking = shouldInvoke(time)
-
-    lastArgs = args
-    lastThis = this
-    lastCallTime = time
-
-    if (isInvoking) {
-      if (timeout === null) {
-        return leadingEdge(lastCallTime)
-      }
-      if (maxWaitTime !== null) {
-        timeout = startTimer(timerExpired, wait)
-        return invokeFunc(lastCallTime)
-      }
-    }
-    if (timeout === null) {
-      timeout = startTimer(timerExpired, wait)
-    }
-    return result
-  }
-
-  debounced.cancel = () => {
-    if (timeout !== null) {
+    if (timeout) {
       clearTimeout(timeout)
     }
-    lastInvokeTime = 0
-    lastArgs = null
-    lastThis = null
-    lastCallTime = null
-    timeout = null
-  }
 
-  debounced.flush = () => {
-    return timeout === null ? result : trailingEdge(Date.now())
+    timeout = setTimeout(() => {
+      fn.apply(context, args)
+      timeout = null
+    }, delay)
   }
-
-  debounced.isPending = () => {
-    return timeout !== null
-  }
-
-  return debounced
 }
+
+/**
+ * Debounce function that returns a promise
+ * @param fn Function to debounce
+ * @param delay Delay in milliseconds
+ * @returns Debounced function that returns a promise
+ */
+export function debouncePromise<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+  /**
+   * Timeout ID for the debounced function
+   * Using ReturnType<typeof setTimeout> instead of NodeJS.Timeout for better compatibility
+   */
+  let timeout: ReturnType<typeof setTimeout> | null = null
+
+  /**
+   * Debounced function that returns a promise
+   * @param args Arguments to pass to the original function
+   * @returns Promise that resolves with the result of the original function
+   */
+  return function (
+    this: any,
+    ...args: Parameters<T>
+  ): ReturnType<typeof setTimeout> {
+    const context = this
+
+    return new Promise((resolve) => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
+      timeout = setTimeout(() => {
+        resolve(fn.apply(context, args))
+        timeout = null
+      }, delay)
+    }) as unknown as ReturnType<typeof setTimeout>
+  }
+}
+
