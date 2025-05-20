@@ -11,19 +11,24 @@ import { dataTableRouterParsers } from '../../remix-hook-form/data-table-router-
  * 
  * @returns A tuple containing the current filter state and a function to update it
  */
-export function useFilterSync(): [BazzaFiltersState, (newFilters: BazzaFiltersState) => void] {
+export function useFilterSync(): [BazzaFiltersState, (newFilters: BazzaFiltersState | ((prev: BazzaFiltersState) => BazzaFiltersState)) => void] {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Parse filters from URL
   const filtersFromUrl = dataTableRouterParsers.filters.parse(searchParams.get('filters'));
   
   // Function to update filters in URL
-  const setFilters = useCallback((newFilters: BazzaFiltersState) => {
+  const setFilters = useCallback((newFilters: BazzaFiltersState | ((prev: BazzaFiltersState) => BazzaFiltersState)) => {
+    // Handle functional updates by resolving the function with current filters
+    const resolvedFilters = typeof newFilters === 'function' 
+      ? newFilters(filtersFromUrl) 
+      : newFilters;
+    
     const newParams = new URLSearchParams(searchParams);
     
     // Update or remove the filters parameter
-    if (newFilters.length > 0) {
-      const serialized = dataTableRouterParsers.filters.serialize(newFilters);
+    if (resolvedFilters.length > 0) {
+      const serialized = dataTableRouterParsers.filters.serialize(resolvedFilters);
       if (serialized !== null) {
         newParams.set('filters', serialized);
       }
@@ -33,8 +38,7 @@ export function useFilterSync(): [BazzaFiltersState, (newFilters: BazzaFiltersSt
     
     // Update the URL with the new search parameters
     setSearchParams(newParams, { replace: true });
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, filtersFromUrl]);
   
   return [filtersFromUrl, setFilters];
 }
-
