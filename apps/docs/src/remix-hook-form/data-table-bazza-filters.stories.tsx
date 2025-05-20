@@ -341,11 +341,11 @@ function DataTableWithBazzaFilters() {
   const pageIndex = Number.parseInt(searchParams.get('page') ?? '0', 10);
   const pageSize = Number.parseInt(searchParams.get('pageSize') ?? '10', 10);
   const sortField = searchParams.get('sortField');
-  const sortDesc = searchParams.get('sortDesc') === 'true';
+  const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc'; // 'asc' or 'desc'
 
   // --- Pagination and Sorting State ---
   const pagination = { pageIndex, pageSize };
-  const sorting = sortField ? [{ id: sortField, desc: sortDesc }] : [];
+  const sorting = sortField ? [{ id: sortField, desc: sortOrder === 'desc' }] : [];
 
   // --- Event Handlers: update URL directly ---
   const handlePaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
@@ -359,10 +359,10 @@ function DataTableWithBazzaFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue;
     if (next.length > 0) {
       searchParams.set('sortField', next[0].id);
-      searchParams.set('sortDesc', next[0].desc ? 'true' : 'false');
+      searchParams.set('sortOrder', next[0].desc ? 'desc' : 'asc');
     } else {
       searchParams.delete('sortField');
-      searchParams.delete('sortDesc');
+      searchParams.delete('sortOrder');
     }
     navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
@@ -441,10 +441,10 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   const page = dataTableRouterParsers.page.parse(params.get('page')) ?? 0;
   let pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize')) ?? 10;
   const sortField = params.get('sortField'); // Get raw string or null
-  const sortDesc = params.get('sortDesc') === 'true'; // Convert to boolean
+  const sortOrder = (params.get('sortOrder') || 'asc') as 'asc' | 'desc'; // 'asc' or 'desc'
   const filtersParam = params.get('filters');
 
-  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortDesc, filtersParam });
+  console.log('handleDataFetch - Parsed Parameters:', { page, pageSize, sortField, sortOrder, filtersParam });
 
   if (!pageSize || pageSize <= 0) {
     console.log(`[Loader] - Invalid or missing pageSize (${pageSize}), defaulting to 10.`);
@@ -512,7 +512,7 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
       let comparison = 0;
       if (aValue < bValue) comparison = -1;
       if (aValue > bValue) comparison = 1;
-      return sortDesc ? comparison * -1 : comparison;
+      return sortOrder === 'desc' ? comparison * -1 : comparison;
     });
   }
 

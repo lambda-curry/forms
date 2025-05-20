@@ -121,5 +121,5 @@ export type DataTableRouterState = {
   page: number;
   pageSize: number;
   sortField: string;
-  sortOrder: string;
+  sortOrder: string; // 'asc' or 'desc'
 };
