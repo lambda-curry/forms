@@ -213,11 +213,12 @@ const testEdgeCases = () => {
   // Test building column without required fields
   try {
     const incompleteColumn = dtf.text().build();
-    // Should still work but may have undefined fields
-    expect(incompleteColumn.type).toBe('text');
+    // Should not reach here - should throw an error
+    throw new Error('Expected build() to throw an error for incomplete column');
   } catch (error) {
-    // If it throws, that's also acceptable behavior
+    // This is expected behavior - column builder requires all fields
     console.log('Column builder requires all fields to be set');
+    expect(error.message).toContain('required');
   }
   
   // Test with empty options array
@@ -226,6 +227,7 @@ const testEdgeCases = () => {
     .id('empty')
     .accessor((row) => row.status)
     .displayName('Empty Options')
+    .icon(CheckCircledIcon)
     .options([])
     .build();
   
@@ -253,6 +255,7 @@ const testTypeSafety = () => {
       return row.title;
     })
     .displayName('Title')
+    .icon(TextIcon)
     .build();
   
   expect(typedColumn.type).toBe('text');
@@ -263,6 +266,7 @@ const testTypeSafety = () => {
     .id('status')
     .accessor((row) => row.status)
     .displayName('Status')
+    .icon(CheckCircledIcon)
     .options([
       { value: 'todo', label: 'Todo' },
       { value: 'in progress', label: 'In Progress' },

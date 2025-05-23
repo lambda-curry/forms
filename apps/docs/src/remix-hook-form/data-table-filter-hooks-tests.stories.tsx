@@ -150,7 +150,6 @@ Utility hook for performance optimization:
       routes: [
         {
           path: '/',
-          Component: () => <div>Hook Tests</div>,
         },
       ],
     }),
@@ -525,4 +524,3 @@ export const ServerSideHookTests: Story = {
     console.log('✅ Server-Side Hook Tests completed');
   },
 };
-
