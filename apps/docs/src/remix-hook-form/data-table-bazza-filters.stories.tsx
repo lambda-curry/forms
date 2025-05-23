@@ -686,7 +686,7 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   return response;
 };
 
-const meta = {
+const meta: Meta<typeof DataTableWithBazzaFilters> = {
   title: 'Data Table/Bazza UI Filters',
   component: DataTableWithBazzaFilters,
   parameters: {
@@ -700,39 +700,17 @@ This component demonstrates the integration of Bazza UI filter components with d
 
 ## Features
 
-- **Multiple Filter Types**: Text, option, date, and number filters
-- **Server-Side Filtering**: Efficient filtering with pagination and faceted counts
-- **Client-Side Filtering**: Real-time filtering for immediate response
-- **URL State Synchronization**: Filter state persists across page refreshes
-- **Faceted Filtering**: Shows available options with counts
-- **Interactive Testing**: Comprehensive test coverage with @storybook/test
+1. **Server-side filtering**: Filters are processed on the server with URL state synchronization
+2. **Client-side filtering**: Real-time filtering without server requests
+3. **Faceted filtering**: Dynamic option counts based on current filter state
+4. **URL state management**: Filter state persists in URL for bookmarking and sharing
 
-## Filter Types Demonstrated
+## Migration Guide
 
-### Text Filters
-- **Title**: Search through task titles with contains matching
-- Supports partial text matching and case-insensitive search
+To migrate from the old data table implementation:
 
-### Option Filters  
-- **Status**: Single or multi-select from predefined options (Todo, In Progress, Done, Backlog)
-- **Assignee**: Filter by team member (Alice, Bob, Charlie)
-- **Priority**: Filter by priority level (Low, Medium, High)
-- Shows faceted counts for each option
-
-### Date Filters
-- **Created Date**: Filter by date ranges with calendar picker
-- Supports before, after, and between date operations
-
-### Number Filters
-- **Estimated Hours**: Filter by numeric ranges
-- Supports greater than, less than, and between operations
-
-## Migration from Legacy Filters
-
-If you're migrating from the legacy DataTableRouterForm filtering:
-
-1. **Replace filter configuration**: Use Bazza UI column config helper instead of TanStack table filterFn
-2. **Update imports**: Import from '@lambdacurry/forms/ui/data-table-filter'
+1. **Replace filter components**: Use Bazza UI filter components instead of custom filters
+2. **Update column definitions**: Use the new column configuration DSL
 3. **Use new hooks**: Replace custom filter logic with useDataTableFilters
 4. **Update URL handling**: Use useFilterSync for URL state management
 
