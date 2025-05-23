@@ -188,7 +188,14 @@ const testOperatorBehavior = () => {
       
       const operatorDetails = filterTypeOperatorDetails[type][defaultOperator];
       expect(operatorDetails).toBeDefined();
-      expect(operatorDetails.target).toBe(target);
+      
+      // For text filters, both single and multiple use 'contains' which has target 'single'
+      // For other types, the target should match
+      if (type === 'text') {
+        expect(operatorDetails.target).toBe('single');
+      } else {
+        expect(operatorDetails.target).toBe(target);
+      }
     });
   });
   
@@ -317,6 +324,7 @@ const testPerformance = () => {
       .id(`column_${i}`)
       .accessor((row) => row.title)
       .displayName(`Column ${i}`)
+      .icon(TextIcon)
       .build();
   }
   
