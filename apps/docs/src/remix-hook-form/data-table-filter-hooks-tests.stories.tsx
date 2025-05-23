@@ -102,45 +102,26 @@ const columnConfigs: DataTableColumnConfig<MockData>[] = [
     .build(),
 ];
 
-const meta: Meta = {
+const meta: Meta<typeof DataTableFilter> = {
   title: 'Data Table Filter/Hook Tests',
+  component: DataTableFilter,
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
         component: `
-# Bazza UI Data Table Filter - Hook Tests
+# Data Table Filter Hook Tests
 
-This story contains comprehensive tests for the custom hooks used in the Bazza UI Data Table Filter system.
+This story tests the individual hooks used by the Bazza UI Data Table Filter components.
 
 ## Hooks Tested
 
-### useDataTableFilters
-The main hook that orchestrates filtering functionality:
-- **Filter Management**: Handles filter state and updates
-- **Strategy Support**: Supports both client-side and server-side filtering
-- **Faceted Counts**: Manages option counts for faceted filtering
-- **Data Processing**: Filters data based on current filter state
-
-### useFilterSync
-URL synchronization hook for filter persistence:
-- **URL Synchronization**: Syncs filter state with URL parameters
-- **State Persistence**: Maintains filter state across page refreshes
-- **History Management**: Integrates with browser history
-
-### useDebounceCallback
-Utility hook for performance optimization:
-- **Debouncing**: Delays execution of callbacks to improve performance
-- **Cleanup**: Properly cleans up timers on unmount
-- **Configurable Delay**: Supports custom debounce delays
+- **useDataTableFilters**: Main hook for managing filter state and data processing
+- **useFilterSync**: URL synchronization hook
 
 ## Test Coverage
 
-- **Hook Initialization**: Tests proper hook setup and initial state
-- **State Management**: Verifies state updates and synchronization
-- **Filter Application**: Tests filter logic for different data types
-- **Performance**: Ensures hooks perform well with large datasets
-- **Edge Cases**: Handles invalid inputs and error conditions
+Each hook is tested in isolation to ensure proper functionality and integration.
         `,
       },
     },
@@ -150,12 +131,13 @@ Utility hook for performance optimization:
       routes: [
         {
           path: '/',
+          Component: () => <div>Hook Tests</div>,
         },
       ],
     }),
   ],
   tags: ['autodocs'],
-};
+} satisfies Meta<typeof DataTableFilter>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -1,9 +1,11 @@
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import { DEFAULT_OPERATORS, filterTypeOperatorDetails } from '@lambdacurry/forms/ui/data-table-filter/core/operators';
 import type { ColumnDataType, FilterOperatorTarget } from '@lambdacurry/forms/ui/data-table-filter/core/types';
+import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect } from '@storybook/test';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 /**
  * Unit Tests for Bazza UI Data Table Filter Core Utilities
@@ -25,8 +27,9 @@ interface MockData {
   estimatedHours: number;
 }
 
-const meta: Meta = {
+const meta: Meta<typeof DataTableFilter> = {
   title: 'Data Table Filter/Unit Tests',
+  component: DataTableFilter,
   parameters: {
     layout: 'centered',
     docs: {
@@ -61,8 +64,18 @@ These tests run in Storybook using @storybook/test and verify:
       },
     },
   },
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: () => <div>Unit Tests</div>,
+        },
+      ],
+    }),
+  ],
   tags: ['autodocs'],
-};
+} satisfies Meta<typeof DataTableFilter>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
