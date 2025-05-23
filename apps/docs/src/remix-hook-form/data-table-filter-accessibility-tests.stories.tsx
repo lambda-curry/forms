@@ -1,7 +1,7 @@
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
-import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter';
-import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters';
+import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter'; // Direct import to avoid circular dependency
+import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters'; // Direct import to avoid circular dependency
 import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';

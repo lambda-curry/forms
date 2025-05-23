@@ -1,7 +1,8 @@
 // --- NEW IMPORTS for Router Form data handling ---
 import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers'; // Use parsers
 // --- Corrected Hook Import Paths ---
-import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter'; // Use the barrel file export
+import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter'; // Direct import to avoid circular dependency
+import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters'; // Direct import to avoid circular dependency
 // --- NEW IMPORTS for Bazza UI Filters ---
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters'; // Assuming path
 import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
@@ -11,7 +12,6 @@ import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-tab
 import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
 import { filtersArraySchema } from '@lambdacurry/forms/ui/utils/filters'; // Assuming path alias
 // --- Re-add useDataTableFilters import ---
-import { useDataTableFilters } from '@lambdacurry/forms/ui/utils/use-data-table-filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync'; // Ensure this is the correct path for filter sync
 // Add icon imports
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
@@ -931,5 +931,110 @@ This story specifically highlights the faceted filtering capabilities of Bazza U
     // For now, we'll just verify the filter interface is working
     const statusFilter = await canvas.findByText('Status');
     expect(statusFilter).toBeInTheDocument();
+  },
+};
+
+// --- Simple Test Component (No Router Dependencies) ---
+function SimpleDataTableFilterTest() {
+  const [filters, setFilters] = useFilterSync();
+
+  const {
+    columns,
+    actions,
+    strategy,
+  } = useDataTableFilters<MockIssue>({
+    columnsConfig: columnConfigs,
+    filters,
+    onFiltersChange: setFilters,
+    strategy: 'client',
+    data: mockDatabase.slice(0, 5), // Use first 5 items for simple test
+  });
+
+  return (
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Simple Data Table Filter Test</h1>
+        <p className="text-gray-600 mb-6">
+          Testing basic DataTableFilter component rendering without router dependencies.
+        </p>
+      </div>
+
+      <div className="border rounded-lg p-4">
+        <h2 className="text-lg font-semibold mb-4">Filter Interface</h2>
+        <DataTableFilter 
+          columns={columns} 
+          filters={filters} 
+          actions={actions} 
+          strategy={strategy} 
+        />
+      </div>
+
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h3 className="font-semibold mb-2">Current Filter State</h3>
+        <p className="text-sm font-mono">
+          Active Filters: {filters.length}
+        </p>
+        {filters.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {filters.map((filter, index) => (
+              <li key={filter.id} className="text-sm font-mono">
+                {index + 1}. {filter.columnId}: {filter.operator} {JSON.stringify(filter.values)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const SimpleFilterTest: Story = {
+  render: () => <SimpleDataTableFilterTest />,
+  play: async ({ canvasElement }) => {
+    console.log('🚀 Starting Simple Filter Test...');
+    
+    const canvas = within(canvasElement);
+    
+    // Check if the basic component renders
+    const title = await canvas.findByText('Simple Data Table Filter Test');
+    expect(title).toBeInTheDocument();
+    
+    // Check if the filter interface renders
+    const filterInterface = await canvas.findByText('Filter Interface');
+    expect(filterInterface).toBeInTheDocument();
+    
+    console.log('✅ Simple Filter Test completed successfully!');
+  },
+};
+
+// --- Ultra Simple Test Component (No Dependencies) ---
+function UltraSimpleTestComponent() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Ultra Simple Test</h1>
+      <p className="text-gray-600 mb-6">
+        Testing basic component rendering without any dependencies.
+      </p>
+      <div className="border rounded-lg p-4">
+        <h2 className="text-lg font-semibold mb-4">Basic Component Test</h2>
+        <p>This is a basic test to verify Storybook rendering works.</p>
+      </div>
+    </div>
+  );
+}
+
+export const UltraSimpleTest: Story = {
+  render: () => <UltraSimpleTestComponent />,
+  decorators: [], // Override the default decorators to avoid React Router
+  play: async ({ canvasElement }) => {
+    console.log('🚀 Starting Ultra Simple Test...');
+    
+    const canvas = within(canvasElement);
+    
+    // Check if the basic component renders
+    const title = await canvas.findByText('Ultra Simple Test');
+    expect(title).toBeInTheDocument();
+    
+    console.log('✅ Ultra Simple Test completed successfully!');
   },
 };
