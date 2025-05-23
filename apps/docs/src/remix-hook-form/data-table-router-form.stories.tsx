@@ -279,6 +279,41 @@ const meta = {
   component: DataTableRouterForm,
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      description: {
+        component: `
+# Data Table Router Form (Legacy)
+
+This component demonstrates the legacy data table filtering approach using DataTableRouterForm. 
+
+## ⚠️ Migration Notice
+
+**This component is being superseded by the new Bazza UI filter components.** 
+
+For new projects, please use the **Data Table/Bazza UI Filters** stories instead, which provide:
+- Better type safety with column configuration helpers
+- More filter types (text, option, date, number)
+- Improved user experience with faceted filtering
+- Better URL state management
+- Enhanced accessibility
+
+## Migration Path
+
+To migrate from this legacy approach to Bazza UI filters:
+
+1. **Replace DataTableRouterForm** with direct DataTable usage
+2. **Update filter configuration** from TanStack table filterFn to Bazza UI column configs
+3. **Use new hooks**: Replace custom logic with useDataTableFilters and useFilterSync
+4. **Update imports**: Import from '@lambdacurry/forms/ui/data-table-filter'
+
+See the **Data Table/Bazza UI Filters** stories for complete migration examples.
+
+## Current Implementation
+
+This story shows the current DataTableRouterForm implementation with basic Bazza filter integration for backward compatibility.
+        `,
+      },
+    },
   },
   decorators: [
     withReactRouterStubDecorator({
@@ -304,7 +339,47 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'This is a description of the DataTableRouterForm component.',
+        story: `
+**Legacy Data Table with Basic Filtering**
+
+This story demonstrates the legacy DataTableRouterForm component with basic filtering capabilities.
+
+**⚠️ For New Projects**: Use the **Data Table/Bazza UI Filters** stories instead for:
+- Enhanced filter types (text, option, date, number)
+- Better user experience with faceted filtering
+- Improved type safety and maintainability
+
+**Features Shown:**
+- Basic server-side filtering and pagination
+- URL state synchronization
+- Simple filter configuration
+
+**Migration Example:**
+Instead of configuring filters in TanStack table columns, use Bazza UI column config:
+
+\`\`\`typescript
+// Legacy approach (this story)
+{
+  accessorKey: 'role',
+  enableColumnFilter: true,
+  filterFn: (row, id, value: string[]) => {
+    return value.includes(row.getValue(id));
+  },
+}
+
+// New Bazza UI approach (recommended)
+dtf
+  .option()
+  .id('role')
+  .accessor((row) => row.role)
+  .displayName('Role')
+  .options([
+    { value: 'admin', label: 'Admin' },
+    { value: 'user', label: 'User' },
+  ])
+  .build()
+\`\`\`
+        `,
       },
     },
   },
