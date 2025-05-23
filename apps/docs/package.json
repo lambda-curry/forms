@@ -6,8 +6,8 @@
     "build": "storybook build",
     "build-storybook": "storybook build",
     "storybook": "storybook dev -p 6006",
-    "serve": "http-server ./storybook-static -p 6006 -s",
-    "test": "start-server-and-test serve http://127.0.0.1:6006 'test-storybook --url http://127.0.0.1:6006'",
+    "serve": "http-server ./storybook-static -p 9876 -s",
+    "test": "test-storybook --ci",
     "test:local": "test-storybook"
   },
   "dependencies": {
