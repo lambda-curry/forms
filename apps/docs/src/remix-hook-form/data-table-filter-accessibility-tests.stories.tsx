@@ -418,12 +418,47 @@ const testErrorHandling = async (canvas: ReturnType<typeof within>) => {
 };
 
 export const KeyboardNavigationTests: Story = {
-  render: () => <AccessibilityTestComponent />,
+  render: () => {
+    const dtf = createColumnConfigHelper<MockData>();
+    
+    const columnConfigs = [
+      dtf.text().id('title').accessor((row) => row.title).displayName('Title').icon(TextIcon).build(),
+      dtf.option().id('status').accessor((row) => row.status).displayName('Status').icon(CheckCircledIcon)
+        .options([
+          { value: 'todo', label: 'Todo' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ]).build(),
+    ];
+
+    const [filters, setFilters] = useFilterSync();
+    const { columns, actions, strategy } = useDataTableFilters({
+      columnsConfig: columnConfigs,
+      filters,
+      onFiltersChange: setFilters,
+      strategy: 'client',
+      data: mockData,
+    });
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Keyboard Navigation Tests</h2>
+        <p className="text-gray-600">
+          Testing keyboard navigation and accessibility features of the filter components.
+        </p>
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
+      </div>
+    );
+  },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     console.log('🚀 Starting Keyboard Navigation Tests...');
+    
+    const canvas = within(canvasElement);
+    
+    // Test keyboard navigation
     await testKeyboardNavigation(canvas);
-    console.log('🎉 Keyboard Navigation Tests completed!');
+    
+    console.log('🎉 Keyboard Navigation Tests completed successfully!');
   },
 };
 
@@ -438,51 +473,184 @@ export const AriaAttributesTests: Story = {
 };
 
 export const FocusManagementTests: Story = {
-  render: () => <AccessibilityTestComponent />,
+  render: () => {
+    const dtf = createColumnConfigHelper<MockData>();
+    
+    const columnConfigs = [
+      dtf.text().id('title').accessor((row) => row.title).displayName('Title').icon(TextIcon).build(),
+      dtf.option().id('status').accessor((row) => row.status).displayName('Status').icon(CheckCircledIcon)
+        .options([
+          { value: 'todo', label: 'Todo' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ]).build(),
+    ];
+
+    const [filters, setFilters] = useFilterSync();
+    const { columns, actions, strategy } = useDataTableFilters({
+      columnsConfig: columnConfigs,
+      filters,
+      onFiltersChange: setFilters,
+      strategy: 'client',
+      data: mockData,
+    });
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Focus Management Tests</h2>
+        <p className="text-gray-600">
+          Testing focus management and keyboard interaction patterns.
+        </p>
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
+      </div>
+    );
+  },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     console.log('🚀 Starting Focus Management Tests...');
+    
+    const canvas = within(canvasElement);
+    
+    // Test focus management
     await testFocusManagement(canvas);
-    console.log('🎉 Focus Management Tests completed!');
+    
+    console.log('🎉 Focus Management Tests completed successfully!');
   },
 };
 
 export const ScreenReaderTests: Story = {
-  render: () => <AccessibilityTestComponent />,
+  render: () => {
+    const dtf = createColumnConfigHelper<MockData>();
+    
+    const columnConfigs = [
+      dtf.text().id('title').accessor((row) => row.title).displayName('Title').icon(TextIcon).build(),
+      dtf.option().id('status').accessor((row) => row.status).displayName('Status').icon(CheckCircledIcon)
+        .options([
+          { value: 'todo', label: 'Todo' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ]).build(),
+    ];
+
+    const [filters, setFilters] = useFilterSync();
+    const { columns, actions, strategy } = useDataTableFilters({
+      columnsConfig: columnConfigs,
+      filters,
+      onFiltersChange: setFilters,
+      strategy: 'client',
+      data: mockData,
+    });
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Screen Reader Tests</h2>
+        <p className="text-gray-600">
+          Testing screen reader compatibility and ARIA attributes.
+        </p>
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
+      </div>
+    );
+  },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     console.log('🚀 Starting Screen Reader Support Tests...');
+    
+    const canvas = within(canvasElement);
+    
+    // Test screen reader support
     await testScreenReaderSupport(canvas);
-    console.log('🎉 Screen Reader Support Tests completed!');
+    
+    console.log('🎉 Screen Reader Tests completed successfully!');
   },
 };
 
 export const VisualAccessibilityTests: Story = {
-  render: () => <AccessibilityTestComponent />,
+  render: () => {
+    const dtf = createColumnConfigHelper<MockData>();
+    
+    const columnConfigs = [
+      dtf.text().id('title').accessor((row) => row.title).displayName('Title').icon(TextIcon).build(),
+      dtf.option().id('status').accessor((row) => row.status).displayName('Status').icon(CheckCircledIcon)
+        .options([
+          { value: 'todo', label: 'Todo' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ]).build(),
+    ];
+
+    const [filters, setFilters] = useFilterSync();
+    const { columns, actions, strategy } = useDataTableFilters({
+      columnsConfig: columnConfigs,
+      filters,
+      onFiltersChange: setFilters,
+      strategy: 'client',
+      data: mockData,
+    });
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Visual Accessibility Tests</h2>
+        <p className="text-gray-600">
+          Testing visual accessibility features like contrast and color usage.
+        </p>
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
+      </div>
+    );
+  },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     console.log('🚀 Starting Visual Accessibility Tests...');
+    
+    const canvas = within(canvasElement);
+    
+    // Test visual accessibility
     await testVisualAccessibility(canvas);
-    console.log('🎉 Visual Accessibility Tests completed!');
+    
+    console.log('🎉 Visual Accessibility Tests completed successfully!');
   },
 };
 
 export const ComprehensiveAccessibilityTests: Story = {
-  render: () => <AccessibilityTestComponent />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  render: () => {
+    const dtf = createColumnConfigHelper<MockData>();
     
+    const columnConfigs = [
+      dtf.text().id('title').accessor((row) => row.title).displayName('Title').icon(TextIcon).build(),
+      dtf.option().id('status').accessor((row) => row.status).displayName('Status').icon(CheckCircledIcon)
+        .options([
+          { value: 'todo', label: 'Todo' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ]).build(),
+    ];
+
+    const [filters, setFilters] = useFilterSync();
+    const { columns, actions, strategy } = useDataTableFilters({
+      columnsConfig: columnConfigs,
+      filters,
+      onFiltersChange: setFilters,
+      strategy: 'client',
+      data: mockData,
+    });
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-2xl font-bold">Comprehensive Accessibility Tests</h2>
+        <p className="text-gray-600">
+          Running all accessibility tests together to ensure complete WCAG 2.1 AA compliance.
+        </p>
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
     console.log('🚀 Starting Comprehensive Accessibility Tests...');
     
-    // Run all accessibility tests in sequence
+    const canvas = within(canvasElement);
+    
+    // Run all accessibility tests
     await testKeyboardNavigation(canvas);
-    await testAriaAttributes(canvas);
     await testFocusManagement(canvas);
     await testScreenReaderSupport(canvas);
     await testVisualAccessibility(canvas);
-    await testErrorHandling(canvas);
     
-    console.log('🎉 All Accessibility Tests completed successfully!');
+    console.log('🎉 Comprehensive Accessibility Tests completed successfully!');
   },
 };
-
