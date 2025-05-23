@@ -6,7 +6,7 @@ import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, waitFor, within } from '@storybook/test';
 import { useState } from 'react';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -245,7 +245,7 @@ const testKeyboardNavigation = async (canvas: ReturnType<typeof within>) => {
   console.log('🧪 Testing Keyboard Navigation...');
 
   // Test tab order
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   expect(filterButton).toBeInTheDocument();
 
   // Focus the filter button
@@ -278,7 +278,7 @@ const testAriaAttributes = async (canvas: ReturnType<typeof within>) => {
   console.log('🧪 Testing ARIA Attributes...');
 
   // Test filter button has proper ARIA attributes
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   expect(filterButton).toHaveAttribute('aria-haspopup');
   
   // Test that interactive elements have proper roles
@@ -307,7 +307,7 @@ const testAriaAttributes = async (canvas: ReturnType<typeof within>) => {
 const testFocusManagement = async (canvas: ReturnType<typeof within>) => {
   console.log('🧪 Testing Focus Management...');
 
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   
   // Test initial focus
   filterButton.focus();
@@ -340,7 +340,7 @@ const testScreenReaderSupport = async (canvas: ReturnType<typeof within>) => {
   console.log('🧪 Testing Screen Reader Support...');
 
   // Test that filter button has accessible name
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   expect(filterButton).toHaveAccessibleName();
 
   // Test that filter chips have accessible names when present
@@ -383,7 +383,7 @@ const testVisualAccessibility = async (canvas: ReturnType<typeof within>) => {
   console.log('🧪 Testing Visual Accessibility...');
 
   // Test that interactive elements have visible focus indicators
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   filterButton.focus();
 
   // Check if focus indicator is visible (this is a basic check)
@@ -411,7 +411,7 @@ const testErrorHandling = async (canvas: ReturnType<typeof within>) => {
   // This would be more relevant if we had form validation in the filter interface
   
   // For now, test that the interface handles invalid states gracefully
-  const filterButton = canvas.getByRole('button', { name: /filter/i });
+  const filterButton = await canvas.findByRole('button', { name: /filter/i });
   expect(filterButton).not.toHaveAttribute('aria-invalid');
 
   console.log('✅ Error Handling Accessibility tests passed');
