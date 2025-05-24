@@ -1,0 +1,363 @@
+---
+type: Always
+description: Monorepo structure and import conventions for the lambda-curry/forms repository
+---
+
+You are an expert in monorepo architecture, package management, and TypeScript module organization.
+
+# Monorepo Organization & Import Conventions
+
+## Core Principles
+- Maintain clear separation between packages and apps
+- Use consistent import patterns across the monorepo
+- Follow package naming conventions
+- Organize exports for optimal tree-shaking
+- Ensure proper dependency management
+
+## Project Structure
+```
+lambda-curry/forms/
+├── apps/
+│   └── docs/                 # Storybook documentation app
+│       ├── src/
+│       │   ├── remix-hook-form/  # Story files
+│       │   └── lib/              # Storybook utilities
+│       └── package.json
+├── packages/
+│   └── components/           # Main component library
+│       ├── src/
+│       │   ├── remix-hook-form/  # Form-aware components
+│       │   ├── ui/               # Base UI components
+│       │   └── index.ts          # Main export file
+│       └── package.json
+├── package.json              # Root package.json
+└── turbo.json               # Turbo configuration
+```
+
+## Package Import Patterns
+
+### External Package Imports
+```typescript
+// ✅ Use package name imports for published packages
+import { TextField } from '@lambdacurry/forms/remix-hook-form';
+import { Button } from '@lambdacurry/forms/ui';
+
+// ✅ Import from specific entry points
+import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
+import { Button } from '@lambdacurry/forms/ui/button';
+```
+
+### Internal Package Imports
+```typescript
+// ✅ Use relative imports within the same package
+import { FormControl } from './form';
+import { cn } from './utils';
+
+// ✅ Use relative imports for sibling directories
+import { Button } from '../ui/button';
+import { TextField as BaseTextField } from '../ui/text-field';
+```
+
+### Cross-Package Dependencies
+```typescript
+// ✅ In apps/docs - import from package name
+import { TextField } from '@lambdacurry/forms/remix-hook-form';
+import { Button } from '@lambdacurry/forms/ui';
+
+// ❌ Don't use relative imports across packages
+import { TextField } from '../../packages/components/src/remix-hook-form/text-field';
+```
+
+## Export Conventions
+
+### Package Entry Points
+```typescript
+// packages/components/src/index.ts
+export * from './ui';
+export * from './remix-hook-form';
+
+// packages/components/src/ui/index.ts
+export { Button } from './button';
+export type { ButtonProps } from './button';
+export { Input } from './input';
+export type { InputProps } from './input';
+
+// packages/components/src/remix-hook-form/index.ts
+export { TextField } from './text-field';
+export type { TextFieldProps } from './text-field';
+export { Checkbox } from './checkbox';
+export type { CheckboxProps } from './checkbox';
+```
+
+### Specific Entry Points (package.json)
+```json
+{
+  "name": "@lambdacurry/forms",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./remix-hook-form": {
+      "import": {
+        "types": "./dist/remix-hook-form/index.d.ts",
+        "default": "./dist/remix-hook-form/index.js"
+      }
+    },
+    "./ui": {
+      "import": {
+        "types": "./dist/ui/index.d.ts",
+        "default": "./dist/ui/index.js"
+      }
+    }
+  }
+}
+```
+
+### Component Exports
+```typescript
+// ✅ Always export both component and props type
+export { ComponentName };
+export type { ComponentNameProps };
+
+// ✅ Use named exports for better tree-shaking
+export const ComponentName = () => { /* ... */ };
+
+// ❌ Avoid default exports for components
+export default ComponentName;
+```
+
+## File Naming Conventions
+
+### Component Files
+```
+// ✅ Use kebab-case for file names
+text-field.tsx
+data-table.tsx
+dropdown-menu.tsx
+
+// ✅ Match component name in PascalCase
+// text-field.tsx exports TextField
+// data-table.tsx exports DataTable
+```
+
+### Directory Structure
+```
+src/
+├── remix-hook-form/          # Form-aware wrapper components
+│   ├── text-field.tsx        # TextField component
+│   ├── checkbox.tsx          # Checkbox component
+│   ├── form.tsx              # Form utilities
+│   └── index.ts              # Package exports
+├── ui/                       # Base UI components
+│   ├── button.tsx            # Button component
+│   ├── input.tsx             # Input component
+│   ├── utils/                # Utility functions
+│   │   ├── cn.ts             # Class name utility
+│   │   └── index.ts          # Utility exports
+│   └── index.ts              # Package exports
+└── index.ts                  # Main package export
+```
+
+## Dependency Management
+
+### Package Dependencies
+```json
+// packages/components/package.json
+{
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "remix-hook-form": "7.0.0"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.2"
+  }
+}
+```
+
+### Workspace Dependencies
+```json
+// apps/docs/package.json
+{
+  "dependencies": {
+    "@lambdacurry/forms": "*"  // Use workspace version
+  }
+}
+```
+
+## TypeScript Configuration
+
+### Path Mapping
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@lambdacurry/forms": ["./packages/components/src"],
+      "@lambdacurry/forms/*": ["./packages/components/src/*"]
+    }
+  }
+}
+```
+
+### Package TypeScript Config
+```json
+// packages/components/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"]
+}
+```
+
+## Build Configuration
+
+### Turbo Configuration
+```json
+// turbo.json
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"]
+    }
+  }
+}
+```
+
+### Vite Build Config
+```typescript
+// packages/components/vite.config.ts
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
+
+export default defineConfig({
+  plugins: [dts()],
+  build: {
+    lib: {
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        'remix-hook-form/index': resolve(__dirname, 'src/remix-hook-form/index.ts'),
+        'ui/index': resolve(__dirname, 'src/ui/index.ts'),
+      },
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom', 'remix-hook-form'],
+    },
+  },
+});
+```
+
+## Import Organization
+
+### Import Order
+```typescript
+// 1. External library imports
+import * as React from 'react';
+import { type VariantProps, cva } from 'class-variance-authority';
+import { Slot } from '@radix-ui/react-slot';
+
+// 2. Internal package imports (same package)
+import { cn } from './utils';
+import { FormControl } from './form';
+
+// 3. Cross-package imports
+import { Button } from '@lambdacurry/forms/ui';
+
+// 4. Type-only imports (grouped separately)
+import type { ComponentProps } from 'react';
+import type { FormFieldProps } from './types';
+```
+
+### Re-export Patterns
+```typescript
+// ✅ Re-export with explicit names
+export { Button } from './button';
+export { Input } from './input';
+
+// ✅ Re-export types explicitly
+export type { ButtonProps } from './button';
+export type { InputProps } from './input';
+
+// ✅ Barrel exports for convenience
+export * from './components';
+
+// ❌ Avoid mixing default and named exports
+export { default as Button } from './button';
+```
+
+## Versioning Strategy
+
+### Package Versioning
+```json
+// Use consistent versioning across packages
+{
+  "name": "@lambdacurry/forms",
+  "version": "0.15.1"
+}
+```
+
+### Changesets Integration
+```markdown
+---
+"@lambdacurry/forms": minor
+---
+
+Add new TextField component with validation support
+```
+
+## Documentation Structure
+```
+docs/
+├── components/               # Component documentation
+│   ├── text-field.mdx
+│   └── button.mdx
+├── guides/                   # Usage guides
+│   ├── getting-started.mdx
+│   └── form-validation.mdx
+└── examples/                 # Code examples
+    ├── basic-form.tsx
+    └── advanced-form.tsx
+```
+
+## Best Practices
+
+### Package Boundaries
+- Keep form-aware components separate from base UI components
+- Don't import from `remix-hook-form` package in `ui` components
+- Use composition over inheritance for cross-package functionality
+
+### Performance
+- Use tree-shaking friendly exports
+- Avoid circular dependencies
+- Keep bundle sizes minimal with proper externals
+
+### Maintenance
+- Use consistent naming across packages
+- Document breaking changes in changelogs
+- Maintain backward compatibility when possible
+
+Remember: A well-organized monorepo makes development faster and more predictable. Every import should be intentional and follow the established patterns to maintain consistency across the codebase.
+

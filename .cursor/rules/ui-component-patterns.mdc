@@ -1,0 +1,448 @@
+---
+type: Always
+description: UI component patterns for Radix UI, Tailwind CSS, and class-variance-authority integration
+---
+
+You are an expert in Radix UI, Tailwind CSS, class-variance-authority (CVA), and accessible component design.
+
+# UI Component Patterns
+
+## Core Principles
+- Build accessible-first components using Radix UI primitives
+- Use Tailwind CSS with a mobile-first responsive approach
+- Implement consistent variant patterns with class-variance-authority
+- Follow the Slot pattern for polymorphic components
+- Maintain design system consistency across all components
+
+## Class Variance Authority (CVA) Patterns
+
+### Basic CVA Setup
+```typescript
+import { type VariantProps, cva } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  // Base classes - always applied
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 rounded-md px-3',
+        lg: 'h-11 rounded-md px-8',
+        icon: 'h-10 w-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+// Extract variant props type
+export interface ButtonProps 
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+```
+
+### Complex Variant Patterns
+```typescript
+const inputVariants = cva(
+  'flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+  {
+    variants: {
+      size: {
+        default: 'h-10',
+        sm: 'h-9',
+        lg: 'h-11',
+      },
+      variant: {
+        default: 'border-input',
+        error: 'border-destructive focus-visible:ring-destructive',
+        success: 'border-green-500 focus-visible:ring-green-500',
+      },
+    },
+    compoundVariants: [
+      {
+        variant: 'error',
+        size: 'sm',
+        class: 'text-xs',
+      },
+    ],
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+```
+
+## Radix UI Integration Patterns
+
+### Basic Radix Component
+```typescript
+import * as React from 'react';
+import * as RadixPrimitive from '@radix-ui/react-primitive';
+import { cn } from './utils';
+
+const Component = React.forwardRef<
+  React.ElementRef<typeof RadixPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof RadixPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <RadixPrimitive.Root
+    ref={ref}
+    className={cn('base-styles', className)}
+    {...props}
+  />
+));
+Component.displayName = RadixPrimitive.Root.displayName;
+```
+
+### Compound Radix Components
+```typescript
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+
+const DropdownMenu = DropdownMenuPrimitive.Root;
+const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+
+const DropdownMenuContent = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        className
+      )}
+      {...props}
+    />
+  </DropdownMenuPrimitive.Portal>
+));
+DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
+
+// Export compound component
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+};
+```
+
+## Slot Pattern for Polymorphic Components
+```typescript
+import { Slot } from '@radix-ui/react-slot';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
+  variant?: 'default' | 'destructive' | 'outline';
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+
+// Usage examples:
+// <Button>Regular button</Button>
+// <Button asChild><Link to="/home">Link button</Link></Button>
+```
+
+## Tailwind CSS Organization Patterns
+
+### Responsive Design
+```typescript
+// Mobile-first responsive classes
+const responsiveClasses = cn(
+  'text-sm',           // Mobile default
+  'md:text-base',      // Tablet and up
+  'lg:text-lg',        // Desktop and up
+  'xl:text-xl'         // Large desktop
+);
+
+// Container patterns
+const containerClasses = cn(
+  'w-full',
+  'max-w-sm',          // Mobile
+  'sm:max-w-md',       // Small tablet
+  'md:max-w-lg',       // Tablet
+  'lg:max-w-xl',       // Desktop
+  'xl:max-w-2xl'       // Large desktop
+);
+```
+
+### Component State Classes
+```typescript
+const stateClasses = cn(
+  // Base state
+  'bg-background text-foreground',
+  // Hover state
+  'hover:bg-accent hover:text-accent-foreground',
+  // Focus state
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  // Active state
+  'active:scale-95',
+  // Disabled state
+  'disabled:pointer-events-none disabled:opacity-50',
+  // Data states (for Radix components)
+  'data-[state=open]:bg-accent',
+  'data-[state=closed]:bg-background'
+);
+```
+
+### Animation Classes
+```typescript
+const animationClasses = cn(
+  // Transitions
+  'transition-all duration-200 ease-in-out',
+  // Enter animations
+  'data-[state=open]:animate-in',
+  'data-[state=open]:fade-in-0',
+  'data-[state=open]:zoom-in-95',
+  // Exit animations
+  'data-[state=closed]:animate-out',
+  'data-[state=closed]:fade-out-0',
+  'data-[state=closed]:zoom-out-95',
+  // Slide animations
+  'data-[side=bottom]:slide-in-from-top-2',
+  'data-[side=left]:slide-in-from-right-2',
+  'data-[side=right]:slide-in-from-left-2',
+  'data-[side=top]:slide-in-from-bottom-2'
+);
+```
+
+## Accessibility Patterns
+
+### ARIA Attributes
+```typescript
+interface AccessibleComponentProps {
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
+  'aria-expanded'?: boolean;
+  'aria-selected'?: boolean;
+  'aria-disabled'?: boolean;
+}
+
+// Example implementation
+const AccessibleButton = ({ 
+  children, 
+  'aria-label': ariaLabel,
+  disabled,
+  ...props 
+}: ButtonProps & AccessibleComponentProps) => (
+  <button
+    aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
+    aria-disabled={disabled}
+    disabled={disabled}
+    {...props}
+  >
+    {children}
+  </button>
+);
+```
+
+### Keyboard Navigation
+```typescript
+const handleKeyDown = (event: React.KeyboardEvent) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault();
+      onClick?.(event as any);
+      break;
+    case 'Escape':
+      onClose?.();
+      break;
+    case 'ArrowDown':
+      event.preventDefault();
+      focusNext();
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      focusPrevious();
+      break;
+  }
+};
+```
+
+### Focus Management
+```typescript
+const useFocusManagement = () => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  const focusFirst = React.useCallback(() => {
+    const firstFocusable = containerRef.current?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    ) as HTMLElement;
+    firstFocusable?.focus();
+  }, []);
+  
+  const trapFocus = React.useCallback((event: KeyboardEvent) => {
+    if (event.key !== 'Tab') return;
+    
+    const focusableElements = containerRef.current?.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (!focusableElements?.length) return;
+    
+    const firstElement = focusableElements[0] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+    
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }, []);
+  
+  return { containerRef, focusFirst, trapFocus };
+};
+```
+
+## Form Field Integration Patterns
+```typescript
+interface FieldWrapperProps {
+  label?: string;
+  description?: string;
+  error?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}
+
+const FieldWrapper = ({ 
+  label, 
+  description, 
+  error, 
+  required, 
+  children 
+}: FieldWrapperProps) => (
+  <div className="space-y-2">
+    {label && (
+      <label className={cn(
+        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        required && 'after:content-["*"] after:ml-0.5 after:text-destructive'
+      )}>
+        {label}
+      </label>
+    )}
+    <div className="relative">
+      {children}
+    </div>
+    {description && (
+      <p className="text-sm text-muted-foreground">
+        {description}
+      </p>
+    )}
+    {error && (
+      <p className="text-sm font-medium text-destructive">
+        {error}
+      </p>
+    )}
+  </div>
+);
+```
+
+## Component Composition Patterns
+```typescript
+// Prefix/Suffix pattern for inputs
+interface InputWithAddonsProps extends InputProps {
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+}
+
+const InputWithAddons = ({ prefix, suffix, className, ...props }: InputWithAddonsProps) => (
+  <div className="relative flex items-center">
+    {prefix && (
+      <div className="absolute left-3 z-10 flex items-center text-muted-foreground">
+        {prefix}
+      </div>
+    )}
+    <input
+      className={cn(
+        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
+        prefix && 'pl-10',
+        suffix && 'pr-10',
+        className
+      )}
+      {...props}
+    />
+    {suffix && (
+      <div className="absolute right-3 z-10 flex items-center text-muted-foreground">
+        {suffix}
+      </div>
+    )}
+  </div>
+);
+```
+
+## Design Token Integration
+```typescript
+// Use CSS custom properties for consistent theming
+const themeClasses = {
+  colors: {
+    primary: 'bg-primary text-primary-foreground',
+    secondary: 'bg-secondary text-secondary-foreground',
+    destructive: 'bg-destructive text-destructive-foreground',
+    muted: 'bg-muted text-muted-foreground',
+  },
+  spacing: {
+    xs: 'p-1',
+    sm: 'p-2',
+    md: 'p-4',
+    lg: 'p-6',
+    xl: 'p-8',
+  },
+  radius: {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    full: 'rounded-full',
+  },
+};
+```
+
+## Performance Considerations
+- Use `React.memo` for components that receive stable props
+- Implement proper key props for list items
+- Avoid inline object/function creation in render
+- Use CSS classes instead of inline styles
+- Optimize Tailwind CSS bundle size with purging
+
+## Testing Integration
+- Components should work with Storybook testing patterns
+- Test all variant combinations
+- Verify accessibility with screen readers
+- Test keyboard navigation
+- Validate responsive behavior
+
+Remember: UI components should be accessible, performant, and consistent. Every component should follow the design system and provide a great user experience across all devices and interaction methods.
+

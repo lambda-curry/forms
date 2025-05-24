@@ -1,0 +1,218 @@
+---
+type: Always
+description: Rules for form component integration patterns in the lambda-curry/forms repository
+---
+
+You are an expert in React Hook Form, Remix Hook Form, Zod validation, and form component architecture for the lambda-curry/forms monorepo.
+
+# Form Component Integration Patterns
+
+## Core Principles
+- All form components must integrate seamlessly with Remix Hook Form
+- Use Zod schemas for validation with proper TypeScript inference
+- Follow the wrapper pattern for consistent component composition
+- Maintain separation between UI components and form-aware components
+- Ensure proper error handling and validation feedback
+
+## Required Imports for Form Components
+```typescript
+// Remix Hook Form integration
+import { useRemixFormContext } from 'remix-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+// Form components
+import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
+
+// Base UI components
+import { ComponentName as BaseComponentName } from '../ui/component-name';
+```
+
+## Form Schema Pattern
+Always define Zod schemas with proper error messages:
+```typescript
+const formSchema = z.object({
+  fieldName: z.string().min(1, 'Field is required'),
+  email: z.string().email('Invalid email address'),
+  price: z.string().min(1, 'Price is required'),
+});
+
+type FormData = z.infer<typeof formSchema>;
+```
+
+## Wrapper Component Pattern
+Follow this pattern for all form-aware components:
+```typescript
+export type ComponentNameProps = Omit<BaseComponentNameProps, 'control'>;
+
+export function ComponentName(props: ComponentNameProps) {
+  const { control } = useRemixFormContext();
+
+  // Merge provided components with default form components
+  const defaultComponents = {
+    FormControl,
+    FormLabel,
+    FormDescription,
+    FormMessage,
+  };
+  
+  const components = {
+    ...defaultComponents,
+    ...props.components,
+  };
+
+  return <BaseComponentName control={control} components={components} {...props} />;
+}
+```
+
+## Component Composition Pattern
+For UI components that accept form integration:
+```typescript
+export interface ComponentNameProps extends Omit<InputProps, 'prefix' | 'suffix'> {
+  control?: Control<FieldValues>;
+  name: FieldPath<FieldValues>;
+  label?: string;
+  description?: string;
+  components?: Partial<FieldComponents> & {
+    Input?: React.ComponentType<InputProps>;
+  };
+  className?: string;
+}
+
+export const ComponentName = ({
+  control,
+  name,
+  label,
+  description,
+  className,
+  components,
+  ...props
+}: ComponentNameProps) => {
+  const InputComponent = components?.Input || DefaultInput;
+
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={className}>
+          {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+          <FormControl Component={components?.FormControl}>
+            <InputComponent {...field} {...props} />
+          </FormControl>
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+          {fieldState.error && (
+            <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+          )}
+        </FormItem>
+      )}
+    />
+  );
+};
+```
+
+## Form Setup Pattern
+Use this pattern for form initialization:
+```typescript
+const ControlledComponentExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      // Provide sensible defaults
+    },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        {/* Form components */}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+## Validation Patterns
+
+### Client-Side Validation
+- Use Zod schemas for all form validation
+- Provide clear, user-friendly error messages
+- Validate on blur and submit, not on every keystroke
+
+### Server-Side Validation
+```typescript
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { data, errors } = await getValidatedFormData<FormData>(
+    request,
+    zodResolver(formSchema)
+  );
+  
+  if (errors) return { errors };
+  
+  // Additional server-side validation
+  if (data.username === 'taken') {
+    return {
+      errors: {
+        username: { message: 'Username is already taken' }
+      }
+    };
+  }
+  
+  return { message: 'Success!' };
+};
+```
+
+## Error Handling Best Practices
+- Always display field-level errors using FormMessage
+- Handle both client-side and server-side validation errors
+- Provide loading states during form submission
+- Clear errors appropriately when fields are corrected
+
+## Component Naming Conventions
+- Form-aware components: `ComponentName` (e.g., `TextField`, `Checkbox`)
+- Base UI components: `ComponentName` in ui/ directory
+- Props interfaces: `ComponentNameProps`
+- Form schemas: `formSchema` or `componentNameSchema`
+
+## File Organization
+```
+packages/components/src/
+├── remix-hook-form/          # Form-aware wrapper components
+│   ├── text-field.tsx
+│   ├── checkbox.tsx
+│   └── index.ts
+└── ui/                       # Base UI components
+    ├── text-field.tsx
+    ├── checkbox.tsx
+    └── index.ts
+```
+
+## Required Exports
+Always export both the component and its props type:
+```typescript
+export { ComponentName };
+export type { ComponentNameProps };
+```
+
+## Performance Considerations
+- Use React.memo for expensive form components
+- Avoid unnecessary re-renders by properly structuring form state
+- Consider field-level subscriptions for large forms
+
+## Accessibility Requirements
+- All form fields must have proper labels
+- Use ARIA attributes for complex form interactions
+- Ensure keyboard navigation works correctly
+- Provide clear error announcements for screen readers
+
+## Testing Integration
+- Form components should work with the existing Storybook testing patterns
+- Test both valid and invalid form states
+- Verify server-side validation integration
+- Test component composition and customization
+
+Remember: Form components are the core of this library. Every form component should be intuitive, accessible, and integrate seamlessly with the Remix Hook Form + Zod validation pattern.
+
