@@ -23,6 +23,7 @@ lambda-curry/forms/
 ├── apps/docs/                    # Storybook app
 │   ├── .storybook/              # Storybook configuration
 │   ├── src/remix-hook-form/     # Story files with tests
+│   ├── simple-server.js         # Custom static server for testing
 │   └── package.json             # Test scripts
 ├── packages/components/         # Component library
 │   └── src/
@@ -30,6 +31,106 @@ lambda-curry/forms/
 │       └── ui/                  # UI components
 └── .cursor/rules/               # Cursor rules directory
 ```
+
+# Environment Setup and Testing Infrastructure
+
+## Prerequisites
+Before running Playwright tests locally, ensure the following setup is complete:
+
+### 1. System Dependencies
+```bash
+# Install Node.js dependencies
+cd apps/docs
+yarn install
+
+# Install Playwright browsers
+npx playwright install
+
+# Install system dependencies for Playwright
+npx playwright install-deps
+```
+
+### 2. Build Storybook Static Files
+```bash
+cd apps/docs
+yarn build  # Creates storybook-static directory
+```
+
+### 3. Server Setup for Local Testing
+Due to common port conflicts in development environments, use the custom static server for local testing:
+
+```bash
+# Start the custom static server (handles port conflicts)
+cd apps/docs
+node simple-server.js &  # Runs on port 45678
+```
+
+The `simple-server.js` file provides:
+- Static file serving with proper MIME types
+- CORS headers for cross-origin requests
+- SPA routing fallback to index.html
+- Conflict-free port allocation (45678)
+
+### 4. Run Tests Locally
+```bash
+# Run tests against the static server
+cd apps/docs
+npx test-storybook --url http://127.0.0.1:45678
+```
+
+## Complete Local Testing Workflow
+```bash
+# Full local testing workflow from scratch
+cd apps/docs
+
+# 1. Install dependencies (if needed)
+yarn install
+npx playwright install
+npx playwright install-deps
+
+# 2. Build Storybook
+yarn build
+
+# 3. Start static server
+node simple-server.js &
+
+# 4. Run tests
+npx test-storybook --url http://127.0.0.1:45678
+
+# 5. Stop server when done
+pkill -f "simple-server.js"
+```
+
+## Troubleshooting Common Issues
+
+### Port Conflicts
+If you encounter "EADDRINUSE" errors:
+- **Problem**: Default ports (6006, 6007, 8080, etc.) are occupied
+- **Solution**: Use the custom static server on port 45678
+- **Alternative**: Find available ports with `netstat -tulpn | grep :PORT`
+
+### Browser Installation Issues
+If Playwright can't find browsers:
+```bash
+# Reinstall browsers
+npx playwright install chromium
+
+# Install system dependencies
+npx playwright install-deps
+```
+
+### Build Issues
+If Storybook build fails:
+```bash
+# Clean and rebuild
+rm -rf storybook-static
+yarn build
+```
+
+### Test Execution Issues
+- **Timeout errors**: Increase timeout in test configuration
+- **Element not found**: Ensure proper async handling with `findBy*`
+- **Server not responding**: Verify static server is running on correct port
 
 # Core Principles for Storybook Testing
 
@@ -194,29 +295,90 @@ const testConditionalFields = async ({ canvas }: StoryContext) => {
 };
 ```
 
-## Environment Setup Requirements
-- Node.js (version in .nvmrc)
-- Yarn 4.7.0 via corepack
-- Playwright browsers: `npx playwright install chromium`
+## Performance and Best Practices
 
-## Test Commands
+### Test Execution Optimization
+- **Fast Feedback**: Tests should complete in under 10 seconds
+- **Parallel Execution**: Leverage Playwright's parallel test execution
+- **Focused Testing**: Each story should test one primary workflow
+- **Efficient Selectors**: Use semantic queries (role, label) over CSS selectors
+
+### Local Development Workflow
 ```bash
-# Development workflow
+# Local development commands
 cd apps/docs
-yarn dev                 # Start Storybook
-yarn test:local         # Run tests against running Storybook
+yarn dev                 # Start Storybook for development
+yarn test:local         # Run tests against running Storybook (if available)
 
-# CI/Production
-yarn test               # Build, serve, and test
+# Local testing of built Storybook
+yarn build              # Build static Storybook
+node simple-server.js & # Start custom server
+npx test-storybook --url http://127.0.0.1:45678  # Test built version
+```
+
+### Codegen Testing Workflow
+This setup is optimized for Codegen agents and local development testing:
+```bash
+# Codegen workflow for testing built Storybook
+cd apps/docs
+yarn install
+npx playwright install
+npx playwright install-deps
+yarn build
+node simple-server.js &
+npx test-storybook --url http://127.0.0.1:45678
+```
+
+## Advanced Testing Patterns
+
+### Accessibility Testing
+```typescript
+// Include accessibility checks in stories
+import { checkA11y } from '@storybook/addon-a11y';
+
+export const AccessibilityTest: Story = {
+  play: async (storyContext) => {
+    await checkA11y(storyContext.canvasElement);
+    // Additional accessibility-specific tests
+  },
+};
+```
+
+### Visual Regression Testing
+```typescript
+// Use Playwright's screenshot capabilities
+export const VisualTest: Story = {
+  play: async ({ canvasElement }) => {
+    // Interact with component to desired state
+    // Screenshot will be taken automatically by test-runner
+  },
+};
+```
+
+### Cross-Browser Testing
+```typescript
+// Configure multiple browsers in test-runner config
+// Tests run automatically across Chromium, Firefox, WebKit
 ```
 
 ## Error Handling and Debugging
-- Use Storybook UI at http://localhost:6006 for visual debugging
-- Add console.logs for test execution flow debugging
-- Use browser dev tools during test execution
-- Check network tab for form submission verification
 
-## Verification Steps
+### Debug Mode
+```bash
+# Run tests with debug output
+npx test-storybook --url http://127.0.0.1:45678 --verbose
+
+# Run specific story
+npx test-storybook --url http://127.0.0.1:45678 --testNamePattern="ComponentName"
+```
+
+### Common Error Patterns
+1. **Element not found**: Use proper async queries (`findBy*`)
+2. **Timing issues**: Add appropriate waits for async operations
+3. **Form submission failures**: Verify fetcher setup and router configuration
+4. **Port conflicts**: Use the custom static server solution
+
+## Verification Checklist
 When creating or modifying Storybook tests, ensure:
 
 1. ✅ Story includes all three test phases (default, invalid, valid)
@@ -227,19 +389,21 @@ When creating or modifying Storybook tests, ensure:
 6. ✅ Includes proper error handling and success scenarios
 7. ✅ Story serves as both documentation and test
 8. ✅ Component is properly isolated and focused
+9. ✅ Tests complete in reasonable time (< 10 seconds)
+10. ✅ Uses semantic queries for better maintainability
 
-## Common Pitfalls to Avoid
-- Port conflicts (6006 already in use) - kill existing processes
-- Missing Playwright system dependencies - run `npx playwright install-deps`
-- Test timeouts - add delays for complex async operations
-- Element not found errors - ensure proper async handling
-- Form submission issues - verify fetcher setup and decorator usage
+## Team Workflow Integration
 
-## Advanced Patterns
-- Create reusable test utilities in `apps/docs/src/lib/test-utils.ts`
-- Use story composition for different scenarios
-- Implement mock data factories for consistent test data
-- Group related stories with shared decorators
+### Code Review Guidelines
+- Verify test coverage includes happy path and error scenarios
+- Ensure stories are self-documenting and demonstrate component usage
+- Check that tests follow established patterns and conventions
+- Validate that new tests don't introduce flaky behavior
 
-Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details.
+### Local Development Focus
+- This setup is designed for local development and Codegen testing
+- Tests run against built Storybook static files for consistency
+- Custom server resolves common port conflicts in development environments
+- Fast feedback loop optimized for developer productivity
 
+Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows.
