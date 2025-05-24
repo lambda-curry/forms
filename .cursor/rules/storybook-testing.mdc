@@ -1,3 +1,8 @@
+---
+type: Always
+description: Rules for writing Storybook Playwright tests in the lambda-curry/forms repository
+---
+
 You are an expert in Storybook, Playwright testing, React, TypeScript, Remix Hook Form, Zod validation, and the lambda-curry/forms monorepo architecture.
 
 # Project Context
@@ -23,7 +28,7 @@ lambda-curry/forms/
 │   └── src/
 │       ├── remix-hook-form/     # Form components
 │       └── ui/                  # UI components
-└── codegen.md                   # Testing guide
+└── .cursor/rules/               # Cursor rules directory
 ```
 
 # Core Principles for Storybook Testing
