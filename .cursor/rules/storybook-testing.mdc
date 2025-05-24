@@ -35,7 +35,7 @@ lambda-curry/forms/
 # Environment Setup and Testing Infrastructure
 
 ## Prerequisites
-Before running Playwright tests, ensure the following setup is complete:
+Before running Playwright tests locally, ensure the following setup is complete:
 
 ### 1. System Dependencies
 ```bash
@@ -56,8 +56,8 @@ cd apps/docs
 yarn build  # Creates storybook-static directory
 ```
 
-### 3. Server Setup for Testing
-Due to common port conflicts in development environments, use the custom static server:
+### 3. Server Setup for Local Testing
+Due to common port conflicts in development environments, use the custom static server for local testing:
 
 ```bash
 # Start the custom static server (handles port conflicts)
@@ -71,16 +71,16 @@ The `simple-server.js` file provides:
 - SPA routing fallback to index.html
 - Conflict-free port allocation (45678)
 
-### 4. Run Tests
+### 4. Run Tests Locally
 ```bash
 # Run tests against the static server
 cd apps/docs
 npx test-storybook --url http://127.0.0.1:45678
 ```
 
-## Complete Testing Workflow
+## Complete Local Testing Workflow
 ```bash
-# Full testing workflow from scratch
+# Full local testing workflow from scratch
 cd apps/docs
 
 # 1. Install dependencies (if needed)
@@ -303,26 +303,30 @@ const testConditionalFields = async ({ canvas }: StoryContext) => {
 - **Focused Testing**: Each story should test one primary workflow
 - **Efficient Selectors**: Use semantic queries (role, label) over CSS selectors
 
-### CI/CD Integration
+### Local Development Workflow
 ```bash
-# CI workflow commands
-yarn install
-npx playwright install chromium
-npx playwright install-deps
-yarn build
-node simple-server.js &
-npx test-storybook --url http://127.0.0.1:45678
-```
-
-### Development Workflow
-```bash
-# Development commands
+# Local development commands
 cd apps/docs
 yarn dev                 # Start Storybook for development
 yarn test:local         # Run tests against running Storybook (if available)
 
-# Production testing
-yarn test               # Full build and test cycle
+# Local testing of built Storybook
+yarn build              # Build static Storybook
+node simple-server.js & # Start custom server
+npx test-storybook --url http://127.0.0.1:45678  # Test built version
+```
+
+### Codegen Testing Workflow
+This setup is optimized for Codegen agents and local development testing:
+```bash
+# Codegen workflow for testing built Storybook
+cd apps/docs
+yarn install
+npx playwright install
+npx playwright install-deps
+yarn build
+node simple-server.js &
+npx test-storybook --url http://127.0.0.1:45678
 ```
 
 ## Advanced Testing Patterns
@@ -396,10 +400,10 @@ When creating or modifying Storybook tests, ensure:
 - Check that tests follow established patterns and conventions
 - Validate that new tests don't introduce flaky behavior
 
-### Continuous Integration
-- Tests run automatically on PR creation
-- All tests must pass before merge
-- Performance regression checks for test execution time
-- Accessibility compliance verification
+### Local Development Focus
+- This setup is designed for local development and Codegen testing
+- Tests run against built Storybook static files for consistency
+- Custom server resolves common port conflicts in development environments
+- Fast feedback loop optimized for developer productivity
 
-Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain.
+Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows.
