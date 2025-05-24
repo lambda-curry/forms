@@ -1,43 +1,92 @@
 ---
 type: Always
-description: UI component patterns for Radix UI, Tailwind CSS, and class-variance-authority integration
+description: UI component patterns for Radix UI, Tailwind CSS 4, and ShadCN UI integration
 ---
 
-You are an expert in Radix UI, Tailwind CSS, class-variance-authority (CVA), and accessible component design.
+You are an expert in Radix UI, Tailwind CSS 4, ShadCN UI, class-variance-authority (CVA), and accessible component design.
 
 # UI Component Patterns
 
 ## Core Principles
 - Build accessible-first components using Radix UI primitives
-- Use Tailwind CSS with a mobile-first responsive approach
+- Use Tailwind CSS 4 with modern CSS features and performance optimizations
+- Follow ShadCN UI patterns for consistent component architecture
 - Implement consistent variant patterns with class-variance-authority
 - Follow the Slot pattern for polymorphic components
 - Maintain design system consistency across all components
 
-## Class Variance Authority (CVA) Patterns
+## Tailwind CSS 4 Features & Patterns
 
-### Basic CVA Setup
+### Modern CSS Custom Properties
 ```typescript
-import { type VariantProps, cva } from 'class-variance-authority';
+// ✅ Tailwind 4 - CSS custom properties for theming
+const themeClasses = {
+  // Use CSS custom properties directly
+  colors: {
+    primary: 'bg-[--color-primary] text-[--color-primary-foreground]',
+    secondary: 'bg-[--color-secondary] text-[--color-secondary-foreground]',
+    destructive: 'bg-[--color-destructive] text-[--color-destructive-foreground]',
+    muted: 'bg-[--color-muted] text-[--color-muted-foreground]',
+  },
+  // Modern container queries
+  container: 'container @container',
+  // CSS Grid improvements
+  grid: 'grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))]',
+};
+```
 
+### Tailwind 4 Performance Optimizations
+```typescript
+// ✅ Use Tailwind 4's improved arbitrary value syntax
+const modernClasses = cn(
+  // Improved arbitrary values
+  'w-[clamp(200px,50vw,400px)]',
+  'bg-[oklch(0.7_0.15_200)]',
+  // Container queries
+  '@md:grid-cols-2 @lg:grid-cols-3',
+  // Modern CSS functions
+  'h-[max(200px,20vh)]',
+  'gap-[max(1rem,2vw)]'
+);
+
+// ✅ Tailwind 4 - Better performance with CSS layers
+const layeredClasses = cn(
+  // Base layer
+  'layer-base:bg-background',
+  // Component layer
+  'layer-components:rounded-md',
+  // Utilities layer
+  'layer-utilities:hover:bg-accent'
+);
+```
+
+### ShadCN UI Component Architecture
+```typescript
+// ✅ ShadCN UI pattern - consistent component structure
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { type VariantProps, cva } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+// ShadCN UI variant pattern
 const buttonVariants = cva(
-  // Base classes - always applied
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  // Base classes optimized for Tailwind 4
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        outline: 'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+        secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
+        default: 'h-9 px-4 py-2',
+        sm: 'h-8 rounded-md px-3 text-xs',
+        lg: 'h-10 rounded-md px-8',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: {
@@ -47,74 +96,101 @@ const buttonVariants = cva(
   }
 );
 
-// Extract variant props type
-export interface ButtonProps 
+// React 19 + ShadCN UI pattern (no forwardRef needed)
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
+
+export const Button = ({ className, variant, size, asChild = false, ...props }: ButtonProps) => {
+  const Comp = asChild ? Slot : 'button';
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
+};
+Button.displayName = 'Button';
 ```
 
-### Complex Variant Patterns
+## Class Variance Authority (CVA) Patterns
+
+### Advanced CVA with Tailwind 4
 ```typescript
-const inputVariants = cva(
-  'flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+import { type VariantProps, cva } from 'class-variance-authority';
+
+// ✅ Complex variant patterns with Tailwind 4 features
+const cardVariants = cva(
+  // Base classes with modern CSS
+  'rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200',
   {
     variants: {
-      size: {
-        default: 'h-10',
-        sm: 'h-9',
-        lg: 'h-11',
-      },
       variant: {
-        default: 'border-input',
-        error: 'border-destructive focus-visible:ring-destructive',
-        success: 'border-green-500 focus-visible:ring-green-500',
+        default: 'border-border',
+        elevated: 'border-border shadow-lg',
+        outlined: 'border-2 border-primary',
+        ghost: 'border-transparent shadow-none',
+      },
+      size: {
+        sm: 'p-4',
+        default: 'p-6',
+        lg: 'p-8',
+      },
+      interactive: {
+        true: 'cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
+        false: '',
       },
     },
     compoundVariants: [
       {
-        variant: 'error',
-        size: 'sm',
-        class: 'text-xs',
+        variant: 'elevated',
+        interactive: true,
+        class: 'hover:shadow-xl',
+      },
+      {
+        variant: 'ghost',
+        interactive: true,
+        class: 'hover:bg-accent/50',
       },
     ],
     defaultVariants: {
       variant: 'default',
       size: 'default',
+      interactive: false,
     },
   }
+);
+
+// Usage with proper TypeScript inference
+export interface CardProps 
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {}
+
+export const Card = ({ className, variant, size, interactive, ...props }: CardProps) => (
+  <div className={cn(cardVariants({ variant, size, interactive, className }))} {...props} />
 );
 ```
 
 ## Radix UI Integration Patterns
 
-### Basic Radix Component
+### ShadCN UI + Radix Pattern
 ```typescript
 import * as React from 'react';
-import * as RadixPrimitive from '@radix-ui/react-primitive';
-import { cn } from './utils';
-
-const Component = React.forwardRef<
-  React.ElementRef<typeof RadixPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadixPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <RadixPrimitive.Root
-    ref={ref}
-    className={cn('base-styles', className)}
-    {...props}
-  />
-));
-Component.displayName = RadixPrimitive.Root.displayName;
-```
-
-### Compound Radix Components
-```typescript
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { Check, ChevronRight, Circle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
+// ShadCN UI pattern for Radix components
 const DropdownMenu = DropdownMenuPrimitive.Root;
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+const DropdownMenuGroup = DropdownMenuPrimitive.Group;
+const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
+const DropdownMenuSub = DropdownMenuPrimitive.Sub;
+const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
+// Content with Tailwind 4 optimizations
 const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
@@ -124,7 +200,14 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        // Tailwind 4 optimized classes
+        'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+        // Modern animations with better performance
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+        'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
         className
       )}
       {...props}
@@ -133,108 +216,125 @@ const DropdownMenuContent = React.forwardRef<
 ));
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
-// Export compound component
+// Export following ShadCN UI pattern
 export {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  // ... other exports
 };
 ```
 
-## Slot Pattern for Polymorphic Components
+## Tailwind 4 Responsive & Container Patterns
+
+### Modern Responsive Design
 ```typescript
-import { Slot } from '@radix-ui/react-slot';
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  asChild?: boolean;
-  variant?: 'default' | 'destructive' | 'outline';
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-
-// Usage examples:
-// <Button>Regular button</Button>
-// <Button asChild><Link to="/home">Link button</Link></Button>
-```
-
-## Tailwind CSS Organization Patterns
-
-### Responsive Design
-```typescript
-// Mobile-first responsive classes
+// ✅ Tailwind 4 - Container queries and modern responsive
 const responsiveClasses = cn(
-  'text-sm',           // Mobile default
-  'md:text-base',      // Tablet and up
-  'lg:text-lg',        // Desktop and up
-  'xl:text-xl'         // Large desktop
+  // Traditional breakpoints
+  'text-sm md:text-base lg:text-lg',
+  // Container queries (Tailwind 4)
+  '@sm:grid-cols-1 @md:grid-cols-2 @lg:grid-cols-3',
+  // Fluid typography
+  'text-[clamp(0.875rem,2.5vw,1.125rem)]',
+  // Modern CSS functions
+  'gap-[max(1rem,3vw)]',
+  'p-[clamp(1rem,5vw,2rem)]'
 );
 
-// Container patterns
-const containerClasses = cn(
-  'w-full',
-  'max-w-sm',          // Mobile
-  'sm:max-w-md',       // Small tablet
-  'md:max-w-lg',       // Tablet
-  'lg:max-w-xl',       // Desktop
-  'xl:max-w-2xl'       // Large desktop
-);
-```
-
-### Component State Classes
-```typescript
-const stateClasses = cn(
-  // Base state
-  'bg-background text-foreground',
-  // Hover state
-  'hover:bg-accent hover:text-accent-foreground',
-  // Focus state
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-  // Active state
-  'active:scale-95',
-  // Disabled state
-  'disabled:pointer-events-none disabled:opacity-50',
-  // Data states (for Radix components)
-  'data-[state=open]:bg-accent',
-  'data-[state=closed]:bg-background'
+// ✅ Container component with Tailwind 4
+export const Container = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      // Tailwind 4 container with modern features
+      'container mx-auto px-4 @container',
+      // Fluid max-width
+      'max-w-[min(100%-2rem,1200px)]',
+      className
+    )}
+    {...props}
+  />
 );
 ```
 
-### Animation Classes
+### Advanced Animation Patterns
 ```typescript
+// ✅ Tailwind 4 - Enhanced animations and transitions
 const animationClasses = cn(
-  // Transitions
-  'transition-all duration-200 ease-in-out',
-  // Enter animations
-  'data-[state=open]:animate-in',
-  'data-[state=open]:fade-in-0',
-  'data-[state=open]:zoom-in-95',
-  // Exit animations
-  'data-[state=closed]:animate-out',
-  'data-[state=closed]:fade-out-0',
-  'data-[state=closed]:zoom-out-95',
-  // Slide animations
-  'data-[side=bottom]:slide-in-from-top-2',
-  'data-[side=left]:slide-in-from-right-2',
-  'data-[side=right]:slide-in-from-left-2',
-  'data-[side=top]:slide-in-from-bottom-2'
+  // Base transition with better performance
+  'transition-all duration-200 ease-out',
+  // Modern transform patterns
+  'hover:scale-[1.02] active:scale-[0.98]',
+  // CSS custom properties for dynamic animations
+  'hover:translate-y-[--hover-offset:-2px]',
+  // View transitions (Tailwind 4)
+  'view-transition-name-[card-animation]',
+  // Scroll-driven animations
+  'animate-[fade-in_linear_both] animation-timeline-[view()]',
+  // Modern focus styles
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
 );
 ```
 
-## Accessibility Patterns
+## ShadCN UI Form Patterns
 
-### ARIA Attributes
+### Modern Form Component Architecture
 ```typescript
+// ✅ ShadCN UI form pattern with React 19
+import * as React from 'react';
+import * as LabelPrimitive from '@radix-ui/react-label';
+import { Slot } from '@radix-ui/react-slot';
+import { cn } from '@/lib/utils';
+
+// Form components following ShadCN UI patterns
+const Form = ({ ...props }) => <form {...props} />;
+
+const FormField = ({ ...props }) => <div {...props} />;
+
+const FormItem = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('space-y-2', className)} {...props} />
+);
+
+const FormLabel = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>) => (
+  <LabelPrimitive.Root
+    className={cn(
+      'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+      className
+    )}
+    {...props}
+  />
+);
+
+const FormControl = ({ ...props }: React.ComponentPropsWithoutRef<typeof Slot>) => (
+  <Slot {...props} />
+);
+
+const FormDescription = ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
+  <p className={cn('text-sm text-muted-foreground', className)} {...props} />
+);
+
+const FormMessage = ({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
+  if (!children) return null;
+  
+  return (
+    <p
+      className={cn('text-sm font-medium text-destructive', className)}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+};
+
+export { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage };
+```
+
+## Accessibility Patterns (ShadCN UI Style)
+
+### ARIA and Keyboard Navigation
+```typescript
+// ✅ ShadCN UI accessibility patterns
 interface AccessibleComponentProps {
   'aria-label'?: string;
   'aria-labelledby'?: string;
@@ -244,205 +344,136 @@ interface AccessibleComponentProps {
   'aria-disabled'?: boolean;
 }
 
-// Example implementation
-const AccessibleButton = ({ 
-  children, 
-  'aria-label': ariaLabel,
-  disabled,
-  ...props 
-}: ButtonProps & AccessibleComponentProps) => (
-  <button
-    aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
-    aria-disabled={disabled}
-    disabled={disabled}
-    {...props}
-  >
-    {children}
-  </button>
-);
-```
-
-### Keyboard Navigation
-```typescript
-const handleKeyDown = (event: React.KeyboardEvent) => {
-  switch (event.key) {
-    case 'Enter':
-    case ' ':
-      event.preventDefault();
-      onClick?.(event as any);
-      break;
-    case 'Escape':
-      onClose?.();
-      break;
-    case 'ArrowDown':
-      event.preventDefault();
-      focusNext();
-      break;
-    case 'ArrowUp':
-      event.preventDefault();
-      focusPrevious();
-      break;
-  }
-};
-```
-
-### Focus Management
-```typescript
-const useFocusManagement = () => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  
-  const focusFirst = React.useCallback(() => {
-    const firstFocusable = containerRef.current?.querySelector(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    ) as HTMLElement;
-    firstFocusable?.focus();
-  }, []);
-  
-  const trapFocus = React.useCallback((event: KeyboardEvent) => {
-    if (event.key !== 'Tab') return;
-    
-    const focusableElements = containerRef.current?.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    
-    if (!focusableElements?.length) return;
-    
-    const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-    
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
+// Keyboard navigation hook
+export function useKeyboardNavigation() {
+  const handleKeyDown = React.useCallback((event: React.KeyboardEvent) => {
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
         event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
+        // Handle activation
+        break;
+      case 'Escape':
+        // Handle escape
+        break;
+      case 'ArrowDown':
         event.preventDefault();
-        firstElement.focus();
-      }
+        // Focus next item
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        // Focus previous item
+        break;
+      case 'Home':
+        event.preventDefault();
+        // Focus first item
+        break;
+      case 'End':
+        event.preventDefault();
+        // Focus last item
+        break;
     }
   }, []);
   
-  return { containerRef, focusFirst, trapFocus };
+  return { handleKeyDown };
+}
+```
+
+## Performance Optimization Patterns
+
+### Tailwind 4 Performance Best Practices
+```typescript
+// ✅ Optimized class patterns for Tailwind 4
+const optimizedClasses = {
+  // Use CSS custom properties for dynamic values
+  dynamic: 'bg-[--dynamic-color] text-[--dynamic-text]',
+  
+  // Prefer CSS Grid over Flexbox for complex layouts
+  layout: 'grid grid-cols-[auto_1fr_auto] gap-4',
+  
+  // Use container queries for responsive components
+  responsive: '@container @sm:grid-cols-2 @md:grid-cols-3',
+  
+  // Optimize animations for performance
+  animation: 'transform-gpu will-change-transform',
+  
+  // Use modern CSS features
+  modern: 'backdrop-blur-sm supports-[backdrop-filter]:bg-background/60',
 };
+
+// ✅ Memoized component with optimized classes
+export const OptimizedCard = React.memo(({ children, variant }: CardProps) => {
+  const classes = React.useMemo(() => 
+    cn(cardVariants({ variant })), 
+    [variant]
+  );
+  
+  return <div className={classes}>{children}</div>;
+});
 ```
 
-## Form Field Integration Patterns
+## Design Token Integration (Tailwind 4)
+
+### CSS Custom Properties Pattern
 ```typescript
-interface FieldWrapperProps {
-  label?: string;
-  description?: string;
-  error?: string;
-  required?: boolean;
-  children: React.ReactNode;
-}
-
-const FieldWrapper = ({ 
-  label, 
-  description, 
-  error, 
-  required, 
-  children 
-}: FieldWrapperProps) => (
-  <div className="space-y-2">
-    {label && (
-      <label className={cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        required && 'after:content-["*"] after:ml-0.5 after:text-destructive'
-      )}>
-        {label}
-      </label>
-    )}
-    <div className="relative">
-      {children}
-    </div>
-    {description && (
-      <p className="text-sm text-muted-foreground">
-        {description}
-      </p>
-    )}
-    {error && (
-      <p className="text-sm font-medium text-destructive">
-        {error}
-      </p>
-    )}
-  </div>
-);
-```
-
-## Component Composition Patterns
-```typescript
-// Prefix/Suffix pattern for inputs
-interface InputWithAddonsProps extends InputProps {
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-}
-
-const InputWithAddons = ({ prefix, suffix, className, ...props }: InputWithAddonsProps) => (
-  <div className="relative flex items-center">
-    {prefix && (
-      <div className="absolute left-3 z-10 flex items-center text-muted-foreground">
-        {prefix}
-      </div>
-    )}
-    <input
-      className={cn(
-        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
-        prefix && 'pl-10',
-        suffix && 'pr-10',
-        className
-      )}
-      {...props}
-    />
-    {suffix && (
-      <div className="absolute right-3 z-10 flex items-center text-muted-foreground">
-        {suffix}
-      </div>
-    )}
-  </div>
-);
-```
-
-## Design Token Integration
-```typescript
-// Use CSS custom properties for consistent theming
-const themeClasses = {
+// ✅ Tailwind 4 - CSS custom properties for design tokens
+const designTokens = {
+  // Color tokens
   colors: {
-    primary: 'bg-primary text-primary-foreground',
-    secondary: 'bg-secondary text-secondary-foreground',
-    destructive: 'bg-destructive text-destructive-foreground',
-    muted: 'bg-muted text-muted-foreground',
+    primary: 'hsl(var(--primary))',
+    'primary-foreground': 'hsl(var(--primary-foreground))',
+    secondary: 'hsl(var(--secondary))',
+    'secondary-foreground': 'hsl(var(--secondary-foreground))',
   },
+  
+  // Spacing tokens with fluid values
   spacing: {
-    xs: 'p-1',
-    sm: 'p-2',
-    md: 'p-4',
-    lg: 'p-6',
-    xl: 'p-8',
+    xs: 'clamp(0.25rem, 1vw, 0.5rem)',
+    sm: 'clamp(0.5rem, 2vw, 1rem)',
+    md: 'clamp(1rem, 3vw, 1.5rem)',
+    lg: 'clamp(1.5rem, 4vw, 2rem)',
+    xl: 'clamp(2rem, 5vw, 3rem)',
   },
-  radius: {
-    none: 'rounded-none',
-    sm: 'rounded-sm',
-    md: 'rounded-md',
-    lg: 'rounded-lg',
-    full: 'rounded-full',
+  
+  // Typography tokens
+  typography: {
+    'heading-1': 'clamp(1.75rem, 4vw, 2.5rem)',
+    'heading-2': 'clamp(1.5rem, 3.5vw, 2rem)',
+    'body': 'clamp(0.875rem, 2.5vw, 1rem)',
   },
 };
 ```
-
-## Performance Considerations
-- Use `React.memo` for components that receive stable props
-- Implement proper key props for list items
-- Avoid inline object/function creation in render
-- Use CSS classes instead of inline styles
-- Optimize Tailwind CSS bundle size with purging
 
 ## Testing Integration
-- Components should work with Storybook testing patterns
-- Test all variant combinations
-- Verify accessibility with screen readers
-- Test keyboard navigation
-- Validate responsive behavior
 
-Remember: UI components should be accessible, performant, and consistent. Every component should follow the design system and provide a great user experience across all devices and interaction methods.
+### Component Testing Patterns
+```typescript
+// ✅ Testing patterns for ShadCN UI components
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Button } from './button';
 
+describe('Button Component', () => {
+  it('should render with correct variant classes', () => {
+    render(<Button variant="destructive">Delete</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('bg-destructive', 'text-destructive-foreground');
+  });
+  
+  it('should handle keyboard navigation', async () => {
+    const user = userEvent.setup();
+    const handleClick = jest.fn();
+    
+    render(<Button onClick={handleClick}>Click me</Button>);
+    const button = screen.getByRole('button');
+    
+    await user.tab();
+    expect(button).toHaveFocus();
+    
+    await user.keyboard('{Enter}');
+    expect(handleClick).toHaveBeenCalled();
+  });
+});
+```
+
+Remember: UI components should be accessible, performant, and consistent. Follow ShadCN UI patterns for component architecture, leverage Tailwind 4's modern CSS features, and ensure every component provides a great user experience across all devices and interaction methods. React 19's simplified ref handling makes component composition even more elegant!

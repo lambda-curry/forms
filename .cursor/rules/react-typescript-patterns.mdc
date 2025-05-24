@@ -54,23 +54,122 @@ const componentVariants = cva(
   }
 );
 
-// 5. Component implementation
-export const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'div';
-    
-    return (
-      <Comp
-        className={cn(componentVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
+// 5. Component implementation (React 19 - no forwardRef needed!)
+export const Component = ({ className, variant, size, asChild = false, ref, ...props }: ComponentProps) => {
+  const Comp = asChild ? Slot : 'div';
+  
+  return (
+    <Comp
+      className={cn(componentVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
+};
 
 // 6. Display name
 Component.displayName = 'Component';
+```
+
+## React 19 Ref Patterns
+
+### Direct Ref Props (No More forwardRef!)
+```typescript
+// ✅ React 19 - ref as a direct prop
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'destructive' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
+  asChild?: boolean;
+}
+
+export const Button = ({ className, variant, size, asChild = false, ref, ...props }: ButtonProps) => {
+  const Comp = asChild ? Slot : 'button';
+  
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
+};
+
+// Usage - ref works directly!
+const MyComponent = () => {
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  
+  return <Button ref={buttonRef}>Click me</Button>;
+};
+```
+
+### Ref Cleanup Functions (React 19 Feature)
+```typescript
+// ✅ React 19 - ref cleanup functions
+export const AutoFocusInput = ({ ref, ...props }: InputProps) => {
+  return (
+    <input
+      ref={(node) => {
+        // Set the ref
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref) {
+          ref.current = node;
+        }
+        
+        // Auto-focus when mounted
+        if (node) {
+          node.focus();
+        }
+        
+        // Return cleanup function (React 19 feature)
+        return () => {
+          if (node) {
+            node.blur();
+          }
+        };
+      }}
+      {...props}
+    />
+  );
+};
+```
+
+### useRef Patterns for React 19
+```typescript
+// ✅ Modern useRef patterns
+export function useImperativeActions() {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  
+  const focus = React.useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+  
+  const clear = React.useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+      inputRef.current.focus();
+    }
+  }, []);
+  
+  const selectAll = React.useCallback(() => {
+    inputRef.current?.select();
+  }, []);
+  
+  return { inputRef, focus, clear, selectAll };
+}
+
+// Usage
+const SearchInput = () => {
+  const { inputRef, focus, clear } = useImperativeActions();
+  
+  return (
+    <div className="flex gap-2">
+      <input ref={inputRef} placeholder="Search..." />
+      <button onClick={focus}>Focus</button>
+      <button onClick={clear}>Clear</button>
+    </div>
+  );
+};
 ```
 
 ## TypeScript Interface Conventions
@@ -123,17 +222,17 @@ export interface ListProps<T> {
 ### Compound Components
 ```typescript
 // Main component
-export const Card = ({ className, ...props }: CardProps) => (
-  <div className={cn('card-base', className)} {...props} />
+export const Card = ({ className, ref, ...props }: CardProps) => (
+  <div className={cn('card-base', className)} ref={ref} {...props} />
 );
 
 // Sub-components
-export const CardHeader = ({ className, ...props }: CardHeaderProps) => (
-  <div className={cn('card-header', className)} {...props} />
+export const CardHeader = ({ className, ref, ...props }: CardHeaderProps) => (
+  <div className={cn('card-header', className)} ref={ref} {...props} />
 );
 
-export const CardContent = ({ className, ...props }: CardContentProps) => (
-  <div className={cn('card-content', className)} {...props} />
+export const CardContent = ({ className, ref, ...props }: CardContentProps) => (
+  <div className={cn('card-content', className)} ref={ref} {...props} />
 );
 
 // Attach sub-components
@@ -141,7 +240,7 @@ Card.Header = CardHeader;
 Card.Content = CardContent;
 ```
 
-### Polymorphic Components
+### Polymorphic Components (React 19 Style)
 ```typescript
 type AsChildProps<T extends React.ElementType> = {
   asChild?: boolean;
@@ -151,10 +250,11 @@ type AsChildProps<T extends React.ElementType> = {
 export const Polymorphic = <T extends React.ElementType = 'div'>({
   asChild,
   as,
+  ref,
   ...props
 }: AsChildProps<T>) => {
   const Component = asChild ? Slot : (as || 'div');
-  return <Component {...props} />;
+  return <Component ref={ref} {...props} />;
 };
 ```
 
@@ -190,6 +290,43 @@ export function useFormValidation<T>(schema: z.ZodSchema<T>) {
   
   return { errors, isValidating, validate };
 }
+```
+
+### React 19 use() Hook for Async Operations
+```typescript
+// ✅ React 19 - use() hook for promises
+import { use } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+async function fetchUser(id: string): Promise<User> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
+
+// Component using the new use() hook
+export const UserProfile = ({ userId }: { userId: string }) => {
+  // React 19 - use() hook handles promises directly
+  const user = use(fetchUser(userId));
+  
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+};
+
+// Wrap with Suspense for loading states
+export const UserProfileWithSuspense = ({ userId }: { userId: string }) => (
+  <React.Suspense fallback={<div>Loading user...</div>}>
+    <UserProfile userId={userId} />
+  </React.Suspense>
+);
 ```
 
 ### Context Patterns
@@ -256,35 +393,7 @@ export const ExpensiveComponent = React.memo(({ data }: Props) => {
 });
 ```
 
-### Ref Patterns
-```typescript
-// Forward refs for component library components
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn('input-base', className)}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-
-// Use refs for imperative operations
-export function useImperativeHandle() {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  
-  const focus = React.useCallback(() => {
-    inputRef.current?.focus();
-  }, []);
-  
-  return { inputRef, focus };
-}
-```
-
-## Error Boundary Patterns
+## Error Boundary Patterns (React 19 Compatible)
 ```typescript
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -382,5 +491,4 @@ export interface ButtonProps {
 }
 ```
 
-Remember: Write components that are predictable, composable, and maintainable. Every component should have a clear purpose and follow consistent patterns that make the codebase easy to understand and extend.
-
+Remember: Write components that are predictable, composable, and maintainable. Every component should have a clear purpose and follow consistent patterns that make the codebase easy to understand and extend. React 19 simplifies ref handling significantly - embrace the new patterns!
