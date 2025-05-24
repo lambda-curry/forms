@@ -1,0 +1,240 @@
+You are an expert in Storybook, Playwright testing, React, TypeScript, Remix Hook Form, Zod validation, and the lambda-curry/forms monorepo architecture.
+
+# Project Context
+This is a monorepo containing form components with comprehensive Storybook Playwright testing. The testing setup combines Storybook's component isolation with Playwright's browser automation to create real-world testing scenarios.
+
+## Key Technologies
+- Storybook 8.6.7 with React and Vite
+- @storybook/test-runner for Playwright automation
+- @storybook/test for testing utilities (userEvent, expect, canvas)
+- React Router stub decorator for form handling
+- Remix Hook Form + Zod for validation testing
+- Yarn 4.7.0 with corepack
+- TypeScript throughout
+
+## Project Structure
+```
+lambda-curry/forms/
+├── apps/docs/                    # Storybook app
+│   ├── .storybook/              # Storybook configuration
+│   ├── src/remix-hook-form/     # Story files with tests
+│   └── package.json             # Test scripts
+├── packages/components/         # Component library
+│   └── src/
+│       ├── remix-hook-form/     # Form components
+│       └── ui/                  # UI components
+└── codegen.md                   # Testing guide
+```
+
+# Core Principles for Storybook Testing
+
+## Story Structure Pattern
+- Follow the three-phase testing pattern: Default state → Invalid submission → Valid submission
+- Each story serves dual purposes: documentation AND automated tests
+- Use play functions for comprehensive interaction testing
+- Test complete user workflows, not isolated units
+
+## Essential Code Elements
+Always include these in Storybook test stories:
+
+### Required Imports
+```typescript
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import { expect, userEvent } from '@storybook/test';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+```
+
+### Form Schema Setup
+```typescript
+const formSchema = z.object({
+  fieldName: z.string().min(1, 'Field is required'),
+});
+type FormData = z.infer<typeof formSchema>;
+```
+
+### Component Wrapper Pattern
+```typescript
+const ControlledComponentExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { /* defaults */ },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        {/* Component and form elements */}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+## Testing Patterns
+
+### User Interaction Best Practices
+```typescript
+// ✅ ALWAYS click before clearing inputs
+await userEvent.click(input);
+await userEvent.clear(input);
+await userEvent.type(input, 'new value');
+
+// ✅ Use findBy* for async elements
+const message = await canvas.findByText('Success message');
+expect(message).toBeInTheDocument();
+
+// ✅ Use queryBy* to check non-existence
+expect(canvas.queryByText('Should not exist')).not.toBeInTheDocument();
+```
+
+### Three-Phase Test Structure
+```typescript
+export const Default: Story = {
+  play: async (storyContext) => {
+    // Phase 1: Test initial state
+    testDefaultValues(storyContext);
+    
+    // Phase 2: Test validation/error states
+    await testInvalidSubmission(storyContext);
+    
+    // Phase 3: Test success scenarios
+    await testValidSubmission(storyContext);
+  },
+  decorators: [withReactRouterStubDecorator({ /* config */ })],
+};
+```
+
+### React Router Stub Decorator
+```typescript
+withReactRouterStubDecorator({
+  routes: [{
+    path: '/',
+    Component: ControlledComponentExample,
+    action: async ({ request }) => {
+      const { data, errors } = await getValidatedFormData<FormData>(
+        request, 
+        zodResolver(formSchema)
+      );
+      if (errors) return { errors };
+      return { message: 'Form submitted successfully' };
+    },
+  }],
+})
+```
+
+## Deprecated Patterns - DO NOT USE
+
+❌ **Never use getBy* for async elements**
+```typescript
+// BAD - will fail for async content
+const message = canvas.getByText('Success message');
+```
+
+❌ **Never clear inputs without clicking first**
+```typescript
+// BAD - unreliable
+await userEvent.clear(input);
+```
+
+❌ **Never use regular forms instead of fetcher.Form**
+```typescript
+// BAD - won't work with React Router stub
+<form onSubmit={methods.handleSubmit}>
+```
+
+❌ **Never test multiple unrelated scenarios in one story**
+```typescript
+// BAD - stories should be focused
+export const AllScenarios: Story = { /* testing everything */ };
+```
+
+## File Naming and Organization
+- Story files: `component-name.stories.tsx` in `apps/docs/src/remix-hook-form/`
+- Use kebab-case for file names
+- Group related test functions together
+- Export individual test functions for reusability
+
+## Testing Utilities and Helpers
+
+### Canvas Queries
+```typescript
+// Form elements
+const input = canvas.getByLabelText('Field Label');
+const button = canvas.getByRole('button', { name: 'Submit' });
+const select = canvas.getByRole('combobox');
+
+// Async content
+const errorMessage = await canvas.findByText('Error message');
+const successMessage = await canvas.findByText('Success');
+```
+
+### Common Test Patterns
+```typescript
+// Form validation testing
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+  await userEvent.click(submitButton);
+  expect(await canvas.findByText('Field is required')).toBeInTheDocument();
+};
+
+// Conditional field testing
+const testConditionalFields = async ({ canvas }: StoryContext) => {
+  const trigger = canvas.getByLabelText('Show advanced options');
+  expect(canvas.queryByLabelText('Advanced Field')).not.toBeInTheDocument();
+  await userEvent.click(trigger);
+  expect(canvas.getByLabelText('Advanced Field')).toBeInTheDocument();
+};
+```
+
+## Environment Setup Requirements
+- Node.js (version in .nvmrc)
+- Yarn 4.7.0 via corepack
+- Playwright browsers: `npx playwright install chromium`
+
+## Test Commands
+```bash
+# Development workflow
+cd apps/docs
+yarn dev                 # Start Storybook
+yarn test:local         # Run tests against running Storybook
+
+# CI/Production
+yarn test               # Build, serve, and test
+```
+
+## Error Handling and Debugging
+- Use Storybook UI at http://localhost:6006 for visual debugging
+- Add console.logs for test execution flow debugging
+- Use browser dev tools during test execution
+- Check network tab for form submission verification
+
+## Verification Steps
+When creating or modifying Storybook tests, ensure:
+
+1. ✅ Story includes all three test phases (default, invalid, valid)
+2. ✅ Uses React Router stub decorator for form handling
+3. ✅ Follows click-before-clear pattern for inputs
+4. ✅ Uses findBy* for async assertions
+5. ✅ Tests both client-side and server-side validation
+6. ✅ Includes proper error handling and success scenarios
+7. ✅ Story serves as both documentation and test
+8. ✅ Component is properly isolated and focused
+
+## Common Pitfalls to Avoid
+- Port conflicts (6006 already in use) - kill existing processes
+- Missing Playwright system dependencies - run `npx playwright install-deps`
+- Test timeouts - add delays for complex async operations
+- Element not found errors - ensure proper async handling
+- Form submission issues - verify fetcher setup and decorator usage
+
+## Advanced Patterns
+- Create reusable test utilities in `apps/docs/src/lib/test-utils.ts`
+- Use story composition for different scenarios
+- Implement mock data factories for consistent test data
+- Group related stories with shared decorators
+
+Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details.
+
