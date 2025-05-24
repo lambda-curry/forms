@@ -1,5 +1,6 @@
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
+import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
 import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters';
 import { useDebounceCallback } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-debounce-callback';
 import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters';
@@ -8,7 +9,7 @@ import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { useCallback, useEffect, useState } from 'react';
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import { withURLState } from '../lib/storybook/react-router-stub';
 
 /**
  * Hook Tests for Bazza UI Data Table Filter
@@ -127,14 +128,7 @@ Each hook is tested in isolation to ensure proper functionality and integration.
     },
   },
   decorators: [
-    withReactRouterStubDecorator({
-      routes: [
-        {
-          path: '/',
-          Component: () => <div>Hook Tests</div>,
-        },
-      ],
-    }),
+    withURLState('/'),
   ],
   tags: ['autodocs'],
 } satisfies Meta<typeof DataTableFilter>;
