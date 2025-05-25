@@ -2,10 +2,9 @@
 import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers'; // Use parsers
 // --- Corrected Hook Import Paths ---
 import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter'; // Direct import to avoid circular dependency
-import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters'; // Direct import to avoid circular dependency
 // --- NEW IMPORTS for Bazza UI Filters ---
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters'; // Assuming path
-import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
+import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters'; // Direct import to avoid circular dependency
 import { DataTable } from '@lambdacurry/forms/ui/data-table/data-table';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 // Import the filters schema and types from the new location
@@ -22,7 +21,7 @@ import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTabl
 import type { OnChangeFn } from '@tanstack/react-table';
 import { useMemo } from 'react'; // Added useState, useEffect
 import { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate } from 'react-router'; // Added LoaderFunctionArgs, useLoaderData, useNavigate, useLocation
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub'; // FIX: Add withReactRouterStubDecorator
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 // --- Use MockIssue Schema and Data ---
 interface MockIssue {
@@ -398,7 +397,7 @@ function DataTableWithBazzaFilters() {
   };
 
   // --- Bazza UI Filter Setup ---
-  const bazzaProcessedColumns = useMemo<DataTableColumnConfig<MockIssue>>(() => columnConfigs, []);
+  const bazzaProcessedColumns = useMemo(() => columnConfigs, []);
 
   // Define a filter strategy (replace with your actual strategy if needed)
   const filterStrategy = 'server' as const;
@@ -408,11 +407,7 @@ function DataTableWithBazzaFilters() {
     columns: filterColumns,
     actions,
     strategy,
-  } = useDataTableFilters<
-    MockIssue,
-    DataTableColumnConfig<MockIssue>,
-    import('@lambdacurry/forms/ui/data-table-filter/core/types').FilterStrategy
-  >({
+  } = useDataTableFilters({
     columnsConfig: bazzaProcessedColumns,
     filters,
     onFiltersChange: setFilters,
@@ -500,7 +495,7 @@ function DataTableWithClientSideFilters() {
   };
 
   // --- Bazza UI Filter Setup ---
-  const bazzaProcessedColumns = useMemo<DataTableColumnConfig<MockIssue>>(() => columnConfigs, []);
+  const bazzaProcessedColumns = useMemo(() => columnConfigs, []);
 
   // Define a filter strategy for client-side
   const filterStrategy = 'client' as const;
@@ -511,11 +506,7 @@ function DataTableWithClientSideFilters() {
     actions,
     strategy,
     data: filteredData,
-  } = useDataTableFilters<
-    MockIssue,
-    DataTableColumnConfig<MockIssue>,
-    import('@lambdacurry/forms/ui/data-table-filter/core/types').FilterStrategy
-  >({
+  } = useDataTableFilters({
     columnsConfig: bazzaProcessedColumns,
     filters,
     onFiltersChange: setFilters,
@@ -721,21 +712,6 @@ See the stories below for complete implementation examples of both server-side a
       },
     },
   },
-  decorators: [
-    withReactRouterStubDecorator({
-      routes: [
-        {
-          path: '/',
-          Component: DataTableWithBazzaFilters,
-          loader: handleDataFetch,
-        },
-        {
-          path: '/client-side',
-          Component: DataTableWithClientSideFilters,
-        },
-      ],
-    }),
-  ],
   tags: ['autodocs'],
 } satisfies Meta<typeof DataTableWithBazzaFilters>;
 
@@ -743,11 +719,28 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test functions for the data table with Bazza filters
-const testInitialRender = async ({ canvasElement }: StoryContext) => {
+const testInitialRenderServerSide = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+
+  // Check if the table is rendered with the correct title (wait for loader to complete)
+  const title = await canvas.findByText('Issues Table (Bazza UI Server Filters via Loader)');
+  expect(title).toBeInTheDocument();
+
+  // Check if the table has the correct number of rows initially (should be pageSize)
+  const rows = canvas.getAllByRole('row');
+  // First row is header, so we expect pageSize + 1 rows
+  expect(rows.length).toBeGreaterThan(1); // At least header + 1 data row
+
+  // Check if pagination is rendered
+  const paginationControls = canvas.getByRole('navigation');
+  expect(paginationControls).toBeInTheDocument();
+};
+
+const testInitialRenderClientSide = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
   // Check if the table is rendered with the correct title
-  const title = canvas.getByText('Issues Table (Bazza UI Server Filters via Loader)');
+  const title = await canvas.findByText('Issues Table (Bazza UI Client-Side Filters)');
   expect(title).toBeInTheDocument();
 
   // Check if the table has the correct number of rows initially (should be pageSize)
@@ -817,12 +810,12 @@ const testFilterPersistence = async ({ canvasElement }: StoryContext) => {
 
   // Simulate a page refresh by manually setting the URL with filters
   // This is done by checking if the filter chip is still present after pagination
-  const filterChips = canvas.getAllByRole('button', { name: /remove filter/i });
+  const filterChips = await canvas.findAllByRole('button', { name: /remove filter/i });
   expect(filterChips.length).toBeGreaterThan(0);
 
   // Check if the filtered data is still displayed correctly
   // We can verify this by checking if the filter chip is still present
-  const statusFilterChip = canvas.getByText(/Status:/i);
+  const statusFilterChip = await canvas.findByText(/Status:/i);
   expect(statusFilterChip).toBeInTheDocument();
 };
 
@@ -836,9 +829,20 @@ export const ServerDriven: Story = {
       },
     },
   },
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: DataTableWithBazzaFilters,
+          loader: handleDataFetch,
+        },
+      ],
+    }),
+  ],
   play: async (context) => {
     // Run the tests in sequence
-    await testInitialRender(context);
+    await testInitialRenderServerSide(context);
     await testFiltering(context);
     await testPagination(context);
     await testFilterPersistence(context);
@@ -854,14 +858,21 @@ export const ClientSide: Story = {
           'Demonstrates client-side filtering using Bazza UI components and real-time filtering without server requests. All filtering happens in the browser for immediate response.',
       },
     },
-    reactRouter: {
-      routePath: '/client-side',
-    },
   },
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/client-side',
+          Component: DataTableWithClientSideFilters,
+        },
+      ],
+    }),
+  ],
   render: () => <DataTableWithClientSideFilters />,
   play: async (context) => {
     // Run the tests in sequence
-    await testInitialRender(context);
+    await testInitialRenderClientSide(context);
     await testFiltering(context);
     await testPagination(context);
     await testFilterPersistence(context);
@@ -891,20 +902,31 @@ This story specifically highlights the faceted filtering capabilities of Bazza U
       },
     },
   },
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: DataTableWithBazzaFilters,
+          loader: handleDataFetch,
+        },
+      ],
+    }),
+  ],
   render: () => <DataTableWithBazzaFilters />,
   play: async (context) => {
     const canvas = within(context.canvasElement);
-    
+
     // Test faceted filtering specifically
-    await testInitialRender(context);
-    
+    await testInitialRenderServerSide(context);
+
     // Open filter dropdown to show faceted counts
     const filterButton = canvas.getByRole('button', { name: /filter/i });
     await userEvent.click(filterButton);
-    
+
     // Wait for dropdown to open
     await new Promise((resolve) => setTimeout(resolve, 300));
-    
+
     // Check if faceted counts are visible (this would depend on the actual UI implementation)
     // For now, we'll just verify the filter interface is working
     const statusFilter = await canvas.findByText('Status');
@@ -916,11 +938,7 @@ This story specifically highlights the faceted filtering capabilities of Bazza U
 function SimpleDataTableFilterTest() {
   const [filters, setFilters] = useFilterSync();
 
-  const {
-    columns,
-    actions,
-    strategy,
-  } = useDataTableFilters<MockIssue>({
+  const { columns, actions, strategy } = useDataTableFilters({
     columnsConfig: columnConfigs,
     filters,
     onFiltersChange: setFilters,
@@ -939,23 +957,16 @@ function SimpleDataTableFilterTest() {
 
       <div className="border rounded-lg p-4">
         <h2 className="text-lg font-semibold mb-4">Filter Interface</h2>
-        <DataTableFilter 
-          columns={columns} 
-          filters={filters} 
-          actions={actions} 
-          strategy={strategy} 
-        />
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
       </div>
 
       <div className="bg-blue-50 p-4 rounded-lg">
         <h3 className="font-semibold mb-2">Current Filter State</h3>
-        <p className="text-sm font-mono">
-          Active Filters: {filters.length}
-        </p>
+        <p className="text-sm font-mono">Active Filters: {filters.length}</p>
         {filters.length > 0 && (
           <ul className="mt-2 space-y-1">
             {filters.map((filter, index) => (
-              <li key={filter.id} className="text-sm font-mono">
+              <li key={`${filter.columnId}-${filter.operator}-${index}`} className="text-sm font-mono">
                 {index + 1}. {filter.columnId}: {filter.operator} {JSON.stringify(filter.values)}
               </li>
             ))}
@@ -970,17 +981,17 @@ export const SimpleFilterTest: Story = {
   render: () => <SimpleDataTableFilterTest />,
   play: async ({ canvasElement }) => {
     console.log('🚀 Starting Simple Filter Test...');
-    
+
     const canvas = within(canvasElement);
-    
+
     // Check if the basic component renders
     const title = await canvas.findByText('Simple Data Table Filter Test');
     expect(title).toBeInTheDocument();
-    
+
     // Check if the filter interface renders
     const filterInterface = await canvas.findByText('Filter Interface');
     expect(filterInterface).toBeInTheDocument();
-    
+
     console.log('✅ Simple Filter Test completed successfully!');
   },
 };
@@ -990,9 +1001,7 @@ function UltraSimpleTestComponent() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Ultra Simple Test</h1>
-      <p className="text-gray-600 mb-6">
-        Testing basic component rendering without any dependencies.
-      </p>
+      <p className="text-gray-600 mb-6">Testing basic component rendering without any dependencies.</p>
       <div className="border rounded-lg p-4">
         <h2 className="text-lg font-semibold mb-4">Basic Component Test</h2>
         <p>This is a basic test to verify Storybook rendering works.</p>
@@ -1006,13 +1015,13 @@ export const UltraSimpleTest: Story = {
   decorators: [], // Override the default decorators to avoid React Router
   play: async ({ canvasElement }) => {
     console.log('🚀 Starting Ultra Simple Test...');
-    
+
     const canvas = within(canvasElement);
-    
+
     // Check if the basic component renders
     const title = await canvas.findByText('Ultra Simple Test');
     expect(title).toBeInTheDocument();
-    
+
     console.log('✅ Ultra Simple Test completed successfully!');
   },
 };

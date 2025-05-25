@@ -1,19 +1,18 @@
-import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
-import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
 import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
+import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters';
 import { useDebounceCallback } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-debounce-callback';
 import type { FiltersState } from '@lambdacurry/forms/ui/utils/filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
-import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
+import { CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import { userEvent, within } from '@storybook/test';
 import { useCallback, useEffect, useState } from 'react';
 import { withURLState } from '../lib/storybook/react-router-stub';
 
 /**
  * Hook Tests for Bazza UI Data Table Filter
- * 
+ *
  * This story contains comprehensive tests for the custom hooks:
  * - useDataTableFilters: Main hook for filter management
  * - useFilterSync: URL synchronization hook
@@ -63,7 +62,7 @@ const mockData: MockData[] = [
 
 // Column configurations for testing
 const dtf = createColumnConfigHelper<MockData>();
-const columnConfigs: DataTableColumnConfig<MockData>[] = [
+const columnConfigs = [
   dtf
     .text()
     .id('title')
@@ -101,7 +100,7 @@ const columnConfigs: DataTableColumnConfig<MockData>[] = [
     .displayName('Estimated Hours')
     .icon(StarIcon)
     .build(),
-];
+] as const;
 
 const meta: Meta<typeof DataTableFilter> = {
   title: 'Data Table Filter/Hook Tests',
@@ -127,9 +126,7 @@ Each hook is tested in isolation to ensure proper functionality and integration.
       },
     },
   },
-  decorators: [
-    withURLState('/'),
-  ],
+  decorators: [withURLState('/')],
   tags: ['autodocs'],
 } satisfies Meta<typeof DataTableFilter>;
 
@@ -144,7 +141,7 @@ const UseDataTableFiltersTest = ({ strategy }: { strategy: 'client' | 'server' }
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addResult = useCallback((result: string) => {
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   }, []);
 
   // Test the useDataTableFilters hook
@@ -197,15 +194,17 @@ const UseDataTableFiltersTest = ({ strategy }: { strategy: 'client' | 'server' }
   return (
     <div className="p-6 space-y-4">
       <h3 className="text-xl font-bold">useDataTableFilters Test ({strategy})</h3>
-      
+
       <div className="space-x-2">
         <button
+          type="button"
           onClick={testFilterUpdate}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Test Filter Update
         </button>
         <button
+          type="button"
           onClick={testFilterClear}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
         >
@@ -216,8 +215,8 @@ const UseDataTableFiltersTest = ({ strategy }: { strategy: 'client' | 'server' }
       <div className="bg-gray-100 p-4 rounded">
         <h4 className="font-bold mb-2">Test Results:</h4>
         <ul className="space-y-1">
-          {testResults.map((result, index) => (
-            <li key={index} className="font-mono text-sm">
+          {testResults.map((result) => (
+            <li key={result} className="font-mono text-sm">
               {result}
             </li>
           ))}
@@ -228,9 +227,7 @@ const UseDataTableFiltersTest = ({ strategy }: { strategy: 'client' | 'server' }
         <h4 className="font-bold mb-2">Current State:</h4>
         <p className="font-mono text-sm">Filters: {filters.length}</p>
         <p className="font-mono text-sm">Columns: {columns?.length || 0}</p>
-        {strategy === 'client' && (
-          <p className="font-mono text-sm">Filtered Data: {filteredData?.length || 0} items</p>
-        )}
+        {strategy === 'client' && <p className="font-mono text-sm">Filtered Data: {filteredData?.length || 0} items</p>}
       </div>
     </div>
   );
@@ -244,7 +241,7 @@ const UseFilterSyncTest = () => {
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addResult = useCallback((result: string) => {
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   }, []);
 
   useEffect(() => {
@@ -262,7 +259,7 @@ const UseFilterSyncTest = () => {
     };
     setFilters([testFilter]);
     addResult('✅ URL sync test - filter added');
-    
+
     // Check if URL was updated
     setTimeout(() => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -279,12 +276,12 @@ const UseFilterSyncTest = () => {
     // Simulate page refresh by checking current URL state
     const urlParams = new URLSearchParams(window.location.search);
     const filtersParam = urlParams.get('filters');
-    
+
     if (filtersParam) {
       try {
         const parsedFilters = JSON.parse(filtersParam);
         addResult(`✅ Filter persistence test - ${parsedFilters.length} filters in URL`);
-      } catch (error) {
+      } catch {
         addResult('❌ Filter persistence test - Invalid filters in URL');
       }
     } else {
@@ -295,15 +292,17 @@ const UseFilterSyncTest = () => {
   return (
     <div className="p-6 space-y-4">
       <h3 className="text-xl font-bold">useFilterSync Test</h3>
-      
+
       <div className="space-x-2">
         <button
+          type="button"
           onClick={testUrlSync}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Test URL Sync
         </button>
         <button
+          type="button"
           onClick={testFilterPersistence}
           className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
         >
@@ -314,8 +313,8 @@ const UseFilterSyncTest = () => {
       <div className="bg-gray-100 p-4 rounded">
         <h4 className="font-bold mb-2">Test Results:</h4>
         <ul className="space-y-1">
-          {testResults.map((result, index) => (
-            <li key={index} className="font-mono text-sm">
+          {testResults.map((result) => (
+            <li key={result} className="font-mono text-sm">
               {result}
             </li>
           ))}
@@ -340,23 +339,23 @@ const UseDebounceCallbackTest = () => {
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addResult = useCallback((result: string) => {
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   }, []);
 
   // Test debounced callback with 300ms delay
   const debouncedCallback = useDebounceCallback(
     useCallback(() => {
-      setDebouncedCallCount(prev => prev + 1);
+      setDebouncedCallCount((prev) => prev + 1);
       addResult(`✅ Debounced callback executed (call #${debouncedCallCount + 1})`);
     }, [debouncedCallCount, addResult]),
-    300
+    300,
   );
 
   const testDebouncing = useCallback(() => {
     // Trigger multiple rapid calls
     for (let i = 0; i < 5; i++) {
       setTimeout(() => {
-        setCallCount(prev => prev + 1);
+        setCallCount((prev) => prev + 1);
         debouncedCallback();
       }, i * 50); // 50ms intervals
     }
@@ -375,15 +374,17 @@ const UseDebounceCallbackTest = () => {
   return (
     <div className="p-6 space-y-4">
       <h3 className="text-xl font-bold">useDebounceCallback Test</h3>
-      
+
       <div className="space-x-2">
         <button
+          type="button"
           onClick={testDebouncing}
           className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
         >
           Test Debouncing (5 rapid calls)
         </button>
         <button
+          type="button"
           onClick={testImmediateCall}
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
@@ -394,8 +395,8 @@ const UseDebounceCallbackTest = () => {
       <div className="bg-gray-100 p-4 rounded">
         <h4 className="font-bold mb-2">Test Results:</h4>
         <ul className="space-y-1">
-          {testResults.map((result, index) => (
-            <li key={index} className="font-mono text-sm">
+          {testResults.map((result) => (
+            <li key={result} className="font-mono text-sm">
               {result}
             </li>
           ))}
@@ -419,11 +420,9 @@ export const ClientSideHookTests: Story = {
     <div className="space-y-8">
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Hook Tests - Client Side Strategy</h2>
-        <p className="text-gray-600 mb-6">
-          Testing all custom hooks with client-side filtering strategy.
-        </p>
+        <p className="text-gray-600 mb-6">Testing all custom hooks with client-side filtering strategy.</p>
       </div>
-      
+
       <UseDataTableFiltersTest strategy="client" />
       <UseFilterSyncTest />
       <UseDebounceCallbackTest />
@@ -431,39 +430,39 @@ export const ClientSideHookTests: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    
+
     console.log('🚀 Starting Client-Side Hook Tests...');
-    
+
     // Test useDataTableFilters
     const filterUpdateButton = canvas.getByText('Test Filter Update');
     await userEvent.click(filterUpdateButton);
-    
+
     // Wait for state update
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const filterClearButton = canvas.getByText('Test Filter Clear');
     await userEvent.click(filterClearButton);
-    
+
     // Test useFilterSync
     const urlSyncButton = canvas.getByText('Test URL Sync');
     await userEvent.click(urlSyncButton);
-    
+
     // Wait for URL update
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
     const persistenceButton = canvas.getByText('Test Persistence');
     await userEvent.click(persistenceButton);
-    
+
     // Test useDebounceCallback
     const debounceButton = canvas.getByText('Test Debouncing (5 rapid calls)');
     await userEvent.click(debounceButton);
-    
+
     // Wait for debounced execution
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const immediateButton = canvas.getByText('Test Immediate Call');
     await userEvent.click(immediateButton);
-    
+
     console.log('✅ Client-Side Hook Tests completed');
   },
 };
@@ -473,11 +472,9 @@ export const ServerSideHookTests: Story = {
     <div className="space-y-8">
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Hook Tests - Server Side Strategy</h2>
-        <p className="text-gray-600 mb-6">
-          Testing hooks with server-side filtering strategy.
-        </p>
+        <p className="text-gray-600 mb-6">Testing hooks with server-side filtering strategy.</p>
       </div>
-      
+
       <UseDataTableFiltersTest strategy="server" />
       <UseFilterSyncTest />
       <UseDebounceCallbackTest />
@@ -485,18 +482,18 @@ export const ServerSideHookTests: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    
+
     console.log('🚀 Starting Server-Side Hook Tests...');
-    
+
     // Similar tests but with server strategy
     const filterUpdateButton = canvas.getByText('Test Filter Update');
     await userEvent.click(filterUpdateButton);
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const filterClearButton = canvas.getByText('Test Filter Clear');
     await userEvent.click(filterClearButton);
-    
+
     console.log('✅ Server-Side Hook Tests completed');
   },
 };

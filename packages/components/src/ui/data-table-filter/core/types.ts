@@ -91,6 +91,7 @@ export type TOrderFn<TVal = unknown> = (a: ElementType<NonNullable<TVal>>, b: El
 /*
  * The configuration for a column.
  */
+// biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type ColumnConfig<TData, TType extends ColumnDataType = any, TVal = unknown, TId extends string = string> = {
   id: TId;
   accessor: TAccessorFn<TData, TVal>;
@@ -109,12 +110,14 @@ export type OptionColumnId<T> = T extends ColumnConfig<infer TData, 'option' | '
   ? TId
   : never;
 
+// biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type OptionColumnIds<T extends ReadonlyArray<ColumnConfig<any, any, any, any>>> = {
   [K in keyof T]: OptionColumnId<T[K]>;
 }[number];
 
 export type NumberColumnId<T> = T extends ColumnConfig<infer TData, 'number', infer TVal, infer TId> ? TId : never;
 
+// biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type NumberColumnIds<T extends ReadonlyArray<ColumnConfig<any, any, any, any>>> = {
   [K in keyof T]: NumberColumnId<T[K]>;
 }[number];
@@ -134,6 +137,9 @@ export type DataTableFilterConfig<TData> = {
   columns: ColumnConfig<TData>[];
 };
 
+// Alias for backward compatibility
+export type DataTableColumnConfig<TData> = ColumnConfig<TData>;
+
 export type ColumnProperties<TData, TVal> = {
   getOptions: () => ColumnOption[];
   getValues: () => ElementType<NonNullable<TVal>>[];
@@ -152,6 +158,7 @@ export type ColumnPrivateProperties<TData, TVal> = {
   _prefetchedFacetedMinMaxValuesCache: [number, number] | null;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type Column<TData, TType extends ColumnDataType = any, TVal = unknown> = ColumnConfig<TData, TType, TVal> &
   ColumnProperties<TData, TVal> &
   ColumnPrivateProperties<TData, TVal>;
@@ -240,6 +247,7 @@ export type FilterOperators = {
  * - Values: An array of values to be used for the filter.
  *
  */
+// biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type FilterModel<TType extends ColumnDataType = any> = {
   columnId: string;
   type: TType;

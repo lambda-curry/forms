@@ -117,7 +117,7 @@ class ColumnConfigBuilder<
 }
 
 // Update the helper interface
-interface FluentColumnConfigHelper<TData> {
+export interface FluentColumnConfigHelper<TData> {
   text: () => ColumnConfigBuilder<TData, 'text', string>;
   number: () => ColumnConfigBuilder<TData, 'number', number>;
   date: () => ColumnConfigBuilder<TData, 'date', Date>;
