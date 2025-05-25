@@ -863,7 +863,7 @@ export const ClientSide: Story = {
     withReactRouterStubDecorator({
       routes: [
         {
-          path: '/client-side',
+          path: '/',
           Component: DataTableWithClientSideFilters,
         },
       ],
