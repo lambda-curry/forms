@@ -1,5 +1,6 @@
 import { type Table as TableType, flexRender } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
+import { cn } from '../utils';
 import { DataTablePagination } from './data-table-pagination';
 
 interface DataTableProps<TData> {
@@ -8,6 +9,7 @@ interface DataTableProps<TData> {
   pagination?: boolean;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   pageCount?: number;
+  className?: string;
 }
 
 export function DataTable<TData>({
@@ -16,9 +18,10 @@ export function DataTable<TData>({
   pagination,
   onPaginationChange,
   pageCount = 1,
+  className,
 }: DataTableProps<TData>) {
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
