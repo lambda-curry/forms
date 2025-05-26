@@ -6,7 +6,6 @@ import { DataTablePagination } from './data-table-pagination';
 interface DataTableProps<TData> {
   table: TableType<TData>;
   columns: number;
-  pagination?: boolean;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   pageCount?: number;
   className?: string;
@@ -15,7 +14,6 @@ interface DataTableProps<TData> {
 export function DataTable<TData>({
   table,
   columns,
-  pagination,
   onPaginationChange,
   pageCount = 1,
   className,
@@ -56,7 +54,7 @@ export function DataTable<TData>({
           </TableBody>
         </Table>
       </div>
-      {pagination && <DataTablePagination pageCount={pageCount} onPaginationChange={onPaginationChange} />}
+      <DataTablePagination pageCount={pageCount} onPaginationChange={onPaginationChange} />
     </div>
   );
 }
