@@ -269,6 +269,7 @@ const meta: Meta<typeof DataTableWithBazzaFilters> = {
       },
     },
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -281,6 +282,136 @@ export const ServerDriven: Story = {
       description: {
         story:
           'Demonstrates server-side filtering (via loader), pagination, and sorting with Bazza UI components and URL state synchronization.',
+      },
+      source: {
+        code: `
+import { useMemo } from 'react';
+import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
+import {
+  DataTable,
+  DataTableFilter,
+  useDataTableFilters,
+  useFilterSync,
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+} from './data-table-stories.helpers';
+
+// --- Data Fetch Handler ---
+const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataResponse> => {
+  const url = new URL(request.url);
+  const params = url.searchParams;
+
+  // Parse pagination, sorting, and filters from URL
+  const page = dataTableRouterParsers.page.parse(params.get('page')) ?? 0;
+  const pageSize = dataTableRouterParsers.pageSize.parse(params.get('pageSize')) ?? 10;
+  const sortField = params.get('sortField');
+  const sortOrder = (params.get('sortOrder') || 'asc') as 'asc' | 'desc';
+  const filtersParam = params.get('filters');
+
+  // Parse filters
+  let parsedFilters = [];
+  try {
+    if (filtersParam) {
+      parsedFilters = filtersArraySchema.parse(JSON.parse(filtersParam));
+    }
+  } catch (error) {
+    console.error('Filter parsing error:', error);
+  }
+
+  // Apply filtering, sorting, pagination to data
+  let processedData = [...mockDatabase];
+  
+  // Apply filters, sorting, and pagination logic here...
+  
+  return {
+    data: paginatedData,
+    meta: { total, page, pageSize, pageCount },
+    facetedCounts,
+  };
+};
+
+function DataTableWithBazzaFilters() {
+  const loaderData = useLoaderData<DataResponse>();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const data = loaderData?.data ?? [];
+  const pageCount = loaderData?.meta.pageCount ?? 0;
+  const facetedCounts = loaderData?.facetedCounts ?? {};
+
+  // --- Bazza UI Filter Setup ---
+  const [filters, setFilters] = useFilterSync();
+
+  // Read pagination and sorting from URL
+  const pageIndex = Number.parseInt(searchParams.get('page') ?? '0', 10);
+  const pageSize = Number.parseInt(searchParams.get('pageSize') ?? '10', 10);
+  const sortField = searchParams.get('sortField');
+  const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+
+  const pagination = { pageIndex, pageSize };
+  const sorting = sortField ? [{ id: sortField, desc: sortOrder === 'desc' }] : [];
+
+  // Event handlers update URL directly
+  const handlePaginationChange = (updaterOrValue) => {
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
+    searchParams.set('page', next.pageIndex.toString());
+    searchParams.set('pageSize', next.pageSize.toString());
+    setSearchParams(searchParams);
+  };
+
+  const handleSortingChange = (updaterOrValue) => {
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue;
+    if (next.length > 0) {
+      searchParams.set('sortField', next[0].id);
+      searchParams.set('sortOrder', next[0].desc ? 'desc' : 'asc');
+    } else {
+      searchParams.delete('sortField');
+      searchParams.delete('sortOrder');
+    }
+    setSearchParams(searchParams);
+  };
+
+  // Setup filter actions and strategy
+  const {
+    columns: filterColumns,
+    actions,
+    strategy,
+  } = useDataTableFilters({
+    columnsConfig: bazzaProcessedColumns,
+    filters,
+    onFiltersChange: setFilters,
+    faceted: facetedOptionCounts,
+    strategy: 'server',
+    data,
+  });
+
+  // TanStack Table Setup
+  const table = useReactTable({
+    data,
+    columns,
+    pageCount,
+    state: { pagination, sorting },
+    onPaginationChange: handlePaginationChange,
+    onSortingChange: handleSortingChange,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    manualSorting: true,
+  });
+
+  return (
+    <div className="space-y-4">
+      {/* Bazza UI Filter Interface */}
+      <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
+
+      {/* Data Table */}
+      <DataTable table={table} columns={columns.length} pageCount={pageCount} />
+    </div>
+  );
+}`,
       },
     },
   },
