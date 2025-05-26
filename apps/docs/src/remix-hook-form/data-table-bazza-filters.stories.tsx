@@ -446,7 +446,17 @@ function DataTableWithBazzaFilters() {
         <li>Server provides filtered/paginated/sorted data and faceted counts.</li>
       </ul>
       <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
-      <DataTable className="mt-4" table={table} columns={columns.length} />
+      <DataTable 
+        className="mt-4" 
+        table={table} 
+        columns={columns.length} 
+        pagination={true}
+        pageCount={pageCount}
+        onPaginationChange={(pageIndex, pageSize) => {
+          // Handle pagination change if needed
+          console.log('Pagination changed:', { pageIndex, pageSize });
+        }}
+      />
     </div>
   );
 }
@@ -554,7 +564,17 @@ function DataTableWithClientSideFilters() {
         <li>Real-time filtering without server requests.</li>
       </ul>
       <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
-      <DataTable className="mt-4" table={table} columns={columns.length} />
+      <DataTable 
+        className="mt-4" 
+        table={table} 
+        columns={columns.length} 
+        pagination={true}
+        pageCount={pageCount}
+        onPaginationChange={(pageIndex, pageSize) => {
+          // Handle pagination change if needed
+          console.log('Pagination changed:', { pageIndex, pageSize });
+        }}
+      />
     </div>
   );
 }

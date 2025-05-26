@@ -22,8 +22,14 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
-      <div className="flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
+    <nav 
+      role="navigation" 
+      aria-label="Data table pagination"
+      className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2"
+    >
+      <div className="flex-1 text-sm text-muted-foreground">
+        {pageSize} rows per page
+      </div>
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
@@ -50,6 +56,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
             className="h-8 w-8 p-0"
             onClick={() => updateParams(0, pageSize)}
             disabled={page === 0}
+            aria-label="Go to first page"
           >
             <span className="sr-only">Go to first page</span>
             <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -59,6 +66,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
             className="h-8 w-8 p-0"
             onClick={() => updateParams(page - 1, pageSize)}
             disabled={page === 0}
+            aria-label="Go to previous page"
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeftIcon className="h-4 w-4" />
@@ -68,6 +76,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
             className="h-8 w-8 p-0"
             onClick={() => updateParams(page + 1, pageSize)}
             disabled={page === pageCount - 1}
+            aria-label="Go to next page"
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRightIcon className="h-4 w-4" />
@@ -77,12 +86,13 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
             className="h-8 w-8 p-0"
             onClick={() => updateParams(pageCount - 1, pageSize)}
             disabled={page === pageCount - 1}
+            aria-label="Go to last page"
           >
             <span className="sr-only">Go to last page</span>
             <DoubleArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
