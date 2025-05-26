@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useMemo } from 'react';
-import { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate } from 'react-router';
+import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { columnConfigs, columns } from './data-table-stories.components';
 import {
@@ -146,8 +146,6 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
 function DataTableWithBazzaFilters() {
   // Get the loader data (filtered/paginated/sorted data from server)
   const loaderData = useLoaderData<DataResponse>();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize data from loader response
@@ -183,13 +181,6 @@ function DataTableWithBazzaFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
     searchParams.set('page', next.pageIndex.toString());
     searchParams.set('pageSize', next.pageSize.toString());
-    setSearchParams(searchParams);
-  };
-
-  // --- Wrapper for DataTable pagination handler ---
-  const handleDataTablePagination = (pageIndex: number, pageSize: number) => {
-    searchParams.set('page', pageIndex.toString());
-    searchParams.set('pageSize', pageSize.toString());
     setSearchParams(searchParams);
   };
 
@@ -257,13 +248,7 @@ function DataTableWithBazzaFilters() {
       <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
 
       {/* Data Table */}
-      <DataTable
-        table={table}
-        columns={columns.length}
-        pagination={true}
-        pageCount={pageCount}
-        onPaginationChange={handleDataTablePagination}
-      />
+      <DataTable table={table} columns={columns.length} pageCount={pageCount} />
     </div>
   );
 }

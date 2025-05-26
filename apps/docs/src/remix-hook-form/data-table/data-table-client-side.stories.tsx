@@ -102,7 +102,6 @@ function DataTableWithClientSideFilters() {
       <DataTable
         table={table}
         columns={columns.length}
-        pagination={true}
         pageCount={table.getPageCount()}
         onPaginationChange={handleDataTablePagination}
       />
