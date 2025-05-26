@@ -260,38 +260,6 @@ export const Polymorphic = <T extends React.ElementType = 'div'>({
 
 ## Hook Patterns
 
-### Custom Hook Structure
-```typescript
-// Use descriptive names starting with 'use'
-export function useFormValidation<T>(schema: z.ZodSchema<T>) {
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
-  const [isValidating, setIsValidating] = React.useState(false);
-  
-  const validate = React.useCallback(async (data: T) => {
-    setIsValidating(true);
-    try {
-      await schema.parseAsync(data);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors = error.errors.reduce((acc, err) => {
-          const path = err.path.join('.');
-          acc[path] = err.message;
-          return acc;
-        }, {} as Record<string, string>);
-        setErrors(fieldErrors);
-      }
-      return false;
-    } finally {
-      setIsValidating(false);
-    }
-  }, [schema]);
-  
-  return { errors, isValidating, validate };
-}
-```
-
 ### React 19 use() Hook for Async Operations
 ```typescript
 // ✅ React 19 - use() hook for promises
@@ -359,73 +327,6 @@ interface ComponentProps {
   onSubmit?: (data: FormData) => void | Promise<void>;
   onError?: (error: Error) => void;
 }
-
-// Handle async operations properly
-const handleSubmit = async (data: FormData) => {
-  try {
-    setIsLoading(true);
-    await onSubmit?.(data);
-  } catch (error) {
-    onError?.(error as Error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-```
-
-## Performance Optimization Patterns
-
-### Memoization
-```typescript
-// Memoize expensive calculations
-const expensiveValue = React.useMemo(() => {
-  return computeExpensiveValue(props.data);
-}, [props.data]);
-
-// Memoize callback functions
-const handleClick = React.useCallback((id: string) => {
-  onItemClick?.(id);
-}, [onItemClick]);
-
-// Memoize components when necessary
-export const ExpensiveComponent = React.memo(({ data }: Props) => {
-  return <div>{/* expensive rendering */}</div>;
-});
-```
-
-## Error Boundary Patterns (React 19 Compatible)
-```typescript
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
-
-export class ErrorBoundary extends React.Component<
-  React.PropsWithChildren<{}>,
-  ErrorBoundaryState
-> {
-  constructor(props: React.PropsWithChildren<{}>) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-  
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return <div>Something went wrong.</div>;
-    }
-    
-    return this.props.children;
-  }
-}
-```
 
 ## Naming Conventions
 - **Components**: PascalCase (`TextField`, `DataTable`)
