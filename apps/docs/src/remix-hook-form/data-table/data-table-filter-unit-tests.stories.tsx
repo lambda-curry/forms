@@ -1,15 +1,19 @@
+import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
 import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import { DEFAULT_OPERATORS, filterTypeOperatorDetails } from '@lambdacurry/forms/ui/data-table-filter/core/operators';
-import type { ColumnDataType, FilterOperatorTarget } from '@lambdacurry/forms/ui/data-table-filter/core/types';
-import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
-import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
+import type {
+  ColumnDataType,
+  FilterOperatorDetailsBase,
+  FilterOperatorTarget,
+} from '@lambdacurry/forms/ui/data-table-filter/core/types';
+import { CalendarIcon, CheckCircledIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect } from '@storybook/test';
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import { withReactRouterStubDecorator } from '../../lib/storybook/react-router-stub';
 
 /**
  * Unit Tests for Bazza UI Data Table Filter Core Utilities
- * 
+ *
  * This story contains comprehensive unit tests for the core utilities:
  * - Column configuration builder (filters.ts)
  * - Filter operators (operators.ts)
@@ -85,9 +89,9 @@ type Story = StoryObj<typeof meta>;
  */
 const testColumnConfigBuilder = () => {
   console.log('🧪 Testing Column Configuration Builder...');
-  
+
   const dtf = createColumnConfigHelper<MockData>();
-  
+
   // Test text column configuration
   const textColumn = dtf
     .text()
@@ -96,13 +100,13 @@ const testColumnConfigBuilder = () => {
     .displayName('Task Title')
     .icon(TextIcon)
     .build();
-  
+
   expect(textColumn.type).toBe('text');
   expect(textColumn.id).toBe('title');
   expect(textColumn.displayName).toBe('Task Title');
   expect(textColumn.icon).toBe(TextIcon);
   expect(typeof textColumn.accessor).toBe('function');
-  
+
   // Test option column configuration
   const statusColumn = dtf
     .option()
@@ -116,12 +120,12 @@ const testColumnConfigBuilder = () => {
       { value: 'done', label: 'Done' },
     ])
     .build();
-  
+
   expect(statusColumn.type).toBe('option');
   expect(statusColumn.id).toBe('status');
   expect(statusColumn.options).toHaveLength(3);
   expect(statusColumn.options?.[0]).toEqual({ value: 'todo', label: 'Todo' });
-  
+
   // Test date column configuration
   const dateColumn = dtf
     .date()
@@ -130,10 +134,10 @@ const testColumnConfigBuilder = () => {
     .displayName('Created Date')
     .icon(CalendarIcon)
     .build();
-  
+
   expect(dateColumn.type).toBe('date');
   expect(dateColumn.id).toBe('createdDate');
-  
+
   // Test number column configuration
   const numberColumn = dtf
     .number()
@@ -142,10 +146,10 @@ const testColumnConfigBuilder = () => {
     .displayName('Estimated Hours')
     .icon(StarIcon)
     .build();
-  
+
   expect(numberColumn.type).toBe('number');
   expect(numberColumn.id).toBe('estimatedHours');
-  
+
   console.log('✅ Column Configuration Builder tests passed');
 };
 
@@ -154,33 +158,33 @@ const testColumnConfigBuilder = () => {
  */
 const testFilterOperators = () => {
   console.log('🧪 Testing Filter Operators...');
-  
+
   // Test default operators for each data type
   const textOperators = DEFAULT_OPERATORS.text;
   expect(textOperators.single).toBe('contains');
   expect(textOperators.multiple).toBe('contains');
-  
+
   const numberOperators = DEFAULT_OPERATORS.number;
   expect(numberOperators.single).toBe('is');
   expect(numberOperators.multiple).toBe('is between');
-  
+
   const dateOperators = DEFAULT_OPERATORS.date;
   expect(dateOperators.single).toBe('is');
   expect(dateOperators.multiple).toBe('is between');
-  
+
   const optionOperators = DEFAULT_OPERATORS.option;
   expect(optionOperators.single).toBe('is');
   expect(optionOperators.multiple).toBe('is any of');
-  
+
   // Test operator details retrieval using filterTypeOperatorDetails
   const textContainsDetails = filterTypeOperatorDetails.text.contains;
   expect(textContainsDetails).toBeDefined();
   expect(textContainsDetails.target).toBe('single');
-  
+
   const numberBetweenDetails = filterTypeOperatorDetails.number['is between'];
   expect(numberBetweenDetails).toBeDefined();
   expect(numberBetweenDetails.target).toBe('multiple');
-  
+
   console.log('✅ Filter Operators tests passed');
 };
 
@@ -189,19 +193,21 @@ const testFilterOperators = () => {
  */
 const testOperatorBehavior = () => {
   console.log('🧪 Testing Operator Behavior...');
-  
+
   // Test all supported data types
   const supportedTypes: ColumnDataType[] = ['text', 'number', 'date', 'option'];
   const supportedTargets: FilterOperatorTarget[] = ['single', 'multiple'];
-  
-  supportedTypes.forEach(type => {
-    supportedTargets.forEach(target => {
+
+  supportedTypes.forEach((type) => {
+    supportedTargets.forEach((target) => {
       const defaultOperator = DEFAULT_OPERATORS[type][target];
       expect(defaultOperator).toBeDefined();
-      
-      const operatorDetails = filterTypeOperatorDetails[type][defaultOperator];
+
+      const operatorDetails = filterTypeOperatorDetails[type][
+        defaultOperator as keyof (typeof filterTypeOperatorDetails)[typeof type]
+      ] as FilterOperatorDetailsBase<string, typeof type>;
       expect(operatorDetails).toBeDefined();
-      
+
       // For text filters, both single and multiple use 'contains' which has target 'single'
       // For other types, the target should match
       if (type === 'text') {
@@ -211,7 +217,7 @@ const testOperatorBehavior = () => {
       }
     });
   });
-  
+
   console.log('✅ Operator Behavior tests passed');
 };
 
@@ -220,9 +226,9 @@ const testOperatorBehavior = () => {
  */
 const testEdgeCases = () => {
   console.log('🧪 Testing Edge Cases...');
-  
+
   const dtf = createColumnConfigHelper<MockData>();
-  
+
   // Test building column without required fields
   try {
     const incompleteColumn = dtf.text().build();
@@ -231,9 +237,9 @@ const testEdgeCases = () => {
   } catch (error) {
     // This is expected behavior - column builder requires all fields
     console.log('Column builder requires all fields to be set');
-    expect(error.message).toContain('required');
+    expect((error as Error).message).toContain('required');
   }
-  
+
   // Test with empty options array
   const emptyOptionsColumn = dtf
     .option()
@@ -243,9 +249,9 @@ const testEdgeCases = () => {
     .icon(CheckCircledIcon)
     .options([])
     .build();
-  
+
   expect(emptyOptionsColumn.options).toEqual([]);
-  
+
   console.log('✅ Edge Cases tests passed');
 };
 
@@ -254,9 +260,9 @@ const testEdgeCases = () => {
  */
 const testTypeSafety = () => {
   console.log('🧪 Testing Type Safety...');
-  
+
   const dtf = createColumnConfigHelper<MockData>();
-  
+
   // Test that accessor function is properly typed
   const typedColumn = dtf
     .text()
@@ -270,9 +276,9 @@ const testTypeSafety = () => {
     .displayName('Title')
     .icon(TextIcon)
     .build();
-  
+
   expect(typedColumn.type).toBe('text');
-  
+
   // Test option values are properly typed
   const statusColumn = dtf
     .option()
@@ -286,12 +292,12 @@ const testTypeSafety = () => {
       { value: 'done', label: 'Done' },
     ])
     .build();
-  
+
   // Verify option values match the expected type
-  statusColumn.options?.forEach(option => {
+  statusColumn.options?.forEach((option) => {
     expect(['todo', 'in progress', 'done']).toContain(option.value);
   });
-  
+
   console.log('✅ Type Safety tests passed');
 };
 
@@ -300,8 +306,8 @@ export const CoreUtilitiesTests: Story = {
     <div className="p-6 space-y-4">
       <h2 className="text-2xl font-bold">Core Utilities Unit Tests</h2>
       <p className="text-gray-600">
-        Running comprehensive unit tests for Bazza UI Data Table Filter core utilities.
-        Check the browser console for detailed test output.
+        Running comprehensive unit tests for Bazza UI Data Table Filter core utilities. Check the browser console for
+        detailed test output.
       </p>
       <div className="bg-gray-100 p-4 rounded">
         <p className="font-mono text-sm">
@@ -312,14 +318,14 @@ export const CoreUtilitiesTests: Story = {
   ),
   play: async () => {
     console.log('🚀 Starting Core Utilities Unit Tests...');
-    
+
     // Run all test suites
     testColumnConfigBuilder();
     testFilterOperators();
     testOperatorBehavior();
     testEdgeCases();
     testTypeSafety();
-    
+
     console.log('🎉 All Core Utilities Unit Tests completed successfully!');
   },
 };
@@ -329,12 +335,12 @@ export const CoreUtilitiesTests: Story = {
  */
 const testPerformance = () => {
   console.log('🧪 Testing Performance...');
-  
+
   const dtf = createColumnConfigHelper<MockData>();
-  
+
   // Test performance of building many columns
   const startTime = performance.now();
-  
+
   for (let i = 0; i < 1000; i++) {
     dtf
       .text()
@@ -344,28 +350,28 @@ const testPerformance = () => {
       .icon(TextIcon)
       .build();
   }
-  
+
   const endTime = performance.now();
   const duration = endTime - startTime;
-  
+
   console.log(`Built 1000 columns in ${duration.toFixed(2)}ms`);
   expect(duration).toBeLessThan(1000); // Should complete in under 1 second
-  
+
   // Test performance of operator lookups
   const operatorStartTime = performance.now();
-  
+
   for (let i = 0; i < 10000; i++) {
     filterTypeOperatorDetails.text.contains;
     filterTypeOperatorDetails.number['is between'];
     filterTypeOperatorDetails.option['is any of'];
   }
-  
+
   const operatorEndTime = performance.now();
   const operatorDuration = operatorEndTime - operatorStartTime;
-  
+
   console.log(`Performed 30000 operator lookups in ${operatorDuration.toFixed(2)}ms`);
   expect(operatorDuration).toBeLessThan(500); // Should complete in under 500ms
-  
+
   console.log('✅ Performance tests passed');
 };
 
@@ -373,13 +379,9 @@ export const PerformanceTests: Story = {
   render: () => (
     <div className="p-6 space-y-4">
       <h2 className="text-2xl font-bold">Performance Tests</h2>
-      <p className="text-gray-600">
-        Testing performance characteristics of core utilities with large datasets.
-      </p>
+      <p className="text-gray-600">Testing performance characteristics of core utilities with large datasets.</p>
       <div className="bg-yellow-100 p-4 rounded">
-        <p className="font-mono text-sm">
-          Performance tests measure execution time for bulk operations.
-        </p>
+        <p className="font-mono text-sm">Performance tests measure execution time for bulk operations.</p>
       </div>
     </div>
   ),
