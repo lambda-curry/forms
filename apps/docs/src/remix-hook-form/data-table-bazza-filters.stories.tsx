@@ -821,6 +821,26 @@ const testFiltering = async ({ canvasElement }: StoryContext) => {
   expect(filterChip).toBeInTheDocument();
 };
 
+const testSimpleFilter = async ({ canvasElement }: StoryContext) => {
+  console.log('🚀 Starting Simple Filter Test...');
+
+  const canvas = within(canvasElement);
+
+  // Check if the basic component renders
+  const title = await canvas.findByText('Simple Data Table Filter Test');
+  expect(title).toBeInTheDocument();
+
+  // Check if the filter interface renders
+  const filterInterface = await canvas.findByText('Filter Interface');
+  expect(filterInterface).toBeInTheDocument();
+
+  // Check if pagination controls are present
+  const paginationControls = canvas.getByRole('navigation', { name: /pagination/i });
+  expect(paginationControls).toBeInTheDocument();
+
+  console.log('✅ Simple Filter Test completed successfully!');
+};
+
 const testPagination = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
@@ -1017,21 +1037,17 @@ function SimpleDataTableFilterTest() {
 
 export const SimpleFilterTest: Story = {
   render: () => <SimpleDataTableFilterTest />,
-  play: async ({ canvasElement }) => {
-    console.log('🚀 Starting Simple Filter Test...');
-
-    const canvas = within(canvasElement);
-
-    // Check if the basic component renders
-    const title = await canvas.findByText('Simple Data Table Filter Test');
-    expect(title).toBeInTheDocument();
-
-    // Check if the filter interface renders
-    const filterInterface = await canvas.findByText('Filter Interface');
-    expect(filterInterface).toBeInTheDocument();
-
-    console.log('✅ Simple Filter Test completed successfully!');
-  },
+  play: testSimpleFilter,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: SimpleDataTableFilterTest,
+        },
+      ],
+    }),
+  ],
 };
 
 // --- Ultra Simple Test Component (No Dependencies) ---
