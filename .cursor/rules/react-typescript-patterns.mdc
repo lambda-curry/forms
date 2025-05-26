@@ -1,0 +1,395 @@
+---
+type: Always
+description: React and TypeScript component architecture patterns for the lambda-curry/forms repository
+---
+
+You are an expert in React 19, TypeScript, modern React patterns, and component library architecture.
+
+# React + TypeScript Component Architecture
+
+## Core Principles
+- Use functional components with TypeScript interfaces
+- Prefer composition over inheritance
+- Write self-documenting code with descriptive names
+- Follow React 19 best practices and modern patterns
+- Maintain consistent component structure and naming
+
+## Component Structure Pattern
+Organize components with this consistent structure:
+```typescript
+// 1. Imports (external libraries first, then internal)
+import * as React from 'react';
+import { type VariantProps, cva } from 'class-variance-authority';
+import { Slot } from '@radix-ui/react-slot';
+
+// 2. Internal imports
+import { cn } from './utils';
+
+// 3. Type definitions and interfaces
+export interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  asChild?: boolean;
+}
+
+// 4. Component variants (if using CVA)
+const componentVariants = cva(
+  'base-classes',
+  {
+    variants: {
+      variant: {
+        default: 'default-styles',
+        secondary: 'secondary-styles',
+      },
+      size: {
+        sm: 'small-styles',
+        md: 'medium-styles',
+        lg: 'large-styles',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'md',
+    },
+  }
+);
+
+// 5. Component implementation (React 19 - no forwardRef needed!)
+export const Component = ({ className, variant, size, asChild = false, ref, ...props }: ComponentProps) => {
+  const Comp = asChild ? Slot : 'div';
+  
+  return (
+    <Comp
+      className={cn(componentVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
+};
+
+// 6. Display name
+Component.displayName = 'Component';
+```
+
+## React 19 Ref Patterns
+
+### Direct Ref Props (No More forwardRef!)
+```typescript
+// ✅ React 19 - ref as a direct prop
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'destructive' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
+  asChild?: boolean;
+}
+
+export const Button = ({ className, variant, size, asChild = false, ref, ...props }: ButtonProps) => {
+  const Comp = asChild ? Slot : 'button';
+  
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
+};
+
+// Usage - ref works directly!
+const MyComponent = () => {
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  
+  return <Button ref={buttonRef}>Click me</Button>;
+};
+```
+
+### Ref Cleanup Functions (React 19 Feature)
+```typescript
+// ✅ React 19 - ref cleanup functions
+export const AutoFocusInput = ({ ref, ...props }: InputProps) => {
+  return (
+    <input
+      ref={(node) => {
+        // Set the ref
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref) {
+          ref.current = node;
+        }
+        
+        // Auto-focus when mounted
+        if (node) {
+          node.focus();
+        }
+        
+        // Return cleanup function (React 19 feature)
+        return () => {
+          if (node) {
+            node.blur();
+          }
+        };
+      }}
+      {...props}
+    />
+  );
+};
+```
+
+### useRef Patterns for React 19
+```typescript
+// ✅ Modern useRef patterns
+export function useImperativeActions() {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  
+  const focus = React.useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+  
+  const clear = React.useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+      inputRef.current.focus();
+    }
+  }, []);
+  
+  const selectAll = React.useCallback(() => {
+    inputRef.current?.select();
+  }, []);
+  
+  return { inputRef, focus, clear, selectAll };
+}
+
+// Usage
+const SearchInput = () => {
+  const { inputRef, focus, clear } = useImperativeActions();
+  
+  return (
+    <div className="flex gap-2">
+      <input ref={inputRef} placeholder="Search..." />
+      <button onClick={focus}>Focus</button>
+      <button onClick={clear}>Clear</button>
+    </div>
+  );
+};
+```
+
+## TypeScript Interface Conventions
+
+### Props Interfaces
+```typescript
+// Extend HTML attributes when appropriate
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'destructive' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
+  asChild?: boolean;
+}
+
+// Use descriptive names with auxiliary verbs
+export interface FormFieldProps {
+  isLoading?: boolean;
+  hasError?: boolean;
+  isRequired?: boolean;
+  isDisabled?: boolean;
+}
+
+// Prefer interfaces over types for component props
+export interface ComponentProps {
+  // Use specific types instead of any
+  onValueChange?: (value: string) => void;
+  // Use union types for controlled options
+  variant: 'primary' | 'secondary' | 'ghost';
+}
+```
+
+### Generic Type Patterns
+```typescript
+// For form components that work with any field type
+export interface FieldProps<T = string> {
+  value?: T;
+  onChange?: (value: T) => void;
+  defaultValue?: T;
+}
+
+// For components that accept custom renderers
+export interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T, index: number) => React.ReactNode;
+  keyExtractor: (item: T) => string;
+}
+```
+
+## Component Composition Patterns
+
+### Compound Components
+```typescript
+// Main component
+export const Card = ({ className, ref, ...props }: CardProps) => (
+  <div className={cn('card-base', className)} ref={ref} {...props} />
+);
+
+// Sub-components
+export const CardHeader = ({ className, ref, ...props }: CardHeaderProps) => (
+  <div className={cn('card-header', className)} ref={ref} {...props} />
+);
+
+export const CardContent = ({ className, ref, ...props }: CardContentProps) => (
+  <div className={cn('card-content', className)} ref={ref} {...props} />
+);
+
+// Attach sub-components
+Card.Header = CardHeader;
+Card.Content = CardContent;
+```
+
+### Polymorphic Components (React 19 Style)
+```typescript
+type AsChildProps<T extends React.ElementType> = {
+  asChild?: boolean;
+  as?: T;
+} & React.ComponentPropsWithoutRef<T>;
+
+export const Polymorphic = <T extends React.ElementType = 'div'>({
+  asChild,
+  as,
+  ref,
+  ...props
+}: AsChildProps<T>) => {
+  const Component = asChild ? Slot : (as || 'div');
+  return <Component ref={ref} {...props} />;
+};
+```
+
+## Hook Patterns
+
+### React 19 use() Hook for Async Operations
+```typescript
+// ✅ React 19 - use() hook for promises
+import { use } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+async function fetchUser(id: string): Promise<User> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
+
+// Component using the new use() hook
+export const UserProfile = ({ userId }: { userId: string }) => {
+  // React 19 - use() hook handles promises directly
+  const user = use(fetchUser(userId));
+  
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+};
+
+// Wrap with Suspense for loading states
+export const UserProfileWithSuspense = ({ userId }: { userId: string }) => (
+  <React.Suspense fallback={<div>Loading user...</div>}>
+    <UserProfile userId={userId} />
+  </React.Suspense>
+);
+```
+
+### Context Patterns
+```typescript
+// Create strongly typed context
+interface FormContextValue {
+  isSubmitting: boolean;
+  errors: Record<string, string>;
+  setValue: (name: string, value: unknown) => void;
+}
+
+const FormContext = React.createContext<FormContextValue | null>(null);
+
+// Custom hook for context consumption
+export function useFormContext() {
+  const context = React.useContext(FormContext);
+  if (!context) {
+    throw new Error('useFormContext must be used within a FormProvider');
+  }
+  return context;
+}
+```
+
+## Event Handler Patterns
+```typescript
+// Use descriptive event handler names
+interface ComponentProps {
+  onValueChange?: (value: string) => void;
+  onSelectionChange?: (selectedIds: string[]) => void;
+  onSubmit?: (data: FormData) => void | Promise<void>;
+  onError?: (error: Error) => void;
+}
+
+## Naming Conventions
+- **Components**: PascalCase (`TextField`, `DataTable`)
+- **Props interfaces**: ComponentName + Props (`TextFieldProps`)
+- **Hooks**: camelCase starting with 'use' (`useFormValidation`)
+- **Event handlers**: camelCase starting with 'handle' (`handleSubmit`)
+- **Boolean props**: Use auxiliary verbs (`isLoading`, `hasError`, `canEdit`)
+- **Files**: kebab-case (`text-field.tsx`, `data-table.tsx`)
+
+## File Organization
+```
+src/
+├── components/
+│   ├── ui/                   # Base UI components
+│   │   ├── button.tsx
+│   │   └── index.ts
+│   └── remix-hook-form/      # Form-aware components
+│       ├── text-field.tsx
+│       └── index.ts
+├── hooks/                    # Custom hooks
+│   ├── use-form-validation.ts
+│   └── index.ts
+└── utils/                    # Utility functions
+    ├── cn.ts
+    └── index.ts
+```
+
+## Export Patterns
+```typescript
+// Named exports for components and types
+export { Button } from './button';
+export type { ButtonProps } from './button';
+
+// Re-export from index files
+export * from './button';
+export * from './input';
+
+// Default exports only for single-purpose modules
+export default function utilityFunction() {
+  // ...
+}
+```
+
+## Documentation Requirements
+```typescript
+/**
+ * A flexible button component that supports multiple variants and sizes.
+ * 
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="lg" onClick={handleClick}>
+ *   Click me
+ * </Button>
+ * ```
+ */
+export interface ButtonProps {
+  /** The visual style variant */
+  variant?: 'primary' | 'secondary' | 'ghost';
+  /** The size of the button */
+  size?: 'sm' | 'md' | 'lg';
+  /** Click event handler */
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+```
+
+Remember: Write components that are predictable, composable, and maintainable. Every component should have a clear purpose and follow consistent patterns that make the codebase easy to understand and extend. React 19 simplifies ref handling significantly - embrace the new patterns!
