@@ -222,19 +222,27 @@ export function FilterValueMultiOptionDisplay<TData>({
   );
 }
 
-function formatDateRange(start: Date, end: Date) {
-  const sameMonth = start.getMonth() === end.getMonth();
-  const sameYear = start.getFullYear() === end.getFullYear();
+function formatDateRange(start: Date | string | number, end: Date | string | number) {
+  const startDate = start instanceof Date ? start : new Date(start);
+  const endDate = end instanceof Date ? end : new Date(end);
+
+  // Check if dates are valid
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    return 'Invalid date range';
+  }
+
+  const sameMonth = startDate.getMonth() === endDate.getMonth();
+  const sameYear = startDate.getFullYear() === endDate.getFullYear();
 
   if (sameMonth && sameYear) {
-    return `${format(start, 'MMM d')} - ${format(end, 'd, yyyy')}`;
+    return `${format(startDate, 'MMM d')} - ${format(endDate, 'd, yyyy')}`;
   }
 
   if (sameYear) {
-    return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+    return `${format(startDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`;
   }
 
-  return `${format(start, 'MMM d, yyyy')} - ${format(end, 'MMM d, yyyy')}`;
+  return `${format(startDate, 'MMM d, yyyy')} - ${format(endDate, 'MMM d, yyyy')}`;
 }
 
 export function FilterValueDateDisplay<TData>({
@@ -247,8 +255,14 @@ export function FilterValueDateDisplay<TData>({
   if (filter.values.length === 0) return <Ellipsis className="size-4" />;
   if (filter.values.length === 1) {
     const value = filter.values[0];
+    const dateValue = value instanceof Date ? value : new Date(value);
 
-    const formattedDateStr = format(value, 'MMM d, yyyy');
+    // Check if date is valid
+    if (Number.isNaN(dateValue.getTime())) {
+      return <span>Invalid date</span>;
+    }
+
+    const formattedDateStr = format(dateValue, 'MMM d, yyyy');
 
     return <span>{formattedDateStr}</span>;
   }
@@ -546,8 +560,16 @@ export function FilterValueDateController<TData>({
   actions,
 }: FilterValueControllerProps<TData, 'date'>) {
   const [date, setDate] = useState<DateRange | undefined>({
-    from: filter?.values[0] ?? new Date(),
-    to: filter?.values[1] ?? undefined,
+    from: filter?.values[0]
+      ? filter.values[0] instanceof Date
+        ? filter.values[0]
+        : new Date(filter.values[0])
+      : new Date(),
+    to: filter?.values[1]
+      ? filter.values[1] instanceof Date
+        ? filter.values[1]
+        : new Date(filter.values[1])
+      : undefined,
   });
 
   function changeDateRange(value: DateRange | undefined) {
