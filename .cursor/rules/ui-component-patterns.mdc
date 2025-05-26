@@ -186,102 +186,6 @@ export {
 };
 ```
 
-## Form Component Patterns (Based on Your form.tsx)
-
-### Form Components Following Your Architecture
-```typescript
-// ✅ Based on your existing form.tsx patterns
-import * as React from 'react';
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { Slot } from '@radix-ui/react-slot';
-import { cn } from '@/lib/utils';
-
-// Form components following your existing patterns
-const Form = ({ ...props }) => <form {...props} />;
-
-const FormField = ({ ...props }) => <div {...props} />;
-
-const FormItem = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('space-y-2', className)} {...props} />
-);
-
-const FormLabel = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>) => (
-  <LabelPrimitive.Root
-    className={cn(
-      'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-      className
-    )}
-    {...props}
-  />
-);
-
-const FormControl = ({ ...props }: React.ComponentPropsWithoutRef<typeof Slot>) => (
-  <Slot {...props} />
-);
-
-const FormDescription = ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-  <p className={cn('text-sm text-muted-foreground', className)} {...props} />
-);
-
-const FormMessage = ({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
-  if (!children) return null;
-  
-  return (
-    <p
-      className={cn('text-sm font-medium text-destructive', className)}
-      {...props}
-    >
-      {children}
-    </p>
-  );
-};
-
-export { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage };
-```
-
-## Data Table Patterns (Based on Your data-table Components)
-
-### Data Table Architecture
-```typescript
-// ✅ Following your existing data-table patterns
-import * as React from 'react';
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { cn } from '@/lib/utils';
-
-// Table components following your existing table.tsx
-const Table = ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      className={cn('w-full caption-bottom text-sm', className)}
-      {...props}
-    />
-  </div>
-);
-
-const TableHeader = ({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) => (
-  <thead className={cn('[&_tr]:border-b', className)} {...props} />
-);
-
-const TableBody = ({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) => (
-  <tbody
-    className={cn('[&_tr:last-child]:border-0', className)}
-    {...props}
-  />
-);
-
-const TableRow = ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
-  <tr
-    className={cn(
-      'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
-      className
-    )}
-    {...props}
-  />
-);
-
-export { Table, TableHeader, TableBody, TableRow };
-```
-
 ## Responsive Design Patterns
 
 ### Container Queries with Tailwind 4
@@ -358,7 +262,7 @@ const optimizedClasses = {
   // Use CSS custom properties for dynamic values
   dynamic: 'bg-[--dynamic-color] text-[--dynamic-text]',
   
-  // Prefer CSS Grid for complex layouts (like your data-table)
+  // Prefer CSS Grid for complex layouts
   layout: 'grid grid-cols-[auto_1fr_auto] gap-4',
   
   // Use container queries for responsive components
@@ -379,36 +283,5 @@ export const OptimizedComponent = React.memo(({ children, variant }: ComponentPr
 });
 ```
 
-## Testing Integration
-
-### Component Testing Patterns
-```typescript
-// ✅ Testing patterns for your components
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { Button } from './button';
-
-describe('Button Component', () => {
-  it('should render with correct variant classes', () => {
-    render(<Button variant="destructive">Delete</Button>);
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-destructive', 'text-destructive-foreground');
-  });
-  
-  it('should handle keyboard navigation', async () => {
-    const user = userEvent.setup();
-    const handleClick = jest.fn();
-    
-    render(<Button onClick={handleClick}>Click me</Button>);
-    const button = screen.getByRole('button');
-    
-    await user.tab();
-    expect(button).toHaveFocus();
-    
-    await user.keyboard('{Enter}');
-    expect(handleClick).toHaveBeenCalled();
-  });
-});
-```
-
 Remember: Focus only on the components and patterns that exist in the lambda-curry/forms library. Use Radix UI primitives with Tailwind CSS 4, follow the established component architecture, and ensure accessibility and performance in all implementations.
+
