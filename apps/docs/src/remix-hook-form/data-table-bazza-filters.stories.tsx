@@ -15,7 +15,7 @@ import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync'; // 
 // Add icon imports
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react'; // FIX: Add Meta, StoryObj, StoryContext
-import { expect, userEvent, within } from '@storybook/test'; // Add storybook test imports
+import { expect, userEvent, within, screen } from '@storybook/test'; // Add storybook test imports
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'; // Added PaginationState, SortingState
 import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import type { OnChangeFn } from '@tanstack/react-table';
@@ -381,7 +381,7 @@ function DataTableWithBazzaFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
     searchParams.set('page', next.pageIndex.toString());
     searchParams.set('pageSize', next.pageSize.toString());
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
@@ -393,7 +393,7 @@ function DataTableWithBazzaFilters() {
       searchParams.delete('sortField');
       searchParams.delete('sortOrder');
     }
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   // --- Bazza UI Filter Setup ---
@@ -489,7 +489,7 @@ function DataTableWithClientSideFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
     searchParams.set('page', next.pageIndex.toString());
     searchParams.set('pageSize', next.pageSize.toString());
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
@@ -501,7 +501,7 @@ function DataTableWithClientSideFilters() {
       searchParams.delete('sortField');
       searchParams.delete('sortOrder');
     }
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   // --- Bazza UI Filter Setup ---
@@ -784,8 +784,26 @@ const testFiltering = async ({ canvasElement }: StoryContext) => {
   const statusFilter = await canvas.findByText('Status');
   await userEvent.click(statusFilter);
 
-  // Select a filter value (e.g., "Todo")
-  const todoOption = await canvas.findByText('Todo');
+  // Wait a bit for the filter value controller to render
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  // Select a filter value (e.g., "Todo") - try different approaches
+  let todoOption;
+  try {
+    // Try finding by text first
+    todoOption = await screen.findByText('Todo', {}, { timeout: 2000 });
+  } catch {
+    try {
+      // Try finding by role
+      todoOption = await screen.findByRole('option', { name: /todo/i }, { timeout: 2000 });
+    } catch {
+      // Try finding any element containing Todo
+      todoOption = await screen.findByText((content, element) => {
+        return element?.textContent?.includes('Todo') || false;
+      }, {}, { timeout: 2000 });
+    }
+  }
+  
   await userEvent.click(todoOption);
 
   // Apply the filter
