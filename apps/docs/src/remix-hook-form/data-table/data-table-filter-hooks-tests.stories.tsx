@@ -8,7 +8,7 @@ import { CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/reac
 import type { Meta, StoryObj } from '@storybook/react';
 import { userEvent, within } from '@storybook/test';
 import { useCallback, useEffect, useState } from 'react';
-import { withURLState } from '../lib/storybook/react-router-stub';
+import { withURLState } from '../../lib/storybook/react-router-stub';
 
 /**
  * Hook Tests for Bazza UI Data Table Filter

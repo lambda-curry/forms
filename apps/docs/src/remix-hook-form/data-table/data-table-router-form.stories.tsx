@@ -11,7 +11,7 @@ import { ActivityIcon, ShieldIcon, UserIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import { withReactRouterStubDecorator } from '../../lib/storybook/react-router-stub';
 
 // Assuming createColumnConfigHelper is available from bazza/ui
 // For the story, we'll simulate its output if direct import is problematic.
@@ -134,7 +134,6 @@ const bazzaFilterColumnConfigs: BazzaFilterColumnConfig[] = [
 
 // Log all options for each config to help debug undefined labels
 bazzaFilterColumnConfigs.forEach((config) => {
-  console.log('>>>>> config', config);
   // Log the options array for each config, if present
   console.log(`Config id: ${config.id}, options:`, config.options);
   if (config.options) {

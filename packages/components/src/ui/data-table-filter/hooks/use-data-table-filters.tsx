@@ -28,6 +28,7 @@ import {
 
 export interface DataTableFiltersOptions<
   TData,
+  // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
   TColumns extends ReadonlyArray<ColumnConfig<TData, any, any, any>>,
   TStrategy extends FilterStrategy,
 > {
@@ -272,6 +273,7 @@ export function useDataTableFilters<
             columnId: column.id,
             type: column.type,
             operator: newOperator,
+            // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
             values: newValues as any,
           } satisfies FilterModel<TType>;
           return prev.map((f) => (f.columnId === column.id ? newFilter : f));
@@ -290,5 +292,107 @@ export function useDataTableFilters<
     [setFilters],
   );
 
-  return { columns, filters, actions, strategy, data }; // columns is Column<TData>[]
+  // Apply client-side filtering
+  const filteredData = useMemo(() => {
+    if (strategy !== 'client' || filters.length === 0) {
+      return data;
+    }
+
+    return data.filter((item) => {
+      return filters.every((filter) => {
+        const columnConfig = columnsConfig.find((col) => col.id === filter.columnId);
+        if (!columnConfig) return true;
+
+        const value = columnConfig.accessor(item);
+
+        switch (filter.type) {
+          case 'option': {
+            // Option filter: support multi-value (is any of)
+            if (Array.isArray(filter.values) && filter.values.length > 0) {
+              if (
+                typeof value === 'string' ||
+                typeof value === 'number' ||
+                typeof value === 'boolean' ||
+                value === null
+              ) {
+                return filter.values.includes(value);
+              }
+              // If value is not a supported type (e.g., Date), skip filtering
+              return true;
+            }
+            return true;
+          }
+          case 'text': {
+            // Text filter: support contains
+            if (Array.isArray(filter.values) && filter.values.length > 0 && typeof filter.values[0] === 'string') {
+              return typeof value === 'string' && value.toLowerCase().includes(String(filter.values[0]).toLowerCase());
+            }
+            return true;
+          }
+          case 'number': {
+            // Number filter: support various operators
+            if (Array.isArray(filter.values) && filter.values.length > 0 && typeof value === 'number') {
+              const filterVal = filter.values[0] as number;
+              switch (filter.operator) {
+                case 'is':
+                  return value === filterVal;
+                case 'is not':
+                  return value !== filterVal;
+                case 'is greater than':
+                  return value > filterVal;
+                case 'is greater than or equal to':
+                  return value >= filterVal;
+                case 'is less than':
+                  return value < filterVal;
+                case 'is less than or equal to':
+                  return value <= filterVal;
+                case 'is between': {
+                  const lowerBound = filter.values[0] as number;
+                  const upperBound = filter.values[1] as number;
+                  return value >= lowerBound && value <= upperBound;
+                }
+                case 'is not between': {
+                  const lowerBound = filter.values[0] as number;
+                  const upperBound = filter.values[1] as number;
+                  return value < lowerBound || value > upperBound;
+                }
+                default:
+                  return true;
+              }
+            }
+            return true;
+          }
+          case 'date': {
+            // Date filter: support date range filtering
+            if (Array.isArray(filter.values) && filter.values.length > 0 && value instanceof Date) {
+              const filterDate = filter.values[0] as Date;
+              switch (filter.operator) {
+                case 'is':
+                  return value.toDateString() === filterDate.toDateString();
+                case 'is not':
+                  return value.toDateString() !== filterDate.toDateString();
+                case 'is after':
+                  return value > filterDate;
+                case 'is before':
+                  return value < filterDate;
+                case 'is between': {
+                  const startDate = filter.values[0] as Date;
+                  const endDate = filter.values[1] as Date;
+                  return value >= startDate && value <= endDate;
+                }
+                default:
+                  return true;
+              }
+            }
+            return true;
+          }
+          // Add more filter types as needed
+          default:
+            return true;
+        }
+      });
+    });
+  }, [data, filters, strategy, columnsConfig]);
+
+  return { columns, filters, actions, strategy, data: filteredData }; // columns is Column<TData>[]
 }

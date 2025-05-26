@@ -1,16 +1,15 @@
-import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
-import type { DataTableColumnConfig } from '@lambdacurry/forms/ui/data-table-filter/core/types';
 import { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
+import { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters';
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
-import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
+import { CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import { expect } from '@storybook/test';
+import { withReactRouterStubDecorator } from '../../lib/storybook/react-router-stub';
 
 /**
  * Accessibility Tests for Bazza UI Data Table Filter
- * 
+ *
  * This story contains comprehensive accessibility tests to ensure the filter components
  * meet WCAG 2.1 AA standards and provide an excellent experience for all users.
  */
@@ -58,7 +57,7 @@ const mockData: MockData[] = [
 
 // Column configurations for testing
 const dtf = createColumnConfigHelper<MockData>();
-const columnConfigs: DataTableColumnConfig<MockData>[] = [
+const columnConfigs = [
   dtf
     .text()
     .id('title')
@@ -104,11 +103,7 @@ const columnConfigs: DataTableColumnConfig<MockData>[] = [
 const AccessibilityTestComponent = () => {
   const [filters, setFilters] = useFilterSync();
 
-  const {
-    columns,
-    actions,
-    strategy,
-  } = useDataTableFilters({
+  const { columns, actions, strategy } = useDataTableFilters({
     columnsConfig: columnConfigs,
     filters,
     onFiltersChange: setFilters,
@@ -121,19 +116,14 @@ const AccessibilityTestComponent = () => {
       <div>
         <h1 className="text-2xl font-bold mb-4">Data Table Filter Accessibility Test</h1>
         <p className="text-gray-600 mb-6">
-          This interface tests the accessibility features of the Bazza UI Data Table Filter components.
-          Use keyboard navigation, screen readers, and other assistive technologies to verify accessibility.
+          This interface tests the accessibility features of the Bazza UI Data Table Filter components. Use keyboard
+          navigation, screen readers, and other assistive technologies to verify accessibility.
         </p>
       </div>
 
       <div className="border rounded-lg p-4">
         <h2 className="text-lg font-semibold mb-4">Filter Interface</h2>
-        <DataTableFilter 
-          columns={columns} 
-          filters={filters} 
-          actions={actions} 
-          strategy={strategy} 
-        />
+        <DataTableFilter columns={columns} filters={filters} actions={actions} strategy={strategy} />
       </div>
 
       <div className="bg-blue-50 p-4 rounded-lg">
@@ -150,13 +140,11 @@ const AccessibilityTestComponent = () => {
 
       <div className="bg-green-50 p-4 rounded-lg">
         <h3 className="font-semibold mb-2">Current Filter State</h3>
-        <p className="text-sm font-mono">
-          Active Filters: {filters.length}
-        </p>
+        <p className="text-sm font-mono">Active Filters: {filters.length}</p>
         {filters.length > 0 && (
           <ul className="mt-2 space-y-1">
             {filters.map((filter, index) => (
-              <li key={filter.id} className="text-sm font-mono">
+              <li key={filter.columnId} className="text-sm font-mono">
                 {index + 1}. {filter.columnId}: {filter.operator} {JSON.stringify(filter.values)}
               </li>
             ))}
@@ -243,7 +231,7 @@ type Story = StoryObj<typeof meta>;
 const testBasicRendering = ({ canvas }: StoryContext) => {
   const title = canvas.getByText('Data Table Filter Accessibility Test');
   expect(title).toBeInTheDocument();
-  
+
   const filterInterface = canvas.getByText('Filter Interface');
   expect(filterInterface).toBeInTheDocument();
 };
@@ -251,8 +239,8 @@ const testBasicRendering = ({ canvas }: StoryContext) => {
 const testKeyboardNavigation = async ({ canvas }: StoryContext) => {
   // Look for filter-related buttons or elements
   const buttons = canvas.getAllByRole('button');
-  expect(buttons.length).toBeGreaterThan(0);
-  
+  await expect(buttons.length).toBeGreaterThan(0);
+
   // Test that we can focus on interactive elements
   if (buttons.length > 0) {
     buttons[0].focus();
@@ -264,9 +252,9 @@ const testAriaAttributes = async ({ canvas }: StoryContext) => {
   // Test that interactive elements have proper roles
   const buttons = canvas.getAllByRole('button');
   expect(buttons.length).toBeGreaterThan(0);
-  
+
   // Test that buttons have accessible names
-  buttons.forEach(button => {
+  buttons.forEach((button) => {
     expect(button).toBeInTheDocument();
   });
 };
@@ -296,13 +284,13 @@ export const KeyboardNavigationTest: Story = {
   },
   play: async (storyContext) => {
     const { canvas } = storyContext;
-    
+
     // Test basic rendering first
     testBasicRendering(storyContext);
-    
+
     // Test keyboard navigation
     await testKeyboardNavigation(storyContext);
-    
+
     console.log('✅ Keyboard navigation tests completed');
   },
 };
@@ -317,14 +305,13 @@ export const AriaAttributesTest: Story = {
   },
   play: async (storyContext) => {
     const { canvas } = storyContext;
-    
+
     // Test basic rendering first
     testBasicRendering(storyContext);
-    
+
     // Test ARIA attributes
     await testAriaAttributes(storyContext);
-    
+
     console.log('✅ ARIA attributes tests completed');
   },
 };
-
