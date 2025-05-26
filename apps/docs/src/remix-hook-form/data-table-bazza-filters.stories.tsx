@@ -15,7 +15,7 @@ import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync'; // 
 // Add icon imports
 import { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react'; // FIX: Add Meta, StoryObj, StoryContext
-import { expect, userEvent, within } from '@storybook/test'; // Add storybook test imports
+import { expect, userEvent, within, screen } from '@storybook/test'; // Add storybook test imports
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'; // Added PaginationState, SortingState
 import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import type { OnChangeFn } from '@tanstack/react-table';
@@ -381,7 +381,7 @@ function DataTableWithBazzaFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
     searchParams.set('page', next.pageIndex.toString());
     searchParams.set('pageSize', next.pageSize.toString());
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
@@ -393,7 +393,7 @@ function DataTableWithBazzaFilters() {
       searchParams.delete('sortField');
       searchParams.delete('sortOrder');
     }
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   // --- Bazza UI Filter Setup ---
@@ -446,7 +446,17 @@ function DataTableWithBazzaFilters() {
         <li>Server provides filtered/paginated/sorted data and faceted counts.</li>
       </ul>
       <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
-      <DataTable className="mt-4" table={table} columns={columns.length} />
+      <DataTable 
+        className="mt-4" 
+        table={table} 
+        columns={columns.length} 
+        pagination={true}
+        pageCount={pageCount}
+        onPaginationChange={(pageIndex, pageSize) => {
+          // Handle pagination change if needed
+          console.log('Pagination changed:', { pageIndex, pageSize });
+        }}
+      />
     </div>
   );
 }
@@ -479,7 +489,7 @@ function DataTableWithClientSideFilters() {
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
     searchParams.set('page', next.pageIndex.toString());
     searchParams.set('pageSize', next.pageSize.toString());
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
@@ -491,7 +501,7 @@ function DataTableWithClientSideFilters() {
       searchParams.delete('sortField');
       searchParams.delete('sortOrder');
     }
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    setSearchParams(searchParams);
   };
 
   // --- Bazza UI Filter Setup ---
@@ -554,7 +564,17 @@ function DataTableWithClientSideFilters() {
         <li>Real-time filtering without server requests.</li>
       </ul>
       <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
-      <DataTable className="mt-4" table={table} columns={columns.length} />
+      <DataTable 
+        className="mt-4" 
+        table={table} 
+        columns={columns.length} 
+        pagination={true}
+        pageCount={pageCount}
+        onPaginationChange={(pageIndex, pageSize) => {
+          // Handle pagination change if needed
+          console.log('Pagination changed:', { pageIndex, pageSize });
+        }}
+      />
     </div>
   );
 }
@@ -764,8 +784,26 @@ const testFiltering = async ({ canvasElement }: StoryContext) => {
   const statusFilter = await canvas.findByText('Status');
   await userEvent.click(statusFilter);
 
-  // Select a filter value (e.g., "Todo")
-  const todoOption = await canvas.findByText('Todo');
+  // Wait a bit for the filter value controller to render
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  // Select a filter value (e.g., "Todo") - try different approaches
+  let todoOption;
+  try {
+    // Try finding by text first
+    todoOption = await screen.findByText('Todo', {}, { timeout: 2000 });
+  } catch {
+    try {
+      // Try finding by role
+      todoOption = await screen.findByRole('option', { name: /todo/i }, { timeout: 2000 });
+    } catch {
+      // Try finding any element containing Todo
+      todoOption = await screen.findByText((content, element) => {
+        return element?.textContent?.includes('Todo') || false;
+      }, {}, { timeout: 2000 });
+    }
+  }
+  
   await userEvent.click(todoOption);
 
   // Apply the filter
@@ -781,6 +819,26 @@ const testFiltering = async ({ canvasElement }: StoryContext) => {
   // Check if the filter chip is displayed
   const filterChip = await canvas.findByText('Status: Todo');
   expect(filterChip).toBeInTheDocument();
+};
+
+const testSimpleFilter = async ({ canvasElement }: StoryContext) => {
+  console.log('🚀 Starting Simple Filter Test...');
+
+  const canvas = within(canvasElement);
+
+  // Check if the basic component renders
+  const title = await canvas.findByText('Simple Data Table Filter Test');
+  expect(title).toBeInTheDocument();
+
+  // Check if the filter interface renders
+  const filterInterface = await canvas.findByText('Filter Interface');
+  expect(filterInterface).toBeInTheDocument();
+
+  // Check if pagination controls are present
+  const paginationControls = canvas.getByRole('navigation', { name: /pagination/i });
+  expect(paginationControls).toBeInTheDocument();
+
+  console.log('✅ Simple Filter Test completed successfully!');
 };
 
 const testPagination = async ({ canvasElement }: StoryContext) => {
@@ -979,21 +1037,17 @@ function SimpleDataTableFilterTest() {
 
 export const SimpleFilterTest: Story = {
   render: () => <SimpleDataTableFilterTest />,
-  play: async ({ canvasElement }) => {
-    console.log('🚀 Starting Simple Filter Test...');
-
-    const canvas = within(canvasElement);
-
-    // Check if the basic component renders
-    const title = await canvas.findByText('Simple Data Table Filter Test');
-    expect(title).toBeInTheDocument();
-
-    // Check if the filter interface renders
-    const filterInterface = await canvas.findByText('Filter Interface');
-    expect(filterInterface).toBeInTheDocument();
-
-    console.log('✅ Simple Filter Test completed successfully!');
-  },
+  play: testSimpleFilter,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: SimpleDataTableFilterTest,
+        },
+      ],
+    }),
+  ],
 };
 
 // --- Ultra Simple Test Component (No Dependencies) ---
