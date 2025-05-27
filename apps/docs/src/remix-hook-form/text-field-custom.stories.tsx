@@ -245,6 +245,67 @@ const IconInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
 );
 \`\`\`
 
+#### Dynamic Theme Styling with Loader Data
+
+For dynamic theming based on data from a loader, you can fetch theme data and apply it using CSS custom properties:
+
+\`\`\`tsx
+// In your route loader
+export const loader = async () => {
+  const theme = await getThemeData(); // Fetch theme from your data source
+  return { theme };
+};
+
+// In your component
+export default function MyForm() {
+  const { theme } = useLoaderData<typeof loader>();
+  
+  // Apply theme data using CSS custom properties
+  const themeStyle = {
+    '--color-primary-DEFAULT': theme?.primary_color,
+    '--color-secondary-DEFAULT': theme?.secondary_color,
+    '--color-accent-DEFAULT': theme?.accent_color,
+  } as React.CSSProperties;
+
+  return (
+    <div style={themeStyle}>
+      <TextField
+        name="email"
+        label="Email"
+        placeholder="Enter your email"
+        components={{
+          Input: DynamicThemedInput,
+          FormLabel: DynamicThemedLabel,
+        }}
+      />
+    </div>
+  );
+}
+
+// Custom components that use the CSS custom properties
+const DynamicThemedInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    {...props}
+    className="w-full rounded-lg border-2 px-4 py-2 focus:outline-none focus:ring-2"
+    style={{
+      borderColor: 'var(--color-primary-DEFAULT)',
+      backgroundColor: 'var(--color-secondary-DEFAULT)',
+      '--tw-ring-color': 'var(--color-primary-DEFAULT)',
+    } as React.CSSProperties}
+  />
+);
+
+const DynamicThemedLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => (
+  <FormLabel 
+    className="font-bold" 
+    style={{ color: 'var(--color-primary-DEFAULT)' } as React.CSSProperties}
+    {...props} 
+  />
+);
+\`\`\`
+
+This approach allows you to dynamically style your form components based on theme data fetched from your loader, making your forms adaptable to different branding requirements.
+
 ### Key Points
 
 - Always use React.forwardRef when creating custom components
