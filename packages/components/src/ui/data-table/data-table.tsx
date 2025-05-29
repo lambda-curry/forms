@@ -1,24 +1,25 @@
 import { type Table as TableType, flexRender } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
+import { cn } from '../utils';
 import { DataTablePagination } from './data-table-pagination';
 
 interface DataTableProps<TData> {
   table: TableType<TData>;
   columns: number;
-  pagination?: boolean;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   pageCount?: number;
+  className?: string;
 }
 
 export function DataTable<TData>({
   table,
   columns,
-  pagination,
   onPaginationChange,
   pageCount = 1,
+  className,
 }: DataTableProps<TData>) {
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -53,7 +54,7 @@ export function DataTable<TData>({
           </TableBody>
         </Table>
       </div>
-      {pagination && <DataTablePagination pageCount={pageCount} onPaginationChange={onPaginationChange} />}
+      <DataTablePagination pageCount={pageCount} onPaginationChange={onPaginationChange} />
     </div>
   );
 }

@@ -1,26 +1,43 @@
-
-// Define and export the shape of a single filter
-export interface FilterValue {
-  // Export the interface
-  id: string;
-  value: unknown; // Keep unknown for flexibility, JSON handles serialization
+// Define and export the shape of a single filter for Bazza UI
+export interface BazzaFilterItem {
+  columnId: string;
+  type: string; // e.g., 'text', 'option', 'number'
+  operator: string; // e.g., 'contains', 'is', 'isAnyOf', 'equals', 'between'
+  values: unknown[];
 }
 
-// Runtime parser for FilterValue[]
-const parseFilterValueArray = (value: unknown): FilterValue[] => {
-  if (!Array.isArray(value)) throw new Error('Expected array');
-  return value.map((item) => {
+export type BazzaFiltersState = BazzaFilterItem[];
+
+// Runtime parser for BazzaFiltersState
+const parseBazzaFiltersState = (value: unknown): BazzaFiltersState => {
+  if (!Array.isArray(value)) {
+    // console.warn('Expected array for filters, got:', value);
+    return []; // Return empty array or throw error based on desired strictness
+  }
+  return value.reduce((acc: BazzaFiltersState, item) => {
     if (
-      typeof item !== 'object' ||
-      item === null ||
-      !('id' in item) ||
-      typeof item.id !== 'string' ||
-      !('value' in item)
+      typeof item === 'object' &&
+      item !== null &&
+      'columnId' in item &&
+      typeof item.columnId === 'string' &&
+      'type' in item &&
+      typeof item.type === 'string' &&
+      'operator' in item &&
+      typeof item.operator === 'string' &&
+      'values' in item &&
+      Array.isArray(item.values)
     ) {
-      throw new Error('Invalid filter value');
+      acc.push({
+        columnId: item.columnId,
+        type: item.type,
+        operator: item.operator,
+        values: item.values,
+      });
+    } else {
+      // console.warn('Invalid filter item:', item);
     }
-    return { id: item.id, value: item.value };
-  });
+    return acc;
+  }, []);
 };
 
 // Custom parsers to replace nuqs parsers
@@ -36,8 +53,8 @@ export const parseAsString = {
 export const parseAsInteger = {
   parse: (value: string | null): number => {
     if (!value) return 0;
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? 0 : parsed;
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
   },
   serialize: (value: number | null): string | null => {
     return value === 0 ? null : value?.toString() || null;
@@ -69,11 +86,11 @@ export const dataTableRouterParsers = {
     defaultValue: '',
   },
   filters: {
-    parse: (value: string | null) => parseAsJson<FilterValue[]>(parseFilterValueArray).parse(value) || [],
-    serialize: (value: FilterValue[] | null) => {
-      return value && value.length > 0 ? parseAsJson<FilterValue[]>(parseFilterValueArray).serialize(value) : null;
+    parse: (value: string | null) => parseAsJson<BazzaFiltersState>(parseBazzaFiltersState).parse(value) || [],
+    serialize: (value: BazzaFiltersState | null) => {
+      return value && value.length > 0 ? parseAsJson<BazzaFiltersState>(parseBazzaFiltersState).serialize(value) : null;
     },
-    defaultValue: [] as FilterValue[],
+    defaultValue: [] as BazzaFiltersState,
   },
   page: {
     parse: parseAsInteger.parse,
@@ -100,9 +117,9 @@ export const dataTableRouterParsers = {
 // Export the inferred type for convenience
 export type DataTableRouterState = {
   search: string;
-  filters: FilterValue[];
+  filters: BazzaFiltersState; // Updated to use BazzaFiltersState
   page: number;
   pageSize: number;
   sortField: string;
-  sortOrder: string;
+  sortOrder: string; // 'asc' or 'desc'
 };

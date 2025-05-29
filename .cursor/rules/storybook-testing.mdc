@@ -1,8 +1,8 @@
 ---
-type: Always
 description: Rules for writing Storybook Playwright tests in the lambda-curry/forms repository
+globs: 
+alwaysApply: false
 ---
-
 You are an expert in Storybook, Playwright testing, React, TypeScript, Remix Hook Form, Zod validation, and the lambda-curry/forms monorepo architecture.
 
 # Project Context
@@ -179,6 +179,138 @@ const ControlledComponentExample = () => {
 };
 ```
 
+## Story Configuration and Decorator Patterns
+
+### Meta Configuration Best Practices
+Keep meta configuration minimal and avoid global decorators that apply to all stories:
+
+```typescript
+// ✅ GOOD - Clean meta without global decorators
+const meta: Meta<typeof ComponentName> = {
+  title: 'Category/Component Name',
+  component: ComponentName,
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component: 'Component documentation...',
+      },
+    },
+  },
+  tags: ['autodocs'],
+} satisfies Meta<typeof ComponentName>;
+```
+
+### Individual Story Decorator Pattern
+**ALWAYS** place decorators on individual stories, not in meta configuration. This provides:
+- **Granular Control**: Each story can have its own routing/context setup
+- **Better Isolation**: Stories that don't need complex setup remain simple
+- **Clearer Intent**: Explicit about which stories require which dependencies
+- **Easier Testing**: Simple test stories can run without complex router setup
+
+```typescript
+// ✅ GOOD - Decorators on individual stories
+export const ServerDrivenExample: Story = {
+  args: {},
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: ComponentWithLoader,
+          loader: handleDataFetch,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    // Test implementation
+  },
+};
+
+export const ClientSideExample: Story = {
+  args: {},
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/client-side',
+          Component: ComponentWithoutLoader,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    // Test implementation
+  },
+};
+
+export const SimpleTest: Story = {
+  args: {},
+  // No decorators needed for simple component tests
+  play: async (context) => {
+    // Simple test without router dependencies
+  },
+};
+```
+
+### Router Configuration Patterns
+Different stories may need different router configurations:
+
+```typescript
+// Server-side data fetching story
+export const WithLoader: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: DataTableWithBazzaFilters,
+          loader: async ({ request }) => {
+            // Server-side data fetching logic
+            return { data: [], meta: {}, facetedCounts: {} };
+          },
+        },
+      ],
+    }),
+  ],
+};
+
+// Client-side only story
+export const ClientSideOnly: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/client',
+          Component: ClientSideComponent,
+          // No loader needed
+        },
+      ],
+    }),
+  ],
+};
+
+// Form submission story
+export const FormSubmission: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: FormComponent,
+          action: async ({ request }) => {
+            const { data, errors } = await getValidatedFormData(request, schema);
+            if (errors) return { errors };
+            return { message: 'Success!' };
+          },
+        },
+      ],
+    }),
+  ],
+};
+```
+
 ## Testing Patterns
 
 ### User Interaction Best Practices
@@ -232,6 +364,15 @@ withReactRouterStubDecorator({
 ```
 
 ## Deprecated Patterns - DO NOT USE
+
+❌ **Never place decorators in meta configuration**
+```typescript
+// BAD - applies to ALL stories, reduces flexibility
+const meta: Meta<typeof Component> = {
+  decorators: [withReactRouterStubDecorator({ /* config */ })],
+  // ...
+};
+```
 
 ❌ **Never use getBy* for async elements**
 ```typescript
@@ -382,7 +523,7 @@ npx test-storybook --url http://127.0.0.1:45678 --testNamePattern="ComponentName
 When creating or modifying Storybook tests, ensure:
 
 1. ✅ Story includes all three test phases (default, invalid, valid)
-2. ✅ Uses React Router stub decorator for form handling
+2. ✅ Uses React Router stub decorator on individual stories (not meta)
 3. ✅ Follows click-before-clear pattern for inputs
 4. ✅ Uses findBy* for async assertions
 5. ✅ Tests both client-side and server-side validation
@@ -391,6 +532,8 @@ When creating or modifying Storybook tests, ensure:
 8. ✅ Component is properly isolated and focused
 9. ✅ Tests complete in reasonable time (< 10 seconds)
 10. ✅ Uses semantic queries for better maintainability
+11. ✅ Decorators are placed on individual stories for granular control
+12. ✅ Meta configuration is kept clean and minimal
 
 ## Team Workflow Integration
 
@@ -399,11 +542,14 @@ When creating or modifying Storybook tests, ensure:
 - Ensure stories are self-documenting and demonstrate component usage
 - Check that tests follow established patterns and conventions
 - Validate that new tests don't introduce flaky behavior
+- **Verify decorators are on individual stories, not in meta**
+- Ensure each story has appropriate isolation and dependencies
 
 ### Local Development Focus
 - This setup is designed for local development and Codegen testing
 - Tests run against built Storybook static files for consistency
 - Custom server resolves common port conflicts in development environments
 - Fast feedback loop optimized for developer productivity
+- Individual story decorators provide flexibility for different testing scenarios
 
-Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows.
+Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows. **Always place decorators on individual stories for maximum flexibility and clarity.** 

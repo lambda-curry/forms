@@ -20,6 +20,7 @@ export function useDataTableUrlState() {
     page: dataTableRouterParsers.page.parse(searchParams.get('page')),
     pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')),
     sortField: dataTableRouterParsers.sortField.parse(searchParams.get('sortField')),
+    // 'asc' or 'desc'
     sortOrder: dataTableRouterParsers.sortOrder.parse(searchParams.get('sortOrder')),
   };
 
@@ -83,6 +84,7 @@ export function getDefaultDataTableState(defaultStateValues?: Partial<DataTableR
     page: dataTableRouterParsers.page.defaultValue,
     pageSize: dataTableRouterParsers.pageSize.defaultValue,
     sortField: dataTableRouterParsers.sortField.defaultValue,
+    // 'asc' or 'desc'
     sortOrder: dataTableRouterParsers.sortOrder.defaultValue,
     ...defaultStateValues,
   };

@@ -1,4 +1,3 @@
-// biome-ignore lint/style/noNamespaceImport: from Radix
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { type VariantProps, cva } from 'class-variance-authority';
 import type * as React from 'react';
