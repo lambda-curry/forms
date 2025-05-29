@@ -468,9 +468,6 @@ The system includes comprehensive test coverage:
 - **Safari**: 14+
 - **Edge**: 90+
 
-## Migration
-
-Migrating from existing filter implementations? See our [Migration Guide](./MIGRATION.md) for step-by-step instructions.
 
 ## Examples
 
