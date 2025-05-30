@@ -18,7 +18,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['react-router', 'react-router-dom'],
+      external: [],
     },
   },
   plugins: [tailwindcss()],

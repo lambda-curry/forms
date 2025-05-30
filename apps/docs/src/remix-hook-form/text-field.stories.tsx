@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect, userEvent } from '@storybook/test';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent } from 'storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';

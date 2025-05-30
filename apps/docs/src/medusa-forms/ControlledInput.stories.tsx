@@ -1,5 +1,5 @@
 import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormProvider, useForm } from 'react-hook-form';
 
 const meta = {

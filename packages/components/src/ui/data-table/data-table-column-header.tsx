@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { Button } from '../button';
 import {
@@ -24,7 +24,7 @@ export function DataTableColumnHeader<TData, TValue>({ column, title }: DataTabl
 
   const handleSort = () => {
     const newParams = new URLSearchParams(searchParams);
-    
+
     if (isSorted) {
       if (order === 'asc') {
         newParams.set('sortOrder', 'desc');
@@ -39,7 +39,7 @@ export function DataTableColumnHeader<TData, TValue>({ column, title }: DataTabl
       newParams.set('sortOrder', 'asc');
       column.toggleSorting(false);
     }
-    
+
     setSearchParams(newParams, { replace: true });
   };
 
