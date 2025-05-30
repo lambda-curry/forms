@@ -1,5 +1,10 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @source "../../../packages/components";
+
+@source "../../../packages/medusa-forms";
+
+@source "../../node_modules/@medusajs/ui";
+@source "../../node_modules/@medusajs/ui-preset";
 
 :root {
   --background: hsl(0 0% 100%);

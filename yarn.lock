@@ -1774,6 +1774,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     http-server: "npm:^14.1.1"
     react: "npm:^19.0.0"
+    react-hook-form: "npm:^7.51.0"
     react-router: "npm:^7.0.0"
     react-router-dom: "npm:^7.0.0"
     start-server-and-test: "npm:^2.0.11"
@@ -1843,9 +1844,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lambdacurry/medusa-forms@npm:*, @lambdacurry/medusa-forms@workspace:packages/medusa-components":
+"@lambdacurry/medusa-forms@npm:*, @lambdacurry/medusa-forms@workspace:packages/medusa-forms":
   version: 0.0.0-use.local
-  resolution: "@lambdacurry/medusa-forms@workspace:packages/medusa-components"
+  resolution: "@lambdacurry/medusa-forms@workspace:packages/medusa-forms"
   dependencies:
     "@hookform/error-message": "npm:^2.0.0"
     "@medusajs/ui": "npm:^4.0.0"
@@ -1912,6 +1913,18 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
   checksum: 10c0/4c16b1f285391e7de8bcf4862993a4cccd88a375524def9f04ffe3f37397de1f3a53df6c6d282c38afe8ce940c0870d663a0ec7566789d5cb0eddd616a61bea2
+  languageName: node
+  linkType: hard
+
+"@medusajs/ui-preset@npm:^2.8.3":
+  version: 2.8.3
+  resolution: "@medusajs/ui-preset@npm:2.8.3"
+  dependencies:
+    "@tailwindcss/forms": "npm:^0.5.3"
+    tailwindcss-animate: "npm:^1.0.6"
+  peerDependencies:
+    tailwindcss: ">=3.0.0"
+  checksum: 10c0/4f940fd34eed26e5dc0575a2aad59379dd8df3fd5ed6d7dc9774f09bb56903efa7aa76ccaac641c16191fe961512ea4d48c809db1da94b0634967d65a7606e15
   languageName: node
   linkType: hard
 
@@ -6591,6 +6604,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tailwindcss/forms@npm:^0.5.3":
+  version: 0.5.10
+  resolution: "@tailwindcss/forms@npm:0.5.10"
+  dependencies:
+    mini-svg-data-uri: "npm:^1.2.3"
+  peerDependencies:
+    tailwindcss: ">=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20 || >= 4.0.0-beta.1"
+  checksum: 10c0/235cbf08edf09362418808ebddcc767c9e151fba55f3d7d2d5c47862c715b6169204b9277461036707b4c30f3fb1e217933278f80525840e198f8e7dd9168e0d
+  languageName: node
+  linkType: hard
+
 "@tailwindcss/node@npm:4.1.5":
   version: 4.1.5
   resolution: "@tailwindcss/node@npm:4.1.5"
@@ -9396,6 +9420,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
     "@changesets/cli": "npm:^2.27.11"
+    "@medusajs/ui-preset": "npm:^2.8.3"
     turbo: "npm:^2.3.3"
   languageName: unknown
   linkType: soft
@@ -11544,6 +11569,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mini-svg-data-uri@npm:^1.2.3":
+  version: 1.4.4
+  resolution: "mini-svg-data-uri@npm:1.4.4"
+  bin:
+    mini-svg-data-uri: cli.js
+  checksum: 10c0/24545fa30b5a45449241bf19c25b8bc37594b63ec06401b3d563bd1c2e8a6abb7c18741f8b354e0064baa63c291be214154bf3a66f201ae71dfab3cc1a5e3191
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:9.0.3":
   version: 9.0.3
   resolution: "minimatch@npm:9.0.3"
@@ -12707,7 +12741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^7.50.0":
+"react-hook-form@npm:^7.50.0, react-hook-form@npm:^7.51.0":
   version: 7.56.4
   resolution: "react-hook-form@npm:7.56.4"
   peerDependencies:
@@ -13812,7 +13846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss-animate@npm:^1.0.7":
+"tailwindcss-animate@npm:^1.0.6, tailwindcss-animate@npm:^1.0.7":
   version: 1.0.7
   resolution: "tailwindcss-animate@npm:1.0.7"
   peerDependencies:
