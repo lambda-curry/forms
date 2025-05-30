@@ -1766,7 +1766,6 @@ __metadata:
     "@hookform/resolvers": "npm:^3.9.1"
     "@lambdacurry/forms": "npm:*"
     "@lambdacurry/medusa-forms": "npm:*"
-    "@medusajs/ui-preset": "npm:^2.8.3"
     "@react-router/dev": "npm:^7.0.0"
     "@storybook/addon-docs": "npm:^9.0.1"
     "@storybook/addon-links": "npm:^9.0.1"
@@ -1919,18 +1918,6 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
   checksum: 10c0/4c16b1f285391e7de8bcf4862993a4cccd88a375524def9f04ffe3f37397de1f3a53df6c6d282c38afe8ce940c0870d663a0ec7566789d5cb0eddd616a61bea2
-  languageName: node
-  linkType: hard
-
-"@medusajs/ui-preset@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "@medusajs/ui-preset@npm:2.8.3"
-  dependencies:
-    "@tailwindcss/forms": "npm:^0.5.3"
-    tailwindcss-animate: "npm:^1.0.6"
-  peerDependencies:
-    tailwindcss: ">=3.0.0"
-  checksum: 10c0/4f940fd34eed26e5dc0575a2aad59379dd8df3fd5ed6d7dc9774f09bb56903efa7aa76ccaac641c16191fe961512ea4d48c809db1da94b0634967d65a7606e15
   languageName: node
   linkType: hard
 
@@ -6369,17 +6356,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/forms@npm:^0.5.3":
-  version: 0.5.10
-  resolution: "@tailwindcss/forms@npm:0.5.10"
-  dependencies:
-    mini-svg-data-uri: "npm:^1.2.3"
-  peerDependencies:
-    tailwindcss: ">=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20 || >= 4.0.0-beta.1"
-  checksum: 10c0/235cbf08edf09362418808ebddcc767c9e151fba55f3d7d2d5c47862c715b6169204b9277461036707b4c30f3fb1e217933278f80525840e198f8e7dd9168e0d
-  languageName: node
-  linkType: hard
-
 "@tailwindcss/node@npm:4.1.5":
   version: 4.1.5
   resolution: "@tailwindcss/node@npm:4.1.5"
@@ -9266,7 +9242,6 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
     "@changesets/cli": "npm:^2.27.11"
-    "@medusajs/ui-preset": "npm:^2.8.3"
     turbo: "npm:^2.3.3"
   languageName: unknown
   linkType: soft
@@ -11469,15 +11444,6 @@ __metadata:
   version: 1.0.1
   resolution: "min-indent@npm:1.0.1"
   checksum: 10c0/7e207bd5c20401b292de291f02913230cb1163abca162044f7db1d951fa245b174dc00869d40dd9a9f32a885ad6a5f3e767ee104cf278f399cb4e92d3f582d5c
-  languageName: node
-  linkType: hard
-
-"mini-svg-data-uri@npm:^1.2.3":
-  version: 1.4.4
-  resolution: "mini-svg-data-uri@npm:1.4.4"
-  bin:
-    mini-svg-data-uri: cli.js
-  checksum: 10c0/24545fa30b5a45449241bf19c25b8bc37594b63ec06401b3d563bd1c2e8a6abb7c18741f8b354e0064baa63c291be214154bf3a66f201ae71dfab3cc1a5e3191
   languageName: node
   linkType: hard
 
@@ -13739,7 +13705,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss-animate@npm:^1.0.6, tailwindcss-animate@npm:^1.0.7":
+"tailwindcss-animate@npm:^1.0.7":
   version: 1.0.7
   resolution: "tailwindcss-animate@npm:1.0.7"
   peerDependencies:

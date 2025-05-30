@@ -24,7 +24,6 @@
     "storybook": "^9.0.1"
   },
   "devDependencies": {
-    "@medusajs/ui-preset": "^2.8.3",
     "@react-router/dev": "^7.0.0",
     "@storybook/addon-docs": "^9.0.1",
     "@storybook/test-runner": "^0.22.0",

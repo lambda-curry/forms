@@ -2,9 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { expect, userEvent, within } from 'storybook/test';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -43,7 +43,7 @@ const ControlledTextareaExample = () => {
 
   return (
     <RemixFormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
           <Textarea name="message" label="Your message" placeholder="Enter your message here..." rows={5} />
           <Button type="submit" className="mt-4">
@@ -56,7 +56,7 @@ const ControlledTextareaExample = () => {
             </div>
           )}
         </div>
-      </form>
+      </fetcher.Form>
     </RemixFormProvider>
   );
 };
