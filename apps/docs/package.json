@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@lambdacurry/forms": "*",
+    "@lambdacurry/medusa-forms": "*",
     "@storybook/addon-essentials": "^8.6.7",
     "@storybook/addon-interactions": "^8.6.7",
     "@storybook/addon-links": "^8.6.7",

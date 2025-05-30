@@ -1,0 +1,60 @@
+{
+  "name": "@lambdacurry/medusa-forms",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./controlled": {
+      "import": {
+        "types": "./dist/controlled/index.d.ts",
+        "default": "./dist/controlled/index.js"
+      }
+    },
+    "./ui": {
+      "import": {
+        "types": "./dist/ui/index.d.ts",
+        "default": "./dist/ui/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "vite build",
+    "lint": "biome check .",
+    "lint:fix": "biome check --apply .",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.3.0"
+  },
+  "dependencies": {
+    "@hookform/error-message": "^2.0.0",
+    "@medusajs/ui": "^4.0.0",
+    "react-hook-form": "^7.50.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/react": "^19.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "glob": "^11.0.0",
+    "react": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vite-plugin-dts": "^4.4.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
