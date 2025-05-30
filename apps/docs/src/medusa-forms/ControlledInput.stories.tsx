@@ -1,4 +1,4 @@
-import { ControlledInput } from '@lambdacurry/medusa-forms/controlled';
+import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -24,17 +24,17 @@ const ControlledInputWithHookForm = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px]">
-        <ControlledInput
-          name="username"
-          label="Username"
-          placeholder="Enter your username"
-          description="This is your unique identifier"
-        />
+        <ControlledInput name="username" label="Username" placeholder="Enter your username" />
       </div>
     </FormProvider>
   );
 };
 
 export const WithReactHookForm: Story = {
+  args: {
+    name: 'username',
+    label: 'Username',
+    placeholder: 'Enter your username',
+  },
   render: () => <ControlledInputWithHookForm />,
 };

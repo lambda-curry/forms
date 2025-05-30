@@ -1,17 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "../../../packages/components";
-
 @source "../../../packages/medusa-forms";
-
-@source "../../node_modules/@medusajs/ui";
-@source "../../node_modules/@medusajs/ui-preset";
+@source "../../../node_modules/@medusajs/ui";
 
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(222.2 47.4% 11.2%);
 
   --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --muted-foreground: hsl(215, 83%, 57%);
 
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(222.2 47.4% 11.2%);
@@ -37,70 +34,427 @@
   --ring: hsl(215 20.2% 65.1%);
 
   --radius: 0.5rem;
+
+  /* Medusa UI Light Mode Tokens */
+  --tag-neutral-border: rgba(228, 228, 231, 1);
+  --tag-neutral-icon: rgba(161, 161, 170, 1);
+  --bg-switch-off-hover: rgba(212, 212, 216, 1);
+  --border-menu-bot: rgba(255, 255, 255, 1);
+  --border-menu-top: rgba(228, 228, 231, 1);
+  --bg-subtle-hover: rgba(244, 244, 245, 1);
+  --contrast-fg-primary: rgba(255, 255, 255, 0.88);
+  --bg-switch-off: rgba(228, 228, 231, 1);
+  --contrast-bg-base-pressed: rgba(63, 63, 70, 1);
+  --bg-field-component-hover: rgba(250, 250, 250, 1);
+  --bg-base-pressed: rgba(228, 228, 231, 1);
+  --tag-neutral-text: rgba(82, 82, 91, 1);
+  --tag-red-text: rgba(159, 18, 57, 1);
+  --contrast-bg-base: rgba(24, 24, 27, 1);
+  --border-strong: rgba(212, 212, 216, 1);
+  --contrast-border-base: rgba(255, 255, 255, 0.15);
+  --bg-field: rgba(250, 250, 250, 1);
+  --tag-blue-text: rgba(30, 64, 175, 1);
+  --button-inverted-pressed: rgba(82, 82, 91, 1);
+  --border-interactive: rgba(59, 130, 246, 1);
+  --bg-base-hover: rgba(244, 244, 245, 1);
+  --contrast-bg-subtle: rgba(39, 39, 42, 1);
+  --bg-highlight: rgba(239, 246, 255, 1);
+  --contrast-fg-secondary: rgba(255, 255, 255, 0.56);
+  --tag-red-bg: rgba(255, 228, 230, 1);
+  --button-transparent: rgba(255, 255, 255, 0);
+  --button-danger-pressed: rgba(159, 18, 57, 1);
+  --fg-on-color: rgba(255, 255, 255, 1);
+  --button-inverted-hover: rgba(63, 63, 70, 1);
+  --bg-field-component: rgba(255, 255, 255, 1);
+  --tag-orange-text: rgba(154, 52, 18, 1);
+  --tag-green-icon: rgba(16, 185, 129, 1);
+  --border-base: rgba(228, 228, 231, 1);
+  --bg-base: rgba(255, 255, 255, 1);
+  --tag-orange-border: rgba(254, 215, 170, 1);
+  --tag-red-border: rgba(254, 205, 211, 1);
+  --tag-green-border: rgba(167, 243, 208, 1);
+  --tag-green-text: rgba(6, 95, 70, 1);
+  --button-neutral: rgba(255, 255, 255, 1);
+  --tag-blue-border: rgba(191, 219, 254, 1);
+  --fg-interactive-hover: rgba(37, 99, 235, 1);
+  --tag-orange-icon: rgba(249, 115, 22, 1);
+  --button-neutral-hover: rgba(244, 244, 245, 1);
+  --fg-interactive: rgba(59, 130, 246, 1);
+  --bg-component-pressed: rgba(228, 228, 231, 1);
+  --tag-purple-bg: rgba(237, 233, 254, 1);
+  --contrast-bg-base-hover: rgba(39, 39, 42, 1);
+  --bg-component: rgba(250, 250, 250, 1);
+  --bg-subtle: rgba(250, 250, 250, 1);
+  --tag-purple-text: rgba(91, 33, 182, 1);
+  --contrast-border-bot: rgba(255, 255, 255, 0.1);
+  --button-inverted: rgba(39, 39, 42, 1);
+  --tag-red-icon: rgba(244, 63, 94, 1);
+  --button-transparent-hover: rgba(244, 244, 245, 1);
+  --button-neutral-pressed: rgba(228, 228, 231, 1);
+  --tag-purple-icon: rgba(167, 139, 250, 1);
+  --bg-field-hover: rgba(244, 244, 245, 1);
+  --fg-on-inverted: rgba(255, 255, 255, 1);
+  --bg-interactive: rgba(59, 130, 246, 1);
+  --border-danger: rgba(190, 18, 60, 1);
+  --button-transparent-pressed: rgba(228, 228, 231, 1);
+  --tag-purple-border: rgba(221, 214, 254, 1);
+  --bg-highlight-hover: rgba(219, 234, 254, 1);
+  --border-error: rgba(225, 29, 72, 1);
+  --button-danger: rgba(225, 29, 72, 1);
+  --tag-blue-bg: rgba(219, 234, 254, 1);
+  --border-transparent: rgba(255, 255, 255, 0);
+  --button-danger-hover: rgba(190, 18, 60, 1);
+  --bg-subtle-pressed: rgba(228, 228, 231, 1);
+  --fg-error: rgba(225, 29, 72, 1);
+  --bg-component-hover: rgba(244, 244, 245, 1);
+  --bg-disabled: rgba(244, 244, 245, 1);
+  --tag-blue-icon: rgba(96, 165, 250, 1);
+  --fg-subtle: rgba(82, 82, 91, 1);
+  --tag-orange-bg-hover: rgba(254, 215, 170, 1);
+  --tag-green-bg-hover: rgba(167, 243, 208, 1);
+  --tag-red-bg-hover: rgba(254, 205, 211, 1);
+  --tag-purple-bg-hover: rgba(221, 214, 254, 1);
+  --tag-neutral-bg-hover: rgba(228, 228, 231, 1);
+  --tag-blue-bg-hover: rgba(191, 219, 254, 1);
+  --tag-green-bg: rgba(209, 250, 229, 1);
+  --tag-neutral-bg: rgba(244, 244, 245, 1);
+  --tag-orange-bg: rgba(255, 237, 213, 1);
+  --fg-base: rgba(24, 24, 27, 1);
+  --contrast-border-top: rgba(24, 24, 27, 1);
+  --bg-overlay: rgba(24, 24, 27, 0.4);
+  --fg-disabled: rgba(161, 161, 170, 1);
+  --fg-muted: rgba(113, 113, 122, 1);
+  --alpha-400: rgba(24, 24, 27, 0.24);
+  --alpha-250: rgba(24, 24, 27, 0.1);
 }
 
 .dark {
+  /* Original dark mode tokens */
   --background: hsl(224 71% 4%);
   --foreground: hsl(213 31% 91%);
-
   --muted: hsl(223 47% 11%);
   --muted-foreground: hsl(215.4 16.3% 56.9%);
-
   --accent: hsl(216 34% 17%);
   --accent-foreground: hsl(210 40% 98%);
-
   --popover: hsl(224 71% 4%);
   --popover-foreground: hsl(215 20.2% 65.1%);
-
   --border: hsl(216 34% 17%);
   --input: hsl(216 34% 17%);
-
   --card: hsl(224 71% 4%);
   --card-foreground: hsl(213 31% 91%);
-
   --primary: hsl(210 40% 98%);
   --primary-foreground: hsl(222.2 47.4% 1.2%);
-
   --secondary: hsl(222.2 47.4% 11.2%);
   --secondary-foreground: hsl(210 40% 98%);
-
   --destructive: hsl(0 63% 31%);
   --destructive-foreground: hsl(210 40% 98%);
-
   --ring: hsl(216 34% 17%);
-
   --radius: 0.5rem;
+
+  /* Medusa UI Dark Mode Tokens */
+  --button-danger-pressed: rgba(225, 29, 72, 1);
+  --bg-base-pressed: rgba(63, 63, 70, 1);
+  --bg-component-hover: rgba(255, 255, 255, 0.1);
+  --border-interactive: rgba(96, 165, 250, 1);
+  --button-neutral: rgba(255, 255, 255, 0.04);
+  --tag-orange-border: rgba(124, 45, 18, 1);
+  --tag-blue-text: rgba(147, 197, 253, 1);
+  --bg-highlight: rgba(23, 37, 84, 1);
+  --tag-neutral-icon: rgba(113, 113, 122, 1);
+  --bg-switch-off-hover: rgba(82, 82, 91, 1);
+  --fg-on-color: rgba(255, 255, 255, 1);
+  --button-inverted-pressed: rgba(161, 161, 170, 1);
+  --fg-interactive-hover: rgba(147, 197, 253, 1);
+  --fg-error: rgba(251, 113, 133, 1);
+  --bg-switch-off: rgba(63, 63, 70, 1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-error: rgba(251, 113, 133, 1);
+  --fg-subtle: rgba(161, 161, 170, 1);
+  --bg-highlight-hover: rgba(30, 58, 138, 1);
+  --button-inverted: rgba(82, 82, 91, 1);
+  --tag-orange-text: rgba(253, 186, 116, 1);
+  --fg-base: rgba(244, 244, 245, 1);
+  --fg-disabled: rgba(82, 82, 91, 1);
+  --button-danger: rgba(159, 18, 57, 1);
+  --tag-neutral-border: rgba(255, 255, 255, 0.06);
+  --tag-blue-border: rgba(30, 58, 138, 1);
+  --tag-neutral-text: rgba(212, 212, 216, 1);
+  --tag-purple-border: rgba(91, 33, 182, 1);
+  --tag-green-text: rgba(52, 211, 153, 1);
+  --button-inverted-hover: rgba(113, 113, 122, 1);
+  --bg-component-pressed: rgba(255, 255, 255, 0.16);
+  --contrast-border-bot: rgba(255, 255, 255, 0.08);
+  --tag-blue-icon: rgba(96, 165, 250, 1);
+  --bg-field: rgba(255, 255, 255, 0.04);
+  --tag-neutral-bg: rgba(255, 255, 255, 0.08);
+  --tag-green-border: rgba(6, 78, 59, 1);
+  --tag-red-icon: rgba(251, 113, 133, 1);
+  --tag-red-text: rgba(253, 164, 175, 1);
+  --tag-purple-icon: rgba(167, 139, 250, 1);
+  --bg-interactive: rgba(96, 165, 250, 1);
+  --bg-field-hover: rgba(255, 255, 255, 0.08);
+  --border-transparent: rgba(255, 255, 255, 0);
+  --tag-orange-icon: rgba(251, 146, 60, 1);
+  --tag-purple-bg: rgba(46, 16, 101, 1);
+  --bg-base-hover: rgba(39, 39, 42, 1);
+  --tag-blue-bg: rgba(23, 37, 84, 1);
+  --tag-green-bg: rgba(2, 44, 34, 1);
+  --tag-purple-text: rgba(196, 181, 253, 1);
+  --tag-red-border: rgba(136, 19, 55, 1);
+  --border-danger: rgba(190, 18, 60, 1);
+  --tag-green-icon: rgba(16, 185, 129, 1);
+  --tag-red-bg: rgba(76, 5, 25, 1);
+  --fg-interactive: rgba(96, 165, 250, 1);
+  --tag-orange-bg: rgba(67, 20, 7, 1);
+  --button-danger-hover: rgba(190, 18, 60, 1);
+  --bg-component: rgba(39, 39, 42, 1);
+  --bg-disabled: rgba(39, 39, 42, 1);
+  --button-transparent: rgba(255, 255, 255, 0);
+  --border-menu-bot: rgba(255, 255, 255, 0.08);
+  --tag-purple-bg-hover: rgba(91, 33, 182, 1);
+  --tag-orange-bg-hover: rgba(124, 45, 18, 1);
+  --tag-blue-bg-hover: rgba(30, 58, 138, 1);
+  --tag-red-bg-hover: rgba(136, 19, 55, 1);
+  --tag-green-bg-hover: rgba(6, 78, 59, 1);
+  --border-menu-top: rgba(33, 33, 36, 1);
+  --bg-base: rgba(33, 33, 36, 1);
+  --contrast-border-top: rgba(33, 33, 36, 1);
+  --bg-field-component: rgba(33, 33, 36, 1);
+  --bg-subtle-hover: rgba(33, 33, 36, 1);
+  --bg-subtle: rgba(24, 24, 27, 1);
+  --fg-on-inverted: rgba(24, 24, 27, 1);
+  --bg-overlay: rgba(24, 24, 27, 0.72);
+  --button-transparent-hover: rgba(255, 255, 255, 0.08);
+  --contrast-fg-secondary: rgba(255, 255, 255, 0.56);
+  --contrast-border-base: rgba(255, 255, 255, 0.16);
+  --contrast-bg-base-pressed: rgba(82, 82, 91, 1);
+  --button-neutral-pressed: rgba(255, 255, 255, 0.12);
+  --border-base: rgba(255, 255, 255, 0.08);
+  --contrast-fg-primary: rgba(255, 255, 255, 0.88);
+  --button-neutral-hover: rgba(255, 255, 255, 0.08);
+  --contrast-bg-base: rgba(39, 39, 42, 1);
+  --tag-neutral-bg-hover: rgba(255, 255, 255, 0.12);
+  --contrast-bg-subtle: rgba(255, 255, 255, 0.04);
+  --contrast-bg-base-hover: rgba(63, 63, 70, 1);
+  --bg-field-component-hover: rgba(39, 39, 42, 1);
+  --bg-subtle-pressed: rgba(39, 39, 42, 1);
+  --button-transparent-pressed: rgba(255, 255, 255, 0.12);
+  --fg-muted: rgba(113, 113, 122, 1);
+  --alpha-400: rgba(255, 255, 255, 0.24);
+  --alpha-250: rgba(255, 255, 255, 0.1);
+
+  /* Medusa UI Dark Mode Shadow Effects */
+  --borders-interactive-with-shadow: 0px 1px 2px 0px rgba(219, 234, 254, 0.5), 0px 0px 0px 1px rgba(96, 165, 250, 1);
+  --details-contrast-on-bg-interactive: 0px 1px 2px 0px rgba(30, 58, 138, 0.6);
+  --details-switch-handle: 0px 0px 2px 1px rgba(255, 255, 255, 1) inset, 0px 1px 0px 0px rgba(255, 255, 255, 1) inset,
+    0px 0px 0px 0.5px rgba(0, 0, 0, 0.16), 0px 5px 4px 0px rgba(0, 0, 0, 0.1), 0px 3px 3px 0px rgba(0, 0, 0, 0.1),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+  --borders-interactive-with-active: 0px 0px 0px 1px rgba(96, 165, 250, 1), 0px 0px 0px 4px rgba(59, 130, 246, 0.25);
+  --borders-focus: 0px 0px 0px 1px rgba(24, 24, 27, 1), 0px 0px 0px 3px rgba(96, 165, 250, 0.8);
+  --borders-interactive-with-focus: 0px 1px 2px 0px rgba(219, 234, 254, 0.5), 0px 0px 0px 1px rgba(96, 165, 250, 1),
+    0px 0px 0px 2px rgba(24, 24, 27, 1), 0px 0px 0px 4px rgba(96, 165, 250, 0.8);
+  --details-switch-background-focus: 0px 0px 0px 1px rgba(24, 24, 27, 1), 0px 0px 0px 3px rgba(96, 165, 250, 0.8),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.1) inset, 0px 2px 4px 0px rgba(0, 0, 0, 0.1) inset,
+    0px 0px 0px 0.75px rgba(255, 255, 255, 0.12) inset, 0px 0px 8px 0px rgba(0, 0, 0, 0.1) inset;
+  --buttons-danger: 0px -1px 0px 0px rgba(255, 255, 255, 0.16), 0px 0px 0px 1px rgba(255, 255, 255, 0.12),
+    0px 0px 0px 1px rgba(159, 18, 57, 1), 0px 0px 1px 1.5px rgba(0, 0, 0, 0.24), 0px 2px 2px 0px rgba(0, 0, 0, 0.24);
+  --buttons-danger-focus: 0px -1px 0px 0px rgba(255, 255, 255, 0.16), 0px 0px 0px 1px rgba(255, 255, 255, 0.12),
+    0px 0px 0px 1px rgba(159, 18, 57, 1), 0px 0px 0px 2px rgba(24, 24, 27, 1), 0px 0px 0px 4px rgba(96, 165, 250, 0.8);
+  --details-switch-background: 0px 1px 1px 0px rgba(0, 0, 0, 0.1) inset, 0px 2px 4px 0px rgba(0, 0, 0, 0.1) inset,
+    0px 0px 0px 0.75px rgba(255, 255, 255, 0.12) inset, 0px 0px 8px 0px rgba(0, 0, 0, 0.1) inset;
+  --buttons-inverted-focus: 0px -1px 0px 0px rgba(255, 255, 255, 0.12), 0px 0px 0px 1px rgba(255, 255, 255, 0.12),
+    0px 0px 0px 1px rgba(82, 82, 91, 1), 0px 0px 0px 2px rgba(24, 24, 27, 1), 0px 0px 0px 4px rgba(96, 165, 250, 0.8);
+  --elevation-flyout: 0px -1px 0px 0px rgba(255, 255, 255, 0.04), 0px 0px 0px 1px rgba(255, 255, 255, 0.1),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.32), 0px 8px 16px 0px rgba(0, 0, 0, 0.32);
+  --borders-error: 0px 0px 0px 1px rgba(244, 63, 94, 1), 0px 0px 0px 3px rgba(225, 29, 72, 0.25);
+  --buttons-inverted: 0px -1px 0px 0px rgba(255, 255, 255, 0.12), 0px 0px 0px 1px rgba(255, 255, 255, 0.1),
+    0px 0px 0px 1px rgba(82, 82, 91, 1), 0px 0px 1px 1.5px rgba(0, 0, 0, 0.24), 0px 2px 2px 0px rgba(0, 0, 0, 0.24);
+  --borders-base: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 0px 1px 1.5px rgba(0, 0, 0, 0.24), 0px 2px 2px 0px rgba(0, 0, 0, 0.24);
+  --elevation-card-hover: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 1px 4px 0px rgba(0, 0, 0, 0.48), 0px 2px 8px 0px rgba(0, 0, 0, 0.48);
+  --elevation-card-rest: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 1px 2px 0px rgba(0, 0, 0, 0.32), 0px 2px 4px 0px rgba(0, 0, 0, 0.32);
+  --buttons-neutral: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 0px 1px 1.5px rgba(0, 0, 0, 0.24), 0px 2px 2px 0px rgba(0, 0, 0, 0.24);
+  --elevation-code-block: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 1px 2px 0px rgba(0, 0, 0, 0.32), 0px 2px 4px 0px rgba(0, 0, 0, 0.32);
+  --buttons-neutral-focus: 0px -1px 0px 0px rgba(255, 255, 255, 0.06), 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 0px 0px 1px rgba(39, 39, 42, 1), 0px 0px 0px 2px rgba(24, 24, 27, 1), 0px 0px 0px 4px rgba(96, 165, 250, 0.8);
+  --elevation-modal: 0px 0px 0px 1px rgba(24, 24, 27, 1) inset, 0px 0px 0px 1.5px rgba(255, 255, 255, 0.06) inset,
+    0px -1px 0px 0px rgba(255, 255, 255, 0.04), 0px 0px 0px 1px rgba(255, 255, 255, 0.1),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.32), 0px 8px 16px 0px rgba(0, 0, 0, 0.32);
+  --elevation-commandbar: 0px 0px 0px 0.75px rgba(24, 24, 27, 1) inset,
+    0px 0px 0px 1.25px rgba(255, 255, 255, 0.1) inset, 0px 4px 8px 0px rgba(0, 0, 0, 0.32),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.32);
+  --elevation-tooltip: 0px -1px 0px 0px rgba(255, 255, 255, 0.04), 0px 2px 4px 0px rgba(0, 0, 0, 0.32),
+    0px 0px 0px 1px rgba(255, 255, 255, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.32);
 }
 
 @theme inline {
+  /* Original color mappings */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
-
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-
   --color-ring: var(--ring);
+
+  /* Medusa UI Color Mappings */
+  --color-ui-tag-neutral-border: var(--tag-neutral-border);
+  --color-ui-tag-neutral-icon: var(--tag-neutral-icon);
+  --color-ui-tag-neutral-text: var(--tag-neutral-text);
+  --color-ui-tag-neutral-bg: var(--tag-neutral-bg);
+  --color-ui-tag-neutral-bg-hover: var(--tag-neutral-bg-hover);
+  --color-ui-tag-red-text: var(--tag-red-text);
+  --color-ui-tag-red-bg: var(--tag-red-bg);
+  --color-ui-tag-red-bg-hover: var(--tag-red-bg-hover);
+  --color-ui-tag-red-border: var(--tag-red-border);
+  --color-ui-tag-red-icon: var(--tag-red-icon);
+  --color-ui-tag-blue-text: var(--tag-blue-text);
+  --color-ui-tag-blue-border: var(--tag-blue-border);
+  --color-ui-tag-blue-bg: var(--tag-blue-bg);
+  --color-ui-tag-blue-bg-hover: var(--tag-blue-bg-hover);
+  --color-ui-tag-blue-icon: var(--tag-blue-icon);
+  --color-ui-tag-orange-text: var(--tag-orange-text);
+  --color-ui-tag-orange-border: var(--tag-orange-border);
+  --color-ui-tag-orange-icon: var(--tag-orange-icon);
+  --color-ui-tag-orange-bg: var(--tag-orange-bg);
+  --color-ui-tag-orange-bg-hover: var(--tag-orange-bg-hover);
+  --color-ui-tag-green-icon: var(--tag-green-icon);
+  --color-ui-tag-green-border: var(--tag-green-border);
+  --color-ui-tag-green-text: var(--tag-green-text);
+  --color-ui-tag-green-bg: var(--tag-green-bg);
+  --color-ui-tag-green-bg-hover: var(--tag-green-bg-hover);
+  --color-ui-tag-purple-bg: var(--tag-purple-bg);
+  --color-ui-tag-purple-bg-hover: var(--tag-purple-bg-hover);
+  --color-ui-tag-purple-text: var(--tag-purple-text);
+  --color-ui-tag-purple-icon: var(--tag-purple-icon);
+  --color-ui-tag-purple-border: var(--tag-purple-border);
+  --color-ui-bg-switch-off: var(--bg-switch-off);
+  --color-ui-bg-switch-off-hover: var(--bg-switch-off-hover);
+  --color-ui-bg-subtle: var(--bg-subtle);
+  --color-ui-bg-subtle-hover: var(--bg-subtle-hover);
+  --color-ui-bg-subtle-pressed: var(--bg-subtle-pressed);
+  --color-ui-bg-field: var(--bg-field);
+  --color-ui-bg-field-hover: var(--bg-field-hover);
+  --color-ui-bg-field-component: var(--bg-field-component);
+  --color-ui-bg-field-component-hover: var(--bg-field-component-hover);
+  --color-ui-bg-base: var(--bg-base);
+  --color-ui-bg-base-hover: var(--bg-base-hover);
+  --color-ui-bg-base-pressed: var(--bg-base-pressed);
+  --color-ui-bg-highlight: var(--bg-highlight);
+  --color-ui-bg-highlight-hover: var(--bg-highlight-hover);
+  --color-ui-bg-component: var(--bg-component);
+  --color-ui-bg-component-hover: var(--bg-component-hover);
+  --color-ui-bg-component-pressed: var(--bg-component-pressed);
+  --color-ui-bg-interactive: var(--bg-interactive);
+  --color-ui-bg-disabled: var(--bg-disabled);
+  --color-ui-bg-overlay: var(--bg-overlay);
+  --color-ui-border-menu-bot: var(--border-menu-bot);
+  --color-ui-border-menu-top: var(--border-menu-top);
+  --color-ui-border-strong: var(--border-strong);
+  --color-ui-border-interactive: var(--border-interactive);
+  --color-ui-border-base: var(--border-base);
+  --color-ui-border-danger: var(--border-danger);
+  --color-ui-border-error: var(--border-error);
+  --color-ui-border-transparent: var(--border-transparent);
+  --color-ui-contrast-fg-primary: var(--contrast-fg-primary);
+  --color-ui-contrast-fg-secondary: var(--contrast-fg-secondary);
+  --color-ui-contrast-bg-base: var(--contrast-bg-base);
+  --color-ui-contrast-bg-base-hover: var(--contrast-bg-base-hover);
+  --color-ui-contrast-bg-base-pressed: var(--contrast-bg-base-pressed);
+  --color-ui-contrast-bg-subtle: var(--contrast-bg-subtle);
+  --color-ui-contrast-border-base: var(--contrast-border-base);
+  --color-ui-contrast-border-bot: var(--contrast-border-bot);
+  --color-ui-contrast-border-top: var(--contrast-border-top);
+  --color-ui-button-inverted: var(--button-inverted);
+  --color-ui-button-inverted-hover: var(--button-inverted-hover);
+  --color-ui-button-inverted-pressed: var(--button-inverted-pressed);
+  --color-ui-button-transparent: var(--button-transparent);
+  --color-ui-button-transparent-hover: var(--button-transparent-hover);
+  --color-ui-button-transparent-pressed: var(--button-transparent-pressed);
+  --color-ui-button-danger: var(--button-danger);
+  --color-ui-button-danger-hover: var(--button-danger-hover);
+  --color-ui-button-danger-pressed: var(--button-danger-pressed);
+  --color-ui-button-neutral: var(--button-neutral);
+  --color-ui-button-neutral-hover: var(--button-neutral-hover);
+  --color-ui-button-neutral-pressed: var(--button-neutral-pressed);
+  --color-ui-fg-on-color: var(--fg-on-color);
+  --color-ui-fg-on-inverted: var(--fg-on-inverted);
+  --color-ui-fg-interactive: var(--fg-interactive);
+  --color-ui-fg-interactive-hover: var(--fg-interactive-hover);
+  --color-ui-fg-error: var(--fg-error);
+  --color-ui-fg-subtle: var(--fg-subtle);
+  --color-ui-fg-base: var(--fg-base);
+  --color-ui-fg-disabled: var(--fg-disabled);
+  --color-ui-fg-muted: var(--fg-muted);
+  --color-ui-alpha-250: var(--alpha-250);
+  --color-ui-alpha-400: var(--alpha-400);
+
+  /* Medusa UI Shadow Effects */
+  --shadow-borders-interactive-with-active: 0px 0px 0px 1px rgba(59, 130, 246, 1),
+    0px 0px 0px 4px rgba(59, 130, 246, 0.2);
+  --shadow-buttons-danger-focus: 0px 0.75px 0px 0px rgba(255, 255, 255, 0.2) inset,
+    0px 1px 2px 0px rgba(190, 18, 60, 0.4), 0px 0px 0px 1px rgba(190, 18, 60, 1), 0px 0px 0px 2px rgba(255, 255, 255, 1),
+    0px 0px 0px 4px rgba(59, 130, 246, 0.6);
+  --shadow-details-contrast-on-bg-interactive: 0px 1px 2px 0px rgba(30, 58, 138, 0.6);
+  --shadow-borders-interactive-with-focus: 0px 1px 2px 0px rgba(30, 58, 138, 0.5), 0px 0px 0px 1px rgba(59, 130, 246, 1),
+    0px 0px 0px 2px rgba(255, 255, 255, 1), 0px 0px 0px 4px rgba(59, 130, 246, 0.6);
+  --shadow-borders-error: 0px 0px 0px 1px rgba(225, 29, 72, 1), 0px 0px 0px 3px rgba(225, 29, 72, 0.15);
+  --shadow-borders-focus: 0px 0px 0px 1px rgba(255, 255, 255, 1), 0px 0px 0px 3px rgba(59, 130, 246, 0.6);
+  --shadow-borders-interactive-with-shadow: 0px 1px 2px 0px rgba(30, 58, 138, 0.5),
+    0px 0px 0px 1px rgba(59, 130, 246, 1);
+  --shadow-buttons-danger: 0px 0.75px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 2px 0px rgba(190, 18, 60, 0.4),
+    0px 0px 0px 1px rgba(190, 18, 60, 1);
+  --shadow-buttons-inverted-focus: 0px 0.75px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 2px 0px rgba(0, 0, 0, 0.4),
+    0px 0px 0px 1px rgba(24, 24, 27, 1), 0px 0px 0px 2px rgba(255, 255, 255, 1), 0px 0px 0px 4px rgba(59, 130, 246, 0.6);
+  --shadow-elevation-card-hover: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 8px 0px rgba(0, 0, 0, 0.1);
+  --shadow-details-switch-handle: 0px 0px 2px 1px rgba(255, 255, 255, 1) inset,
+    0px 1px 0px 0px rgba(255, 255, 255, 1) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.02),
+    0px 5px 4px 0px rgba(0, 0, 0, 0.02), 0px 3px 3px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.12),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.08);
+  --shadow-buttons-neutral: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
+  --shadow-borders-base: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
+  --shadow-elevation-card-rest: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-buttons-neutral-focus: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 0px 1px rgba(0, 0, 0, 0.08),
+    0px 0px 0px 2px rgba(255, 255, 255, 1), 0px 0px 0px 4px rgba(59, 130, 246, 0.6);
+  --shadow-details-switch-background-focus: 0px 0px 0px 1px rgba(255, 255, 255, 1),
+    0px 0px 0px 3px rgba(59, 130, 246, 0.6), 0px 1px 1px 0px rgba(0, 0, 0, 0.04) inset,
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04) inset, 0px 0px 0px 0.75px rgba(0, 0, 0, 0.06) inset,
+    0px 0px 8px 0px rgba(0, 0, 0, 0.02) inset, 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-details-switch-background: 0px 1px 1px 0px rgba(0, 0, 0, 0.04) inset,
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04) inset, 0px 0px 0px 0.75px rgba(0, 0, 0, 0.06) inset,
+    0px 0px 8px 0px rgba(0, 0, 0, 0.02) inset, 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-flyout: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 4px 8px 0px rgba(0, 0, 0, 0.08),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.08);
+  --shadow-elevation-tooltip: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.08),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.08);
+  --shadow-elevation-modal: 0px 0px 0px 1px rgba(255, 255, 255, 1) inset,
+    0px 0px 0px 1.5px rgba(228, 228, 231, 0.6) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.08),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.08), 0px 16px 32px 0px rgba(0, 0, 0, 0.08);
+  --shadow-elevation-code-block: 0px 0px 0px 1px rgba(24, 24, 27, 1) inset,
+    0px 0px 0px 1.5px rgba(255, 255, 255, 0.2) inset;
+  --shadow-buttons-inverted: 0px 0.75px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 2px 0px rgba(0, 0, 0, 0.4),
+    0px 0px 0px 1px rgba(24, 24, 27, 1);
+  --shadow-elevation-commandbar: 0px 0px 0px 0.75px rgba(39, 39, 42, 1) inset,
+    0px 0px 0px 1.25px rgba(255, 255, 255, 0.3) inset, 0px 8px 16px 0px rgba(0, 0, 0, 0.08),
+    0px 16px 32px 0px rgba(0, 0, 0, 0.08);
 }
 
 @layer base {
@@ -110,4 +464,261 @@
   body {
     @apply bg-[var(--color-background)] text-[var(--color-foreground)];
   }
+}
+
+/* Medusa UI Typography Classes */
+.h1-webs {
+  font-size: 4rem;
+  line-height: 4.400000095367432rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h2-webs {
+  font-size: 3.5rem;
+  line-height: 3.8500001430511475rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h3-webs {
+  font-size: 2.5rem;
+  line-height: 2.75rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h4-webs {
+  font-size: 1.5rem;
+  line-height: 1.875rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h1-core {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h2-core {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h3-core {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h1-docs {
+  font-size: 1.5rem;
+  line-height: 1.875rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h2-docs {
+  font-size: 1.125rem;
+  line-height: 1.6875rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.h3-docs {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-xlarge {
+  font-size: 1.125rem;
+  line-height: 1.6875rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-xlarge-plus {
+  font-size: 1.125rem;
+  line-height: 1.6875rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-large {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-large-plus {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-medium {
+  font-size: 0.875rem;
+  line-height: 1.3125rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-medium-plus {
+  font-size: 0.875rem;
+  line-height: 1.3125rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-small {
+  font-size: 0.8125rem;
+  line-height: 1.21875rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-small-plus {
+  font-size: 0.8125rem;
+  line-height: 1.21875rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-xsmall {
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-xsmall-plus {
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-xlarge {
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-xlarge-plus {
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-large {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-large-plus {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-medium {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-medium-plus {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-small {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-small-plus {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-xsmall {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.txt-compact-xsmall-plus {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.code-body {
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  font-weight: 400;
+  font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}
+
+.code-label {
+  font-size: 0.75rem;
+  line-height: 0.9375rem;
+  font-weight: 500;
+  font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
 }

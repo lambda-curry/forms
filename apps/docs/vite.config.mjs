@@ -12,6 +12,8 @@ export default defineConfig({
       '@/lib/utils': path.resolve(__dirname, '../../packages/components/lib/utils'),
       '@lambdacurry/forms': path.resolve(__dirname, '../../packages/components/src'),
       '@lambdacurry/forms/lib': path.resolve(__dirname, '../../packages/components/lib'),
+      '@lambdacurry/medusa-forms': path.resolve(__dirname, '../../packages/medusa-forms/src'),
+      '@lambdacurry/medusa-forms/lib': path.resolve(__dirname, '../../packages/medusa-forms/lib'),
     },
   },
   build: {

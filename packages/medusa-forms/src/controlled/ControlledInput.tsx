@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -12,7 +13,7 @@ type Props<T extends FieldValues> = InputProps &
   Omit<ControllerProps, 'render'> & {
     name: Path<T>;
     rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
-  } & React.ComponentProps<typeof Input> &
+  } & ComponentProps<typeof Input> &
   Omit<ControllerProps<T>, 'render'>;
 
 export const ControlledInput = <T extends FieldValues>({ name, rules, onChange, ...props }: Props<T>) => {

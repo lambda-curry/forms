@@ -5,7 +5,9 @@
     "moduleResolution": "bundler",
     "paths": {
       "@lambdacurry/forms/*": ["../../packages/components/src/*"],
-      "@lambdacurry/forms/lib/*": ["../../packages/components/lib/*"]
+      "@lambdacurry/forms/lib/*": ["../../packages/components/lib/*"],
+      "@lambdacurry/medusa-forms/*": ["../../packages/medusa-forms/src/*"],
+      "@lambdacurry/medusa-forms/lib/*": ["../../packages/medusa-forms/lib/*"]
     }
   },
   "include": ["lib", "src"],

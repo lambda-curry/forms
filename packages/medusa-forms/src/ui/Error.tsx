@@ -25,8 +25,9 @@ const MultipleMessages = ({ messages }: { messages: MultipleFieldErrors }) => {
             <div className="inter-small-regular text-rose-50">
               {remainderErrors.map((e, i) => {
                 return (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: index is the best option here
                   <p key={i}>
-                    {Array.from(Array(i + 1)).map((_) => '*')}
+                    {Array.from(new Array(remainderErrors.length)).map((_) => '*')}
                     {e}
                   </p>
                 );
@@ -44,9 +45,7 @@ const MultipleMessages = ({ messages }: { messages: MultipleFieldErrors }) => {
 };
 
 export const FieldError = ({ errors, name, className }: Props) => {
-  if (!errors || !name) {
-    return null;
-  }
+  if (!(errors && name)) return null;
 
   return (
     <ErrorMessage
