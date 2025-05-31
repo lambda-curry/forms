@@ -3,16 +3,53 @@ import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
-import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm, useRemixFormContext } from 'remix-hook-form';
 import { expect, userEvent, within } from 'storybook/test';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
+import * as React from 'react';
 
 const formSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+// Debug component to monitor form context
+const FormContextDebugger = () => {
+  const [debugInfo, setDebugInfo] = React.useState<string[]>([]);
+  
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const context = useRemixFormContext();
+        const timestamp = new Date().toISOString();
+        const contextInfo = context ? 
+          `✅ Context available: handleSubmit=${typeof context.handleSubmit}, control=${typeof context.control}` :
+          `❌ Context is null/undefined`;
+        
+        setDebugInfo(prev => [...prev.slice(-4), `${timestamp}: ${contextInfo}`]);
+        console.log(`[FormContextDebugger] ${timestamp}: ${contextInfo}`, context);
+      } catch (error) {
+        const timestamp = new Date().toISOString();
+        const errorInfo = `🚨 Error accessing context: ${error.message}`;
+        setDebugInfo(prev => [...prev.slice(-4), `${timestamp}: ${errorInfo}`]);
+        console.error(`[FormContextDebugger] ${timestamp}: ${errorInfo}`, error);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="fixed top-0 right-0 bg-yellow-100 border border-yellow-400 p-2 text-xs max-w-md z-50">
+      <h4 className="font-bold">Form Context Debug Info:</h4>
+      {debugInfo.map((info, index) => (
+        <div key={index} className="text-xs">{info}</div>
+      ))}
+    </div>
+  );
+};
 
 const ControlledTextareaExample = () => {
   const fetcher = useFetcher<{ message: string; submittedMessage: string }>();
@@ -41,8 +78,18 @@ const ControlledTextareaExample = () => {
     },
   });
 
+  // Add debugging for form methods
+  React.useEffect(() => {
+    console.log('[ControlledTextareaExample] Form methods initialized:', {
+      handleSubmit: typeof methods.handleSubmit,
+      control: typeof methods.control,
+      formState: methods.formState,
+    });
+  }, [methods]);
+
   return (
     <RemixFormProvider {...methods}>
+      <FormContextDebugger />
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="space-y-4">
           <Textarea name="message" label="Your message" placeholder="Enter your message here..." rows={5} />
