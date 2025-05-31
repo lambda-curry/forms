@@ -16,9 +16,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: './src/index.ts',
-        remix: './src/remix/index.ts',
-        ui: './src/ui/index.ts',
+        controlled: './src/controlled/index.ts',
       },
       formats: ['es'],
     },

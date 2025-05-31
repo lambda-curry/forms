@@ -1,4 +1,4 @@
-import { ControlledCheckbox } from '@lambdacurry/medusa-forms/controlled';
+import { ControlledCheckbox } from '@lambdacurry/medusa-forms/controlled/ControlledCheckbox';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
