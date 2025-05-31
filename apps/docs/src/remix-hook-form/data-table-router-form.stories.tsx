@@ -1,7 +1,7 @@
 import { DataTableRouterForm } from '@lambdacurry/forms/remix-hook-form/data-table-router-form';
 import { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers';
 import { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ColumnDef } from '@tanstack/react-table';
 import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { z } from 'zod';

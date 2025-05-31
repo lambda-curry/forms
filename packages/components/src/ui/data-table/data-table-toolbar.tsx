@@ -1,7 +1,7 @@
 import { Cross2Icon } from '@radix-ui/react-icons';
 import type { Table } from '@tanstack/react-table';
-import { useSearchParams } from 'react-router-dom';
 import type * as React from 'react';
+import { useSearchParams } from 'react-router';
 
 import { Button } from '../button';
 import { TextInput } from '../text-input';
@@ -48,7 +48,7 @@ export function DataTableToolbar<TData>({
       newParams.delete('search');
     }
     setSearchParams(newParams, { replace: true });
-    
+
     searchableColumns.forEach((column) => {
       table.getColumn(column.id as string)?.setFilterValue(value);
     });

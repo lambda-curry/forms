@@ -1,5 +1,5 @@
 import { type ComponentType, useCallback, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { debounce } from '../utils/debounce';
 import { type DataTableFilterParams, createFilterSchema } from './data-table-schema';
 

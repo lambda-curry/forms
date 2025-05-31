@@ -16,11 +16,6 @@ export default defineConfig({
       '@lambdacurry/medusa-forms/lib': path.resolve(__dirname, '../../packages/medusa-forms/lib'),
     },
   },
-  build: {
-    rollupOptions: {
-      external: ['react-router', 'react-router-dom'],
-    },
-  },
   plugins: [tailwindcss()],
   server: {
     historyApiFallback: true,
