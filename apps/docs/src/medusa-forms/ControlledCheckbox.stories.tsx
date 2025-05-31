@@ -1,4 +1,4 @@
-import { ControlledCheckbox } from '@lambdacurry/medusa-forms/controlled';
+import { ControlledCheckbox } from '@lambdacurry/medusa-forms/controlled/ControlledCheckbox';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -306,7 +306,7 @@ export const MultipleCheckboxes: Story = {
 };
 
 // Form Integration Example Story
-const CompleteFormExample = () => {
+const CompleteFormExampleComponent = () => {
   const form = useForm({
     defaultValues: {
       username: '',
@@ -392,5 +392,5 @@ const CompleteFormExample = () => {
 };
 
 export const CompleteFormExample: Story = {
-  render: () => <CompleteFormExample />,
+  render: () => <CompleteFormExampleComponent />,
 };
