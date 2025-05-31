@@ -1,10 +1,12 @@
 import { Select as MedusaSelect } from '@medusajs/ui';
+import type * as React from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, SelectProps } from './types';
 
-export type Props = SelectProps & BasicFieldProps & {
-  ref?: React.Ref<unknown>;
-};
+export type Props = SelectProps &
+  BasicFieldProps & {
+    ref?: React.Ref<unknown>;
+  };
 
 const Wrapper = FieldWrapper<Props>;
 
@@ -29,4 +31,3 @@ export const Select: SelectComponent = Object.assign(SelectComponent, {
   Content: MedusaSelect.Content,
   Item: MedusaSelect.Item,
 });
-

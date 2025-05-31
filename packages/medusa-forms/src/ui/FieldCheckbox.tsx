@@ -1,5 +1,6 @@
 import { Checkbox as MedusaCheckbox } from '@medusajs/ui';
 import clsx from 'clsx';
+import type * as React from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import { Label } from './Label';
 import type { BasicFieldProps } from './types';
@@ -11,16 +12,16 @@ export type FieldCheckboxProps = BasicFieldProps & {
   ref?: React.Ref<HTMLButtonElement>;
 };
 
-export const FieldCheckbox: React.FC<FieldCheckboxProps> = ({ 
-  label, 
-  labelClassName, 
-  labelTooltip, 
-  wrapperClassName, 
-  errorClassName, 
-  formErrors, 
-  onChange, 
+export const FieldCheckbox: React.FC<FieldCheckboxProps> = ({
+  label,
+  labelClassName,
+  labelTooltip,
+  wrapperClassName,
+  errorClassName,
+  formErrors,
+  onChange,
   ref,
-  ...props 
+  ...props
 }) => {
   return (
     <FieldWrapper<FieldCheckboxProps>
@@ -57,4 +58,3 @@ export const FieldCheckbox: React.FC<FieldCheckboxProps> = ({
     </FieldWrapper>
   );
 };
-
