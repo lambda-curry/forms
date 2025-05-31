@@ -1,7 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ControlledCurrencyInput } from '@lambdacurry/medusa-forms/controlled/ControlledCurrencyInput';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const meta = {
@@ -11,19 +11,36 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  args: {
+    symbol: '$',
+    code: 'usd',
+  },
 } satisfies Meta<typeof ControlledCurrencyInput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+interface CurrencyFormData {
+  price: string;
+}
+
 // Base wrapper component for stories
-const CurrencyInputWithHookForm = ({ 
-  currency = 'USD', 
+const CurrencyInputWithHookForm = ({
+  currency = 'USD',
+  symbol = '$',
+  code = 'usd',
   schema,
   defaultValues = { price: '' },
-  ...props 
+  ...props
+}: {
+  currency?: string;
+  symbol?: string;
+  code?: string;
+  schema?: z.ZodSchema<any>;
+  defaultValues?: CurrencyFormData;
+  [key: string]: any;
 }) => {
-  const form = useForm({
+  const form = useForm<CurrencyFormData>({
     resolver: schema ? zodResolver(schema) : undefined,
     defaultValues,
   });
@@ -31,10 +48,12 @@ const CurrencyInputWithHookForm = ({
   return (
     <FormProvider {...form}>
       <div className="w-[400px]">
-        <ControlledCurrencyInput 
-          name="price" 
-          label="Price" 
+        <ControlledCurrencyInput
+          name="price"
+          label="Price"
           currency={currency}
+          symbol={symbol}
+          code={code}
           {...props}
         />
       </div>
@@ -44,60 +63,103 @@ const CurrencyInputWithHookForm = ({
 
 // 1. Different Currency Symbols
 export const USDCurrency: Story = {
-  render: () => <CurrencyInputWithHookForm currency="USD" />,
+  args: {
+    name: 'price',
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => <CurrencyInputWithHookForm currency="USD" symbol={args.symbol} code={args.code} />,
 };
 
 export const EURCurrency: Story = {
-  render: () => <CurrencyInputWithHookForm currency="EUR" />,
+  args: {
+    name: 'price',
+    symbol: '€',
+    code: 'eur',
+  },
+  render: (args) => <CurrencyInputWithHookForm currency="EUR" symbol={args.symbol} code={args.code} />,
 };
 
 export const GBPCurrency: Story = {
-  render: () => <CurrencyInputWithHookForm currency="GBP" />,
+  args: {
+    name: 'price',
+    symbol: '£',
+    code: 'gbp',
+  },
+  render: (args) => <CurrencyInputWithHookForm currency="GBP" symbol={args.symbol} code={args.code} />,
 };
 
 // 2. Validation with Min/Max Values
 const minValidationSchema = z.object({
-  price: z.number().min(10, 'Minimum price is $10'),
+  price: z.string().refine((val) => {
+    const num = Number.parseFloat(val);
+    return !Number.isNaN(num) && num >= 10;
+  }, 'Minimum price is $10'),
 });
 
 export const MinimumValueValidation: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
+  args: {
+    name: 'price',
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
       currency="USD"
+      symbol={args.symbol}
+      code={args.code}
       schema={minValidationSchema}
-      defaultValues={{ price: 5 }}
+      defaultValues={{ price: '5' }}
       label="Price (Min $10)"
     />
   ),
 };
 
 const maxValidationSchema = z.object({
-  price: z.number().max(1000, 'Maximum price is $1000'),
+  price: z.string().refine((val) => {
+    const num = Number.parseFloat(val);
+    return !Number.isNaN(num) && num <= 1000;
+  }, 'Maximum price is $1000'),
 });
 
 export const MaximumValueValidation: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
+  args: {
+    name: 'price',
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
       currency="USD"
+      symbol={args.symbol}
+      code={args.code}
       schema={maxValidationSchema}
-      defaultValues={{ price: 1500 }}
+      defaultValues={{ price: '1500' }}
       label="Price (Max $1000)"
     />
   ),
 };
 
 const rangeValidationSchema = z.object({
-  price: z.number()
-    .min(50, 'Price must be at least $50')
-    .max(500, 'Price cannot exceed $500'),
+  price: z.string().refine((val) => {
+    const num = Number.parseFloat(val);
+    return !Number.isNaN(num) && num >= 50 && num <= 500;
+  }, 'Price must be between $50 and $500'),
 });
 
 export const RangeValidation: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
+  args: {
+    name: 'price',
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
       currency="USD"
+      symbol={args.symbol}
+      code={args.code}
       schema={rangeValidationSchema}
-      defaultValues={{ price: 25 }}
+      defaultValues={{ price: '25' }}
       label="Price ($50 - $500)"
     />
   ),
@@ -105,13 +167,25 @@ export const RangeValidation: Story = {
 
 // 3. Error Handling and Validation Messages
 const requiredSchema = z.object({
-  price: z.number().min(0.01, 'Price is required'),
+  price: z
+    .string()
+    .min(1, 'Price is required')
+    .refine((val) => {
+      const num = Number.parseFloat(val);
+      return !Number.isNaN(num) && num > 0;
+    }, 'Price must be greater than 0'),
 });
 
 export const RequiredFieldValidation: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
+  args: {
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
       currency="USD"
+      symbol={args.symbol}
+      code={args.code}
       schema={requiredSchema}
       label="Required Price *"
       required
@@ -120,17 +194,24 @@ export const RequiredFieldValidation: Story = {
 };
 
 const customValidationSchema = z.object({
-  price: z.number()
-    .min(1, 'Custom error: Price must be at least $1')
-    .max(100, 'Custom error: Price cannot exceed $100'),
+  price: z.string().refine((val) => {
+    const num = Number.parseFloat(val);
+    return !Number.isNaN(num) && num >= 1 && num <= 100;
+  }, 'Custom error: Price must be between $1 and $100'),
 });
 
 export const CustomValidationMessage: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
+  args: {
+    symbol: '$',
+    code: 'usd',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
       currency="USD"
+      symbol={args.symbol}
+      code={args.code}
       schema={customValidationSchema}
-      defaultValues={{ price: 150 }}
+      defaultValues={{ price: '150' }}
       label="Custom Validation Messages"
     />
   ),
@@ -138,32 +219,50 @@ export const CustomValidationMessage: Story = {
 
 // 4. Different Currency Codes
 export const JPYCurrency: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
-      currency="JPY" 
-      defaultValues={{ price: 11000 }}
+  args: {
+    symbol: '¥',
+    code: 'jpy',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
+      currency="JPY"
+      symbol={args.symbol}
+      code={args.code}
+      defaultValues={{ price: '11000' }}
       label="Price (JPY)"
     />
   ),
 };
 
 export const CADCurrency: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
-      currency="CAD" 
-      defaultValues={{ price: 125.75 }}
+  args: {
+    symbol: 'C$',
+    code: 'cad',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
+      currency="CAD"
+      symbol={args.symbol}
+      code={args.code}
+      defaultValues={{ price: '125.75' }}
       label="Price (CAD)"
     />
   ),
 };
 
 export const AUDCurrency: Story = {
-  render: () => (
-    <CurrencyInputWithHookForm 
-      currency="AUD" 
-      defaultValues={{ price: 135.50 }}
+  args: {
+    name: 'price',
+    symbol: 'A$',
+    code: 'aud',
+  },
+  render: (args) => (
+    <CurrencyInputWithHookForm
+      currency="AUD"
+      symbol={args.symbol}
+      code={args.code}
+      defaultValues={{ price: '135.50' }}
       label="Price (AUD)"
     />
   ),
 };
-
