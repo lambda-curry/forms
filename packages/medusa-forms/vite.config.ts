@@ -53,8 +53,6 @@ export default defineConfig({
         '@radix-ui/react-slot',
         '@radix-ui/react-switch',
         '@radix-ui/react-tooltip',
-        'react-router',
-        '@react-router/node',
         'class-variance-authority',
         'clsx',
         'date-fns',

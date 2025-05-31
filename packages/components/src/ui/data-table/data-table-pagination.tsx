@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { Button } from '../button';
 import { Select } from '../select';
 
@@ -10,8 +10,8 @@ interface DataTablePaginationProps {
 
 export function DataTablePagination({ pageCount, onPaginationChange }: DataTablePaginationProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = parseInt(searchParams.get('page') || '0', 10);
-  const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+  const page = Number.parseInt(searchParams.get('page') || '0', 10);
+  const pageSize = Number.parseInt(searchParams.get('pageSize') || '10', 10);
 
   const updateParams = (newPage: number, newPageSize: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -23,9 +23,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        {pageSize} rows per page
-      </div>
+      <div className="flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>

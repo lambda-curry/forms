@@ -29,3 +29,4 @@ export const Select: SelectComponent = Object.assign(SelectComponent, {
   Content: MedusaSelect.Content,
   Item: MedusaSelect.Item,
 });
+

@@ -12,3 +12,4 @@ const Wrapper = FieldWrapper<Props>;
 export const CurrencyInput: FC<Props> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <MedusaCurrencyInput {...inputProps} ref={ref} />}</Wrapper>
 );
+

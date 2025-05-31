@@ -11,3 +11,4 @@ const Wrapper = FieldWrapper<Props>;
 export const Input: React.FC<Props> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <MedusaInput {...inputProps} ref={ref} />}</Wrapper>
 );
+

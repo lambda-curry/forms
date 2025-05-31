@@ -12,3 +12,4 @@ const Wrapper = FieldWrapper<Props>;
 export const DatePickerInput: FC<Props> = ({ ref, ...props }) => {
   return <Wrapper {...props}>{(inputProps) => <DatePicker {...{ ...inputProps, ref }} />}</Wrapper>;
 };
+

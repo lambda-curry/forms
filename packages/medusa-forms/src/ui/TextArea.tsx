@@ -11,3 +11,4 @@ const Wrapper = FieldWrapper<Props>;
 export const TextArea: React.FC<Props> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <Textarea {...inputProps} ref={ref} />}</Wrapper>
 );
+
