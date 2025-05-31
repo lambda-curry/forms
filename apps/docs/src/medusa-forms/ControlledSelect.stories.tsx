@@ -136,7 +136,7 @@ const RequiredValidationForm = () => {
   );
 };
 
-export const RequiredValidation: Story = {
+export const SelectRequiredValidation: Story = {
   render: () => <RequiredValidationForm />,
 };
 
@@ -266,7 +266,7 @@ const DisabledStateForm = () => {
   );
 };
 
-export const DisabledState: Story = {
+export const SelectDisabledState: Story = {
   render: () => <DisabledStateForm />,
 };
 
@@ -306,7 +306,7 @@ const ErrorStateForm = () => {
   );
 };
 
-export const ErrorState: Story = {
+export const SelectErrorState: Story = {
   render: () => <ErrorStateForm />,
 };
 
@@ -341,7 +341,7 @@ export const SmallSize: Story = {
 };
 
 // 9. Complex Form Integration
-const ComplexFormIntegration = () => {
+const ComplexFormIntegrationComponent = () => {
   const form = useForm({
     defaultValues: {
       country: '',
@@ -431,7 +431,7 @@ const ComplexFormIntegration = () => {
 };
 
 export const ComplexFormIntegration: Story = {
-  render: () => <ComplexFormIntegration />,
+  render: () => <ComplexFormIntegrationComponent />,
 };
 
 // 10. Interactive Demo with onChange Handler
