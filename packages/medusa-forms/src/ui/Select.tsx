@@ -1,19 +1,20 @@
 import { Select as MedusaSelect } from '@medusajs/ui';
-import { forwardRef } from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, SelectProps } from './types';
 
-export type Props = SelectProps & BasicFieldProps;
+export type Props = SelectProps & BasicFieldProps & {
+  ref?: React.Ref<unknown>;
+};
 
 const Wrapper = FieldWrapper<Props>;
 
-const SelectComponent = forwardRef<unknown, Props>((props, ref) => {
+const SelectComponent: React.FC<Props> = ({ ref, ...props }) => {
   return (
     <Wrapper {...props}>
       {(inputProps) => <MedusaSelect {...{ ...inputProps, ref }}>{props.children}</MedusaSelect>}
     </Wrapper>
   );
-});
+};
 
 type SelectComponent = typeof SelectComponent & {
   Trigger: typeof MedusaSelect.Trigger;
@@ -28,3 +29,4 @@ export const Select: SelectComponent = Object.assign(SelectComponent, {
   Content: MedusaSelect.Content,
   Item: MedusaSelect.Item,
 });
+

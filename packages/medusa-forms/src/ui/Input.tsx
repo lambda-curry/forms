@@ -1,12 +1,14 @@
 import { Input as MedusaInput } from '@medusajs/ui';
-import { forwardRef } from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, MedusaInputProps } from './types';
 
-export type Props = MedusaInputProps & BasicFieldProps;
+export type Props = MedusaInputProps & BasicFieldProps & {
+  ref?: React.Ref<HTMLInputElement>;
+};
 
 const Wrapper = FieldWrapper<Props>;
 
-export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>((props, ref) => (
+export const Input: React.FC<Props> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <MedusaInput {...inputProps} ref={ref} />}</Wrapper>
-));
+);
+

@@ -1,12 +1,15 @@
 import { DatePicker } from '@medusajs/ui';
-import { forwardRef } from 'react';
+import { type FC } from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, DatePickerProps } from './types';
 
-export type Props = DatePickerProps & BasicFieldProps;
+export type Props = DatePickerProps & BasicFieldProps & {
+  ref?: React.Ref<HTMLInputElement>;
+};
 
 const Wrapper = FieldWrapper<Props>;
 
-export const DatePickerInput: React.FC<Props> = forwardRef<HTMLInputElement, Props>((props, ref) => {
+export const DatePickerInput: FC<Props> = ({ ref, ...props }) => {
   return <Wrapper {...props}>{(inputProps) => <DatePicker {...{ ...inputProps, ref }} />}</Wrapper>;
-});
+};
+
