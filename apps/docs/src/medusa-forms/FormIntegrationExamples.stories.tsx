@@ -4,6 +4,7 @@ import { ControlledDatePicker } from '@lambdacurry/medusa-forms/controlled/Contr
 import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
 import { ControlledSelect } from '@lambdacurry/medusa-forms/controlled/ControlledSelect';
 import { ControlledTextArea } from '@lambdacurry/medusa-forms/controlled/ControlledTextArea';
+import { Button } from '@medusajs/ui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -216,17 +217,15 @@ const CompleteRegistrationForm = () => {
 
           {/* Submit Section */}
           <div className="pt-4 border-t">
-            <button
+            <Button
               type="submit"
               disabled={!isValid || isSubmitting}
-              className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-                isValid && !isSubmitting
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              isLoading={isSubmitting}
+              className="w-full"
+              variant="primary"
             >
               {isSubmitting ? 'Creating Account...' : 'Create Account'}
-            </button>
+            </Button>
 
             {submitResult && (
               <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">{submitResult}</div>
@@ -442,25 +441,19 @@ const ProductCreationForm = () => {
           {/* Submit Section */}
           <div className="pt-4 border-t">
             <div className="flex gap-4">
-              <button
-                type="button"
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-md font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                onClick={() => form.reset()}
-              >
+              <Button type="button" variant="secondary" className="flex-1" onClick={() => form.reset()}>
                 Reset Form
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="submit"
                 disabled={!isValid || isSubmitting}
-                className={`flex-1 py-3 px-4 rounded-md font-medium transition-colors ${
-                  isValid && !isSubmitting
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                isLoading={isSubmitting}
+                variant="primary"
+                className="flex-1"
               >
                 {isSubmitting ? 'Creating Product...' : 'Create Product'}
-              </button>
+              </Button>
             </div>
 
             {submitResult && (
@@ -651,17 +644,9 @@ export const FormValidationShowcase: Story = {
           />
 
           <div className="pt-4 border-t">
-            <button
-              type="button"
-              disabled={!form.formState.isValid}
-              className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-                form.formState.isValid
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
+            <Button type="button" disabled={!form.formState.isValid} variant="primary" className="w-full">
               Submit (Validation Demo)
-            </button>
+            </Button>
           </div>
         </div>
       </FormProvider>
