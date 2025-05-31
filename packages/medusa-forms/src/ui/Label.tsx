@@ -1,6 +1,7 @@
 import { InformationCircle } from '@medusajs/icons';
 import { Label as MedusaLabel, Tooltip } from '@medusajs/ui';
 import clsx from 'clsx';
+import type * as React from 'react';
 
 interface Props {
   htmlFor?: string;

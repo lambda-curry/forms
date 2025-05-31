@@ -1,11 +1,13 @@
 ---
 type: Always
-description: Rules for form component integration patterns in the lambda-curry/forms repository
+description: Rules for form component integration patterns in the lambda-curry/forms repository (applies to Remix Hook Form components)
 ---
 
 You are an expert in React Hook Form, Remix Hook Form, Zod validation, and form component architecture for the lambda-curry/forms monorepo.
 
-# Form Component Integration Patterns
+# Form Component Integration Patterns (Remix Hook Form)
+
+**Note: These patterns apply to Remix Hook Form components in `packages/components/`. For Medusa Forms components using react-hook-form + @medusajs/ui, see the medusa-forms-patterns.mdc rules.**
 
 ## Core Principles
 - All form components must integrate seamlessly with Remix Hook Form
@@ -215,4 +217,3 @@ export type { ComponentNameProps };
 - Test component composition and customization
 
 Remember: Form components are the core of this library. Every form component should be intuitive, accessible, and integrate seamlessly with the Remix Hook Form + Zod validation pattern.
-

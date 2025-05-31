@@ -1,0 +1,349 @@
+---
+type: Auto Attached
+description: Rules for creating Storybook stories for Medusa Forms components using react-hook-form patterns
+globs: ["apps/docs/src/medusa-forms/**/*.stories.{ts,tsx}"]
+---
+
+You are an expert in Storybook, React Hook Form, and @medusajs/ui component documentation for the lambda-curry/forms repository.
+
+# Medusa Forms Storybook Patterns
+
+## Core Story Principles
+- Use **react-hook-form** directly with **FormProvider** and **useForm**
+- Create comprehensive examples showcasing **@medusajs/ui** integration
+- Follow **Medusa design system** patterns and conventions
+- Provide **realistic use cases** and **validation examples**
+- Ensure stories work independently without external dependencies
+
+## Required Imports for Medusa Stories
+```typescript
+import { ControlledComponentName } from '@lambdacurry/medusa-forms/controlled/ControlledComponentName';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod'; // When using validation
+import { z } from 'zod'; // When using validation
+```
+
+## Story Meta Configuration
+```typescript
+const meta = {
+  title: 'Medusa Forms/Controlled ComponentName',
+  component: ControlledComponentName,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+} satisfies Meta<typeof ControlledComponentName>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+```
+
+## Basic Story Pattern
+Every component should have a basic usage story:
+
+```typescript
+const BasicComponentForm = () => {
+  const form = useForm({
+    defaultValues: {
+      fieldName: '', // Provide appropriate default
+    },
+  });
+
+  return (
+    <FormProvider {...form}>
+      <div className="w-[400px] space-y-4">
+        <ControlledComponentName 
+          name="fieldName" 
+          label="Field Label" 
+          placeholder="Enter value..."
+        />
+        <div className="text-sm text-gray-600">
+          Current value: {JSON.stringify(form.watch('fieldName'))}
+        </div>
+      </div>
+    </FormProvider>
+  );
+};
+
+export const BasicUsage: Story = {
+  render: () => <BasicComponentForm />,
+};
+```
+
+## Validation Story Pattern
+Include validation examples with clear error states:
+
+```typescript
+const validationSchema = z.object({
+  fieldName: z.string().min(1, 'Field is required'),
+});
+
+const ValidationForm = () => {
+  const form = useForm({
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      fieldName: '',
+    },
+    mode: 'onChange', // Show validation on change
+  });
+
+  const onSubmit = (data: any) => {
+    console.log('Form submitted:', data);
+  };
+
+  return (
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] space-y-4">
+        <ControlledComponentName 
+          name="fieldName" 
+          label="Required Field *" 
+          placeholder="This field is required"
+        />
+        <div className="text-sm text-gray-600">
+          Form valid: {form.formState.isValid ? 'Yes' : 'No'}
+        </div>
+        <button 
+          type="submit" 
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          disabled={!form.formState.isValid}
+        >
+          Submit
+        </button>
+      </form>
+    </FormProvider>
+  );
+};
+
+export const RequiredValidation: Story = {
+  render: () => <ValidationForm />,
+};
+```
+
+## Component-Specific Story Categories
+
+### Input Components
+Required stories:
+- **BasicUsage**: Simple input with value display
+- **RequiredValidation**: Required field validation
+- **CustomValidation**: Pattern/custom validation
+- **ErrorState**: Manually triggered error state
+- **DisabledState**: Disabled input demonstration
+
+### Checkbox Components
+Required stories:
+- **BasicUsage**: Simple checkbox
+- **DefaultChecked**: Pre-checked state
+- **DefaultUnchecked**: Unchecked state
+- **RequiredValidation**: Required checkbox validation
+- **MultipleCheckboxes**: Group management with select all
+
+### Select Components
+Required stories:
+- **BasicSingleSelect**: Simple dropdown
+- **WithDefaultValue**: Pre-selected option
+- **RequiredValidation**: Required selection
+- **MultipleSelect**: Multi-selection mode
+- **SearchableSelect**: With search functionality
+
+### Currency Input Components
+Required stories:
+- **USDCurrency**: Dollar symbol and formatting
+- **EURCurrency**: Euro symbol and formatting
+- **MinimumValueValidation**: Min value constraints
+- **MaximumValueValidation**: Max value constraints
+- **RangeValidation**: Min/max range validation
+
+### Date Picker Components
+Required stories:
+- **BasicDateSelection**: Simple date picker
+- **RequiredFieldValidation**: Required date validation
+- **DateFormatVariations**: Different format displays
+- **DisabledDates**: Past/future date restrictions
+- **MinMaxDateConstraints**: Date range limitations
+
+## Form Integration Examples
+Always include a complete form integration story:
+
+```typescript
+const CompleteFormExample = () => {
+  const form = useForm({
+    defaultValues: {
+      // Include multiple field types
+      name: '',
+      email: '',
+      acceptTerms: false,
+      category: '',
+    },
+    mode: 'onChange',
+  });
+
+  const onSubmit = (data: any) => {
+    alert(`Form submitted: ${JSON.stringify(data, null, 2)}`);
+  };
+
+  return (
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] space-y-4">
+        {/* Multiple component types */}
+        <ControlledInput name="name" label="Name" />
+        <ControlledInput name="email" label="Email" type="email" />
+        <ControlledSelect name="category" label="Category" options={categoryOptions} />
+        <ControlledCheckbox name="acceptTerms" label="Accept Terms" />
+        
+        <div className="flex space-x-2">
+          <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
+            Submit
+          </button>
+          <button type="button" onClick={() => form.reset()} className="px-4 py-2 bg-gray-500 text-white rounded">
+            Reset
+          </button>
+        </div>
+      </form>
+    </FormProvider>
+  );
+};
+
+export const CompleteFormExample: Story = {
+  render: () => <CompleteFormExample />,
+};
+```
+
+## Story Data Patterns
+
+### Sample Options for Select Components
+```typescript
+const countryOptions = [
+  { label: 'United States', value: 'us' },
+  { label: 'Canada', value: 'ca' },
+  { label: 'United Kingdom', value: 'uk' },
+  // ... more options
+];
+
+const categoryOptions = [
+  { label: 'Electronics', value: 'electronics' },
+  { label: 'Clothing', value: 'clothing' },
+  // ... more options
+];
+```
+
+### Validation Schemas
+```typescript
+// Simple validation
+const basicSchema = z.object({
+  field: z.string().min(1, 'Field is required'),
+});
+
+// Complex validation
+const complexSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+## Error State Demonstrations
+Show how errors appear and behave:
+
+```typescript
+const ErrorStateForm = () => {
+  const form = useForm({
+    defaultValues: { field: '' },
+  });
+
+  // Manually trigger error for demonstration
+  React.useEffect(() => {
+    form.setError('field', {
+      type: 'manual',
+      message: 'This is an example error message'
+    });
+  }, [form]);
+
+  return (
+    <FormProvider {...form}>
+      <div className="w-[400px]">
+        <ControlledComponentName name="field" label="Field with Error" />
+      </div>
+    </FormProvider>
+  );
+};
+```
+
+## Interactive State Display
+Always show current form state for debugging:
+
+```typescript
+<div className="text-sm text-gray-600">
+  Current value: {JSON.stringify(form.watch('fieldName'))}
+</div>
+
+<div className="text-sm text-gray-600">
+  Form valid: {form.formState.isValid ? 'Yes' : 'No'}
+</div>
+
+<div className="text-sm text-gray-600">
+  Has errors: {Object.keys(form.formState.errors).length > 0 ? 'Yes' : 'No'}
+</div>
+```
+
+## Styling Conventions
+- Use consistent container widths: `w-[400px]`
+- Apply consistent spacing: `space-y-4`
+- Use Tailwind classes for quick styling
+- Maintain Medusa design system color palette
+- Ensure responsive design considerations
+
+## Story Naming Conventions
+- Use PascalCase for story exports
+- Be descriptive and specific
+- Group related functionality
+- Follow the pattern: `ComponentAction` (e.g., `BasicUsage`, `RequiredValidation`)
+
+## Args and Controls
+For components with configurable props:
+
+```typescript
+export const Configurable: Story = {
+  args: {
+    label: 'Configurable Field',
+    placeholder: 'Enter value...',
+    disabled: false,
+  },
+  render: (args) => (
+    <ConfigurableForm {...args} />
+  ),
+};
+```
+
+## Documentation Integration
+- Use `tags: ['autodocs']` for automatic documentation
+- Include JSDoc comments for complex examples
+- Provide clear descriptions of what each story demonstrates
+- Link to related Medusa UI documentation when relevant
+
+## Performance Considerations
+- Keep story components lightweight
+- Avoid unnecessary re-renders in story components
+- Use React.memo for expensive story components
+- Consider story loading performance for complex examples
+
+## Common Anti-Patterns to Avoid
+- **Don't** use remix-hook-form patterns in stories
+- **Don't** create stories without FormProvider wrapper
+- **Don't** forget to show current form state
+- **Don't** create stories that depend on external APIs
+- **Don't** mix different form libraries in the same story
+- **Don't** create overly complex stories that obscure the component's purpose
+
+## Testing Integration
+- Stories should work with Storybook interaction testing
+- Include play functions for automated testing when appropriate
+- Ensure stories cover edge cases and error states
+- Verify accessibility in story examples
+
+Remember: Medusa Forms stories should showcase the seamless integration between react-hook-form and @medusajs/ui components while providing practical, real-world examples that developers can reference and adapt.
+
