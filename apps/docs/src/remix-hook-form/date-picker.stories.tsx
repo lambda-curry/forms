@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DatePicker } from '@lambdacurry/forms/remix-hook-form/date-picker';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from 'storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';

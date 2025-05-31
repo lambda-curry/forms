@@ -1,6 +1,7 @@
 ---
-type: Always
 description: Monorepo structure and import conventions for the lambda-curry/forms repository
+globs: 
+alwaysApply: false
 ---
 
 You are an expert in monorepo architecture, package management, and TypeScript module organization.
@@ -169,7 +170,7 @@ src/
 {
   "peerDependencies": {
     "react": "^19.0.0",
-    "remix-hook-form": "7.0.0"
+    "remix-hook-form": "7.0.1"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",

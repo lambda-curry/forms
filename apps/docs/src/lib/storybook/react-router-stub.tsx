@@ -1,38 +1,25 @@
-import type { Decorator } from '@storybook/react';
+import type { Decorator } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
 import {
   type ActionFunction,
-  type IndexRouteObject,
   type LinksFunction,
   type LoaderFunction,
   type MetaFunction,
-  type NonIndexRouteObject,
-  RouterProvider,
-  createMemoryRouter,
-} from 'react-router-dom';
+  createRoutesStub,
+} from 'react-router';
 
-export type StubRouteObject = StubIndexRouteObject | StubNonIndexRouteObject;
-
-interface StubNonIndexRouteObject
-  extends Omit<NonIndexRouteObject, 'loader' | 'action' | 'element' | 'errorElement' | 'children'> {
+export interface StubRouteObject {
+  path?: string;
+  index?: boolean;
   loader?: LoaderFunction;
   action?: ActionFunction;
-  children?: StubRouteObject[];
   meta?: MetaFunction;
   links?: LinksFunction;
-  // biome-ignore lint/suspicious/noExplicitAny: allow any here
+  // biome-ignore lint/suspicious/noExplicitAny: allow any here for Storybook compatibility
   Component?: ComponentType<any>;
-}
-
-interface StubIndexRouteObject
-  extends Omit<IndexRouteObject, 'loader' | 'action' | 'element' | 'errorElement' | 'children'> {
-  loader?: LoaderFunction;
-  action?: ActionFunction;
   children?: StubRouteObject[];
-  meta?: MetaFunction;
-  links?: LinksFunction;
-  // biome-ignore lint/suspicious/noExplicitAny: allow any here
-  Component?: ComponentType<any>;
+  // biome-ignore lint/suspicious/noExplicitAny: allow any here for Storybook compatibility
+  errorElement?: any;
 }
 
 interface RemixStubOptions {
@@ -42,10 +29,9 @@ interface RemixStubOptions {
 
 export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorator => {
   const { routes, initialPath = '/' } = options;
-  // This outer function runs once when Storybook loads the story meta
 
   return (Story, context) => {
-    // This inner function runs when the story component actually renders
+    // Map routes to include the Story component if no Component is provided
     const mappedRoutes = routes.map((route) => ({
       ...route,
       Component: route.Component ?? (() => <Story {...context.args} />),
@@ -53,23 +39,18 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
 
     // Get the base path (without existing query params from options)
     const basePath = initialPath.split('?')[0];
-    
+
     // Get the current search string from the actual browser window, if available
     // If not available, use a default search string with parameters needed for the data table
-    const currentWindowSearch = typeof window !== 'undefined' 
-      ? window.location.search 
-      : '?page=0&pageSize=10';
-    
+    const currentWindowSearch = typeof window !== 'undefined' ? window.location.search : '?page=0&pageSize=10';
+
     // Combine them for the initial entry
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
-    // Create a memory router, initializing it with the path derived from the window's search params
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const router = createMemoryRouter(mappedRoutes as any, {
-      initialEntries: [actualInitialPath], // Use the path combined with window.location.search
-    });
+    // Use React Router's official createRoutesStub
+    const Stub = createRoutesStub(mappedRoutes);
 
-    return <RouterProvider router={router} />;
+    return <Stub initialEntries={[actualInitialPath]} />;
   };
 };
 
