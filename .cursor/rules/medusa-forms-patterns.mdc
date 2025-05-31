@@ -1,0 +1,252 @@
+---
+type: Auto Attached
+description: Rules for Medusa Forms component development patterns using @medusajs/ui and react-hook-form
+globs: ["packages/medusa-forms/**/*.{ts,tsx}", "apps/docs/src/medusa-forms/**/*.{ts,tsx}"]
+---
+
+You are an expert in React Hook Form, @medusajs/ui components, and Medusa design system integration for the lambda-curry/forms repository.
+
+# Medusa Forms Component Patterns
+
+## Core Architecture Principles
+- Medusa Forms use **react-hook-form** directly (not remix-hook-form)
+- All UI components are built on **@medusajs/ui** as the base design system
+- Follow the **controlled/** and **ui/** directory separation pattern
+- Use the **Controller** pattern for form integration
+- Maintain **FieldWrapper** consistency for all form fields
+
+## Required Imports for Medusa Forms
+
+### For Controlled Components
+```typescript
+import {
+  Controller,
+  type ControllerProps,
+  type FieldValues,
+  type Path,
+  type RegisterOptions,
+  useFormContext,
+} from 'react-hook-form';
+import { ComponentName, type Props as ComponentNameProps } from '../ui/ComponentName';
+```
+
+### For UI Components
+```typescript
+import { ComponentName as MedusaComponentName } from '@medusajs/ui';
+import type * as React from 'react';
+import { FieldWrapper } from './FieldWrapper';
+import type { BasicFieldProps, MedusaComponentNameProps } from './types';
+```
+
+## Directory Structure Convention
+```
+packages/medusa-forms/src/
+├── controlled/          # Form-aware wrapper components using Controller
+│   ├── ControlledInput.tsx
+│   ├── ControlledCheckbox.tsx
+│   ├── ControlledSelect.tsx
+│   └── index.ts
+└── ui/                  # Base UI components using @medusajs/ui
+    ├── Input.tsx
+    ├── FieldCheckbox.tsx
+    ├── Select.tsx
+    ├── FieldWrapper.tsx
+    └── types.d.ts
+```
+
+## Controlled Component Pattern
+All controlled components must follow this exact pattern:
+
+```typescript
+type Props<T extends FieldValues> = ComponentNameProps &
+  Omit<ControllerProps, 'render'> & {
+    name: Path<T>;
+    rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
+  };
+
+export const ControlledComponentName = <T extends FieldValues>({ 
+  name, 
+  rules, 
+  onChange, 
+  ...props 
+}: Props<T>) => {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<T>();
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      rules={rules as Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>}
+      render={({ field }) => (
+        <ComponentName
+          {...field}
+          {...props}
+          formErrors={errors}
+          onChange={(value) => {
+            if (onChange) onChange(value);
+            field.onChange(value);
+          }}
+        />
+      )}
+    />
+  );
+};
+```
+
+## UI Component Pattern
+All UI components must use FieldWrapper and @medusajs/ui:
+
+```typescript
+export type Props = MedusaComponentNameProps &
+  BasicFieldProps & {
+    ref?: React.Ref<HTMLInputElement>; // Adjust ref type based on component
+  };
+
+const Wrapper = FieldWrapper<Props>;
+
+export const ComponentName: React.FC<Props> = ({ ref, ...props }) => (
+  <Wrapper {...props}>
+    {(inputProps) => <MedusaComponentName {...inputProps} ref={ref} />}
+  </Wrapper>
+);
+```
+
+## FieldWrapper Integration
+- **Always** use FieldWrapper for consistent label, error, and styling patterns
+- Pass `formErrors` prop to enable automatic error display
+- Use `labelClassName`, `wrapperClassName`, `errorClassName` for styling customization
+
+```typescript
+<FieldWrapper<ComponentProps>
+  wrapperClassName={wrapperClassName}
+  errorClassName={errorClassName}
+  formErrors={formErrors}
+  {...props}
+>
+  {(fieldProps) => (
+    <MedusaComponent {...fieldProps} ref={ref} />
+  )}
+</FieldWrapper>
+```
+
+## @medusajs/ui Component Integration
+
+### Input Components
+```typescript
+import { Input as MedusaInput } from '@medusajs/ui';
+// Use with FieldWrapper pattern
+```
+
+### Checkbox Components
+```typescript
+import { Checkbox as MedusaCheckbox } from '@medusajs/ui';
+// Special handling for checked state and onCheckedChange
+```
+
+### Select Components
+```typescript
+import { Select as MedusaSelect } from '@medusajs/ui';
+// Compound component pattern with Trigger, Content, Item
+```
+
+### Currency Input Components
+```typescript
+import { CurrencyInput as MedusaCurrencyInput } from '@medusajs/ui';
+// Special props: symbol, code, currency
+```
+
+### Date Picker Components
+```typescript
+import { DatePicker } from '@medusajs/ui';
+// Special props: dateFormat, minDate, maxDate, filterDate
+```
+
+## Type Safety Requirements
+- Use generic types `<T extends FieldValues>` for all controlled components
+- Properly type `Path<T>` for name props
+- Extend `BasicFieldProps` for all UI components
+- Use proper ref types based on underlying HTML element
+
+## Error Handling Pattern
+```typescript
+// In controlled components
+const {
+  control,
+  formState: { errors },
+} = useFormContext<T>();
+
+// Pass errors to UI component
+<ComponentName
+  {...field}
+  {...props}
+  formErrors={errors}
+/>
+```
+
+## Validation Integration
+- Use `rules` prop for react-hook-form validation
+- Support both built-in and custom validation rules
+- Ensure error messages are user-friendly and specific
+
+```typescript
+<ControlledInput
+  name="email"
+  label="Email Address"
+  rules={{
+    required: 'Email is required',
+    pattern: {
+      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      message: 'Invalid email address'
+    }
+  }}
+/>
+```
+
+## Accessibility Requirements
+- All form fields must have proper labels via FieldWrapper
+- Use ARIA attributes provided by @medusajs/ui components
+- Ensure keyboard navigation works correctly
+- Provide clear error announcements for screen readers
+
+## Component Naming Conventions
+- Controlled components: `ControlledComponentName` (e.g., `ControlledInput`, `ControlledCheckbox`)
+- UI components: `ComponentName` (e.g., `Input`, `FieldCheckbox`)
+- Props interfaces: `ComponentNameProps`
+- File names: PascalCase matching component name
+
+## Export Requirements
+Always export both the component and its props type:
+```typescript
+export { ControlledComponentName };
+export type { Props as ControlledComponentNameProps };
+```
+
+## Performance Considerations
+- Use React.memo for expensive form components when needed
+- Avoid unnecessary re-renders by properly structuring form state
+- Consider field-level subscriptions for large forms
+
+## Testing Integration
+- Components should work with existing Storybook patterns
+- Test both valid and invalid form states
+- Verify @medusajs/ui component integration
+- Test component composition and customization
+
+## Common Patterns to Avoid
+- **Don't** use remix-hook-form patterns (use react-hook-form directly)
+- **Don't** create custom UI components when @medusajs/ui equivalents exist
+- **Don't** bypass FieldWrapper for form fields
+- **Don't** mix controlled and uncontrolled patterns
+- **Don't** forget to handle both onChange and field.onChange in controlled components
+
+## Medusa Design System Compliance
+- Follow Medusa UI spacing and sizing conventions
+- Use Medusa color tokens and design patterns
+- Ensure components work with Medusa themes
+- Maintain consistency with Medusa component APIs
+
+Remember: Medusa Forms are specifically designed to integrate with the Medusa ecosystem. Always prioritize @medusajs/ui component usage and follow Medusa design system principles while maintaining the react-hook-form integration patterns.
+
