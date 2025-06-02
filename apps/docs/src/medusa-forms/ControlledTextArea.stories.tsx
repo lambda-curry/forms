@@ -1,8 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
 import { ControlledTextArea } from '@lambdacurry/medusa-forms/controlled/ControlledTextArea';
+import { Button } from '@medusajs/ui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 const meta = {
   title: 'Medusa Forms/Controlled Text Area',
@@ -27,10 +29,10 @@ const BasicUsageForm = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px]">
-        <ControlledTextArea 
-          name="description" 
-          label="Description" 
-          placeholder="Enter your description here..." 
+        <ControlledTextArea
+          name="description"
+          label="Description"
+          placeholder="Enter your description here..."
           rows={4}
         />
       </div>
@@ -39,6 +41,12 @@ const BasicUsageForm = () => {
 };
 
 export const BasicUsage: Story = {
+  args: {
+    name: 'description',
+    label: 'Description',
+    placeholder: 'Enter your description here...',
+    rows: 4,
+  },
   render: () => <BasicUsageForm />,
   parameters: {
     docs: {
@@ -69,25 +77,33 @@ const CharacterLimitsForm = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px] space-y-2">
-        <ControlledTextArea 
-          name="bio" 
-          label="Bio" 
-          placeholder="Tell us about yourself..." 
+        <ControlledTextArea
+          name="bio"
+          label="Bio"
+          placeholder="Tell us about yourself..."
           rows={4}
           maxLength={maxLength}
+          rules={{
+            required: 'Bio is required',
+            maxLength: { value: 150, message: 'Bio must be 150 characters or less' },
+          }}
         />
         <div className="text-sm text-gray-500 text-right">
           {characterCount}/{maxLength} characters
         </div>
-        {form.formState.errors.bio && (
-          <p className="text-sm text-red-600">{form.formState.errors.bio.message}</p>
-        )}
       </div>
     </FormProvider>
   );
 };
 
 export const CharacterLimits: Story = {
+  args: {
+    name: 'bio',
+    label: 'Bio',
+    placeholder: 'Tell us about yourself...',
+    rows: 4,
+    maxLength: 150,
+  },
   render: () => <CharacterLimitsForm />,
   parameters: {
     docs: {
@@ -111,34 +127,38 @@ const RequiredFieldForm = () => {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: unknown) => {
     console.log('Form submitted:', data);
   };
 
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] space-y-4">
-        <ControlledTextArea 
-          name="feedback" 
-          label="Feedback *" 
-          placeholder="Please provide your feedback..." 
+        <ControlledTextArea
+          name="feedback"
+          label="Feedback *"
+          placeholder="Please provide your feedback..."
           rows={5}
+          rules={{
+            required: 'Feedback is required',
+            minLength: { value: 10, message: 'Feedback must be at least 10 characters' },
+          }}
         />
-        {form.formState.errors.feedback && (
-          <p className="text-sm text-red-600">{form.formState.errors.feedback.message}</p>
-        )}
-        <button 
-          type="submit" 
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
+        <Button type="submit" variant="primary" className="w-full">
           Submit Feedback
-        </button>
+        </Button>
       </form>
     </FormProvider>
   );
 };
 
 export const RequiredFieldValidation: Story = {
+  args: {
+    name: 'feedback',
+    label: 'Feedback',
+    placeholder: 'Please provide your feedback...',
+    rows: 5,
+  },
   render: () => <RequiredFieldForm />,
   parameters: {
     docs: {
@@ -160,21 +180,21 @@ const AutoResizeForm = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px] space-y-4">
-        <ControlledTextArea 
-          name="content" 
-          label="Auto-resize Content" 
-          placeholder="Start typing and watch the textarea grow..." 
+        <ControlledTextArea
+          name="content"
+          label="Auto-resize Content"
+          placeholder="Start typing and watch the textarea grow..."
           rows={2}
-          style={{ 
-            minHeight: '60px', 
+          style={{
+            minHeight: '60px',
             maxHeight: '200px',
             resize: 'none',
-            overflow: 'hidden'
+            overflow: 'hidden',
           }}
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
             target.style.height = 'auto';
-            target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+            target.style.height = `${Math.min(target.scrollHeight, 200)}px`;
           }}
         />
         <div className="text-sm text-gray-500">
@@ -186,6 +206,12 @@ const AutoResizeForm = () => {
 };
 
 export const AutoResizeFunctionality: Story = {
+  args: {
+    name: 'content',
+    label: 'Auto-resize Content',
+    placeholder: 'Start typing and watch the textarea grow...',
+    rows: 2,
+  },
   render: () => <AutoResizeForm />,
   parameters: {
     docs: {
@@ -198,7 +224,8 @@ export const AutoResizeFunctionality: Story = {
 
 // Validation Error States Story
 const ValidationErrorSchema = z.object({
-  message: z.string()
+  message: z
+    .string()
     .min(1, 'Message is required')
     .min(20, 'Message must be at least 20 characters')
     .max(500, 'Message must be less than 500 characters')
@@ -214,7 +241,7 @@ const ValidationErrorForm = () => {
     mode: 'onChange', // Validate on change for immediate feedback
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: unknown) => {
     console.log('Form submitted:', data);
   };
 
@@ -225,12 +252,18 @@ const ValidationErrorForm = () => {
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] space-y-4">
         <div className="space-y-2">
-          <ControlledTextArea 
-            name="message" 
-            label="Message" 
-            placeholder="Enter your message (20-500 characters, no spam)..." 
+          <ControlledTextArea
+            name="message"
+            label="Message"
+            placeholder="Enter your message (20-500 characters, no spam)..."
             rows={6}
             className={hasError ? 'border-red-500 focus:border-red-500' : ''}
+            rules={{
+              required: 'Message is required',
+              minLength: { value: 20, message: 'Message must be at least 20 characters' },
+              maxLength: { value: 500, message: 'Message must be less than 500 characters' },
+              validate: (value: string) => !value.includes('spam') || 'Message cannot contain spam',
+            }}
           />
           <div className="flex justify-between text-sm">
             <div>
@@ -238,14 +271,14 @@ const ValidationErrorForm = () => {
                 <span className="text-red-600">{form.formState.errors.message.message}</span>
               )}
             </div>
-            <div className="text-gray-500">
-              {messageValue?.length || 0}/500
-            </div>
+            <div className="text-gray-500">{messageValue?.length || 0}/500</div>
           </div>
         </div>
-        
+
         <div className="space-y-2 text-sm text-gray-600">
-          <p><strong>Validation Rules:</strong></p>
+          <p>
+            <strong>Validation Rules:</strong>
+          </p>
           <ul className="list-disc list-inside space-y-1">
             <li>Required field</li>
             <li>Minimum 20 characters</li>
@@ -254,19 +287,21 @@ const ValidationErrorForm = () => {
           </ul>
         </div>
 
-        <button 
-          type="submit" 
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-          disabled={!form.formState.isValid}
-        >
+        <Button type="submit" variant="primary" className="w-full" disabled={!form.formState.isValid}>
           Submit Message
-        </button>
+        </Button>
       </form>
     </FormProvider>
   );
 };
 
 export const ValidationErrorStates: Story = {
+  args: {
+    name: 'message',
+    label: 'Message',
+    placeholder: 'Enter your message (20-500 characters, no spam)...',
+    rows: 6,
+  },
   render: () => <ValidationErrorForm />,
   parameters: {
     docs: {
@@ -292,9 +327,10 @@ const ComprehensiveForm = () => {
       description: '',
       notes: '',
     },
+    mode: 'onChange',
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: unknown) => {
     console.log('Comprehensive form submitted:', data);
   };
 
@@ -302,53 +338,51 @@ const ComprehensiveForm = () => {
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Title *</label>
-          <input
-            {...form.register('title')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <ControlledInput
+            name="title"
+            label="Title *"
             placeholder="Enter a title..."
+            rules={{
+              required: 'Title is required',
+              maxLength: { value: 100, message: 'Title must be less than 100 characters' },
+            }}
           />
-          {form.formState.errors.title && (
-            <p className="text-sm text-red-600 mt-1">{form.formState.errors.title.message}</p>
-          )}
         </div>
 
         <div>
-          <ControlledTextArea 
-            name="description" 
-            label="Description *" 
-            placeholder="Provide a detailed description (minimum 50 characters)..." 
+          <ControlledTextArea
+            name="description"
+            label="Description *"
+            placeholder="Provide a detailed description (minimum 50 characters)..."
             rows={4}
+            rules={{
+              required: 'Description is required',
+              minLength: { value: 50, message: 'Description must be at least 50 characters' },
+            }}
           />
-          {form.formState.errors.description && (
-            <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
-          )}
         </div>
 
         <div>
-          <ControlledTextArea 
-            name="notes" 
-            label="Additional Notes (Optional)" 
-            placeholder="Any additional notes or comments..." 
+          <ControlledTextArea
+            name="notes"
+            label="Additional Notes (Optional)"
+            placeholder="Any additional notes or comments..."
             rows={3}
           />
         </div>
 
         <div className="flex gap-4">
-          <button 
-            type="submit" 
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-            disabled={!form.formState.isValid}
-          >
+          <Button type="button" variant="secondary" className="flex-1" onClick={() => form.reset()}>
+            Reset Form
+          </Button>
+          <Button type="submit" variant="primary" className="flex-1" disabled={!form.formState.isValid}>
             Submit
-          </button>
-          <button 
-            type="button" 
-            onClick={() => form.reset()}
-            className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            Reset
-          </button>
+          </Button>
+        </div>
+
+        <div className="mt-4 p-2 bg-gray-100 rounded">
+          <strong>Form Values:</strong>
+          <pre className="text-xs mt-2">{JSON.stringify(form.watch(), null, 2)}</pre>
         </div>
 
         {form.formState.isSubmitted && form.formState.isValid && (
@@ -362,13 +396,18 @@ const ComprehensiveForm = () => {
 };
 
 export const ComprehensiveExample: Story = {
+  args: {
+    name: 'title',
+    label: 'Title',
+    placeholder: 'Enter a title...',
+  },
   render: () => <ComprehensiveForm />,
   parameters: {
     docs: {
       description: {
-        story: 'A comprehensive form example showing multiple ControlledTextArea components with different validation rules and states.',
+        story:
+          'A comprehensive form example showing multiple ControlledTextArea components with different validation rules and states.',
       },
     },
   },
 };
-

@@ -22,7 +22,7 @@ const MultipleMessages = ({ messages }: { messages: MultipleFieldErrors }) => {
       {remainderErrors?.length > 0 && (
         <Tooltip
           content={
-            <div className="inter-small-regular text-rose-50">
+            <div className="txt-compact-xsmall text-rose-50">
               {remainderErrors.map((e, i) => {
                 return (
                   // biome-ignore lint/suspicious/noArrayIndexKey: index is the best option here
@@ -53,7 +53,7 @@ export const FieldError = ({ errors, name, className }: Props) => {
       errors={errors}
       render={({ message, messages }) => {
         return (
-          <div className={clsx('inter-small-regular mt-2 text-red-500', className)}>
+          <div className={clsx('txt-compact-xsmall !leading-snug mt-2 text-red-500', className)}>
             {messages ? <MultipleMessages messages={messages} /> : <p>{message}</p>}
           </div>
         );

@@ -25,17 +25,18 @@ const BasicDateSelectionComponent = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px]">
-        <ControlledDatePicker 
-          name="birthDate" 
-          label="Birth Date" 
-          placeholder="Select your birth date"
-        />
+        <ControlledDatePicker name="birthDate" label="Birth Date" placeholder="Select your birth date" />
       </div>
     </FormProvider>
   );
 };
 
 export const BasicDateSelection: Story = {
+  args: {
+    name: 'birthDate',
+    label: 'Birth Date',
+    placeholder: 'Select your birth date',
+  },
   render: () => <BasicDateSelectionComponent />,
 };
 
@@ -47,32 +48,27 @@ const RequiredFieldValidationComponent = () => {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: unknown) => {
     console.log('Form submitted:', data);
   };
 
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] space-y-4">
-        <ControlledDatePicker 
-          name="requiredDate" 
-          label="Required Date" 
+        <ControlledDatePicker
+          name="requiredDate"
+          label="Required Date"
           placeholder="This field is required"
           required
           rules={{
-            required: 'Date is required'
+            required: 'Date is required',
           }}
         />
-        <button 
-          type="submit" 
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Submit
         </button>
         {form.formState.errors.requiredDate && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.requiredDate.message}
-          </p>
+          <p className="text-red-500 text-sm">{form.formState.errors.requiredDate.message}</p>
         )}
       </form>
     </FormProvider>
@@ -80,6 +76,11 @@ const RequiredFieldValidationComponent = () => {
 };
 
 export const RequiredFieldValidation: Story = {
+  args: {
+    name: 'requiredDate',
+    label: 'Required Date',
+    placeholder: 'This field is required',
+  },
   render: () => <RequiredFieldValidationComponent />,
 };
 
@@ -96,21 +97,21 @@ const DateFormatVariationsComponent = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px] space-y-4">
-        <ControlledDatePicker 
-          name="usFormat" 
-          label="US Format (MM/DD/YYYY)" 
+        <ControlledDatePicker
+          name="usFormat"
+          label="US Format (MM/DD/YYYY)"
           placeholder="MM/DD/YYYY"
           dateFormat="MM/dd/yyyy"
         />
-        <ControlledDatePicker 
-          name="euroFormat" 
-          label="European Format (DD/MM/YYYY)" 
+        <ControlledDatePicker
+          name="euroFormat"
+          label="European Format (DD/MM/YYYY)"
           placeholder="DD/MM/YYYY"
           dateFormat="dd/MM/yyyy"
         />
-        <ControlledDatePicker 
-          name="isoFormat" 
-          label="ISO Format (YYYY-MM-DD)" 
+        <ControlledDatePicker
+          name="isoFormat"
+          label="ISO Format (YYYY-MM-DD)"
           placeholder="YYYY-MM-DD"
           dateFormat="yyyy-MM-dd"
         />
@@ -120,6 +121,11 @@ const DateFormatVariationsComponent = () => {
 };
 
 export const DateFormatVariations: Story = {
+  args: {
+    name: 'usFormat',
+    label: 'US Format (MM/DD/YYYY)',
+    placeholder: 'MM/DD/YYYY',
+  },
   render: () => <DateFormatVariationsComponent />,
 };
 
@@ -142,25 +148,23 @@ const DisabledDatesComponent = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px] space-y-4">
-        <ControlledDatePicker 
-          name="noPastDates" 
-          label="No Past Dates" 
+        <ControlledDatePicker
+          name="noPastDates"
+          label="No Past Dates"
           placeholder="Future dates only"
           minDate={today}
         />
-        <ControlledDatePicker 
-          name="noFutureDates" 
-          label="No Future Dates" 
+        <ControlledDatePicker
+          name="noFutureDates"
+          label="No Future Dates"
           placeholder="Past dates only"
           maxDate={today}
         />
-        <ControlledDatePicker 
-          name="specificDisabled" 
-          label="Specific Date Range Disabled" 
+        <ControlledDatePicker
+          name="specificDisabled"
+          label="Specific Date Range Disabled"
           placeholder="Excludes last/next week"
-          excludeDateIntervals={[
-            { start: oneWeekAgo, end: oneWeekFromNow }
-          ]}
+          excludeDateIntervals={[{ start: oneWeekAgo, end: oneWeekFromNow }]}
         />
       </div>
     </FormProvider>
@@ -168,6 +172,11 @@ const DisabledDatesComponent = () => {
 };
 
 export const DisabledDates: Story = {
+  args: {
+    name: 'noPastDates',
+    label: 'No Past Dates',
+    placeholder: 'Future dates only',
+  },
   render: () => <DisabledDatesComponent />,
 };
 
@@ -195,9 +204,9 @@ const MinMaxDateConstraintsComponent = () => {
   return (
     <FormProvider {...form}>
       <div className="w-[400px] space-y-4">
-        <ControlledDatePicker 
-          name="constrainedDate" 
-          label="Date Range (Tomorrow to 30 days)" 
+        <ControlledDatePicker
+          name="constrainedDate"
+          label="Date Range (Tomorrow to 30 days)"
           placeholder="Select within range"
           minDate={minDate}
           maxDate={maxDate}
@@ -208,21 +217,21 @@ const MinMaxDateConstraintsComponent = () => {
               if (selectedDate < minDate) return 'Date must be tomorrow or later';
               if (selectedDate > maxDate) return 'Date must be within 30 days';
               return true;
-            }
+            },
           }}
         />
-        <ControlledDatePicker 
-          name="businessDays" 
-          label="Business Days Only" 
+        <ControlledDatePicker
+          name="businessDays"
+          label="Business Days Only"
           placeholder="Weekdays only"
-          filterDate={(date) => {
+          filterDate={(date: Date) => {
             const day = date.getDay();
             return day !== 0 && day !== 6; // Exclude Sunday (0) and Saturday (6)
           }}
         />
-        <ControlledDatePicker 
-          name="ageRestricted" 
-          label="Age Verification (18+)" 
+        <ControlledDatePicker
+          name="ageRestricted"
+          label="Age Verification (18+)"
           placeholder="Must be 18 or older"
           maxDate={eighteenYearsAgo}
           minDate={hundredYearsAgo}
@@ -233,25 +242,21 @@ const MinMaxDateConstraintsComponent = () => {
               const age = today.getFullYear() - selectedDate.getFullYear();
               const monthDiff = today.getMonth() - selectedDate.getMonth();
               const dayDiff = today.getDate() - selectedDate.getDate();
-              
+
               let calculatedAge = age;
               if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
                 calculatedAge--;
               }
-              
+
               return calculatedAge >= 18 || 'Must be 18 years or older';
-            }
+            },
           }}
         />
         {form.formState.errors.constrainedDate && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.constrainedDate.message}
-          </p>
+          <p className="text-red-500 text-sm">{form.formState.errors.constrainedDate.message}</p>
         )}
         {form.formState.errors.ageRestricted && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.ageRestricted.message}
-          </p>
+          <p className="text-red-500 text-sm">{form.formState.errors.ageRestricted.message}</p>
         )}
       </div>
     </FormProvider>
@@ -259,6 +264,10 @@ const MinMaxDateConstraintsComponent = () => {
 };
 
 export const MinMaxDateConstraints: Story = {
+  args: {
+    name: 'constrainedDate',
+    label: 'Date Range (Tomorrow to 30 days)',
+    placeholder: 'Select within range',
+  },
   render: () => <MinMaxDateConstraintsComponent />,
 };
-

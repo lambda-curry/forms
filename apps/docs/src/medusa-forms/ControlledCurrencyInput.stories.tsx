@@ -36,9 +36,9 @@ const CurrencyInputWithHookForm = ({
   currency?: string;
   symbol?: string;
   code?: string;
-  schema?: z.ZodSchema<any>;
+  schema?: z.ZodSchema<CurrencyFormData>;
   defaultValues?: CurrencyFormData;
-  [key: string]: any;
+  [key: string]: unknown;
 }) => {
   const form = useForm<CurrencyFormData>({
     resolver: schema ? zodResolver(schema) : undefined,
@@ -178,6 +178,7 @@ const requiredSchema = z.object({
 
 export const RequiredFieldValidation: Story = {
   args: {
+    name: 'price',
     symbol: '$',
     code: 'usd',
   },
@@ -202,6 +203,7 @@ const customValidationSchema = z.object({
 
 export const CustomValidationMessage: Story = {
   args: {
+    name: 'price',
     symbol: '$',
     code: 'usd',
   },
@@ -220,6 +222,7 @@ export const CustomValidationMessage: Story = {
 // 4. Different Currency Codes
 export const JPYCurrency: Story = {
   args: {
+    name: 'price',
     symbol: '¥',
     code: 'jpy',
   },
@@ -236,6 +239,7 @@ export const JPYCurrency: Story = {
 
 export const CADCurrency: Story = {
   args: {
+    name: 'price',
     symbol: 'C$',
     code: 'cad',
   },
