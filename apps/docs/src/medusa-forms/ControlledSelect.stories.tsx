@@ -1,6 +1,6 @@
 import { ControlledSelect } from '@lambdacurry/medusa-forms/controlled/ControlledSelect';
+import { Button } from '@lambdacurry/medusa-forms/ui/Button';
 import { Select } from '@lambdacurry/medusa-forms/ui/Select';
-import { Button } from '@lambdacurry/medusa-forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
