@@ -1,16 +1,16 @@
 import { Select as MedusaSelect } from '@medusajs/ui';
 import type * as React from 'react';
 import { FieldWrapper } from './FieldWrapper';
-import type { BasicFieldProps, SelectProps } from './types';
+import type { BasicFieldProps, SelectProps as MedusaSelectProps } from './types';
 
-export type Props = SelectProps &
+export type SelectProps = MedusaSelectProps &
   BasicFieldProps & {
     ref?: React.Ref<unknown>;
   };
 
-const Wrapper = FieldWrapper<Props>;
+const Wrapper = FieldWrapper<SelectProps>;
 
-const SelectComponent: React.FC<Props> = ({ ref, ...props }) => {
+const SelectComponent: React.FC<SelectProps> = ({ ref, ...props }) => {
   return (
     <Wrapper {...props}>
       {(inputProps) => <MedusaSelect {...{ ...inputProps, ref }}>{props.children}</MedusaSelect>}

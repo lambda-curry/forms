@@ -8,13 +8,18 @@ import {
 } from 'react-hook-form';
 import { FieldCheckbox, type FieldCheckboxProps } from '../ui/FieldCheckbox';
 
-type Props<T extends FieldValues> = Omit<FieldCheckboxProps, 'name'> &
+export type ControlledCheckboxProps<T extends FieldValues> = Omit<FieldCheckboxProps, 'name'> &
   Omit<ControllerProps, 'render'> & {
     name: Path<T>;
     rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
   };
 
-export const ControlledCheckbox = <T extends FieldValues>({ name, rules, onChange, ...props }: Props<T>) => {
+export const ControlledCheckbox = <T extends FieldValues>({
+  name,
+  rules,
+  onChange,
+  ...props
+}: ControlledCheckboxProps<T>) => {
   const {
     control,
     formState: { errors },

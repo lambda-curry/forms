@@ -8,9 +8,9 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
-import { Select, type Props as SelectProps } from '../ui/Select';
+import { Select, type SelectProps } from '../ui/Select';
 
-type Props<T extends FieldValues> = SelectProps &
+export type ControlledSelectProps<T extends FieldValues> = SelectProps &
   Omit<ControllerProps, 'render'> & {
     name: Path<T>;
     onBlur?: () => void;
@@ -34,7 +34,7 @@ export const ControlledSelect = <T extends FieldValues>({
   onChange,
   onBlur,
   ...props
-}: Props<T>) => {
+}: ControlledSelectProps<T>) => {
   const { control } = useFormContext<T>();
   return (
     <Controller<T>

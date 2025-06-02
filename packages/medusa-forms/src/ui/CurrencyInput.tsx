@@ -4,13 +4,13 @@ import type { FC } from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, MedusaCurrencyInputProps } from './types';
 
-export type Props = MedusaCurrencyInputProps &
+export type CurrencyInputProps = MedusaCurrencyInputProps &
   BasicFieldProps & {
     ref?: React.Ref<HTMLInputElement>;
   };
 
-const Wrapper = FieldWrapper<Props>;
+const Wrapper = FieldWrapper<CurrencyInputProps>;
 
-export const CurrencyInput: FC<Props> = ({ ref, ...props }) => (
+export const CurrencyInput: FC<CurrencyInputProps> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <MedusaCurrencyInput {...inputProps} ref={ref} />}</Wrapper>
 );

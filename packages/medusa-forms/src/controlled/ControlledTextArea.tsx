@@ -7,16 +7,16 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
-import { TextArea, type Props as TextAreaProps } from '../ui/TextArea';
+import { TextArea, type TextAreaProps } from '../ui/TextArea';
 
-type Props<T extends FieldValues> = TextAreaProps &
+export type ControlledTextAreaProps<T extends FieldValues> = TextAreaProps &
   Omit<ControllerProps, 'render'> & {
     name: Path<T>;
     rules?: RegisterOptions<T, Path<T>>;
   } & React.ComponentProps<typeof TextArea> &
   Omit<ControllerProps<T>, 'render'>;
 
-export const ControlledTextArea = <T extends FieldValues>({ name, rules, ...props }: Props<T>) => {
+export const ControlledTextArea = <T extends FieldValues>({ name, rules, ...props }: ControlledTextAreaProps<T>) => {
   const { control } = useFormContext<T>();
   return (
     <Controller<T>

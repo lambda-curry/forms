@@ -7,16 +7,21 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
-import { Input, type Props as InputProps } from '../ui/Input';
+import { Input, type InputProps } from '../ui/Input';
 
-type Props<T extends FieldValues> = InputProps &
+export type ControlledInputProps<T extends FieldValues> = InputProps &
   Omit<ControllerProps, 'render'> & {
     name: Path<T>;
     rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
   } & ComponentProps<typeof Input> &
   Omit<ControllerProps<T>, 'render'>;
 
-export const ControlledInput = <T extends FieldValues>({ name, rules, onChange, ...props }: Props<T>) => {
+export const ControlledInput = <T extends FieldValues>({
+  name,
+  rules,
+  onChange,
+  ...props
+}: ControlledInputProps<T>) => {
   const {
     control,
     formState: { errors },

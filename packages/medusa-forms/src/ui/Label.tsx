@@ -3,7 +3,7 @@ import { Label as MedusaLabel, Tooltip } from '@medusajs/ui';
 import clsx from 'clsx';
 import type * as React from 'react';
 
-interface Props {
+export interface LabelProps {
   htmlFor?: string;
   children: React.ReactNode;
   tooltip?: string;
@@ -11,7 +11,7 @@ interface Props {
   onClick?: () => void;
 }
 
-export const Label = ({ htmlFor, children, tooltip, className, ...props }: Props) => (
+export const Label = ({ htmlFor, children, tooltip, className, ...props }: LabelProps) => (
   <div className={clsx('flex items-center mb-2 text-gray-500 w-full', className)}>
     <MedusaLabel htmlFor={htmlFor} size="xsmall" {...props}>
       {children}

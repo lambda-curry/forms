@@ -3,13 +3,13 @@ import type * as React from 'react';
 import { FieldWrapper } from './FieldWrapper';
 import type { BasicFieldProps, MedusaInputProps } from './types';
 
-export type Props = MedusaInputProps &
+export type InputProps = MedusaInputProps &
   BasicFieldProps & {
     ref?: React.Ref<HTMLInputElement>;
   };
 
-const Wrapper = FieldWrapper<Props>;
+const Wrapper = FieldWrapper<InputProps>;
 
-export const Input: React.FC<Props> = ({ ref, ...props }) => (
+export const Input: React.FC<InputProps> = ({ ref, ...props }) => (
   <Wrapper {...props}>{(inputProps) => <MedusaInput {...inputProps} ref={ref} />}</Wrapper>
 );

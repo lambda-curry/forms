@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import { Input } from './Input';
 
-interface ColorInputProps {
+export interface ColorInputProps {
   onChange: (color: string) => void;
   selectedColor: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;

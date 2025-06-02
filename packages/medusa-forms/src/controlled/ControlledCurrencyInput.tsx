@@ -7,14 +7,18 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
-import { CurrencyInput, type Props as CurrencyInputProps } from '../ui/CurrencyInput';
+import { CurrencyInput, type CurrencyInputProps } from '../ui/CurrencyInput';
 
-type Props<T extends FieldValues> = CurrencyInputProps &
+export type ControlledCurrencyInputProps<T extends FieldValues> = CurrencyInputProps &
   Omit<ControllerProps, 'render' | 'control'> & {
     name: Path<T>;
   };
 
-export const ControlledCurrencyInput = <T extends FieldValues>({ name, rules, ...props }: Props<T>) => {
+export const ControlledCurrencyInput = <T extends FieldValues>({
+  name,
+  rules,
+  ...props
+}: ControlledCurrencyInputProps<T>) => {
   const { control } = useFormContext<T>();
 
   return (

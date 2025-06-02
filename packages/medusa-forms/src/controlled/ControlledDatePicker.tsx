@@ -6,14 +6,18 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
-import { DatePickerInput, type Props as DatePickerProps } from '../ui/DatePicker';
+import { DatePickerInput, type DatePickerProps } from '../ui/DatePicker';
 
-type Props<T extends FieldValues> = DatePickerProps &
+export type ControlledDatePickerProps<T extends FieldValues> = DatePickerProps &
   Omit<ControllerProps, 'render' | 'control'> & {
     name: Path<T>;
   };
 
-export const ControlledDatePicker = <T extends FieldValues>({ name, rules, ...props }: Props<T>) => {
+export const ControlledDatePicker = <T extends FieldValues>({
+  name,
+  rules,
+  ...props
+}: ControlledDatePickerProps<T>) => {
   const { control } = useFormContext<T>();
   return (
     <Controller<T>
