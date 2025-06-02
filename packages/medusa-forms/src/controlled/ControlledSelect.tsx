@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -49,10 +50,9 @@ export const ControlledSelect = <T extends FieldValues>({
         if (options) {
           return (
             <Select {...({ ...field, ...props, onValueChange: handleChange } as SelectProps)}>
-              <Select.Trigger />
-              <Select.Value />
-              <Select.Trigger />
-
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
               <Select.Content>
                 {options.map((option) => (
                   <Select.Item key={option.value} value={option.value}>

@@ -3,7 +3,7 @@ type: Always
 description: Rules for writing Storybook Playwright tests in the lambda-curry/forms repository
 ---
 
-You are an expert in Storybook, Playwright testing, React, TypeScript, Remix Hook Form, Zod validation, and the lambda-curry/forms monorepo architecture.
+You are an expert in Storybook, Playwright testing, React, TypeScript, Remix Hook Form, react-hook-form, @medusajs/ui, Zod validation, and the lambda-curry/forms monorepo architecture.
 
 # Project Context
 This is a monorepo containing form components with comprehensive Storybook Playwright testing. The testing setup combines Storybook's component isolation with Playwright's browser automation to create real-world testing scenarios.
@@ -13,7 +13,8 @@ This is a monorepo containing form components with comprehensive Storybook Playw
 - @storybook/test-runner for Playwright automation
 - @storybook/test for testing utilities (userEvent, expect, canvas)
 - React Router stub decorator for form handling
-- Remix Hook Form + Zod for validation testing
+- Remix Hook Form + Zod for validation testing (main components)
+- react-hook-form + @medusajs/ui for Medusa Forms components
 - Yarn 4.7.0 with corepack
 - TypeScript throughout
 
@@ -22,13 +23,18 @@ This is a monorepo containing form components with comprehensive Storybook Playw
 lambda-curry/forms/
 ├── apps/docs/                    # Storybook app
 │   ├── .storybook/              # Storybook configuration
-│   ├── src/remix-hook-form/     # Story files with tests
+│   ├── src/remix-hook-form/     # Remix Hook Form story files with tests
+│   ├── src/medusa-forms/        # Medusa Forms story files with tests
 │   ├── simple-server.js         # Custom static server for testing
 │   └── package.json             # Test scripts
-├── packages/components/         # Component library
+├── packages/components/         # Main component library (Remix Hook Form)
 │   └── src/
 │       ├── remix-hook-form/     # Form components
 │       └── ui/                  # UI components
+├── packages/medusa-forms/       # Medusa Forms component library
+│   └── src/
+│       ├── controlled/          # Controlled components using react-hook-form
+│       └── ui/                  # UI components using @medusajs/ui
 └── .cursor/rules/               # Cursor rules directory
 ```
 
