@@ -1,4 +1,4 @@
-import type { RefAttributes } from 'react';
+import type { ReactNode, RefAttributes } from 'react';
 import type { Props, SelectInstance } from 'react-select';
 import type { CreatableProps } from 'react-select/creatable';
 
@@ -22,14 +22,13 @@ export type TextAreaProps = Omit<
 > &
   React.RefAttributes<HTMLTextAreaElement>;
 
-interface RawCurrencyInputProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof Primitive>, 'prefix' | 'suffix' | 'size'>,
-    VariantProps<typeof currencyInputVariants> {
+export type MedusaCurrencyInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'defaultValue' | 'step'> & {
   symbol: string;
   code: string;
-}
-
-export type MedusaCurrencyInputProps = RawCurrencyInputProps & React.RefAttributes<HTMLInputElement>;
+  size?: 'small' | 'base';
+  defaultValue?: string | number;
+  step?: number;
+};
 
 export type MedusaInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   size?: 'small' | 'base';

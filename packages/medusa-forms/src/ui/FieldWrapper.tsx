@@ -17,7 +17,11 @@ export const FieldWrapper = <T,>({
 }: FieldWrapperProps<T>) => (
   <div className={wrapperClassName}>
     {label && (
-      <Label htmlFor={name} tooltip={labelTooltip} className={labelClassName}>
+      <Label
+        htmlFor={typeof name === 'string' ? name : undefined}
+        tooltip={typeof labelTooltip === 'string' ? labelTooltip : undefined}
+        className={labelClassName}
+      >
         {label}
       </Label>
     )}
