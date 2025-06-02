@@ -3,8 +3,8 @@ import { RadioGroup, type RadioOption } from '@lambdacurry/forms/remix-hook-form
 import { RadioGroupItem } from '@lambdacurry/forms/remix-hook-form/radio-group-item';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { Label } from '@lambdacurry/forms/ui/label';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from 'storybook/test';
 import type { ComponentPropsWithoutRef, ComponentType } from 'react';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';

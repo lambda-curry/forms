@@ -1,6 +1,7 @@
 ---
-type: Always
 description: Monorepo structure and import conventions for the lambda-curry/forms repository
+globs: ["packages/**/*.{ts,tsx}", "apps/**/*.{ts,tsx}", "*.{ts,tsx,json}", "turbo.json", "package.json"]
+alwaysApply: false
 ---
 
 You are an expert in monorepo architecture, package management, and TypeScript module organization.
@@ -20,14 +21,21 @@ lambda-curry/forms/
 ├── apps/
 │   └── docs/                 # Storybook documentation app
 │       ├── src/
-│       │   ├── remix-hook-form/  # Story files
+│       │   ├── remix-hook-form/  # Remix Hook Form story files
+│       │   ├── medusa-forms/     # Medusa Forms story files
 │       │   └── lib/              # Storybook utilities
 │       └── package.json
 ├── packages/
-│   └── components/           # Main component library
+│   ├── components/           # Main component library (Remix Hook Form)
+│   │   ├── src/
+│   │   │   ├── remix-hook-form/  # Form-aware components
+│   │   │   ├── ui/               # Base UI components
+│   │   │   └── index.ts          # Main export file
+│   │   └── package.json
+│   └── medusa-forms/         # Medusa Forms component library
 │       ├── src/
-│       │   ├── remix-hook-form/  # Form-aware components
-│       │   ├── ui/               # Base UI components
+│       │   ├── controlled/       # Controlled components using react-hook-form
+│       │   ├── ui/               # Base UI components using @medusajs/ui
 │       │   └── index.ts          # Main export file
 │       └── package.json
 ├── package.json              # Root package.json
@@ -42,9 +50,13 @@ lambda-curry/forms/
 import { TextField } from '@lambdacurry/forms/remix-hook-form';
 import { Button } from '@lambdacurry/forms/ui';
 
+// ✅ Import from Medusa Forms package
+import { ControlledInput } from '@lambdacurry/medusa-forms/controlled';
+import { Input } from '@lambdacurry/medusa-forms/ui';
+
 // ✅ Import from specific entry points
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
-import { Button } from '@lambdacurry/forms/ui/button';
+import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
 ```
 
 ### Internal Package Imports
@@ -169,7 +181,7 @@ src/
 {
   "peerDependencies": {
     "react": "^19.0.0",
-    "remix-hook-form": "7.0.0"
+    "remix-hook-form": "7.0.1"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
@@ -360,4 +372,3 @@ docs/
 - Maintain backward compatibility when possible
 
 Remember: A well-organized monorepo makes development faster and more predictable. Every import should be intentional and follow the established patterns to maintain consistency across the codebase.
-
