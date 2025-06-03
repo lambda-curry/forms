@@ -1,6 +1,6 @@
 {
   "name": "@lambdacurry/medusa-forms",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,16 +12,28 @@
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       }
     },
     "./controlled": {
       "import": {
         "types": "./dist/controlled/index.d.ts",
         "default": "./dist/controlled/index.js"
+      },
+      "require": {
+        "types": "./dist/controlled/index.d.ts",
+        "default": "./dist/controlled/index.js"
       }
     },
     "./ui": {
       "import": {
+        "types": "./dist/ui/index.d.ts",
+        "default": "./dist/ui/index.js"
+      },
+      "require": {
         "types": "./dist/ui/index.d.ts",
         "default": "./dist/ui/index.js"
       }
