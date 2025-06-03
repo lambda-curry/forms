@@ -9,7 +9,7 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form'
-import { Textarea } from '@medusajs/ui'
+import { Textarea, Label } from '@medusajs/ui'
 import { ErrorMessage } from '@hookform/error-message'
 
 export type ControlledTextareaProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {
@@ -67,10 +67,10 @@ export const ControlledTextarea = <T extends FieldValues>({
   return (
     <div className="space-y-2">
       {label && (
-        <label htmlFor={name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <Label htmlFor={name}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </Label>
       )}
       <Controller
         control={control}

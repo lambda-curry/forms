@@ -9,10 +9,10 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form'
-import { CurrencyInput } from '@medusajs/ui'
+import { Input, Label } from '@medusajs/ui'
 import { ErrorMessage } from '@hookform/error-message'
 
-export type ControlledCurrencyInputProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {
+export type ControlledInputProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {
   name: Path<T>
   rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>
   label?: string
@@ -20,17 +20,16 @@ export type ControlledCurrencyInputProps<T extends FieldValues> = Omit<Controlle
   required?: boolean
   disabled?: boolean
   className?: string
-  currency?: string
-  onChange?: (value: number | undefined) => void
-} & ComponentProps<typeof CurrencyInput>
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+} & ComponentProps<typeof Input>
 
 /**
- * A controlled currency input component that integrates with react-hook-form.
+ * A controlled input component that integrates with react-hook-form.
  * 
  * @example
  * ```tsx
  * import { useForm, FormProvider } from 'react-hook-form'
- * import { ControlledCurrencyInput } from '@/components/ui/controlled-currency-input'
+ * import { ControlledInput } from '@/components/ui/controlled-input'
  * 
  * function MyForm() {
  *   const methods = useForm()
@@ -38,12 +37,11 @@ export type ControlledCurrencyInputProps<T extends FieldValues> = Omit<Controlle
  *   return (
  *     <FormProvider {...methods}>
  *       <form onSubmit={methods.handleSubmit(onSubmit)}>
- *         <ControlledCurrencyInput
- *           name="price"
- *           label="Price"
- *           placeholder="Enter price"
- *           currency="USD"
- *           rules={{ required: 'Price is required' }}
+ *         <ControlledInput
+ *           name="email"
+ *           label="Email"
+ *           placeholder="Enter your email"
+ *           rules={{ required: 'Email is required' }}
  *         />
  *       </form>
  *     </FormProvider>
@@ -51,14 +49,14 @@ export type ControlledCurrencyInputProps<T extends FieldValues> = Omit<Controlle
  * }
  * ```
  */
-export const ControlledCurrencyInput = <T extends FieldValues>({
+export const ControlledInput = <T extends FieldValues>({
   name,
   rules,
   onChange,
   label,
   required,
   ...props
-}: ControlledCurrencyInputProps<T>) => {
+}: ControlledInputProps<T>) => {
   const {
     control,
     formState: { errors },
@@ -67,26 +65,25 @@ export const ControlledCurrencyInput = <T extends FieldValues>({
   return (
     <div className="space-y-2">
       {label && (
-        <label htmlFor={name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <Label htmlFor={name}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </Label>
       )}
       <Controller
         control={control}
         name={name}
         rules={rules as Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>}
         render={({ field }) => (
-          <CurrencyInput
+          <Input
             {...field}
             {...props}
             id={name}
-            value={field.value}
-            onValueChange={(value) => {
+            onChange={(evt) => {
               if (onChange) {
-                onChange(value)
+                onChange(evt)
               }
-              field.onChange(value)
+              field.onChange(evt)
             }}
           />
         )}

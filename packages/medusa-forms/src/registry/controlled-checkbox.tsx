@@ -9,7 +9,7 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form'
-import { Checkbox } from '@medusajs/ui'
+import { Checkbox, Label } from '@medusajs/ui'
 import { ErrorMessage } from '@hookform/error-message'
 
 export type ControlledCheckboxProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {
@@ -85,13 +85,10 @@ export const ControlledCheckbox = <T extends FieldValues>({
             />
             <div className="grid gap-1.5 leading-none">
               {label && (
-                <label
-                  htmlFor={name}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
+                <Label htmlFor={name}>
                   {label}
                   {required && <span className="text-red-500 ml-1">*</span>}
-                </label>
+                </Label>
               )}
               {description && (
                 <p className="text-xs text-muted-foreground">

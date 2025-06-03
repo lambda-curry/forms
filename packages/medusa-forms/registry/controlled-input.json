@@ -1,0 +1,16 @@
+{
+  "name": "controlled-input",
+  "type": "registry:ui",
+  "description": "A input component with react-hook-form integration",
+  "dependencies": [
+    "@medusajs/ui",
+    "react-hook-form",
+    "@hookform/error-message"
+  ],
+  "files": [
+    {
+      "name": "controlled-input.tsx",
+      "content": "\"use client\"\n\nimport type { ComponentProps } from 'react'\nimport {\n  Controller,\n  type ControllerProps,\n  type FieldValues,\n  type Path,\n  type RegisterOptions,\n  useFormContext,\n} from 'react-hook-form'\nimport { Input, Label } from '@medusajs/ui'\nimport { ErrorMessage } from '@hookform/error-message'\n\nexport type ControlledInputProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {\n  name: Path<T>\n  rules?: Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>\n  label?: string\n  placeholder?: string\n  required?: boolean\n  disabled?: boolean\n  className?: string\n  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void\n} & ComponentProps<typeof Input>\n\n/**\n * A controlled input component that integrates with react-hook-form.\n * \n * @example\n * ```tsx\n * import { useForm, FormProvider } from 'react-hook-form'\n * import { ControlledInput } from '@/components/ui/controlled-input'\n * \n * function MyForm() {\n *   const methods = useForm()\n *   \n *   return (\n *     <FormProvider {...methods}>\n *       <form onSubmit={methods.handleSubmit(onSubmit)}>\n *         <ControlledInput\n *           name=\"email\"\n *           label=\"Email\"\n *           placeholder=\"Enter your email\"\n *           rules={{ required: 'Email is required' }}\n *         />\n *       </form>\n *     </FormProvider>\n *   )\n * }\n * ```\n */\nexport const ControlledInput = <T extends FieldValues>({\n  name,\n  rules,\n  onChange,\n  label,\n  required,\n  ...props\n}: ControlledInputProps<T>) => {\n  const {\n    control,\n    formState: { errors },\n  } = useFormContext<T>()\n\n  return (\n    <div className=\"space-y-2\">\n      {label && (\n        <Label htmlFor={name}>\n          {label}\n          {required && <span className=\"text-red-500 ml-1\">*</span>}\n        </Label>\n      )}\n      <Controller\n        control={control}\n        name={name}\n        rules={rules as Omit<RegisterOptions<T, Path<T>>, 'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>}\n        render={({ field }) => (\n          <Input\n            {...field}\n            {...props}\n            id={name}\n            onChange={(evt) => {\n              if (onChange) {\n                onChange(evt)\n              }\n              field.onChange(evt)\n            }}\n          />\n        )}\n      />\n      <ErrorMessage\n        errors={errors}\n        name={name}\n        render={({ message }) => (\n          <p className=\"text-sm text-red-500\">{message}</p>\n        )}\n      />\n    </div>\n  )\n}\n\n"
+    }
+  ]
+}

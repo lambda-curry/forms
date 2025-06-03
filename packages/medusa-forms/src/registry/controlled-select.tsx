@@ -10,7 +10,7 @@ import {
   type RegisterOptions,
   useFormContext,
 } from 'react-hook-form'
-import { Select } from '@medusajs/ui'
+import { Select, Label } from '@medusajs/ui'
 import { ErrorMessage } from '@hookform/error-message'
 
 export type ControlledSelectProps<T extends FieldValues> = Omit<ControllerProps, 'render'> & {
@@ -85,10 +85,10 @@ export const ControlledSelect = <T extends FieldValues>({
   return (
     <div className="space-y-2">
       {label && (
-        <label htmlFor={name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <Label htmlFor={name}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </Label>
       )}
       <Controller<T>
         control={control}
