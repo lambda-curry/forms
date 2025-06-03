@@ -1,0 +1,17 @@
+{
+  "name": "input",
+  "type": "registry:ui",
+  "description": "input component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [
+    "field-wrapper"
+  ],
+  "files": [
+    {
+      "name": "input.tsx",
+      "content": "import { Input as MedusaInput } from '@medusajs/ui';\nimport { forwardRef } from 'react';\nimport { FieldWrapper } from './FieldWrapper';\nimport type { BasicFieldProps, MedusaInputProps } from './types';\n\nexport type InputProps = MedusaInputProps & BasicFieldProps;\n\nconst Wrapper = FieldWrapper<InputProps>;\n\nexport const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => (\n  <Wrapper {...props}>{(inputProps) => <MedusaInput {...inputProps} ref={ref} />}</Wrapper>\n));\n\nInput.displayName = 'Input';\n"
+    }
+  ]
+}

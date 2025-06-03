@@ -1,0 +1,17 @@
+{
+  "name": "textarea",
+  "type": "registry:ui",
+  "description": "textarea component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [
+    "field-wrapper"
+  ],
+  "files": [
+    {
+      "name": "textarea.tsx",
+      "content": "import { Textarea } from '@medusajs/ui';\nimport { forwardRef } from 'react';\nimport { FieldWrapper } from './FieldWrapper';\nimport type { BasicFieldProps, TextAreaProps as MedusaTextAreaProps } from './types';\n\nexport type TextAreaProps = MedusaTextAreaProps & BasicFieldProps;\n\nconst Wrapper = FieldWrapper<TextAreaProps>;\n\nexport const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>((props, ref) => (\n  <Wrapper {...props}>{(inputProps) => <Textarea {...inputProps} ref={ref} />}</Wrapper>\n));\n\nTextArea.displayName = 'TextArea';\n"
+    }
+  ]
+}

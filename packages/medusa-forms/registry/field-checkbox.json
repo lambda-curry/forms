@@ -1,0 +1,18 @@
+{
+  "name": "field-checkbox",
+  "type": "registry:ui",
+  "description": "field checkbox component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [
+    "field-wrapper",
+    "label"
+  ],
+  "files": [
+    {
+      "name": "fieldcheckbox.tsx",
+      "content": "import { Checkbox as MedusaCheckbox } from '@medusajs/ui';\nimport clsx from 'clsx';\nimport type * as React from 'react';\nimport { FieldWrapper } from './FieldWrapper';\nimport { Label } from './Label';\nimport type { BasicFieldProps } from './types';\n\nexport type CheckedState = boolean | 'indeterminate';\nexport type FieldCheckboxProps = BasicFieldProps & {\n  checked?: CheckedState;\n  onChange?: (checked: CheckedState) => void;\n  ref?: React.Ref<HTMLButtonElement>;\n};\n\nexport const FieldCheckbox: React.FC<FieldCheckboxProps> = ({\n  label,\n  labelClassName,\n  labelTooltip,\n  wrapperClassName,\n  errorClassName,\n  formErrors,\n  onChange,\n  ref,\n  ...props\n}) => {\n  return (\n    <FieldWrapper<FieldCheckboxProps>\n      wrapperClassName={wrapperClassName}\n      errorClassName={errorClassName}\n      formErrors={formErrors}\n      {...props}\n    >\n      {(fieldProps) => (\n        <div className=\"flex items-center\">\n          <MedusaCheckbox\n            {...fieldProps}\n            ref={ref}\n            checked={props.checked}\n            onChange={(e) => {}}\n            onCheckedChange={(checked) => {\n              onChange?.(checked);\n            }}\n          />\n\n          {label && (\n            <Label\n              htmlFor={props.name}\n              onClick={() => {\n                onChange?.(!props.checked);\n              }}\n              className={clsx('ml-2 !mb-0 font-normal [&>label]:!cursor-pointer', labelClassName)}\n            >\n              {label}\n            </Label>\n          )}\n        </div>\n      )}\n    </FieldWrapper>\n  );\n};\n"
+    }
+  ]
+}

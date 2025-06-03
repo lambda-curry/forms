@@ -1,0 +1,17 @@
+{
+  "name": "datepicker",
+  "type": "registry:ui",
+  "description": "datepicker component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [
+    "field-wrapper"
+  ],
+  "files": [
+    {
+      "name": "datepicker.tsx",
+      "content": "import { DatePicker } from '@medusajs/ui';\nimport { forwardRef } from 'react';\nimport { FieldWrapper } from './FieldWrapper';\nimport type { BasicFieldProps, DatePickerProps as MedusaDatePickerProps } from './types';\n\nexport type DatePickerProps = MedusaDatePickerProps & BasicFieldProps;\n\nconst Wrapper = FieldWrapper<DatePickerProps>;\n\nexport const DatePickerInput = forwardRef<HTMLInputElement, DatePickerProps>((props, ref) => {\n  return <Wrapper {...props}>{(inputProps) => <DatePicker {...{ ...inputProps, ref }} />}</Wrapper>;\n});\n\nDatePickerInput.displayName = 'DatePickerInput';\n"
+    }
+  ]
+}

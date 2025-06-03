@@ -1,0 +1,15 @@
+{
+  "name": "label",
+  "type": "registry:ui",
+  "description": "label component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "name": "label.tsx",
+      "content": "import { InformationCircle } from '@medusajs/icons';\nimport { Label as MedusaLabel, Tooltip } from '@medusajs/ui';\nimport clsx from 'clsx';\nimport type * as React from 'react';\n\nexport interface LabelProps {\n  htmlFor?: string;\n  children: React.ReactNode;\n  tooltip?: string;\n  className?: string;\n  onClick?: () => void;\n}\n\nexport const Label = ({ htmlFor, children, tooltip, className, ...props }: LabelProps) => (\n  <div className={clsx('flex items-center mb-2 text-gray-500 w-full', className)}>\n    <MedusaLabel htmlFor={htmlFor} size=\"xsmall\" {...props}>\n      {children}\n    </MedusaLabel>\n    {tooltip && (\n      <Tooltip content={tooltip}>\n        <div className=\"flex items-center justify-center ml-1\">\n          <InformationCircle className=\"-scale-75\" />\n        </div>\n      </Tooltip>\n    )}\n  </div>\n);\n"
+    }
+  ]
+}

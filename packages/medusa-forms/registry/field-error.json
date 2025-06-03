@@ -1,0 +1,15 @@
+{
+  "name": "field-error",
+  "type": "registry:ui",
+  "description": "field error component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "name": "error.tsx",
+      "content": "import { ErrorMessage } from '@hookform/error-message';\nimport { Tooltip } from '@medusajs/ui';\nimport clsx from 'clsx';\nimport type { MultipleFieldErrors } from 'react-hook-form';\nimport type { BasicFieldProps } from './types';\n\ntype Props = {\n  className?: BasicFieldProps['errorClassName'];\n  name: BasicFieldProps['name'];\n  errors: BasicFieldProps['formErrors'];\n};\n\nconst MultipleMessages = ({ messages }: { messages: MultipleFieldErrors }) => {\n  const errors = Object.entries(messages).map(([_, message]) => message);\n\n  const displayedError = errors[0];\n  const remainderErrors = errors.slice(1);\n\n  return (\n    <div className=\"flex cursor-default items-center gap-x-1\">\n      <p>{displayedError}</p>\n      {remainderErrors?.length > 0 && (\n        <Tooltip\n          content={\n            <div className=\"txt-compact-xsmall text-rose-50\">\n              {remainderErrors.map((e, i) => {\n                return (\n                  // biome-ignore lint/suspicious/noArrayIndexKey: index is the best option here\n                  <p key={i}>\n                    {Array.from(new Array(remainderErrors.length)).map((_) => '*')}\n                    {e}\n                  </p>\n                );\n              })}\n            </div>\n          }\n        >\n          <p>\n            +{remainderErrors.length} {remainderErrors.length > 1 ? 'errors' : 'error'}\n          </p>\n        </Tooltip>\n      )}\n    </div>\n  );\n};\n\nexport const FieldError = ({ errors, name, className }: Props) => {\n  if (!(errors && name)) return null;\n\n  return (\n    <ErrorMessage\n      name={name}\n      errors={errors}\n      render={({ message, messages }) => {\n        return (\n          <div className={clsx('txt-compact-xsmall !leading-snug mt-2 text-red-500', className)}>\n            {messages ? <MultipleMessages messages={messages} /> : <p>{message}</p>}\n          </div>\n        );\n      }}\n    />\n  );\n};\n"
+    }
+  ]
+}

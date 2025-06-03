@@ -1,0 +1,17 @@
+{
+  "name": "select",
+  "type": "registry:ui",
+  "description": "select component",
+  "dependencies": [
+    "@medusajs/ui"
+  ],
+  "registryDependencies": [
+    "field-wrapper"
+  ],
+  "files": [
+    {
+      "name": "select.tsx",
+      "content": "import { Select as MedusaSelect } from '@medusajs/ui';\nimport { forwardRef } from 'react';\nimport { FieldWrapper } from './FieldWrapper';\nimport type { BasicFieldProps, SelectProps as MedusaSelectProps } from './types';\n\nexport type SelectProps = MedusaSelectProps & BasicFieldProps;\n\nconst Wrapper = FieldWrapper<SelectProps>;\n\nconst SelectComponent = forwardRef<unknown, SelectProps>((props, ref) => {\n  return (\n    <Wrapper {...props}>\n      {(inputProps) => <MedusaSelect {...{ ...inputProps, ref }}>{props.children}</MedusaSelect>}\n    </Wrapper>\n  );\n});\n\nSelectComponent.displayName = 'Select';\n\ntype SelectComponent = typeof SelectComponent & {\n  Trigger: typeof MedusaSelect.Trigger;\n  Value: typeof MedusaSelect.Value;\n  Content: typeof MedusaSelect.Content;\n  Item: typeof MedusaSelect.Item;\n};\n\nexport const Select: SelectComponent = Object.assign(SelectComponent, {\n  Trigger: MedusaSelect.Trigger,\n  Value: MedusaSelect.Value,\n  Content: MedusaSelect.Content,\n  Item: MedusaSelect.Item,\n});\n"
+    }
+  ]
+}

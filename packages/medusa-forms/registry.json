@@ -5,12 +5,142 @@
   "description": "A collection of form components built with @medusajs/ui and react-hook-form",
   "items": [
     {
+      "name": "field-wrapper",
+      "type": "registry:ui",
+      "title": "Field Wrapper",
+      "description": "A wrapper component for form fields with label and error handling",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-error", "label"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/FieldWrapper.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "packages/medusa-forms/src/ui/types.d.ts",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "field-error",
+      "type": "registry:ui",
+      "title": "Field Error",
+      "description": "Error display component for form fields",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/Error.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "Label component with tooltip support",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/Label.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "Input component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/Input.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "field-checkbox",
+      "type": "registry:ui",
+      "title": "Field Checkbox",
+      "description": "Checkbox component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper", "label"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/FieldCheckbox.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Select component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/Select.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "TextArea",
+      "description": "TextArea component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/TextArea.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "datepicker",
+      "type": "registry:ui",
+      "title": "DatePicker",
+      "description": "DatePicker component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/DatePicker.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "currency-input",
+      "type": "registry:ui",
+      "title": "Currency Input",
+      "description": "Currency input component with field wrapper",
+      "dependencies": ["@medusajs/ui"],
+      "registryDependencies": ["field-wrapper"],
+      "files": [
+        {
+          "path": "packages/medusa-forms/src/ui/CurrencyInput.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "controlled-input",
       "type": "registry:ui",
       "title": "Controlled Input",
       "description": "A controlled input component with react-hook-form integration",
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["input"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledInput.tsx",
@@ -23,8 +153,8 @@
       "type": "registry:ui", 
       "title": "Controlled Select",
       "description": "A controlled select component with react-hook-form integration",
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["select"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledSelect.tsx",
@@ -37,8 +167,8 @@
       "type": "registry:ui",
       "title": "Controlled Checkbox", 
       "description": "A controlled checkbox component with react-hook-form integration",
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["field-checkbox"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledCheckbox.tsx",
@@ -51,8 +181,8 @@
       "type": "registry:ui",
       "title": "Controlled TextArea",
       "description": "A controlled textarea component with react-hook-form integration", 
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["textarea"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledTextArea.tsx",
@@ -65,8 +195,8 @@
       "type": "registry:ui",
       "title": "Controlled DatePicker",
       "description": "A controlled date picker component with react-hook-form integration",
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["datepicker"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledDatePicker.tsx",
@@ -79,8 +209,8 @@
       "type": "registry:ui",
       "title": "Controlled Currency Input",
       "description": "A controlled currency input component with react-hook-form integration",
-      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
-      "registryDependencies": [],
+      "dependencies": ["react-hook-form"],
+      "registryDependencies": ["currency-input"],
       "files": [
         {
           "path": "packages/medusa-forms/src/controlled/ControlledCurrencyInput.tsx",

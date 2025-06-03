@@ -1,40 +1,73 @@
 # Medusa Forms shadcn/ui Registry
 
-This package provides a custom shadcn/ui registry for medusa-forms components, allowing developers to install them using the native shadcn CLI.
+This package provides a custom shadcn/ui registry for medusa-forms components, allowing developers to install them using the native shadcn CLI while preserving the valuable field wrapper structure with built-in labels and error handling.
 
 ## Installation
 
-You can install individual medusa-forms components using the shadcn CLI:
+You can install individual medusa-forms components using the shadcn CLI. The registry automatically handles dependencies, so installing a controlled component will also install the necessary UI wrapper components:
 
 ```bash
-# Install individual components
+# Install controlled components (automatically includes UI dependencies)
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-input.json
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-select.json
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-checkbox.json
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-textarea.json
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-datepicker.json
 npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/controlled-currency-input.json
+
+# Or install UI components individually if needed
+npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/input.json
+npx shadcn@latest add https://raw.githubusercontent.com/lambda-curry/forms/main/packages/medusa-forms/registry/field-wrapper.json
 ```
+
+## Architecture
+
+### 🏗️ **Preserved Field Wrapper Structure**
+
+The registry maintains the valuable field wrapper architecture that provides superior UX:
+
+- **FieldWrapper**: Handles labels, tooltips, and error display
+- **UI Components**: Input, Select, Checkbox, etc. with built-in wrapper integration
+- **Controlled Components**: react-hook-form integration with wrapper components
+
+### 📦 **Dependency Management**
+
+The registry automatically handles the dependency chain:
+
+```
+ControlledInput
+└── Input
+    └── FieldWrapper
+        ├── FieldError
+        └── Label
+```
+
+When you install `controlled-input`, shadcn automatically copies:
+- `ControlledInput.tsx` (main component)
+- `Input.tsx` (UI wrapper)
+- `FieldWrapper.tsx` (field wrapper logic)
+- `Error.tsx` (error display)
+- `Label.tsx` (label with tooltip support)
+- `types.d.ts` (TypeScript definitions)
 
 ## Available Components
 
-### ControlledInput
-A controlled input component with react-hook-form integration.
+### Controlled Components (with react-hook-form)
 
+#### ControlledInput
 ```tsx
 import { ControlledInput } from '@/components/ui/controlled-input'
 
 <ControlledInput
   name="email"
-  label="Email"
+  label="Email Address"
   placeholder="Enter your email"
+  labelTooltip="We'll never share your email"
   rules={{ required: 'Email is required' }}
 />
 ```
 
-### ControlledSelect
-A controlled select component with react-hook-form integration.
-
+#### ControlledSelect
 ```tsx
 import { ControlledSelect } from '@/components/ui/controlled-select'
 
@@ -52,22 +85,19 @@ const options = [
 />
 ```
 
-### ControlledCheckbox
-A controlled checkbox component with react-hook-form integration.
-
+#### ControlledCheckbox
 ```tsx
 import { ControlledCheckbox } from '@/components/ui/controlled-checkbox'
 
 <ControlledCheckbox
   name="terms"
   label="I agree to the terms and conditions"
+  description="You must agree to continue"
   rules={{ required: 'You must agree to the terms' }}
 />
 ```
 
-### ControlledTextarea
-A controlled textarea component with react-hook-form integration.
-
+#### ControlledTextarea
 ```tsx
 import { ControlledTextarea } from '@/components/ui/controlled-textarea'
 
@@ -80,9 +110,7 @@ import { ControlledTextarea } from '@/components/ui/controlled-textarea'
 />
 ```
 
-### ControlledDatePicker
-A controlled date picker component with react-hook-form integration.
-
+#### ControlledDatePicker
 ```tsx
 import { ControlledDatePicker } from '@/components/ui/controlled-datepicker'
 
@@ -94,19 +122,46 @@ import { ControlledDatePicker } from '@/components/ui/controlled-datepicker'
 />
 ```
 
-### ControlledCurrencyInput
-A controlled currency input component with react-hook-form integration.
-
+#### ControlledCurrencyInput
 ```tsx
 import { ControlledCurrencyInput } from '@/components/ui/controlled-currency-input'
 
 <ControlledCurrencyInput
   name="price"
   label="Price"
-  placeholder="Enter price"
-  currency="USD"
+  symbol="$"
+  code="USD"
   rules={{ required: 'Price is required' }}
 />
+```
+
+### UI Components (standalone)
+
+#### Input
+```tsx
+import { Input } from '@/components/ui/input'
+
+<Input
+  label="Email"
+  placeholder="Enter email"
+  labelTooltip="Your email address"
+  formErrors={errors}
+  name="email"
+/>
+```
+
+#### FieldWrapper
+```tsx
+import { FieldWrapper } from '@/components/ui/field-wrapper'
+
+<FieldWrapper
+  label="Custom Field"
+  labelTooltip="Additional information"
+  formErrors={errors}
+  name="custom"
+>
+  {(props) => <CustomInput {...props} />}
+</FieldWrapper>
 ```
 
 ## Prerequisites
@@ -120,10 +175,10 @@ Before using these components, make sure you have:
 
 2. **Required dependencies** installed:
    ```bash
-   npm install @medusajs/ui react-hook-form @hookform/error-message
+   npm install @medusajs/ui react-hook-form
    ```
 
-3. **FormProvider setup** in your application:
+3. **FormProvider setup** for controlled components:
    ```tsx
    import { useForm, FormProvider } from 'react-hook-form'
    
@@ -142,12 +197,12 @@ Before using these components, make sure you have:
 
 ## Benefits
 
+✅ **Preserved Architecture**: Maintains valuable field wrapper structure  
+✅ **Built-in Labels & Errors**: Superior UX with integrated label and error handling  
+✅ **Automatic Dependencies**: shadcn handles all component dependencies  
 ✅ **No Custom CLI**: Leverage existing shadcn infrastructure  
+✅ **TypeScript Support**: Full TypeScript compatibility  
 ✅ **Familiar UX**: Developers already know `npx shadcn@latest add`  
-✅ **Auto Dependencies**: shadcn handles npm package installation  
-✅ **TypeScript Support**: Built-in TypeScript compatibility  
-✅ **Zero Maintenance**: No CLI package to maintain  
-✅ **Instant Adoption**: Works with existing shadcn projects  
 ✅ **v0 Compatible**: Components work with v0.dev  
 ✅ **Single Source of Truth**: Components serve both shadcn and npm package usage
 
@@ -157,42 +212,102 @@ Before using these components, make sure you have:
 packages/medusa-forms/
 ├── registry.json              # Main registry configuration
 ├── registry/                  # Component registry files
-│   ├── controlled-input.json
-│   ├── controlled-select.json
-│   ├── controlled-checkbox.json
-│   ├── controlled-textarea.json
-│   ├── controlled-datepicker.json
-│   └── controlled-currency-input.json
-└── src/controlled/           # Unified component source files (shadcn-compatible)
-    ├── ControlledInput.tsx
-    ├── ControlledSelect.tsx
-    ├── ControlledCheckbox.tsx
-    ├── ControlledTextArea.tsx
-    ├── ControlledDatePicker.tsx
-    └── ControlledCurrencyInput.tsx
+│   ├── controlled-*.json      # Controlled components
+│   ├── field-wrapper.json     # Core wrapper component
+│   ├── input.json             # UI components
+│   └── ...
+├── src/controlled/           # Controlled component source files
+│   ├── ControlledInput.tsx
+│   └── ...
+└── src/ui/                   # UI wrapper components
+    ├── FieldWrapper.tsx      # Core field wrapper
+    ├── Input.tsx             # Input with wrapper
+    ├── Error.tsx             # Error display
+    ├── Label.tsx             # Label with tooltip
+    ├── types.d.ts            # TypeScript definitions
+    └── ...
 ```
 
-## Unified Approach
+## Dependency Chain
 
-The components in `src/controlled/` are now **shadcn-compatible** and serve dual purposes:
+The registry manages a complete dependency chain:
 
-- **For shadcn CLI users**: Install via `npx shadcn@latest add [URL]`
-- **For npm package users**: Import directly from `@lambdacurry/medusa-forms`
+```
+Controlled Components
+├── ControlledInput → Input → FieldWrapper → [FieldError, Label]
+├── ControlledSelect → Select → FieldWrapper → [FieldError, Label]
+├── ControlledCheckbox → FieldCheckbox → [FieldWrapper, Label] → [FieldError]
+├── ControlledTextarea → TextArea → FieldWrapper → [FieldError, Label]
+├── ControlledDatePicker → DatePicker → FieldWrapper → [FieldError, Label]
+└── ControlledCurrencyInput → CurrencyInput → FieldWrapper → [FieldError, Label]
 
-### Key Features:
-- **Direct @medusajs/ui usage**: Components use `@medusajs/ui` directly instead of internal wrappers
-- **Built-in labels and error handling**: Includes proper labeling and error display with `@hookform/error-message`
-- **shadcn patterns**: Follows shadcn/ui conventions for styling and structure
-- **Backward compatibility**: Maintains the same API for existing medusa-forms users
+Core Components
+├── FieldWrapper (requires FieldError, Label, types.d.ts)
+├── FieldError (standalone)
+└── Label (standalone)
+```
+
+## Usage Patterns
+
+### 1. **Form with Validation**
+```tsx
+import { useForm, FormProvider } from 'react-hook-form'
+import { ControlledInput, ControlledSelect } from '@/components/ui'
+
+function ContactForm() {
+  const methods = useForm()
+  
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <ControlledInput
+          name="name"
+          label="Full Name"
+          rules={{ required: 'Name is required' }}
+        />
+        <ControlledSelect
+          name="country"
+          label="Country"
+          options={countries}
+          rules={{ required: 'Please select a country' }}
+        />
+      </form>
+    </FormProvider>
+  )
+}
+```
+
+### 2. **Custom Field with Wrapper**
+```tsx
+import { FieldWrapper } from '@/components/ui/field-wrapper'
+
+function CustomField({ name, label, formErrors }) {
+  return (
+    <FieldWrapper
+      name={name}
+      label={label}
+      formErrors={formErrors}
+      labelTooltip="Custom field tooltip"
+    >
+      {(props) => (
+        <div className="custom-input">
+          <input {...props} />
+        </div>
+      )}
+    </FieldWrapper>
+  )
+}
+```
 
 ## Contributing
 
 To add new components to the registry:
 
-1. Create the component in `src/controlled/` following shadcn patterns
-2. Add it to the main `registry.json`
-3. Generate the individual JSON file in `registry/`
-4. Update this documentation
+1. Create the UI component in `src/ui/` following the wrapper pattern
+2. Create the controlled component in `src/controlled/` 
+3. Add both to the main `registry.json` with proper dependencies
+4. Generate the individual JSON files
+5. Update this documentation
 
 ## License
 
