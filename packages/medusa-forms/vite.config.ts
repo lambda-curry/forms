@@ -48,8 +48,8 @@ export default defineConfig({
         {
           format: 'cjs',
           dir: 'dist/cjs',
-          entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
+          entryFileNames: '[name].cjs',
+          chunkFileNames: '[name].cjs',
         },
       ],
       external: [
