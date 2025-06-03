@@ -11,21 +11,23 @@ export default defineConfig({
     dts({
       include: ['src'],
       exclude: ['**/*.stories.tsx', '**/*.test.tsx'],
+      outDir: 'dist/types',
     }),
   ],
   build: {
     lib: {
       entry: {
         index: './src/index.ts',
-        ui: './src/ui/index.ts',
+        'controlled/index': './src/controlled/index.ts',
+        'ui/index': './src/ui/index.ts',
       },
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       input: Object.fromEntries(
         glob
           .sync('src/**/*.{ts,tsx}', {
-            ignore: ['src/**/*.d.ts'],
+            ignore: ['src/**/*.d.ts', '**/*.stories.tsx', '**/*.test.tsx'],
           })
           .map((file) => [
             // The name of the entry point
@@ -36,6 +38,20 @@ export default defineConfig({
             fileURLToPath(new URL(file, import.meta.url)),
           ]),
       ),
+      output: [
+        {
+          format: 'es',
+          dir: 'dist/esm',
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+        },
+        {
+          format: 'cjs',
+          dir: 'dist/cjs',
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+        },
+      ],
       external: [
         'react',
         'react/jsx-runtime',
@@ -65,6 +81,8 @@ export default defineConfig({
         'tailwind-merge',
         'tailwindcss-animate',
         'zod',
+        '@hookform/error-message',
+        '@medusajs/ui',
       ],
     },
   },
