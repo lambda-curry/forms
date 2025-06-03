@@ -149,7 +149,7 @@ Before using these components, make sure you have:
 ✅ **Zero Maintenance**: No CLI package to maintain  
 ✅ **Instant Adoption**: Works with existing shadcn projects  
 ✅ **v0 Compatible**: Components work with v0.dev  
-✅ **Monorepo Structure**: Registry is properly nested within the medusa-forms package
+✅ **Single Source of Truth**: Components serve both shadcn and npm package usage
 
 ## Registry Structure
 
@@ -163,14 +163,7 @@ packages/medusa-forms/
 │   ├── controlled-textarea.json
 │   ├── controlled-datepicker.json
 │   └── controlled-currency-input.json
-├── src/registry/             # Registry-compatible component source files
-│   ├── controlled-input.tsx
-│   ├── controlled-select.tsx
-│   ├── controlled-checkbox.tsx
-│   ├── controlled-textarea.tsx
-│   ├── controlled-datepicker.tsx
-│   └── controlled-currency-input.tsx
-└── src/controlled/           # Original medusa-forms components (unchanged)
+└── src/controlled/           # Unified component source files (shadcn-compatible)
     ├── ControlledInput.tsx
     ├── ControlledSelect.tsx
     ├── ControlledCheckbox.tsx
@@ -179,22 +172,24 @@ packages/medusa-forms/
     └── ControlledCurrencyInput.tsx
 ```
 
-## Relationship to Existing Components
+## Unified Approach
 
-The registry components in `src/registry/` are **shadcn-compatible versions** of the existing medusa-forms components in `src/controlled/`. Key differences:
+The components in `src/controlled/` are now **shadcn-compatible** and serve dual purposes:
 
-- **Registry components**: Use `@medusajs/ui` directly, include built-in labels and error handling, follow shadcn patterns
-- **Original components**: Use internal UI wrappers (`FieldWrapper`, etc.), part of the medusa-forms package API
+- **For shadcn CLI users**: Install via `npx shadcn@latest add [URL]`
+- **For npm package users**: Import directly from `@lambdacurry/medusa-forms`
 
-Both sets of components serve different use cases:
-- Use **registry components** when installing via shadcn CLI into your project
-- Use **original components** when importing the `@lambdacurry/medusa-forms` package directly
+### Key Features:
+- **Direct @medusajs/ui usage**: Components use `@medusajs/ui` directly instead of internal wrappers
+- **Built-in labels and error handling**: Includes proper labeling and error display with `@hookform/error-message`
+- **shadcn patterns**: Follows shadcn/ui conventions for styling and structure
+- **Backward compatibility**: Maintains the same API for existing medusa-forms users
 
 ## Contributing
 
 To add new components to the registry:
 
-1. Create the shadcn-compatible component in `src/registry/`
+1. Create the component in `src/controlled/` following shadcn patterns
 2. Add it to the main `registry.json`
 3. Generate the individual JSON file in `registry/`
 4. Update this documentation

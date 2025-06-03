@@ -13,7 +13,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-input.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledInput.tsx",
           "type": "registry:component"
         }
       ]
@@ -27,7 +27,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-select.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledSelect.tsx",
           "type": "registry:component"
         }
       ]
@@ -41,7 +41,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-checkbox.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledCheckbox.tsx",
           "type": "registry:component"
         }
       ]
@@ -55,7 +55,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-textarea.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledTextArea.tsx",
           "type": "registry:component"
         }
       ]
@@ -69,7 +69,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-datepicker.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledDatePicker.tsx",
           "type": "registry:component"
         }
       ]
@@ -83,7 +83,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/medusa-forms/src/registry/controlled-currency-input.tsx",
+          "path": "packages/medusa-forms/src/controlled/ControlledCurrencyInput.tsx",
           "type": "registry:component"
         }
       ]
