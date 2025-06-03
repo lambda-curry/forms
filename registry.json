@@ -1,0 +1,93 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "medusa-forms",
+  "homepage": "https://forms.lambdacurry.com",
+  "description": "A collection of form components built with @medusajs/ui and react-hook-form",
+  "items": [
+    {
+      "name": "controlled-input",
+      "type": "registry:ui",
+      "title": "Controlled Input",
+      "description": "A controlled input component with react-hook-form integration",
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-input.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "controlled-select",
+      "type": "registry:ui", 
+      "title": "Controlled Select",
+      "description": "A controlled select component with react-hook-form integration",
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-select.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "controlled-checkbox",
+      "type": "registry:ui",
+      "title": "Controlled Checkbox", 
+      "description": "A controlled checkbox component with react-hook-form integration",
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-checkbox.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "controlled-textarea",
+      "type": "registry:ui",
+      "title": "Controlled TextArea",
+      "description": "A controlled textarea component with react-hook-form integration", 
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-textarea.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "controlled-datepicker",
+      "type": "registry:ui",
+      "title": "Controlled DatePicker",
+      "description": "A controlled date picker component with react-hook-form integration",
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-datepicker.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "controlled-currency-input",
+      "type": "registry:ui",
+      "title": "Controlled Currency Input",
+      "description": "A controlled currency input component with react-hook-form integration",
+      "dependencies": ["@medusajs/ui", "react-hook-form", "@hookform/error-message"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/controlled-currency-input.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}
+
