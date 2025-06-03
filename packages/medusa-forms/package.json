@@ -2,18 +2,10 @@
   "name": "@lambdacurry/medusa-forms",
   "version": "0.2.1",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
-    },
     "./controlled": {
       "import": {
         "types": "./dist/controlled/index.d.ts",

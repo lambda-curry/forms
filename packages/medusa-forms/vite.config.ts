@@ -16,7 +16,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: './src/index.ts',
+        controlled: './src/controlled/index.ts',
         ui: './src/ui/index.ts',
       },
       formats: ['es'],
