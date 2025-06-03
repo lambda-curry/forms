@@ -1,41 +1,42 @@
 {
   "name": "@lambdacurry/medusa-forms",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
       },
       "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
       }
     },
     "./controlled": {
       "import": {
-        "types": "./dist/controlled/index.d.ts",
-        "default": "./dist/controlled/index.js"
+        "types": "./dist/types/controlled/index.d.ts",
+        "default": "./dist/esm/controlled/index.js"
       },
       "require": {
-        "types": "./dist/controlled/index.d.ts",
-        "default": "./dist/controlled/index.js"
+        "types": "./dist/types/controlled/index.d.ts",
+        "default": "./dist/cjs/controlled/index.js"
       }
     },
     "./ui": {
       "import": {
-        "types": "./dist/ui/index.d.ts",
-        "default": "./dist/ui/index.js"
+        "types": "./dist/types/ui/index.d.ts",
+        "default": "./dist/esm/ui/index.js"
       },
       "require": {
-        "types": "./dist/ui/index.d.ts",
-        "default": "./dist/ui/index.js"
+        "types": "./dist/types/ui/index.d.ts",
+        "default": "./dist/cjs/ui/index.js"
       }
     }
   },
