@@ -1,7 +1,6 @@
 {
   "name": "@lambdacurry/medusa-forms",
-  "version": "0.2.6",
-  "type": "module",
+  "version": "0.2.7",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
