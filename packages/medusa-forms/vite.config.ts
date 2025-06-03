@@ -17,7 +17,6 @@ export default defineConfig({
     lib: {
       entry: {
         index: './src/index.ts',
-        remix: './src/remix/index.ts',
         ui: './src/ui/index.ts',
       },
       formats: ['es'],
