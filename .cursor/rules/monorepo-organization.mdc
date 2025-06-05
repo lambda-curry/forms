@@ -22,20 +22,13 @@ lambda-curry/forms/
 │   └── docs/                 # Storybook documentation app
 │       ├── src/
 │       │   ├── remix-hook-form/  # Remix Hook Form story files
-│       │   ├── medusa-forms/     # Medusa Forms story files
 │       │   └── lib/              # Storybook utilities
 │       └── package.json
 ├── packages/
-│   ├── components/           # Main component library (Remix Hook Form)
-│   │   ├── src/
-│   │   │   ├── remix-hook-form/  # Form-aware components
-│   │   │   ├── ui/               # Base UI components
-│   │   │   └── index.ts          # Main export file
-│   │   └── package.json
-│   └── medusa-forms/         # Medusa Forms component library
+│   └── components/           # Main component library (Remix Hook Form)
 │       ├── src/
-│       │   ├── controlled/       # Controlled components using react-hook-form
-│       │   ├── ui/               # Base UI components using @medusajs/ui
+│       │   ├── remix-hook-form/  # Form-aware components
+│       │   ├── ui/               # Base UI components
 │       │   └── index.ts          # Main export file
 │       └── package.json
 ├── package.json              # Root package.json
@@ -50,13 +43,8 @@ lambda-curry/forms/
 import { TextField } from '@lambdacurry/forms/remix-hook-form';
 import { Button } from '@lambdacurry/forms/ui';
 
-// ✅ Import from Medusa Forms package
-import { ControlledInput } from '@lambdacurry/medusa-forms/controlled';
-import { Input } from '@lambdacurry/medusa-forms/ui';
-
 // ✅ Import from specific entry points
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
-import { ControlledInput } from '@lambdacurry/medusa-forms/controlled/ControlledInput';
 ```
 
 ### Internal Package Imports
