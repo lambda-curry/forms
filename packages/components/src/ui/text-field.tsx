@@ -1,4 +1,4 @@
-import type * as React from 'react';
+import * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -57,64 +57,57 @@ export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   label?: string;
   description?: string;
   components?: Partial<FieldComponents> & {
-    Input?: React.ComponentType<InputProps>;
+    Input?: React.ComponentType<InputProps & React.RefAttributes<HTMLInputElement>>;
   };
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   className?: string;
 }
 
-export const TextField = ({
-  control,
-  name,
-  label,
-  description,
-  className,
-  components,
-  prefix,
-  suffix,
-  ...props
-}: TextInputProps) => {
-  // Use the custom Input component if provided, otherwise use the default TextInput
-  const InputComponent = components?.Input || TextInput;
+export const TextField = React.forwardRef<HTMLInputElement, TextInputProps>(
+  ({ control, name, label, description, className, components, prefix, suffix, ...props }, ref) => {
+    // Use the custom Input component if provided, otherwise use the default TextInput
+    const InputComponent = components?.Input || TextInput;
 
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => {
-        return (
-          <FormItem className={className}>
-            {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <div
-              className={cn('flex group transition-all duration-200 rounded-md', {
-                'field__input--with-prefix': prefix,
-                'field__input--with-suffix': suffix,
-                'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
-              })}
-            >
-              {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
-              <FormControl Component={components?.FormControl}>
-                <InputComponent
-                  {...field}
-                  {...props}
-                  className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
-                    'rounded-l-none border-l-0': prefix,
-                    'rounded-r-none border-r-0': suffix,
-                  })}
-                />
-              </FormControl>
-              {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
-            </div>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </FormItem>
-        );
-      }}
-    />
-  );
-};
+    return (
+      <FormField
+        control={control}
+        name={name}
+        render={({ field, fieldState }) => {
+          return (
+            <FormItem className={className}>
+              {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
+              <div
+                className={cn('flex group transition-all duration-200 rounded-md', {
+                  'field__input--with-prefix': prefix,
+                  'field__input--with-suffix': suffix,
+                  'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
+                })}
+              >
+                {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+                <FormControl Component={components?.FormControl}>
+                  <InputComponent
+                    {...field}
+                    {...props}
+                    ref={ref}
+                    className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
+                      'rounded-l-none border-l-0': prefix,
+                      'rounded-r-none border-r-0': suffix,
+                    })}
+                  />
+                </FormControl>
+                {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
+              </div>
+              {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+              {fieldState.error && (
+                <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+              )}
+            </FormItem>
+          );
+        }}
+      />
+    );
+  },
+);
 
 TextField.displayName = 'TextField';
