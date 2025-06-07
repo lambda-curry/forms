@@ -4,14 +4,14 @@ import { type CustomComponents, DayPicker } from 'react-day-picker';
 import { buttonVariants } from './button';
 import { cn } from './utils';
 
-export type DatePickerProps = React.ComponentProps<typeof DayPicker>;
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function DatePicker({ className, classNames, showOutsideDays = true, ...props }: DatePickerProps) {
+function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn('p-3', className)}
-      data-slot="date-picker"
+      data-slot="calendar"
       classNames={{
         months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
         month: 'space-y-4',
@@ -52,4 +52,5 @@ function DatePicker({ className, classNames, showOutsideDays = true, ...props }:
   );
 }
 
-export { DatePicker };
+export { Calendar };
+
