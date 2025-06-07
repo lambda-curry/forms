@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
+import { useRef } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { expect, userEvent } from 'storybook/test';
@@ -38,6 +39,8 @@ const ControlledTextFieldExample = () => {
     },
   });
 
+  const ref = useRef<HTMLInputElement>(null);
+
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
@@ -57,6 +60,12 @@ const ControlledTextFieldExample = () => {
             prefix="~"
             suffix="cm"
           />
+
+          <div className="flex gap-2 items-end">
+            <TextField name="refExample" label="Ref Example" placeholder="Enter something, this has a ref" ref={ref} />
+
+            <Button onClick={() => ref.current?.focus()}>Focus the input</Button>
+          </div>
 
           <Button type="submit" className="mt-4">
             Submit
