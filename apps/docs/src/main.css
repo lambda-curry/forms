@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'react-day-picker/src/style.css';
 @source "../../../packages/components";
 
 :root {
@@ -76,4 +77,3 @@ body {
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
 }
-
