@@ -1,4 +1,5 @@
 export * from './button';
+export * from './calendar';
 export * from './checkbox-field';
 export * from './date-picker';
 export * from './date-picker-field';
