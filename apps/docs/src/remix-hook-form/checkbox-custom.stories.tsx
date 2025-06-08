@@ -4,7 +4,7 @@ import type { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/
 import { Button } from '@lambdacurry/forms/ui/button';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import type * as React from 'react';
 import type { ActionFunctionArgs } from 'react-router';
 import { useFetcher } from 'react-router';

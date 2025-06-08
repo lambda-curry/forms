@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -84,34 +84,6 @@ const meta: Meta<typeof Checkbox> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
-  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
-  const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
-  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-  expect(termsCheckbox).not.toBeChecked();
-  expect(marketingCheckbox).not.toBeChecked();
-  expect(requiredCheckbox).not.toBeChecked();
-};
-
-const testInvalidSubmission = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-  await expect(await canvas.findByText('You must accept the terms and conditions')).toBeInTheDocument();
-  await expect(await canvas.findByText('This field is required')).toBeInTheDocument();
-};
-
-const testValidSubmission = async ({ canvas }: StoryContext) => {
-  const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
-  const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-  await userEvent.click(termsCheckbox);
-  await userEvent.click(requiredCheckbox);
-
-  const submitButton = canvas.getByRole('button', { name: 'Submit' });
-  await userEvent.click(submitButton);
-
-  await expect(await canvas.findByText('Form submitted successfully')).toBeInTheDocument();
-};
-
 export const Default: Story = {
   parameters: {
     docs: {
@@ -161,9 +133,48 @@ const ControlledCheckboxExample = () => {
       },
     },
   },
-  play: async (storyContext) => {
-    testDefaultValues(storyContext);
-    await testInvalidSubmission(storyContext);
-    await testValidSubmission(storyContext);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state', async () => {
+      // Verify all checkboxes are unchecked initially
+      const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
+      const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
+      const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
+      
+      expect(termsCheckbox).not.toBeChecked();
+      expect(marketingCheckbox).not.toBeChecked();
+      expect(requiredCheckbox).not.toBeChecked();
+      
+      // Verify submit button is present
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      expect(submitButton).toBeInTheDocument();
+    });
+
+    await step('Test validation errors on invalid submission', async () => {
+      // Submit form without checking required checkboxes
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+      
+      // Verify validation error messages appear
+      await expect(canvas.findByText('You must accept the terms and conditions')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('This field is required')).resolves.toBeInTheDocument();
+    });
+
+    await step('Test successful form submission', async () => {
+      // Check required checkboxes
+      const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
+      const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
+      
+      await userEvent.click(termsCheckbox);
+      await userEvent.click(requiredCheckbox);
+      
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+      
+      // Verify success message
+      await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
+    });
   },
 };
