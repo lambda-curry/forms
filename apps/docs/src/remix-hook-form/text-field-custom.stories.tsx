@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
-import type { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
+import { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { Input } from '@lambdacurry/forms/ui/input';
 import type { Meta, StoryObj } from '@storybook/react-vite';
