@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -118,22 +118,41 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Toggle switches
-    const notificationsSwitch = canvas.getByLabelText('Enable notifications');
-    const marketingSwitch = canvas.getByLabelText('Receive marketing emails');
+    await step('Verify initial state', async () => {
+      // Verify switches are initially unchecked
+      const notificationsSwitch = canvas.getByLabelText('Enable notifications');
+      const marketingSwitch = canvas.getByLabelText('Receive marketing emails');
+      
+      expect(notificationsSwitch).not.toBeChecked();
+      expect(marketingSwitch).not.toBeChecked();
+      
+      // Verify submit button is present
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      expect(submitButton).toBeInTheDocument();
+    });
 
-    await userEvent.click(notificationsSwitch);
-    expect(notificationsSwitch).toBeChecked();
+    await step('Toggle switches and verify state', async () => {
+      // Toggle notifications switch
+      const notificationsSwitch = canvas.getByLabelText('Enable notifications');
+      await userEvent.click(notificationsSwitch);
+      expect(notificationsSwitch).toBeChecked();
+      
+      // Marketing switch should remain unchecked
+      const marketingSwitch = canvas.getByLabelText('Receive marketing emails');
+      expect(marketingSwitch).not.toBeChecked();
+    });
 
-    // Submit the form
-    const submitButton = canvas.getByRole('button', { name: 'Submit' });
-    await userEvent.click(submitButton);
+    await step('Submit form and verify results', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
 
-    // Check if the submitted values are displayed
-    await expect(await canvas.findByText('Notifications: Enabled')).toBeInTheDocument();
-    await expect(await canvas.findByText('Marketing emails: Disabled')).toBeInTheDocument();
+      // Check if the submitted values are displayed correctly
+      await expect(canvas.findByText('Notifications: Enabled')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Marketing emails: Disabled')).resolves.toBeInTheDocument();
+    });
   },
 };

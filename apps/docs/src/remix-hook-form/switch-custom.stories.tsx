@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
+import type { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { FormLabel, FormMessage } from '@lambdacurry/forms/ui/form';
-import * as SwitchPrimitives from '@radix-ui/react-switch';
+import * as SwitchPrimitive from '@radix-ui/react-switch';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import type * as React from 'react';
 import type { ActionFunctionArgs } from 'react-router';
 import { useFetcher } from 'react-router';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -21,19 +21,19 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom Switch component
-const PurpleSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>) => (
-  <SwitchPrimitives.Root
+const PurpleSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>) => (
+  <SwitchPrimitive.Root
     {...props}
     className="peer inline-flex h-8 w-16 shrink-0 cursor-pointer items-center rounded-full border-2 border-purple-300 bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-purple-200"
   >
     {props.children}
-  </SwitchPrimitives.Root>
+  </SwitchPrimitive.Root>
 );
 PurpleSwitch.displayName = 'PurpleSwitch';
 
 // Custom Switch Thumb component
-const PurpleSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>) => (
-  <SwitchPrimitives.Thumb
+const PurpleSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Thumb>) => (
+  <SwitchPrimitive.Thumb
     {...props}
     className="pointer-events-none flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-8 data-[state=unchecked]:translate-x-0 relative overflow-hidden data-[state=checked]:[--on-opacity:1] data-[state=checked]:[--off-opacity:0] data-[state=unchecked]:[--on-opacity:0] data-[state=unchecked]:[--off-opacity:1]"
   >
@@ -43,7 +43,7 @@ const PurpleSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPr
     <span className="absolute inset-0 opacity-[var(--off-opacity)] flex items-center justify-center text-xs font-bold text-purple-600 transition-opacity duration-200 z-10">
       OFF
     </span>
-  </SwitchPrimitives.Thumb>
+  </SwitchPrimitive.Thumb>
 );
 PurpleSwitchThumb.displayName = 'PurpleSwitchThumb';
 
@@ -60,19 +60,19 @@ const PurpleMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>
 PurpleMessage.displayName = 'PurpleMessage';
 
 // Green Switch component
-const GreenSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>) => (
-  <SwitchPrimitives.Root
+const GreenSwitch = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>) => (
+  <SwitchPrimitive.Root
     {...props}
     className="peer inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-green-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-white"
   >
     {props.children}
-  </SwitchPrimitives.Root>
+  </SwitchPrimitive.Root>
 );
 GreenSwitch.displayName = 'GreenSwitch';
 
 // Green Switch Thumb component
-const GreenSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Thumb>) => (
-  <SwitchPrimitives.Thumb
+const GreenSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Thumb>) => (
+  <SwitchPrimitive.Thumb
     {...props}
     className="pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-green-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0 data-[state=checked]:bg-white"
   >
@@ -86,7 +86,7 @@ const GreenSwitchThumb = (props: React.ComponentPropsWithoutRef<typeof SwitchPri
       <title>Check mark</title>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
-  </SwitchPrimitives.Thumb>
+  </SwitchPrimitive.Thumb>
 );
 GreenSwitchThumb.displayName = 'GreenSwitchThumb';
 
@@ -234,17 +234,17 @@ The \`components\` prop allows you to override any of the internal components us
 
 // APPROACH 2: Custom Switch with purple styling and ON/OFF text
 const PurpleSwitch = React.forwardRef((props, ref) => (
-  <SwitchPrimitives.Root
+  <SwitchPrimitive.Root
     ref={ref}
     {...props}
     className="peer inline-flex h-8 w-16 shrink-0 cursor-pointer items-center rounded-full border-2 border-purple-300 bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-purple-200"
   >
     {props.children}
-  </SwitchPrimitives.Root>
+  </SwitchPrimitive.Root>
 ));
 
 const PurpleSwitchThumb = React.forwardRef((props, ref) => (
-  <SwitchPrimitives.Thumb
+  <SwitchPrimitive.Thumb
     ref={ref}
     {...props}
     className="pointer-events-none flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-8 data-[state=unchecked]:translate-x-0 relative overflow-hidden data-[state=checked]:[--on-opacity:1] data-[state=checked]:[--off-opacity:0] data-[state=unchecked]:[--on-opacity:0] data-[state=unchecked]:[--off-opacity:1]"
@@ -255,7 +255,7 @@ const PurpleSwitchThumb = React.forwardRef((props, ref) => (
     <span className="absolute inset-0 opacity-[var(--off-opacity)] flex items-center justify-center text-xs font-bold text-purple-600 transition-opacity duration-200 z-10">
       OFF
     </span>
-  </SwitchPrimitives.Thumb>
+  </SwitchPrimitive.Thumb>
 ));
 
 <Switch 
@@ -270,17 +270,17 @@ const PurpleSwitchThumb = React.forwardRef((props, ref) => (
 
 // APPROACH 3: Fully customized switch with green styling, checkmark icon, and custom form components
 const GreenSwitch = React.forwardRef((props, ref) => (
-  <SwitchPrimitives.Root
+  <SwitchPrimitive.Root
     ref={ref}
     {...props}
     className="peer inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-green-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-white"
   >
     {props.children}
-  </SwitchPrimitives.Root>
+  </SwitchPrimitive.Root>
 ));
 
 const GreenSwitchThumb = React.forwardRef((props, ref) => (
-  <SwitchPrimitives.Thumb
+  <SwitchPrimitive.Thumb
     ref={ref}
     {...props}
     className="pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-green-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0 data-[state=checked]:bg-white"
@@ -294,7 +294,7 @@ const GreenSwitchThumb = React.forwardRef((props, ref) => (
     >
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
-  </SwitchPrimitives.Thumb>
+  </SwitchPrimitive.Thumb>
 ));
 
 const PurpleLabel = React.forwardRef((props, ref) => (
