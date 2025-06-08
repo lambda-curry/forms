@@ -2,9 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DatePicker } from '@lambdacurry/forms/remix-hook-form/date-picker';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
-import { userEvent, within } from 'storybook/test';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -102,26 +102,42 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find and click the date picker trigger button
-    const datePickerTrigger = await canvas.findByRole('button', { name: /select a date/i });
-    await userEvent.click(datePickerTrigger);
+    await step('Verify initial state', async () => {
+      // Verify the date picker trigger is present and has correct label
+      const datePickerTrigger = canvas.getByRole('button', { name: /select a date/i });
+      expect(datePickerTrigger).toBeInTheDocument();
 
-    // Wait for calendar dialog to appear (it's rendered in a portal)
-    const dialog = await within(document.body).findByRole('dialog');
-    const dialogCanvas = within(dialog);
+      // Verify submit button is present but form hasn't been submitted yet
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      expect(submitButton).toBeInTheDocument();
+      expect(canvas.queryByText('Submitted with date:')).not.toBeInTheDocument();
+    });
 
-    // Find a specific day button in the calendar using complete aria-label to avoid ambiguity
-    const dayButton = await dialogCanvas.findByRole('button', { name: 'Sunday, June 1st, 2025' });
-    await userEvent.click(dayButton);
+    await step('Open calendar and select date', async () => {
+      // Find and click the date picker trigger button
+      const datePickerTrigger = canvas.getByRole('button', { name: /select a date/i });
+      await userEvent.click(datePickerTrigger);
 
-    // Submit the form
-    const submitButton = await canvas.findByRole('button', { name: /submit/i });
-    await userEvent.click(submitButton);
+      // Wait for calendar dialog to appear (it's rendered in a portal)
+      const dialog = await within(document.body).findByRole('dialog');
+      const dialogCanvas = within(dialog);
 
-    // Verify submission
-    await canvas.findByText('Submitted with date:');
+      // Find a specific day button in the calendar using complete aria-label to avoid ambiguity
+      const dayButton = await dialogCanvas.findByRole('button', { name: 'Sunday, June 1st, 2025' });
+      await userEvent.click(dayButton);
+    });
+
+    await step('Submit form and verify success', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
+
+      // Verify submission with comprehensive assertions
+      await expect(canvas.findByText('Submitted with date:')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/6\/1\/2025|1\/6\/2025/)).resolves.toBeInTheDocument();
+    });
   },
 };

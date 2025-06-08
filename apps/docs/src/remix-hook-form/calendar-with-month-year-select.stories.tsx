@@ -4,10 +4,10 @@ import { Calendar } from '@lambdacurry/forms/ui/calendar';
 import { Label } from '@lambdacurry/forms/ui/label';
 import { Select } from '@lambdacurry/forms/ui/select';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
 import * as React from 'react';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
-import { expect, userEvent, within } from 'storybook/test';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -178,9 +178,6 @@ const meta: Meta<typeof CalendarWithMonthYearSelect> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Helper function for sleep delays
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export const Default: Story = {
   parameters: {
     docs: {
@@ -189,51 +186,53 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for initial render
-    await sleep(500);
+    await step('Verify initial state', async () => {
+      // Verify the dropdown select button is present with default text
+      const dropdownSelectButton = await canvas.findByText('Month and Year');
+      expect(dropdownSelectButton).toBeInTheDocument();
 
-    // Find the dropdown select button
-    const dropdownSelectButton = await canvas.findByRole('combobox', { expanded: false });
-    expect(dropdownSelectButton).toBeInTheDocument();
+      // Verify submit button is present but form hasn't been submitted yet
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      expect(submitButton).toBeInTheDocument();
+      expect(canvas.queryByText('Submitted with:')).not.toBeInTheDocument();
+    });
 
-    // Click to open the dropdown
-    await userEvent.click(dropdownSelectButton);
-    await sleep(500);
+    await step('Change dropdown to Month Only', async () => {
+      // Find and click the dropdown select button (use text content)
+      const dropdownSelectButton = canvas.getByText('Month and Year');
+      await userEvent.click(dropdownSelectButton);
 
-    // Find and click "Month Only" option - look in the popover content
-    const monthOnlyOption =
-      document.querySelector('[data-value="dropdown-months"]') || (await canvas.findByText('Month Only'));
-    await userEvent.click(monthOnlyOption);
-    await sleep(300);
+      // Find and click "Month Only" option
+      const monthOnlyOption = await within(document.body).findByText('Month Only');
+      await userEvent.click(monthOnlyOption);
 
-    // Verify the dropdown closed and selection changed
-    expect(dropdownSelectButton).toHaveTextContent('Month Only');
+      // Verify the dropdown selection changed by checking the new text
+      expect(canvas.getByText('Month Only')).toBeInTheDocument();
+    });
 
-    // Find a day in the calendar to click
-    const dayButtons = await canvas.findAllByRole('gridcell');
-    const availableDay = dayButtons.find(
-      (day) => day.textContent && /^\d+$/.test(day.textContent.trim()) && !day.hasAttribute('aria-disabled'),
-    ) as HTMLElement;
+    await step('Navigate calendar and select a date', async () => {
+      // Use the calendar's month dropdown to navigate to July (month 7)
+      const monthDropdown = canvas.getByLabelText('Choose the Month');
+      await userEvent.selectOptions(monthDropdown, '6'); // June is month 6 (0-indexed)
 
-    console.log('>>>> availableDay', availableDay);
+      // Find a specific date button using aria-label (includes day of week)
+      const dateButton = await canvas.findByRole('button', { name: /15th, 2025/i });
+      await userEvent.click(dateButton);
+    });
 
-    await userEvent.click(availableDay);
-    await sleep(300);
+    await step('Submit form and verify success', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
 
-    // Find and click the submit button
-    const submitButton = await canvas.findByRole('button', { name: /submit/i });
-    await userEvent.click(submitButton);
-
-    // Wait for form submission
-    await sleep(1000);
-
-    // Verify submission results
-    expect(canvas.getByText('Submitted with:')).toBeInTheDocument();
-    expect(canvas.getByText(/Date:/)).toBeInTheDocument();
-    expect(canvas.getByText('Dropdown Type: dropdown-months')).toBeInTheDocument();
+      // Verify submission results with comprehensive assertions
+      await expect(canvas.findByText('Submitted with:')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Date:/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Dropdown Type: dropdown-months')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -245,50 +244,44 @@ export const YearOnlyDropdown: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for initial render
-    await sleep(500);
+    await step('Verify initial state and change to Year Only', async () => {
+      // Find the dropdown select button (use text content)
+      const dropdownSelectButton = await canvas.findByText('Month and Year');
+      expect(dropdownSelectButton).toBeInTheDocument();
 
-    // Find the dropdown select button
-    const dropdownSelectButton = await canvas.findByRole('combobox', { expanded: false });
-    expect(dropdownSelectButton).toBeInTheDocument();
+      // Click to open the dropdown
+      await userEvent.click(dropdownSelectButton);
 
-    // Click to open the dropdown
-    await userEvent.click(dropdownSelectButton);
-    await sleep(500);
+      // Find and click "Year Only" option
+      const yearOnlyOption = await within(document.body).findByText('Year Only');
+      await userEvent.click(yearOnlyOption);
 
-    // Find and click "Year Only" option - look in the popover content
-    const yearOnlyOption =
-      document.querySelector('[data-value="dropdown-years"]') || (await canvas.findByText('Year Only'));
-    await userEvent.click(yearOnlyOption);
-    await sleep(300);
+      // Verify the dropdown selection changed by checking the new text
+      expect(canvas.getByText('Year Only')).toBeInTheDocument();
+    });
 
-    // Verify the dropdown closed and selection changed
-    expect(dropdownSelectButton).toHaveTextContent('Year Only');
+    await step('Navigate calendar and select a date', async () => {
+      // With year-only dropdown, we should see the year dropdown
+      const yearDropdown = canvas.getByLabelText('Choose the Year');
+      expect(yearDropdown).toBeInTheDocument();
 
-    // Test calendar interaction with year-only dropdown
-    const dayButtons = await canvas.findAllByRole('gridcell');
-    const availableDay = dayButtons.find(
-      (day) => day.textContent && /^\d+$/.test(day.textContent.trim()) && !day.hasAttribute('aria-disabled'),
-    ) as HTMLElement;
+      // Find a specific date button using aria-label (includes day of week and year)
+      const dateButton = await canvas.findByRole('button', { name: /15th, 2025/ });
+      await userEvent.click(dateButton);
+    });
 
-    console.log('>>>> availableDay', availableDay);
+    await step('Submit form and verify success', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
 
-    if (availableDay) {
-      await userEvent.click(availableDay);
-      await sleep(300);
-    }
-
-    // Submit the form
-    const submitButton = await canvas.findByRole('button', { name: /submit/i });
-    await userEvent.click(submitButton);
-    await sleep(1000);
-
-    // Verify submission with year-only dropdown
-    expect(canvas.getByText('Submitted with:')).toBeInTheDocument();
-    expect(canvas.getByText('Dropdown Type: dropdown-years')).toBeInTheDocument();
+      // Verify submission with year-only dropdown
+      await expect(canvas.findByText('Submitted with:')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Dropdown Type: dropdown-years')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -300,41 +293,44 @@ export const MonthAndYearDropdown: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for initial render
-    await sleep(500);
+    await step('Verify initial state with default dropdown', async () => {
+      // Verify default dropdown selection (use text content)
+      const dropdownSelectButton = await canvas.findByText('Month and Year');
+      expect(dropdownSelectButton).toBeInTheDocument();
 
-    // Verify default dropdown selection
-    const dropdownSelectButton = await canvas.findByRole('combobox', { expanded: false });
-    expect(dropdownSelectButton).toHaveTextContent('Month and Year');
+      // Test calendar navigation with month/year dropdowns
+      // Verify both month and year dropdowns are present
+      const monthDropdown = canvas.getByLabelText('Choose the Month');
+      const yearDropdown = canvas.getByLabelText('Choose the Year');
+      expect(monthDropdown).toBeInTheDocument();
+      expect(yearDropdown).toBeInTheDocument();
+    });
 
-    // Test calendar navigation with month/year dropdowns
-    // Look for month/year dropdown elements in the calendar
-    const calendarDropdowns = document.querySelectorAll('[data-slot="calendar"] select');
-    expect(calendarDropdowns.length).toBeGreaterThan(0);
+    await step('Navigate calendar and select a date', async () => {
+      // Use both month and year dropdowns to navigate
+      const monthDropdown = canvas.getByLabelText('Choose the Month');
+      const yearDropdown = canvas.getByLabelText('Choose the Year');
 
-    // Select a date
-    const dayButtons = await canvas.findAllByRole('gridcell');
-    const availableDay = dayButtons.find(
-      (day) => day.textContent && /^\d+$/.test(day.textContent.trim()) && !day.hasAttribute('aria-disabled'),
-    ) as HTMLElement;
+      // Navigate to July 2025
+      await userEvent.selectOptions(monthDropdown, '6'); // June is month 6 (0-indexed)
+      await userEvent.selectOptions(yearDropdown, '2025');
 
-    console.log('>>>> availableDay', availableDay);
+      // Find a specific date button using aria-label (includes day of week)
+      const dateButton = await canvas.findByRole('button', { name: /15th, 2025/i });
+      await userEvent.click(dateButton);
+    });
 
-    if (availableDay) {
-      await userEvent.click(availableDay);
-      await sleep(300);
-    }
+    await step('Submit form and verify success', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
 
-    // Submit the form
-    const submitButton = await canvas.findByRole('button', { name: /submit/i });
-    await userEvent.click(submitButton);
-    await sleep(1000);
-
-    // Verify submission with default dropdown
-    expect(canvas.getByText('Submitted with:')).toBeInTheDocument();
-    expect(canvas.getByText('Dropdown Type: dropdown')).toBeInTheDocument();
+      // Verify submission with default dropdown
+      await expect(canvas.findByText('Submitted with:')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Dropdown Type: dropdown')).resolves.toBeInTheDocument();
+    });
   },
 };
