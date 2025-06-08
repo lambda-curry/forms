@@ -3,9 +3,9 @@ import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, type within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -136,6 +136,10 @@ const meta: Meta<typeof Checkbox> = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+interface StoryContext {
+  canvas: ReturnType<typeof within>;
+}
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
   AVAILABLE_COLORS.forEach(({ label }) => {
