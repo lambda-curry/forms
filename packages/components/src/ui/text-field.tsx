@@ -57,14 +57,14 @@ export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   label?: string;
   description?: string;
   components?: Partial<FieldComponents> & {
-    Input?: React.ComponentType<InputProps>;
+    Input?: React.ComponentType<InputProps & React.RefAttributes<HTMLInputElement>>;
   };
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   className?: string;
 }
 
-export const TextField = ({
+export const TextField = function TextField({
   control,
   name,
   label,
@@ -73,8 +73,9 @@ export const TextField = ({
   components,
   prefix,
   suffix,
+  ref,
   ...props
-}: TextInputProps) => {
+}: TextInputProps & { ref?: React.Ref<HTMLInputElement> }) {
   // Use the custom Input component if provided, otherwise use the default TextInput
   const InputComponent = components?.Input || TextInput;
 
@@ -98,6 +99,7 @@ export const TextField = ({
                 <InputComponent
                   {...field}
                   {...props}
+                  ref={ref}
                   className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
                     'rounded-l-none border-l-0': prefix,
                     'rounded-r-none border-r-0': suffix,
