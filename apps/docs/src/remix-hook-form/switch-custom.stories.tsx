@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
-import type { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
+import { FormLabel, FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 import type { Meta, StoryObj } from '@storybook/react-vite';
