@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
+import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { FormMessage } from '@lambdacurry/forms/ui/form';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from 'storybook/test';
-import type {} from '@testing-library/dom';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, type within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -137,6 +136,10 @@ const meta: Meta<typeof Checkbox> = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+interface StoryContext {
+  canvas: ReturnType<typeof within>;
+}
 
 const testDefaultValues = ({ canvas }: StoryContext) => {
   AVAILABLE_COLORS.forEach(({ label }) => {
