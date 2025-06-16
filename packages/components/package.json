@@ -24,9 +24,7 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "prepublishOnly": "yarn run build",
     "build": "vite build",
