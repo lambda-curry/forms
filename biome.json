@@ -5,7 +5,7 @@
     "clientKind": "git",
     "useIgnoreFile": false
   },
-  "files": { "ignoreUnknown": false, "ignore": [".turbo", "yarn.lock"] },
+  "files": { "ignoreUnknown": false, "ignore": [".turbo", "yarn.lock", "dist", "node_modules", "storybook-static"] },
   "organizeImports": { "enabled": true },
   "formatter": {
     "enabled": true,
@@ -45,6 +45,8 @@
         "noBarrelFile": "off"
       },
       "suspicious": {
+        "noConsoleLog": "off",
+        "noConsole": "off",
         "noReactSpecificProps": "off"
       },
       "correctness": {

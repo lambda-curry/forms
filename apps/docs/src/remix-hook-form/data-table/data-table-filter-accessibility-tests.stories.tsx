@@ -312,6 +312,6 @@ export const AriaAttributesTest: Story = {
     // Test ARIA attributes
     await testAriaAttributes(storyContext);
 
-    console.log('✅ ARIA attributes tests completed');
+    console.info('✅ ARIA attributes tests completed');
   },
 };

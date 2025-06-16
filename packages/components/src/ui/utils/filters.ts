@@ -13,4 +13,3 @@ export const filtersArraySchema = z.array(filterItemSchema);
 
 // Export the type for the filters state
 export type FiltersState = z.infer<typeof filtersArraySchema>;
-

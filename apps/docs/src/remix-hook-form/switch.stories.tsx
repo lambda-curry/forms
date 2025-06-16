@@ -3,7 +3,7 @@ import { Switch } from '@lambdacurry/forms/remix-hook-form/switch';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
-import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
+import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
@@ -125,10 +125,10 @@ export const Default: Story = {
       // Verify switches are initially unchecked
       const notificationsSwitch = canvas.getByLabelText('Enable notifications');
       const marketingSwitch = canvas.getByLabelText('Receive marketing emails');
-      
+
       expect(notificationsSwitch).not.toBeChecked();
       expect(marketingSwitch).not.toBeChecked();
-      
+
       // Verify submit button is present
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       expect(submitButton).toBeInTheDocument();
@@ -139,7 +139,7 @@ export const Default: Story = {
       const notificationsSwitch = canvas.getByLabelText('Enable notifications');
       await userEvent.click(notificationsSwitch);
       expect(notificationsSwitch).toBeChecked();
-      
+
       // Marketing switch should remain unchecked
       const marketingSwitch = canvas.getByLabelText('Receive marketing emails');
       expect(marketingSwitch).not.toBeChecked();
