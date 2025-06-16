@@ -21,6 +21,7 @@ export * from './textarea';
 export * from './utils';
 export * from './table';
 export * from './data-table';
+export * from './data-table-filter';
 export * from './badge';
 export * from './command';
 export * from './select';

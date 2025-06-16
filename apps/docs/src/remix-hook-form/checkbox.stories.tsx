@@ -141,11 +141,11 @@ const ControlledCheckboxExample = () => {
       const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
       const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');
       const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-      
+
       expect(termsCheckbox).not.toBeChecked();
       expect(marketingCheckbox).not.toBeChecked();
       expect(requiredCheckbox).not.toBeChecked();
-      
+
       // Verify submit button is present
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       expect(submitButton).toBeInTheDocument();
@@ -155,7 +155,7 @@ const ControlledCheckboxExample = () => {
       // Submit form without checking required checkboxes
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
-      
+
       // Verify validation error messages appear
       await expect(canvas.findByText('You must accept the terms and conditions')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('This field is required')).resolves.toBeInTheDocument();
@@ -165,14 +165,14 @@ const ControlledCheckboxExample = () => {
       // Check required checkboxes
       const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
       const requiredCheckbox = canvas.getByLabelText('This is a required checkbox');
-      
+
       await userEvent.click(termsCheckbox);
       await userEvent.click(requiredCheckbox);
-      
+
       // Submit form
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
-      
+
       // Verify success message
       await expect(canvas.findByText('Form submitted successfully')).resolves.toBeInTheDocument();
     });

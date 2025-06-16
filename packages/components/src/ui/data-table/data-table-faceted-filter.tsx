@@ -53,13 +53,13 @@ export function DataTableFacetedFilter<TData>({
         next.add(value);
       }
       const filterValues = Array.from(next);
-      
+
       if (onValuesChange) {
         onValuesChange(filterValues);
       } else if (column) {
         column.setFilterValue(filterValues.length ? filterValues : undefined);
       }
-      
+
       return next;
     });
   };

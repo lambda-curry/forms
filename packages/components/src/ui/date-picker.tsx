@@ -1,18 +1,18 @@
 import type * as React from 'react';
-import { DayPicker } from 'react-day-picker';
+import type { DayPicker } from 'react-day-picker';
 import { Calendar } from './calendar';
 
 export type DatePickerProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Calendar>['buttonVariant'];
 };
 
-function DatePicker({ 
-  className, 
-  classNames, 
-  showOutsideDays = true, 
+function DatePicker({
+  className,
+  classNames,
+  showOutsideDays = true,
   captionLayout = 'dropdown',
   buttonVariant = 'ghost',
-  ...props 
+  ...props
 }: DatePickerProps) {
   return (
     <Calendar
@@ -28,4 +28,3 @@ function DatePicker({
 }
 
 export { DatePicker };
-

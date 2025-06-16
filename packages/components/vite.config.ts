@@ -54,6 +54,7 @@ export default defineConfig({
         '@radix-ui/react-switch',
         '@radix-ui/react-tooltip',
         'react-router',
+        'react-router-dom',
         '@react-router/node',
         'class-variance-authority',
         'clsx',
