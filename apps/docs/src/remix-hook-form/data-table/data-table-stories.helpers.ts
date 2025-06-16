@@ -230,6 +230,5 @@ export { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '
 export type { ColumnDef, PaginationState, SortingState, OnChangeFn } from '@tanstack/react-table';
 export { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 export { useMemo } from 'react';
-export { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate } from 'react-router';
-export { useSearchParams } from 'react-router-dom';
+export { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate, useSearchParams } from 'react-router';
 export { withReactRouterStubDecorator } from '../../lib/storybook/react-router-stub';

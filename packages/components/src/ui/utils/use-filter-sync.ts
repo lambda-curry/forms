@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import type { BazzaFiltersState } from '../../remix-hook-form/data-table-router-parsers';
 import { dataTableRouterParsers } from '../../remix-hook-form/data-table-router-parsers';
 

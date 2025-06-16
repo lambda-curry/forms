@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useMemo } from 'react';
-import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router';
 import { columnConfigs, columns } from './data-table-stories.components';
 import {
   type DataResponse,
@@ -286,8 +285,7 @@ export const ServerDriven: Story = {
       source: {
         code: `
 import { useMemo } from 'react';
-import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router';
 import {
   DataTable,
   DataTableFilter,
