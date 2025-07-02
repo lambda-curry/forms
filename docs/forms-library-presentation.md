@@ -7,47 +7,175 @@ header: 'LambdaCurry Forms Library'
 footer: 'Built with ❤️ by Lambda Curry'
 style: |
   section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 1.6;
   }
   h1, h2, h3 {
     color: #ffffff;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: none;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #f7fafc;
+    font-weight: 700;
+    padding-bottom: 0 !important;
+  }
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    margin-top: .5rem !important;
+  }
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  p, li {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
   }
   code {
-    background: rgba(255,255,255,0.1);
+    background: #0d1117;
+    border: 1px solid #30363d;
     border-radius: 4px;
-    padding: 2px 6px;
+    padding: 4px 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
   }
   pre {
-    background: rgba(0,0,0,0.3);
+    background: #0d1117;
     border-radius: 8px;
-    padding: 20px;
-    border-left: 4px solid #4CAF50;
+    padding: 24px;
+    border: 2px solid #30363d;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #ffffff;
+  }
+  pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #ffffff;
   }
   .columns {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 2rem;
     align-items: start;
   }
   .highlight {
-    background: rgba(255,255,255,0.1);
-    padding: 20px;
+    background: #2d3748;
+    border: 2px solid #63b3ed;
+    padding: 24px;
     border-radius: 8px;
-    border-left: 4px solid #FFD700;
+    margin: 1rem 0;
   }
   .architecture-box {
-    background: rgba(255,255,255,0.1);
-    padding: 15px;
+    background: #2d3748;
+    border: 2px solid #68d391;
+    padding: 20px;
     border-radius: 8px;
-    margin: 10px 0;
-    border: 2px solid rgba(255,255,255,0.2);
+    margin: 1rem 0;
+  }
+  .success-checkmark {
+    color: #68d391;
+    font-weight: bold;
+  }
+  .warning-icon {
+    color: #fbd38d;
+    font-weight: bold;
+  }
+  .info-icon {
+    color: #63b3ed;
+    font-weight: bold;
+  }
+  ul, ol {
+    padding-left: 1.5rem;
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  strong {
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+  em {
+    color: #cbd5e0;
+    font-style: italic;
+  }
+  /* High contrast focus indicators */
+  button:focus, a:focus {
+    outline: 3px solid #63b3ed;
+    outline-offset: 2px;
+  }
+  /* Ensure good contrast for links */
+  a {
+    color: #63b3ed;
+    text-decoration: underline;
+  }
+  a:hover {
+    color: #90cdf4;
+  }
+  /* Header and footer styling */
+  header {
+    color: #f7fafc !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  footer {
+    color: #f7fafc !important;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  /* High-Contrast Highlight.js Syntax Theme */
+  .hljs {
+    color: #ffffff;
+    background: transparent;
+  }
+  .hljs-comment, .hljs-quote {
+    color: #9ca3af; /* Gray - comments */
+  }
+  .hljs-string, .hljs-template-string {
+    color: #a7f3d0; /* Green - strings */
+  }
+  .hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-name {
+    color: #c084fc; /* Purple - keywords */
+  }
+  .hljs-title.function_, .hljs-title.class_, .hljs-function {
+    color: #fbbf24; /* Yellow - functions and classes */
+  }
+  .hljs-attr, .hljs-attribute, .hljs-property {
+    color: #60a5fa; /* Blue - attributes/properties */
+  }
+  .hljs-number, .hljs-literal {
+    color: #f87171; /* Red - numbers and literals */
+  }
+  .hljs-variable, .hljs-params {
+    color: #fb7185; /* Pink - variables */
+  }
+  .hljs-tag {
+    color: #34d399; /* Green - HTML/JSX tags */
+  }
+  .hljs-punctuation, .hljs-operator {
+    color: #e5e7eb; /* Light Gray - punctuation */
+  }
+  .hljs-regexp {
+    color: #fde047; /* Bright Yellow - regex */
+  }
+  .hljs-meta, .hljs-meta-keyword {
+    color: #a78bfa; /* Light Purple - meta */
   }
 ---
 
-# 🚀 LambdaCurry Forms Library
-## *Modern React Forms with Accessibility & Type Safety*
+# 🚀 **LambdaCurry Forms Library**
+
+## **Modern React Forms with Accessibility & Type Safety**
 
 ### Built on the shoulders of giants:
 - **Remix Hook Form** for state management
@@ -57,64 +185,72 @@ style: |
 
 ---
 
-# 🎯 **What We Built & Why**
+# 🎯 What We Built & Why
 
-<div class="columns">
+## The Challenge
 
-<div>
-
-## **The Challenge**
-- Forms are **hard to get right**
-- Accessibility often **afterthought**
-- Validation **scattered everywhere**
-- Poor **developer experience**
-- **Inconsistent** patterns
-
-</div>
-
-<div>
-
-## **Our Solution**
-- **Accessibility-first** design
-- **Unified validation** strategy
-- **Excellent TypeScript** support
-- **Component composition** system
-- **Production-ready** patterns
-
-</div>
-
-</div>
+- Forms are **difficult to implement correctly**
+- Accessibility is often an **afterthought**
+- Validation logic is **scattered everywhere** 
+- **Poor developer experience** across projects
+- **Inconsistent patterns** lead to bugs
 
 ---
 
-# 🏗️ **Architecture Overview**
+# 🎯 Our Solution
+
+## **Accessibility-first** design approach
+- Built with WCAG 2.1 AA compliance from the ground up
+- Screen reader optimization and keyboard navigation
+
+## **Unified validation** strategy throughout
+- Client-side and server-side validation harmony
+- Consistent error handling patterns
+
+## **Excellent TypeScript** support and intellisense
+- Full type safety with intuitive developer experience
+
+---
+
+# 🏗️ Architecture Overview
 
 <div class="architecture-box">
 
-## **Dual Layer Architecture**
+## Dual Layer Architecture
+
 ```
-remix-hook-form/     ←  Form-aware wrappers
+remix-hook-form/     ←  Form-aware wrapper components
     ↓ uses
-ui/                  ←  Base UI components  
-    ↓ uses
-@radix-ui           ←  Accessible primitives
+ui/                  ←  Base UI components library
+    ↓ uses  
+@radix-ui           ←  Accessible primitive components
 ```
 
 </div>
 
-### **Key Design Decisions:**
-- **Separation of concerns** between UI and form logic
-- **Radix UI foundation** ensures WCAG 2.1 AA compliance
-- **Component composition** over configuration
-- **TypeScript-first** development experience
+---
+
+# 🏗️ Key Design Decisions
+
+### **Clear separation of concerns** between UI and form logic
+Clean boundaries make the codebase maintainable and testable
+
+### **Radix UI foundation** ensures WCAG 2.1 AA compliance  
+Accessibility is built-in, not bolted on
+
+### **Component composition** pattern over rigid configuration
+Maximum flexibility with minimal complexity
+
+### **TypeScript-first** development experience
+Full type safety and excellent IntelliSense support
 
 ---
 
-# 📋 **Form Anatomy Deep Dive**
+# 📋 Form Anatomy Deep Dive
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    RemixFormProvider                        │
+│                   RemixFormProvider                         │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │                fetcher.Form                         │    │
 │  │  ┌─────────────────────────────────────────────┐    │    │
@@ -122,8 +258,8 @@ ui/                  ←  Base UI components
 │  │  │  ┌─────────────────────────────────────┐    │    │    │
 │  │  │  │            FormItem                 │    │    │    │
 │  │  │  │  • Generates unique IDs             │    │    │    │
-│  │  │  │  • Provides accessibility context  │    │    │    │
-│  │  │  │  • CSS: 'form-item grid gap-2'     │    │    │    │
+│  │  │  │  • Provides accessibility context   │    │    │    │
+│  │  │  │  • CSS: 'form-item grid gap-2'      │    │    │    │
 │  │  │  └─────────────────────────────────────┘    │    │    │
 │  │  └─────────────────────────────────────────────┘    │    │
 │  └─────────────────────────────────────────────────────┘    │
@@ -132,42 +268,40 @@ ui/                  ←  Base UI components
 
 ---
 
-# 🎯 **Input Wrapper Pattern**
+# 🎯 Input Wrapper Pattern
 
-<div class="columns">
+## TextField Components
 
-<div>
-
-## **TextField Components**
 - **FormField**: React Hook Form Controller wrapper
 - **FormItem**: Accessibility context provider
-- **FormControl**: ARIA attributes handler
+- **FormControl**: ARIA attributes handler  
 - **FormLabel**: Accessible labels with error states
 - **FormDescription**: Help text component
 - **FormMessage**: Error message display
 
-</div>
+---
 
-<div>
+# 🎯 Smart Features
 
-## **Smart Features**
-- **Prefix/Suffix** support
-- **Error state** styling
-- **Focus ring** management
-- **Screen reader** optimization
-- **Validation** integration
+## Enhanced User Experience
 
-</div>
+- **Prefix and Suffix** support for enhanced UX
+- **Error state** styling with clear visual indicators
+- **Focus ring** management for keyboard navigation
 
-</div>
+## Accessibility & Validation
+
+- **Screen reader** optimization with proper ARIA
+- **Validation** integration with real-time feedback
+- **Automatic error announcements** for assistive technology
 
 ---
 
-# 💻 **Developer Experience**
+# 💻 Developer Experience
 
 <div class="highlight">
 
-## **Simple, Intuitive API**
+## Simple, Intuitive API
 
 ```typescript
 <TextField 
@@ -181,16 +315,23 @@ ui/                  ←  Base UI components
 
 </div>
 
-### **What you get for free:**
-- ✅ **Automatic validation** with Zod schemas
-- ✅ **Accessibility** attributes (ARIA, labels, descriptions)
-- ✅ **Error handling** and display
-- ✅ **TypeScript** intellisense and type safety
-- ✅ **Server-side** validation integration
+---
+
+# 💻 What You Get For Free
+
+<div class="highlight">
+
+- <span class="success-checkmark">✓</span> **Automatic validation** with Zod schemas
+- <span class="success-checkmark">✓</span> **Accessibility** attributes (ARIA, labels, descriptions)  
+- <span class="success-checkmark">✓</span> **Error handling** and display
+- <span class="success-checkmark">✓</span> **TypeScript** intellisense and type safety
+- <span class="success-checkmark">✓</span> **Server-side** validation integration
+
+</div>
 
 ---
 
-# 🔧 **Form Setup Pattern**
+# 🔧 Form Setup Pattern
 
 ```typescript
 const methods = useRemixForm<FormData>({
@@ -213,13 +354,14 @@ return (
 
 ---
 
-# 🛡️ **Validation Strategy**
+# 🛡️ Validation Strategy: Client-Side
 
 <div class="columns">
 
 <div>
 
-## **Client-Side (Zod)**
+## Client-Side with Zod
+
 ```typescript
 const formSchema = z.object({
   username: z.string()
@@ -231,9 +373,18 @@ const formSchema = z.object({
 
 </div>
 
+</div>
+
+---
+
+# 🛡️ Validation Strategy: Server-Side
+
+<div class="columns">
+
 <div>
 
-## **Server-Side (Remix)**
+## Server-Side with Remix
+
 ```typescript
 export const action = async ({ request }) => {
   const { data, errors } = await getValidatedFormData(
@@ -262,11 +413,11 @@ export const action = async ({ request }) => {
 
 ---
 
-# 🎨 **Component Composition System**
+# 🎨 Component Composition System
 
 <div class="highlight">
 
-## **Flexible & Customizable**
+## Flexible & Customizable
 
 ```typescript
 <TextField
@@ -282,31 +433,42 @@ export const action = async ({ request }) => {
 
 </div>
 
-### **Benefits:**
+---
+
+# 🎨 Composition Benefits
+
+<div class="highlight">
+
+### Key Benefits:
+
 - **Override any sub-component** while keeping functionality
 - **Maintain accessibility** automatically
-- **Consistent API** across all form components
+- **Consistent API** across all form components  
 - **Easy theming** and customization
+
+</div>
 
 ---
 
-# 📊 **Advanced Features: Data Table Filters**
+# 📊 Advanced Features: Data Table Filters
 
 <div class="columns">
 
 <div>
 
-## **Linear-Inspired UI**
+## Linear-Inspired UI
+
 - **Multiple filter types**: text, option, date, number
-- **URL state synchronization**
-- **Faceted filtering** with counts
-- **Client & server-side** strategies
+- **URL state synchronization** for shareable filters
+- **Faceted filtering** with result counts
+- **Client and server-side** filtering strategies
 
 </div>
 
 <div>
 
-## **Usage Example**
+## Usage Example
+
 ```typescript
 const dtf = createColumnConfigHelper<DataType>();
 
@@ -326,23 +488,33 @@ const columnConfigs = [
 
 ---
 
-# 🧪 **Testing & Storybook Integration**
+# 🧪 Testing: Storybook
 
 <div class="columns">
 
 <div>
 
-## **Storybook Stories**
+## Storybook Stories
+
 - **Interactive examples** for all components
 - **Play functions** for automated testing
 - **Real form validation** scenarios
-- **Accessibility testing** built-in
+- **Accessibility testing** built-in with axe-core
 
 </div>
 
+</div>
+
+---
+
+# 🧪 Testing: React Router
+
+<div class="columns">
+
 <div>
 
-## **React Router Mock**
+## React Router Mock
+
 ```typescript
 withReactRouterStubDecorator({
   routes: [
@@ -362,13 +534,14 @@ withReactRouterStubDecorator({
 
 ---
 
-# 🎭 **React Router Integration**
+# 🎭 React Router Integration
 
 <div class="highlight">
 
-## **Seamless Server-Side Rendering**
+## Seamless Server-Side Rendering
 
-### **Key Benefits:**
+### Key Benefits:
+
 - **Progressive enhancement** - forms work without JavaScript
 - **Server-side validation** with client-side UX
 - **URL state management** for complex forms
@@ -376,35 +549,20 @@ withReactRouterStubDecorator({
 
 </div>
 
-### **Real-world example:**
-```typescript
-const fetcher = useFetcher<{ message: string }>();
-// Form automatically handles loading states, errors, and success
-```
-
 ---
 
-# 🚀 **Performance & Bundle Size**
+# 🚀 Performance & Architecture
 
 <div class="columns">
 
 <div>
 
-## **Smart Architecture**
-- **Tree-shakeable** components
-- **Lazy loading** support
+## Smart Architecture
+
+- **Tree-shakeable** components for optimal bundles
+- **Lazy loading** support for large forms
 - **Minimal runtime** overhead
-- **Efficient re-renders**
-
-</div>
-
-<div>
-
-## **Production Ready**
-- **Comprehensive test coverage**
-- **TypeScript strict mode**
-- **ESLint + Prettier** configured
-- **Automated PR previews**
+- **Efficient re-renders** with React Hook Form
 
 </div>
 
@@ -412,13 +570,33 @@ const fetcher = useFetcher<{ message: string }>();
 
 ---
 
-# ♿ **Accessibility First**
+# 🚀 Production Ready
+
+<div class="columns">
+
+<div>
+
+## Production Grade
+
+- **Comprehensive test coverage** with Jest and Testing Library
+- **TypeScript strict mode** enabled
+- **ESLint and Prettier** configured
+- **Automated PR previews** for testing
+
+</div>
+
+</div>
+
+---
+
+# ♿ Accessibility First: The Core
 
 <div class="architecture-box">
 
-## **WCAG 2.1 AA Compliance Built-In**
+## WCAG 2.1 AA Compliance Built-In
 
-### **FormItemContext provides:**
+### FormItemContext provides:
+
 ```typescript
 {
   id: string,
@@ -430,35 +608,31 @@ const fetcher = useFetcher<{ message: string }>();
 
 </div>
 
-### **Automatic Features:**
-- **Screen reader** optimization with proper ARIA attributes
-- **Keyboard navigation** support
-- **Focus management** and visual indicators
-- **Error announcements** for assistive technology
-
 ---
 
-# 📚 **Documentation & Developer Experience**
+# 📚 Documentation & Developer Experience
 
 <div class="columns">
 
 <div>
 
-## **Comprehensive Docs**
-- **Storybook** with live examples
-- **TypeScript** definitions
-- **Usage patterns** and best practices
-- **Migration guides**
+## Comprehensive Documentation
+
+- **Storybook** with live interactive examples
+- **TypeScript** definitions with IntelliSense support
+- **Usage patterns** and best practices guide
+- **Migration guides** for existing projects
 
 </div>
 
 <div>
 
-## **Developer Tools**
-- **VS Code** snippets
-- **ESLint rules** for form patterns
-- **Automated testing** utilities
-- **PR preview** deployments
+## Developer Tools
+
+- **VS Code** snippets for common patterns
+- **ESLint rules** for consistent form patterns
+- **Automated testing** utilities and helpers
+- **PR preview** deployments for review
 
 </div>
 
@@ -466,47 +640,72 @@ const fetcher = useFetcher<{ message: string }>();
 
 ---
 
-# 🏆 **Key Achievements**
+# 🏆 Key Achievements
 
 <div class="highlight">
 
-## **What We Delivered**
+## <span class="success-checkmark">✓</span> Developer Experience
 
-### ✅ **Developer Experience**
-- Excellent TypeScript support with full intellisense
-- Intuitive APIs that feel natural to use
-- Comprehensive documentation and examples
+**Excellent TypeScript support** with full IntelliSense and type safety
 
-### ✅ **Accessibility**
-- WCAG 2.1 AA compliance out of the box
-- Screen reader optimization
-- Keyboard navigation support
+**Intuitive APIs** that feel natural to use and reduce cognitive load
 
-### ✅ **Performance**
-- Built on proven libraries (React Hook Form, Radix UI)
-- Tree-shakeable architecture
-- Minimal runtime overhead
+**Comprehensive documentation** with interactive examples and migration guides
 
 </div>
 
 ---
 
-# 🔮 **Architecture Benefits**
+# 🏆 Accessibility & Performance
+
+<div class="highlight">
+
+## <span class="success-checkmark">✓</span> Accessibility Excellence
+
+**WCAG 2.1 AA compliance** built into every component from day one
+
+**Screen reader optimization** with proper ARIA attributes and announcements
+
+**Full keyboard navigation** support with focus management
+
+</div>
+
+---
+
+# 🏆 Production Ready
+
+<div class="highlight">
+
+## <span class="success-checkmark">✓</span> Performance Optimized
+
+**Built on proven libraries** (React Hook Form, Radix UI) for reliability
+
+**Tree-shakeable architecture** to minimize bundle size impact
+
+**Minimal runtime overhead** with efficient re-rendering strategies
+
+</div>
+
+---
+
+# 🔮 Architecture Benefits
 
 <div class="columns">
 
 <div>
 
-## **Scalability**
+## Scalability
+
 - **Component composition** allows infinite customization
-- **Dual-layer architecture** separates concerns cleanly
+- **Dual-layer architecture** separates concerns cleanly  
 - **TypeScript** ensures maintainability at scale
 
 </div>
 
 <div>
 
-## **Maintainability**
+## Maintainability
+
 - **Clear patterns** for extending functionality
 - **Consistent APIs** across all components
 - **Automated testing** prevents regressions
@@ -517,44 +716,62 @@ const fetcher = useFetcher<{ message: string }>();
 
 ---
 
-# 🎯 **Real-World Impact**
+# 🎯 Real-World Impact: Developer Benefits
 
 <div class="highlight">
 
-## **Production Benefits**
+## For Development Teams
 
-### **For Developers:**
-- **50% faster** form development
-- **Zero accessibility bugs** in production
-- **Consistent UX** across applications
+**50% faster** form development time with pre-built, tested components
 
-### **For Users:**
-- **Seamless experience** across all devices
-- **Accessible** to users with disabilities
-- **Fast, responsive** interactions
+**Zero accessibility bugs** in production thanks to built-in WCAG compliance
+
+**Consistent UX** across applications with unified design patterns
+
+**Reduced maintenance** burden with well-documented, stable APIs
 
 </div>
 
 ---
 
-# 🚀 **Future Roadmap**
+# 🎯 Real-World Impact: User Benefits
+
+<div class="highlight">
+
+## For End Users
+
+**Seamless experience** across all devices and screen sizes
+
+**Fully accessible** to users with disabilities and assistive technologies
+
+**Fast, responsive** interactions with optimistic updates and smart validation
+
+**Intuitive forms** that reduce cognitive load and improve completion rates
+
+</div>
+
+---
+
+# 🚀 Future Roadmap
 
 <div class="columns">
 
 <div>
 
-## **Short Term**
-- **More field types** (file upload, rich text)
-- **Advanced validation** patterns
-- **Performance optimizations**
+## Short Term Goals
+
+- **More field types** (file upload, rich text editor)
+- **Advanced validation** patterns and custom rules
+- **Performance optimizations** and bundle size reduction
 
 </div>
 
 <div>
 
-## **Long Term**
-- **Form builder** UI
-- **Analytics integration**
+## Long Term Vision
+
+- **Visual form builder** UI for non-developers
+- **Analytics integration** for form performance insights
 - **Multi-step forms** with state persistence
 
 </div>
@@ -563,39 +780,71 @@ const fetcher = useFetcher<{ message: string }>();
 
 ---
 
-# 💡 **Key Takeaways**
+# 💡 Key Takeaways: Smart Architecture
 
 <div class="architecture-box">
 
-## **Why This Architecture Works**
+## <span class="info-icon">🎯</span> Smart Abstractions
 
-### 🎯 **Smart Abstractions**
-We built on proven libraries rather than reinventing the wheel
+**We built on proven libraries** rather than reinventing the wheel
 
-### 🔧 **Flexible Design**
-Component composition allows customization without complexity
+React Hook Form, Radix UI, and Zod provide the solid foundation
 
-### ♿ **Accessibility First**
-WCAG compliance is built into the architecture, not bolted on
-
-### 🚀 **Developer Experience**
-TypeScript and intuitive APIs make forms a joy to build
+**Focus on integration** and developer experience over raw functionality
 
 </div>
 
 ---
 
-# 🙏 **Thank You!**
+# 💡 Key Takeaways: Design Philosophy
+
+<div class="architecture-box">
+
+## <span class="info-icon">🔧</span> Flexible Design
+
+**Component composition** allows infinite customization without complexity
+
+**Dual-layer architecture** separates UI concerns from form logic
+
+**Override any component** while maintaining accessibility automatically
+
+</div>
+
+---
+
+# 💡 Key Takeaways: Core Principles
+
+<div class="architecture-box">
+
+## <span class="info-icon">♿</span> Accessibility First
+
+**WCAG compliance is built into the architecture**, not bolted on
+
+Every component designed with assistive technology in mind
+
+**Screen readers and keyboard navigation** work perfectly out of the box
+
+## <span class="info-icon">🚀</span> Developer Experience
+
+**TypeScript and intuitive APIs** make forms a joy to build
+
+Comprehensive IntelliSense support and type safety throughout
+
+</div>
+
+---
+
+# 🙏 Thank You!
 
 <div class="columns">
 
 <div>
 
-## **Questions?**
+## Questions?
 
-### **Resources:**
+### Resources:
 - 📚 [Storybook Documentation](https://lambda-curry.github.io/forms/)
-- 🐙 [GitHub Repository](https://github.com/lambda-curry/forms)
+- 🐙 [GitHub Repository](https://github.com/lambda-curry/forms)  
 - 📦 [NPM Package](https://www.npmjs.com/package/@lambdacurry/forms)
 
 </div>
@@ -605,7 +854,7 @@ TypeScript and intuitive APIs make forms a joy to build
 ## **Built with ❤️ by**
 ### **Lambda Curry Team**
 
-*Making React forms accessible, type-safe, and delightful to use.*
+**Making React forms accessible, type-safe, and delightful to use.**
 
 </div>
 
@@ -618,8 +867,12 @@ TypeScript and intuitive APIs make forms a joy to build
 
 # 🎉 **Demo Time!**
 
-## Let's see the Forms Library in action
+## **Let's see the Forms Library in action**
 
 ### **Live Storybook Examples**
-*Interactive components, validation, and accessibility features*
+**Interactive components, validation, and accessibility features**
+
+<br>
+
+### [https://lambda-curry.github.io/forms](https://lambda-curry.github.io/forms)
 
