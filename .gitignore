@@ -71,6 +71,9 @@ web_modules/
 
 .npm
 
+# npm package-lock.json (we use yarn)
+package-lock.json
+
 # Optional eslint cache
 
 .eslintcache
