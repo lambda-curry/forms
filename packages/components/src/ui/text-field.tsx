@@ -54,7 +54,7 @@ export const FieldSuffix = ({
 export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   control?: Control<FieldValues>;
   name: FieldPath<FieldValues>;
-  label?: string;
+  label?: string | React.ReactNode;
   description?: string;
   components?: Partial<FieldComponents> & {
     Input?: React.ComponentType<InputProps & React.RefAttributes<HTMLInputElement>>;
