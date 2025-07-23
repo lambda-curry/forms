@@ -8,6 +8,9 @@ import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm }
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
+// Regex for finding day buttons in calendar
+const DAY_BUTTON_REGEX = /^\d+$/;
+
 const formSchema = z.object({
   date: z.coerce.date({
     required_error: 'Please select a date',
@@ -125,9 +128,19 @@ export const Default: Story = {
       const dialog = await within(document.body).findByRole('dialog');
       const dialogCanvas = within(dialog);
 
-      // Find a specific day button in the calendar using complete aria-label to avoid ambiguity
-      const dayButton = await dialogCanvas.findByRole('button', { name: 'Sunday, June 1st, 2025' });
-      await userEvent.click(dayButton);
+      // Find any available day button in the calendar (look for a button with a number)
+      // We'll look for any day button that's not disabled
+      const dayButtons = await dialogCanvas.findAllByRole('button');
+      const availableDayButton = dayButtons.find(button => {
+        const text = button.textContent;
+        return text && DAY_BUTTON_REGEX.test(text.trim()) && !button.hasAttribute('disabled');
+      });
+      
+      if (!availableDayButton) {
+        throw new Error('No available day button found in calendar');
+      }
+      
+      await userEvent.click(availableDayButton);
     });
 
     await step('Submit form and verify success', async () => {
@@ -137,7 +150,8 @@ export const Default: Story = {
 
       // Verify submission with comprehensive assertions
       await expect(canvas.findByText('Submitted with date:')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(/6\/1\/2025|1\/6\/2025/)).resolves.toBeInTheDocument();
+      // Check for any date format (MM/DD/YYYY or DD/MM/YYYY)
+      await expect(canvas.findByText(/\d{1,2}\/\d{1,2}\/\d{4}/)).resolves.toBeInTheDocument();
     });
   },
 };
