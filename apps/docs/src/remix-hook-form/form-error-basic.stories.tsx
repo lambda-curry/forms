@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormError, TextField } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -14,7 +15,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const SimpleFormErrorExample = () => {
+const BasicFormErrorExample = () => {
   const fetcher = useFetcher<{ 
     message?: string; 
     errors?: Record<string, { message: string }> 
@@ -38,14 +39,15 @@ const SimpleFormErrorExample = () => {
   return (
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Login</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Login Form</h2>
         
-        <FormError />
+        {/* Form-level error display */}
+        <FormError className="mb-4" />
         
         <TextField
           name="email"
           type="email"
-          label="Email"
+          label="Email Address"
           placeholder="Enter your email"
           disabled={isSubmitting}
         />
@@ -79,15 +81,28 @@ const handleFormSubmission = async (request: Request) => {
     return { errors };
   }
   
+  // Simulate server-side authentication
+  if (data.email === 'wrong@email.com' && data.password === 'wrongpass') {
+    return {
+      errors: {
+        _form: { message: 'Invalid email or password. Please try again.' }
+      }
+    };
+  }
+  
+  if (data.email === 'user@example.com' && data.password === 'password123') {
+    return { message: 'Login successful! Welcome back.' };
+  }
+  
   return {
     errors: {
-      _form: { message: 'Invalid credentials. Please try again.' }
+      _form: { message: 'Invalid email or password. Please try again.' }
     }
   };
 };
 
 const meta: Meta<typeof FormError> = {
-  title: 'RemixHookForm/FormError',
+  title: 'RemixHookForm/FormError/Basic',
   component: FormError,
   parameters: {
     layout: 'centered',
@@ -101,12 +116,6 @@ The FormError component provides standardized form-level error handling for serv
 - Uses \`_form\` as the default error key
 - Flexible placement anywhere in forms
 - Component override support for custom styling
-
-**More Examples:**
-- [Basic Usage](?path=/docs/remixhookform-formerror-basic--docs) - Simple form error handling
-- [Mixed Errors](?path=/docs/remixhookform-formerror-mixed--docs) - Field and form errors together
-- [Custom Styling](?path=/docs/remixhookform-formerror-custom--docs) - Custom error components
-- [Placement Options](?path=/docs/remixhookform-formerror-placement--docs) - Different positioning styles
         `,
       },
     },
@@ -117,7 +126,7 @@ The FormError component provides standardized form-level error handling for serv
       routes: [
         {
           path: '/',
-          Component: SimpleFormErrorExample,
+          Component: BasicFormErrorExample,
           action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
         },
       ],
@@ -133,16 +142,56 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-Basic FormError component usage. The component automatically displays when \`errors._form\` exists in the server response.
+Basic form error handling with server-side validation failure. 
 
-For more comprehensive examples, see the related stories:
-- **Basic**: Simple form error handling patterns
-- **Mixed**: Field and form errors together  
-- **Custom**: Custom styling and component overrides
-- **Placement**: Different positioning and styling options
+**Try this:**
+1. Click "Sign In" without filling fields (shows field-level errors)
+2. Enter invalid credentials like \`wrong@email.com\` and \`wrongpass\` (shows form-level error)
+3. Enter \`user@example.com\` and \`password123\` for success
+
+The FormError component automatically displays when \`errors._form\` exists in the server response.
         `,
       },
     },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state', async () => {
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passwordInput).toBeInTheDocument();
+      expect(submitButton).toBeInTheDocument();
+      expect(canvas.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test field-level validation errors', async () => {
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      await expect(canvas.findByText(/please enter a valid email address/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/password must be at least 6 characters/i)).resolves.toBeInTheDocument();
+      expect(canvas.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test form-level error with invalid credentials', async () => {
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+      await userEvent.type(emailInput, 'wrong@email.com');
+      await userEvent.type(passwordInput, 'wrongpass');
+
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      await expect(canvas.findByText(/invalid email or password/i)).resolves.toBeInTheDocument();
+      expect(canvas.queryByText(/please enter a valid email address/i)).not.toBeInTheDocument();
+    });
   },
 };
 
