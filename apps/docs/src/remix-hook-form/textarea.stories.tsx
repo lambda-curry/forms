@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
@@ -30,7 +30,7 @@ const ControlledTextareaExample = () => {
       onValid: (data) => {
         fetcher.submit(
           createFormData({
-            submittedMessage: data.message,
+            message: data.message,
           }),
           {
             method: 'post',
@@ -49,6 +49,7 @@ const ControlledTextareaExample = () => {
           <Button type="submit" className="mt-4">
             Submit
           </Button>
+          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
           {fetcher.data?.submittedMessage && (
             <div className="mt-4">
               <p className="text-sm font-medium">Submitted message:</p>
@@ -92,6 +93,36 @@ const meta: Meta<typeof Textarea> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Test scenarios
+const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+  const messageInput = canvas.getByLabelText('Your message');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  // Clear the textarea and enter text that's too short
+  await userEvent.click(messageInput);
+  await userEvent.clear(messageInput);
+  await userEvent.type(messageInput, 'Short');
+  await userEvent.click(submitButton);
+  
+  // Check for validation error
+  await expect(await canvas.findByText('Message must be at least 10 characters')).toBeInTheDocument();
+};
+
+const testValidSubmission = async ({ canvas }: StoryContext) => {
+  const messageInput = canvas.getByLabelText('Your message');
+  const submitButton = canvas.getByRole('button', { name: 'Submit' });
+
+  // Clear and enter valid text
+  await userEvent.click(messageInput);
+  await userEvent.clear(messageInput);
+  await userEvent.type(messageInput, 'This is a test message that is longer than 10 characters.');
+  await userEvent.click(submitButton);
+
+  // Check for success message
+  const successMessage = await canvas.findByText('Message submitted successfully');
+  expect(successMessage).toBeInTheDocument();
+};
+
 export const Default: Story = {
   parameters: {
     docs: {
@@ -100,20 +131,8 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Enter text
-    const messageInput = canvas.getByLabelText('Your message');
-    await userEvent.type(messageInput, 'This is a test message that is longer than 10 characters.');
-
-    // Submit the form
-    const submitButton = canvas.getByRole('button', { name: 'Submit' });
-    await userEvent.click(submitButton);
-
-    // Check if the submitted message is displayed
-    await expect(
-      await canvas.findByText('This is a test message that is longer than 10 characters.'),
-    ).toBeInTheDocument();
+  play: async (storyContext) => {
+    await testInvalidSubmission(storyContext);
+    await testValidSubmission(storyContext);
   },
 };

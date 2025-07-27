@@ -14,17 +14,17 @@ type ControlFunctions = {
   isPending: () => boolean;
 };
 
-export type DebouncedState<T extends (...args: any) => ReturnType<T>> = ((
+export type DebouncedState<T extends (...args: any[]) => any> = ((
   ...args: Parameters<T>
 ) => ReturnType<T> | undefined) &
   ControlFunctions;
 
-export function useDebounceCallback<T extends (...args: any) => ReturnType<T>>(
+export function useDebounceCallback<T extends (...args: any[]) => any>(
   func: T,
   delay = 500,
   options?: DebounceOptions,
 ): DebouncedState<T> {
-  const debouncedFunc = useRef<ReturnType<typeof debounce>>(null);
+  const debouncedFunc = useRef<(((...args: Parameters<T>) => ReturnType<T> | undefined) & ControlFunctions) | null>(null);
 
   useUnmount(() => {
     if (debouncedFunc.current) {
@@ -56,8 +56,8 @@ export function useDebounceCallback<T extends (...args: any) => ReturnType<T>>(
 
   // Update the debounced function ref whenever func, wait, or options change
   useEffect(() => {
-    debouncedFunc.current = debounce(func, delay, options);
-  }, [func, delay, options]);
+    debouncedFunc.current = debounced;
+  }, [debounced]);
 
   return debounced;
 }

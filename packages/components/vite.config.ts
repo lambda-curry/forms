@@ -17,9 +17,8 @@ export default defineConfig({
     lib: {
       entry: {
         index: './src/index.ts',
-        'remix-hook-form/index': './src/remix-hook-form/index.ts',
-        'ui/index': './src/ui/index.ts',
-        'data-table/index': './src/data-table/index.ts',
+        'remix-hook-form': './src/remix-hook-form/index.ts',
+        ui: './src/ui/index.ts',
       },
       formats: ['es'],
     },

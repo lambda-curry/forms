@@ -1,33 +1,21 @@
 {
   "name": "@lambdacurry/forms",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./remix-hook-form": {
-      "import": {
-        "types": "./dist/remix-hook-form/index.d.ts",
-        "default": "./dist/remix-hook-form/index.js"
-      }
+      "types": "./dist/remix-hook-form/index.d.ts",
+      "import": "./dist/remix-hook-form/index.js"
     },
     "./ui": {
-      "import": {
-        "types": "./dist/ui/index.d.ts",
-        "default": "./dist/ui/index.js"
-      }
-    },
-    "./data-table": {
-      "import": {
-        "types": "./dist/data-table/index.d.ts",
-        "default": "./dist/data-table/index.js"
-      }
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js"
     }
   },
   "files": [
