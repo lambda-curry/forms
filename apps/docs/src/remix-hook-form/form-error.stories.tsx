@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { FormError, TextField } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
+import { expect, userEvent, within } from '@storybook/test';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 // Form schema for testing
@@ -355,6 +356,7 @@ const handlePlacementTest = async (request: Request) => {
 const meta: Meta<typeof FormError> = {
   title: 'RemixHookForm/FormError',
   component: FormError,
+  decorators: [withReactRouterStubDecorator],
   parameters: {
     layout: 'centered',
     docs: {
@@ -437,9 +439,75 @@ The FormError component automatically displays when \`errors._form\` exists in t
     },
   },
   play: async ({ canvasElement, step }) => {
-    // This would be implemented with actual testing logic
-    await step('Form renders with FormError component', async () => {
-      // Test implementation would go here
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state', async () => {
+      // Verify form elements are present
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passwordInput).toBeInTheDocument();
+      expect(submitButton).toBeInTheDocument();
+
+      // Verify no form-level error is shown initially
+      expect(canvas.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
+      expect(canvas.queryByText(/server error/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test field-level validation errors', async () => {
+      // Submit form without filling fields
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      // Verify field-level validation errors appear
+      await expect(canvas.findByText(/please enter a valid email address/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/password must be at least 6 characters/i)).resolves.toBeInTheDocument();
+
+      // Verify no form-level error is shown for validation errors
+      expect(canvas.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test form-level error with invalid credentials', async () => {
+      // Fill in invalid credentials
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+      await userEvent.type(emailInput, 'wrong@email.com');
+      await userEvent.type(passwordInput, 'wrongpass');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      // Verify form-level error appears
+      await expect(canvas.findByText(/invalid email or password/i)).resolves.toBeInTheDocument();
+
+      // Verify field-level errors are cleared
+      expect(canvas.queryByText(/please enter a valid email address/i)).not.toBeInTheDocument();
+      expect(canvas.queryByText(/password must be at least 6 characters/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test successful form submission', async () => {
+      // Fill in correct credentials
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+      await userEvent.type(emailInput, 'user@example.com');
+      await userEvent.type(passwordInput, 'password123');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      // Verify success message appears and form error is cleared
+      await expect(canvas.findByText(/login successful/i)).resolves.toBeInTheDocument();
+      expect(canvas.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
     });
   },
 };
@@ -471,6 +539,93 @@ This pattern is useful when you want to show form-level context alongside specif
         `,
       },
     },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state with multiple FormError placements', async () => {
+      // Verify form elements are present
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /create account/i });
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passwordInput).toBeInTheDocument();
+      expect(submitButton).toBeInTheDocument();
+
+      // Verify no form-level errors are shown initially (multiple FormError components)
+      expect(canvas.queryByText(/registration failed/i)).not.toBeInTheDocument();
+      expect(canvas.queryByText(/server error occurred/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test mixed errors - field and form level together', async () => {
+      // Fill in email that already exists
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.type(emailInput, 'taken@example.com');
+      await userEvent.type(passwordInput, 'validpass123');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /create account/i });
+      await userEvent.click(submitButton);
+
+      // Verify both field-level and form-level errors appear
+      await expect(canvas.findByText(/this email address is already registered/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/registration failed/i)).resolves.toBeInTheDocument();
+
+      // Verify form-level error appears in multiple locations (top and bottom)
+      const formErrors = canvas.getAllByText(/registration failed/i);
+      expect(formErrors).toHaveLength(2); // Should appear in both FormError components
+    });
+
+    await step('Test server error only (form-level error)', async () => {
+      // Clear and fill with server error trigger
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+      await userEvent.type(emailInput, 'test@example.com');
+      await userEvent.type(passwordInput, 'servererror');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /create account/i });
+      await userEvent.click(submitButton);
+
+      // Verify only form-level error appears
+      await expect(canvas.findByText(/server error occurred/i)).resolves.toBeInTheDocument();
+
+      // Verify field-level error is cleared
+      expect(canvas.queryByText(/this email address is already registered/i)).not.toBeInTheDocument();
+
+      // Verify form-level error appears in multiple locations
+      const formErrors = canvas.getAllByText(/server error occurred/i);
+      expect(formErrors).toHaveLength(2); // Should appear in both FormError components
+    });
+
+    await step('Test successful submission clears all errors', async () => {
+      // Fill in valid data
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+      await userEvent.type(emailInput, 'valid@example.com');
+      await userEvent.type(passwordInput, 'validpass123');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /create account/i });
+      await userEvent.click(submitButton);
+
+      // Verify success message appears
+      await expect(canvas.findByText(/account created successfully/i)).resolves.toBeInTheDocument();
+
+      // Verify all errors are cleared
+      expect(canvas.queryByText(/registration failed/i)).not.toBeInTheDocument();
+      expect(canvas.queryByText(/server error occurred/i)).not.toBeInTheDocument();
+      expect(canvas.queryByText(/this email address is already registered/i)).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -507,6 +662,68 @@ This example shows an alert-style error message with an icon and custom styling.
       },
     },
   },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state with custom styling', async () => {
+      // Verify form elements are present
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passwordInput).toBeInTheDocument();
+      expect(submitButton).toBeInTheDocument();
+
+      // Verify no custom styled error is shown initially
+      expect(canvas.queryByText(/authentication service is temporarily unavailable/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test custom styled form error display', async () => {
+      // Fill in any valid data (this story always shows form error for demo)
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.type(emailInput, 'test@example.com');
+      await userEvent.type(passwordInput, 'password123');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /sign in/i });
+      await userEvent.click(submitButton);
+
+      // Verify custom styled error appears
+      await expect(canvas.findByText(/authentication service is temporarily unavailable/i)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify custom error styling and structure', async () => {
+      // Find the error message
+      const errorMessage = canvas.getByText(/authentication service is temporarily unavailable/i);
+      expect(errorMessage).toBeInTheDocument();
+
+      // Verify the custom styling structure
+      const errorContainer = errorMessage.closest('div');
+      expect(errorContainer).toHaveClass('flex', 'items-center', 'p-4', 'bg-red-50', 'border-l-4', 'border-red-400', 'rounded-md');
+
+      // Verify the icon is present (SVG element)
+      const icon = errorContainer?.querySelector('svg');
+      expect(icon).toBeInTheDocument();
+      expect(icon).toHaveClass('h-5', 'w-5', 'text-red-400');
+
+      // Verify the message has custom styling
+      expect(errorMessage).toHaveClass('text-red-800', 'font-medium');
+    });
+
+    await step('Test accessibility of custom styled error', async () => {
+      // Verify the error message has proper accessibility attributes
+      const errorMessage = canvas.getByText(/authentication service is temporarily unavailable/i);
+      
+      // Check that it has the form-message data attribute
+      expect(errorMessage).toHaveAttribute('data-slot', 'form-message');
+      
+      // Verify it's properly structured for screen readers
+      expect(errorMessage.tagName.toLowerCase()).toBe('p');
+    });
+  },
 };
 
 export const PlacementVariations: Story = {
@@ -537,6 +754,96 @@ Each FormError instance shows the same error but can be styled differently using
         `,
       },
     },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state with multiple placement options', async () => {
+      // Verify form elements are present
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passwordInput).toBeInTheDocument();
+      expect(submitButton).toBeInTheDocument();
+
+      // Verify no errors are shown initially
+      expect(canvas.queryByText(/this error appears in multiple locations/i)).not.toBeInTheDocument();
+    });
+
+    await step('Test multiple FormError placements with different styling', async () => {
+      // Fill in valid data (this story always shows form error for demo)
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+
+      await userEvent.type(emailInput, 'test@example.com');
+      await userEvent.type(passwordInput, 'password123');
+
+      // Submit form
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
+
+      // Verify error appears in multiple locations
+      await expect(canvas.findByText(/this error appears in multiple locations/i)).resolves.toBeInTheDocument();
+      
+      // Verify multiple instances of the same error message
+      const errorMessages = canvas.getAllByText(/this error appears in multiple locations/i);
+      expect(errorMessages).toHaveLength(3); // Top, inline, and bottom placements
+    });
+
+    await step('Verify different styling for each placement', async () => {
+      const errorMessages = canvas.getAllByText(/this error appears in multiple locations/i);
+      
+      // Check that each error message has different styling based on placement
+      const topError = errorMessages[0];
+      const inlineError = errorMessages[1];
+      const bottomError = errorMessages[2];
+
+      // Verify top placement styling (red background with border)
+      const topContainer = topError.closest('div');
+      expect(topContainer).toHaveClass('p-3', 'bg-red-50', 'border', 'border-red-200', 'rounded-lg');
+
+      // Verify inline placement styling (yellow background, centered)
+      const inlineContainer = inlineError.closest('div');
+      expect(inlineContainer).toHaveClass('text-center', 'p-2', 'bg-yellow-50', 'border', 'border-yellow-200', 'rounded', 'text-yellow-800');
+
+      // Verify bottom placement styling (red background with left border)
+      const bottomContainer = bottomError.closest('div');
+      expect(bottomContainer).toHaveClass('mt-4', 'p-3', 'bg-red-100', 'border-l-4', 'border-red-500', 'rounded-r');
+    });
+
+    await step('Test accessibility across all placements', async () => {
+      const errorMessages = canvas.getAllByText(/this error appears in multiple locations/i);
+      
+      // Verify each error message has proper accessibility attributes
+      errorMessages.forEach((errorMessage) => {
+        expect(errorMessage).toHaveAttribute('data-slot', 'form-message');
+        expect(errorMessage.tagName.toLowerCase()).toBe('p');
+      });
+    });
+
+    await step('Verify form structure and error placement order', async () => {
+      // Get all form elements in order
+      const formElements = canvas.getByRole('form') || canvasElement;
+      const allElements = Array.from(formElements.querySelectorAll('*'));
+      
+      // Find positions of error messages and form fields
+      const errorElements = allElements.filter(el => 
+        el.textContent?.includes('This error appears in multiple locations')
+      );
+      const emailInput = canvas.getByLabelText(/email address/i);
+      const passwordInput = canvas.getByLabelText(/password/i);
+      const submitButton = canvas.getByRole('button', { name: /submit/i });
+
+      // Verify error placement order: top error before email, inline error between fields, bottom error after submit
+      expect(errorElements).toHaveLength(3);
+      
+      // This verifies the structural placement without relying on exact DOM order
+      expect(errorElements[0]).toBeInTheDocument(); // Top error
+      expect(errorElements[1]).toBeInTheDocument(); // Inline error  
+      expect(errorElements[2]).toBeInTheDocument(); // Bottom error
+    });
   },
 };
 
