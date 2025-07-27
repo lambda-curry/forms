@@ -32,7 +32,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     lastArgs = null;
     lastThis = null;
     lastInvokeTime = time;
-    result = func.apply(thisArg, args);
+    result = func.apply(thisArg, args) as ReturnType<T>;
     return result;
   }
 

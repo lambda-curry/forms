@@ -22,7 +22,8 @@ export function DebouncedInput({
   // Define the debounced function with useCallback
   // biome-ignore lint/correctness/useExhaustiveDependencies: from Bazza UI
   const debouncedOnChange = useCallback(
-    debounce((newValue: string | number) => {
+    debounce((...args: unknown[]) => {
+      const newValue = args[0] as string | number;
       onChange(newValue);
     }, debounceMs), // Pass the wait time here
     [debounceMs, onChange], // Dependencies
