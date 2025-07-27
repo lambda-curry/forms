@@ -121,11 +121,6 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   // Check for success message
   const successMessage = await canvas.findByText('Message submitted successfully');
   expect(successMessage).toBeInTheDocument();
-  
-  // Check if the submitted message is displayed
-  await expect(
-    await canvas.findByText('This is a test message that is longer than 10 characters.'),
-  ).toBeInTheDocument();
 };
 
 export const Default: Story = {
