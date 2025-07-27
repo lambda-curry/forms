@@ -25,4 +25,4 @@ export const TextField = function RemixTextField(props: TextFieldProps & { ref?:
   return <BaseTextField control={control} components={components} {...props} />;
 };
 
-TextField.displayName = 'RemixTextField';
+TextField.displayName = 'TextField';

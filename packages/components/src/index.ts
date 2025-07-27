@@ -5,7 +5,4 @@ export * from './remix-hook-form';
 
 // Explicitly export Textarea from both locations to handle naming conflicts
 // The remix-hook-form Textarea is a form-aware wrapper
-export { Textarea as RemixTextarea } from './remix-hook-form/textarea';
-
-// The ui Textarea is the base component
-export { Textarea } from './ui/textarea';
+export { Textarea as TextareaField } from './remix-hook-form/textarea';

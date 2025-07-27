@@ -17,8 +17,6 @@ This is a monorepo containing form components with comprehensive Storybook inter
 - Yarn 4.7.0 with corepack
 - TypeScript throughout
 
-<<<<<<< HEAD
-=======
 ## Project Structure
 ```
 lambda-curry/forms/
@@ -446,7 +444,6 @@ const testConditionalFields = async ({ canvas }: StoryContext) => {
 - **Focused Testing**: Each story should test one primary workflow
 - **Efficient Selectors**: Use semantic queries (role, label) over CSS selectors
 
->>>>>>> cd5d1a2 (Enhance Storybook testing rules and examples)
 ### Local Development Workflow
 ```bash
 # Local development commands
@@ -957,48 +954,28 @@ yarn dev  # Then navigate to story and use Interactions panel
 ## Verification Checklist
 When creating or modifying Storybook interaction tests, ensure:
 
-<<<<<<< HEAD
-1. ✅ Story includes comprehensive play function with user interactions
-2. ✅ Uses semantic queries (ByRole, ByLabelText) over CSS selectors
-=======
 1. ✅ Story includes all three test phases (default, invalid, valid)
 2. ✅ Uses React Router stub decorator on individual stories (not meta)
->>>>>>> cd5d1a2 (Enhance Storybook testing rules and examples)
 3. ✅ Follows click-before-clear pattern for inputs
 4. ✅ Uses findBy* for async assertions
 5. ✅ Tests both client-side and server-side validation
 6. ✅ Includes proper error handling and success scenarios
-<<<<<<< HEAD
-7. ✅ Uses step function for complex workflows
-8. ✅ Story serves as both documentation and test
-9. ✅ Component is properly isolated and focused
-10. ✅ Tests complete in reasonable time (< 10 seconds)
-11. ✅ Uses React Router stub decorator for form handling
-12. ✅ Includes accessibility considerations in queries
-=======
 7. ✅ Story serves as both documentation and test
 8. ✅ Component is properly isolated and focused
 9. ✅ Tests complete in reasonable time (< 10 seconds)
 10. ✅ Uses semantic queries for better maintainability
 11. ✅ Decorators are placed on individual stories for granular control
 12. ✅ Meta configuration is kept clean and minimal
->>>>>>> cd5d1a2 (Enhance Storybook testing rules and examples)
 
 ## Team Workflow Integration
 
 ### Code Review Guidelines
 - Verify interaction tests cover happy path and error scenarios
 - Ensure stories are self-documenting and demonstrate component usage
-<<<<<<< HEAD
-- Check that tests follow semantic query patterns
-- Validate that play functions are well-organized with step grouping
-- Confirm tests don't introduce flaky behavior
-=======
 - Check that tests follow established patterns and conventions
 - Validate that new tests don't introduce flaky behavior
 - **Verify decorators are on individual stories, not in meta**
 - Ensure each story has appropriate isolation and dependencies
->>>>>>> cd5d1a2 (Enhance Storybook testing rules and examples)
 
 ### Local Development Focus
 - Use Storybook UI for interactive development and debugging
@@ -1008,8 +985,4 @@ When creating or modifying Storybook interaction tests, ensure:
 - Fast feedback loop optimized for developer productivity
 - Individual story decorators provide flexibility for different testing scenarios
 
-<<<<<<< HEAD
-Remember: Every story with a play function is both a test and living documentation. Focus on user behavior and accessibility. Use the step function to organize complex interactions. The Interactions panel in Storybook UI is your primary debugging tool for interaction tests.
-=======
 Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows. **Always place decorators on individual stories for maximum flexibility and clarity.** 
->>>>>>> cd5d1a2 (Enhance Storybook testing rules and examples)
