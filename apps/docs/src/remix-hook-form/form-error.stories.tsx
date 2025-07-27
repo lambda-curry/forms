@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { FormError, TextField } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 // Form schema for testing
 const formSchema = z.object({
@@ -14,6 +15,7 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+
 
 // Basic Form Error Story
 const BasicFormErrorExample = () => {
@@ -407,7 +409,17 @@ export default meta;
 type Story = StoryObj<typeof FormError>;
 
 export const BasicFormError: Story = {
-  render: () => <BasicFormErrorExample />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: BasicFormErrorExample,
+          action: async ({ request }: ActionFunctionArgs) => handleBasicFormError(request),
+        },
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
@@ -433,7 +445,17 @@ The FormError component automatically displays when \`errors._form\` exists in t
 };
 
 export const MixedErrors: Story = {
-  render: () => <MixedErrorsExample />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: MixedErrorsExample,
+          action: async ({ request }: ActionFunctionArgs) => handleMixedErrors(request),
+        },
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
@@ -453,7 +475,17 @@ This pattern is useful when you want to show form-level context alongside specif
 };
 
 export const CustomStyling: Story = {
-  render: () => <CustomStyledFormErrorExample />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CustomStyledFormErrorExample,
+          action: async ({ request }: ActionFunctionArgs) => handleCustomStyledError(request),
+        },
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
@@ -478,7 +510,17 @@ This example shows an alert-style error message with an icon and custom styling.
 };
 
 export const PlacementVariations: Story = {
-  render: () => <PlacementVariationsExample />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: PlacementVariationsExample,
+          action: async ({ request }: ActionFunctionArgs) => handlePlacementTest(request),
+        },
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
@@ -498,8 +540,8 @@ Each FormError instance shows the same error but can be styled differently using
   },
 };
 
-// Export action handlers for Storybook
-export const actionHandlers = {
+// Action handlers for Storybook (not exported to avoid being treated as a story)
+const actionHandlers = {
   '/login': handleBasicFormError,
   '/register': handleMixedErrors,
   '/custom-login': handleCustomStyledError,
