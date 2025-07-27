@@ -208,10 +208,13 @@ const sizeOptions = [
   label="Birth Date"
   description="Select your date of birth"
   className="custom-class"
+  disabled={isSubmitting}   // Optional: disable during form submission
 />
+```
 
-// Zod schema for date fields
-const schema = z.object({
+**Zod Schema for Date Fields:**
+```typescript
+const formSchema = z.object({
   birthDate: z.coerce.date({
     required_error: 'Please select a date',
   }),
@@ -224,14 +227,17 @@ const schema = z.object({
   name="fruit"
   label="Select Fruit"
   description="Choose your favorite fruit"
+  disabled={isSubmitting}   // Optional: disable during form submission
 >
   <DropdownMenuSelectItem value="apple">Apple</DropdownMenuSelectItem>
   <DropdownMenuSelectItem value="banana">Banana</DropdownMenuSelectItem>
   <DropdownMenuSelectItem value="orange">Orange</DropdownMenuSelectItem>
 </DropdownMenuSelect>
+```
 
-// Zod schema for select fields
-const schema = z.object({
+**Zod Schema for Select Fields:**
+```typescript
+const formSchema = z.object({
   fruit: z.string({
     required_error: 'Please select a fruit',
   }),
@@ -246,10 +252,13 @@ const schema = z.object({
   description="Enter the 6-digit code sent to your phone"
   maxLength={6}             // Required: number of digits
   className="custom-class"
+  disabled={isSubmitting}   // Optional: disable during form submission
 />
+```
 
-// Zod schema for OTP
-const schema = z.object({
+**Zod Schema for OTP Fields:**
+```typescript
+const formSchema = z.object({
   otp: z.string().min(6, 'OTP must be 6 digits'),
 });
 ```
@@ -302,7 +311,12 @@ const CustomMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>
 ## Advanced Form Patterns
 
 ### Custom Submit Handlers
-Use `submitHandlers.onValid` to transform data before submission:
+
+Use `submitHandlers.onValid` to transform data before submission. This is useful for:
+- Adding computed fields (timestamps, IDs)
+- Transforming data formats
+- Combining multiple fields
+- Adding metadata
 
 ```typescript
 const methods = useRemixForm<FormData>({
@@ -319,6 +333,7 @@ const methods = useRemixForm<FormData>({
         ...data,
         timestamp: new Date().toISOString(),
         processed: true,
+        fullName: `${data.firstName} ${data.lastName}`, // Combine fields
       };
 
       fetcher.submit(
@@ -334,8 +349,11 @@ const methods = useRemixForm<FormData>({
 ```
 
 ### Checkbox Groups with Custom Submission
+
+When working with multiple checkboxes, you often want to transform the boolean object into an array of selected values:
+
+**Schema for Checkbox Group:**
 ```typescript
-// Schema for checkbox group
 const formSchema = z.object({
   colors: z.object({
     red: z.boolean().default(false),
@@ -343,11 +361,22 @@ const formSchema = z.object({
     green: z.boolean().default(false),
   }),
 });
+```
 
-// Custom submission to transform checkbox data
+**Form Implementation:**
+```typescript
+<div className="space-y-2">
+  <Checkbox name="colors.red" label="Red" />
+  <Checkbox name="colors.blue" label="Blue" />
+  <Checkbox name="colors.green" label="Green" />
+</div>
+```
+
+**Custom Submission Handler:**
+```typescript
 submitHandlers: {
   onValid: (data) => {
-    // Extract selected colors
+    // Extract selected colors into array
     const selectedColors = Object.entries(data.colors)
       .filter(([_, selected]) => selected)
       .map(([color]) => color);
@@ -513,6 +542,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 ## Success Handling & Redirects
 
 ### Success Messages
+
+Display success messages from server responses:
+
 ```typescript
 // In your component
 {fetcher.data?.message && (
@@ -520,18 +552,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     <p className="text-green-700 font-medium">{fetcher.data.message}</p>
   </div>
 )}
+
+// Error messages
+{fetcher.data?.errors?._form && (
+  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+    <p className="text-red-700 font-medium">{fetcher.data.errors._form.message}</p>
+  </div>
+)}
 ```
 
 ### Programmatic Redirects
-```typescript
-// In your component - handle redirect from server response
-useEffect(() => {
-  if (fetcher.data?.redirectTo) {
-    navigate(fetcher.data.redirectTo);
-  }
-}, [fetcher.data?.redirectTo, navigate]);
 
-// Or use Remix's redirect in the action
+**Client-side redirect handling:**
+```typescript
+import { useNavigate } from 'react-router';
+
+const MyForm = () => {
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
+
+  // Handle redirect from server response
+  useEffect(() => {
+    if (fetcher.data?.redirectTo) {
+      navigate(fetcher.data.redirectTo);
+    }
+  }, [fetcher.data?.redirectTo, navigate]);
+
+  // ... rest of component
+};
+```
+
+**Server-side redirect:**
+```typescript
+import { redirect } from 'react-router';
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   // ... validation and processing
   
@@ -541,7 +595,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 ```
 
 ### Optimistic UI Updates
+
+Show immediate feedback while form is submitting:
+
 ```typescript
+import { useState, useEffect } from 'react';
+
 const MyForm = () => {
   const fetcher = useFetcher();
   const [optimisticMessage, setOptimisticMessage] = useState('');
@@ -876,29 +935,76 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default ComprehensiveForm;
 ```
 
-This example demonstrates:
-- All major form components (TextField, Textarea, Checkbox, RadioGroup, DatePicker, DropdownMenuSelect)
-- Complex validation with Zod schemas
-- Conditional field display based on form values
-- Custom submit handlers with data transformation
-- Loading states and disabled inputs during submission
-- Error handling for both client and server-side validation
-- Success messages and redirect handling
-- Responsive layout with proper spacing and styling
-- Accessibility features built-in to all components
+**This example demonstrates:**
+- ✅ All major form components (TextField, Textarea, Checkbox, RadioGroup, DatePicker, DropdownMenuSelect)
+- ✅ Complex validation with Zod schemas
+- ✅ Conditional field display based on form values
+- ✅ Custom submit handlers with data transformation
+- ✅ Loading states and disabled inputs during submission
+- ✅ Error handling for both client and server-side validation
+- ✅ Success messages and redirect handling
+- ✅ Responsive layout with proper spacing and styling
+- ✅ Accessibility features built-in to all components
 
-This comprehensive example should serve as a complete reference for implementing any form using the LambdaCurry Forms library!
+This comprehensive example serves as a complete reference for implementing any form using the LambdaCurry Forms library!
+
+---
 
 ## Key Implementation Notes for LLMs
 
-1. **Always use RemixFormProvider**: Wrap your form with `<RemixFormProvider {...methods}>` to provide form context
-2. **Form submission**: Use `fetcher.Form` with `onSubmit={methods.handleSubmit}` for proper form handling
-3. **Error handling**: Errors are automatically displayed via the `FormMessage` component when validation fails
-4. **Loading states**: Use `fetcher.state === 'submitting'` to show loading states and disable inputs
-5. **Custom components**: Override any part of the form structure using the `components` prop
-6. **Conditional rendering**: Use `methods.watch()` to conditionally show/hide fields based on form values
-7. **Data transformation**: Use `submitHandlers.onValid` to transform data before submission
-8. **Server validation**: Use `getValidatedFormData` in your action to validate and handle form data
-9. **Success handling**: Display success messages and handle redirects from the server response
-10. **Accessibility**: All components include proper ARIA attributes and accessibility features by default
+### Essential Patterns to Follow:
 
+1. **Form Provider Setup**
+   ```typescript
+   <RemixFormProvider {...methods}>
+     <fetcher.Form onSubmit={methods.handleSubmit}>
+       {/* Form components */}
+     </fetcher.Form>
+   </RemixFormProvider>
+   ```
+
+2. **Error Handling**
+   - Errors display automatically via `FormMessage` component
+   - Server errors: `return { errors }` from action
+   - Field-specific: `errors.fieldName.message`
+   - Form-level: `errors._form.message`
+
+3. **Loading States**
+   ```typescript
+   const isSubmitting = fetcher.state === 'submitting';
+   <TextField disabled={isSubmitting} />
+   <Button disabled={isSubmitting}>
+     {isSubmitting ? 'Submitting...' : 'Submit'}
+   </Button>
+   ```
+
+4. **Conditional Fields**
+   ```typescript
+   const watchValue = methods.watch('fieldName');
+   {watchValue === 'condition' && <TextField name="conditionalField" />}
+   ```
+
+5. **Data Transformation**
+   ```typescript
+   submitHandlers: {
+     onValid: (data) => {
+       const transformed = { ...data, computed: 'value' };
+       fetcher.submit(createFormData(transformed), { method: 'post' });
+     }
+   }
+   ```
+
+6. **Server Validation**
+   ```typescript
+   export const action = async ({ request }) => {
+     const { data, errors } = await getValidatedFormData(request, zodResolver(schema));
+     if (errors) return { errors };
+     // Process data...
+   };
+   ```
+
+### Important Reminders:
+- 🔥 **Always import from `@lambdacurry/forms/remix-hook-form/`** for form-aware components
+- 🔥 **Use `createFormData()` for custom submissions** to ensure proper formatting
+- 🔥 **All components are accessible by default** - no additional ARIA setup needed
+- 🔥 **Form context is automatic** - no need to pass `control` props manually
