@@ -189,9 +189,11 @@ The FormError component automatically displays when \`errors._form\` exists in t
       const submitButton = canvas.getByRole('button', { name: /sign in/i });
       await userEvent.click(submitButton);
 
+      // Wait for form-level error to appear
       await expect(canvas.findByText(/invalid email or password/i)).resolves.toBeInTheDocument();
+      
+      // Verify field-level errors are cleared
       expect(canvas.queryByText(/please enter a valid email address/i)).not.toBeInTheDocument();
     });
   },
 };
-

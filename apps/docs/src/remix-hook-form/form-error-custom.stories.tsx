@@ -191,7 +191,8 @@ The custom component receives all the same props as the default FormMessage comp
     });
 
     await step('Verify custom error styling and structure', async () => {
-      const errorMessage = canvas.getByText(/authentication service is temporarily unavailable/i);
+      // Wait for error message to be available
+      const errorMessage = await canvas.findByText(/authentication service is temporarily unavailable/i);
       expect(errorMessage).toBeInTheDocument();
 
       const errorContainer = errorMessage.closest('div');
@@ -199,10 +200,9 @@ The custom component receives all the same props as the default FormMessage comp
 
       const icon = errorContainer?.querySelector('svg');
       expect(icon).toBeInTheDocument();
-      expect(icon).toHaveClass('h-5', 'w-5', 'text-red-400');
+      expect(icon).toHaveClass('h-5', 'w-5', 'text-red-400', 'mr-3');
 
       expect(errorMessage).toHaveClass('text-red-800', 'font-medium');
     });
   },
 };
-

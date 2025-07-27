@@ -181,12 +181,17 @@ All three instances show the same error message but with different visual treatm
     });
 
     await step('Verify different styling for each placement', async () => {
+      // Wait a moment for all error messages to be rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const errorMessages = canvas.getAllByText(/payment processing failed/i);
+      expect(errorMessages).toHaveLength(3);
       
       // Top placement - alert style
       const topError = errorMessages[0];
       expect(topError).toHaveClass('text-red-800');
-      expect(topError.closest('div')).toHaveClass('p-4', 'bg-red-50', 'border', 'border-red-200', 'rounded-lg');
+      const topContainer = topError.closest('div');
+      expect(topContainer).toHaveClass('p-4', 'bg-red-50', 'border', 'border-red-200', 'rounded-lg');
 
       // Inline placement - minimal style  
       const inlineError = errorMessages[1];
@@ -195,8 +200,8 @@ All three instances show the same error message but with different visual treatm
       // Bottom placement - banner style
       const bottomError = errorMessages[2];
       expect(bottomError).toHaveClass('text-red-700');
-      expect(bottomError.closest('div')).toHaveClass('mt-4', 'p-3', 'bg-red-100', 'border-l-4', 'border-red-500', 'rounded-r-md');
+      const bottomContainer = bottomError.closest('div');
+      expect(bottomContainer).toHaveClass('mt-4', 'p-3', 'bg-red-100', 'border-l-4', 'border-red-500', 'rounded-r-md');
     });
   },
 };
-

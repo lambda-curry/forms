@@ -184,19 +184,24 @@ This pattern is useful when you want to show form-level context alongside specif
       const emailInput = canvas.getByLabelText(/email address/i);
       const passwordInput = canvas.getByLabelText(/password/i);
 
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
       await userEvent.type(emailInput, 'taken@example.com');
       await userEvent.type(passwordInput, 'validpass123');
 
       const submitButton = canvas.getByRole('button', { name: /create account/i });
       await userEvent.click(submitButton);
 
+      // Wait for field-level error first
       await expect(canvas.findByText(/this email address is already registered/i)).resolves.toBeInTheDocument();
+      
+      // Then wait for form-level error
       await expect(canvas.findByText(/registration failed/i)).resolves.toBeInTheDocument();
 
-      // Verify form-level error appears in multiple locations
+      // Wait a moment for all errors to be rendered, then verify form-level error appears in multiple locations
+      await new Promise(resolve => setTimeout(resolve, 100));
       const formErrors = canvas.getAllByText(/registration failed/i);
       expect(formErrors).toHaveLength(2);
     });
   },
 };
-
