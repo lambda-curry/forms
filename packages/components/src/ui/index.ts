@@ -6,6 +6,7 @@ export * from './date-picker-field';
 export * from './dropdown-menu';
 export * from './dropdown-menu-select-field';
 export * from './form';
+export * from './form-error-field';
 export * from './label';
 export * from './otp-input';
 export * from './otp-input-field';
