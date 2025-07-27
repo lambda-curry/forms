@@ -1585,7 +1585,7 @@ __metadata:
     react: "npm:^19.0.0"
     react-hook-form: "npm:^7.51.0"
     react-router: "npm:^7.6.1"
-    remix-hook-form: "npm:^7.0.1"
+    remix-hook-form: "npm:^7.1.0"
     start-server-and-test: "npm:^2.0.11"
     storybook: "npm:^9.0.6"
     tailwindcss: "npm:^4.0.0"
@@ -1639,7 +1639,7 @@ __metadata:
     react-hook-form: "npm:^7.53.1"
     react-router: "npm:^7.6.3"
     react-router-dom: "npm:^7.6.3"
-    remix-hook-form: "npm:7.0.1"
+    remix-hook-form: "npm:7.1.0"
     sonner: "npm:^1.7.1"
     tailwind-merge: "npm:^2.5.5"
     tailwindcss: "npm:^4.0.0"
@@ -1653,7 +1653,7 @@ __metadata:
     react: ^19.0.0
     react-router: ^7.0.0
     react-router-dom: ^7.0.0
-    remix-hook-form: 7.0.1
+    remix-hook-form: 7.1.0
   languageName: unknown
   linkType: soft
 
@@ -9429,7 +9429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remix-hook-form@npm:7.0.1, remix-hook-form@npm:^7.0.1":
+"remix-hook-form@npm:7.1.0, remix-hook-form@npm:^7.1.0":
   version: 7.1.0
   resolution: "remix-hook-form@npm:7.1.0"
   peerDependencies:
