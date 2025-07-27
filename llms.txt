@@ -22,8 +22,7 @@ import { z } from 'zod';
 import { useFetcher, type ActionFunctionArgs } from 'react-router';
 
 // Import form components
-import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
-import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
+import { TextField, Checkbox } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 ```
 
@@ -645,7 +644,7 @@ import {
   RadioGroup, 
   DatePicker,
   DropdownMenuSelect 
-} from '@lambdacurry/forms/remix-hook-form';
+} from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui/dropdown-menu-select-field';
 import { RemixFormProvider, useRemixForm, getValidatedFormData, createFormData } from 'remix-hook-form';
@@ -1004,7 +1003,7 @@ This comprehensive example serves as a complete reference for implementing any f
    ```
 
 ### Important Reminders:
-- 🔥 **Always import from `@lambdacurry/forms/remix-hook-form/`** for form-aware components
+- 🔥 **Always import from `@lambdacurry/forms`** for form-aware components
 - 🔥 **Use `createFormData()` for custom submissions** to ensure proper formatting
 - 🔥 **All components are accessible by default** - no additional ARIA setup needed
 - 🔥 **Form context is automatic** - no need to pass `control` props manually
