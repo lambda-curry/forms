@@ -107,7 +107,70 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 ```
 
-### 3. Form Component Setup
+### 3. Complete Login Form Example with FormError
+
+```typescript
+const LoginForm = () => {
+  const fetcher = useFetcher<{ 
+    message?: string; 
+    errors?: Record<string, { message: string }> 
+  }>();
+  
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    fetcher,
+    submitConfig: {
+      action: '/login',
+      method: 'post',
+    },
+  });
+
+  const isSubmitting = fetcher.state === 'submitting';
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
+        
+        {/* Form-level error display */}
+        <FormError className="mb-4" />
+        
+        <TextField
+          name="email"
+          type="email"
+          label="Email Address"
+          placeholder="Enter your email"
+          disabled={isSubmitting}
+        />
+        
+        <TextField
+          name="password"
+          type="password"
+          label="Password"
+          placeholder="Enter your password"
+          disabled={isSubmitting}
+        />
+        
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? 'Signing In...' : 'Sign In'}
+        </Button>
+        
+        {fetcher.data?.message && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-700 font-medium">{fetcher.data.message}</p>
+          </div>
+        )}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+### 4. General Form Component Setup
 ```typescript
 const MyFormComponent = () => {
   const fetcher = useFetcher<{ message: string; errors?: Record<string, { message: string }> }>();
@@ -143,7 +206,7 @@ const MyFormComponent = () => {
 };
 ```
 
-### 4. Server Action Handler
+### 5. Server Action Handler with FormError Support
 ```typescript
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { data, errors } = await getValidatedFormData<FormData>(
@@ -155,10 +218,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return { errors };
   }
 
-  // Process the validated data
-  console.log('Form data:', data);
-  
-  return { message: 'Form submitted successfully!' };
+  // Business logic validation
+  try {
+    const user = await authenticateUser(data.email, data.password);
+    return { message: 'Login successful!', redirectTo: '/dashboard' };
+  } catch (error) {
+    // Return form-level error using _form key
+    return {
+      errors: {
+        _form: { message: 'Invalid credentials. Please try again.' }
+      }
+    };
+  }
 };
 ```
 
@@ -1071,8 +1142,90 @@ This comprehensive example serves as a complete reference for implementing any f
    };
    ```
 
+7. **FormError Placement Options**
+   ```typescript
+   // Top of form (most common)
+   <FormError className="mb-4" />
+   
+   // Between sections
+   <FormError className="my-4 text-center" />
+   
+   // Bottom of form
+   <FormError className="mt-4" />
+   
+   // Multiple placements with different styling
+   <FormError className="mb-4 p-3 bg-red-50 rounded" />
+   <FormError className="mt-4 text-sm text-red-600" />
+   ```
+
+8. **Custom FormError Styling**
+   ```typescript
+   const CustomErrorMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+     <div className="alert alert-error">
+       <AlertIcon />
+       <FormMessage {...props} />
+     </div>
+   );
+   
+   <FormError 
+     components={{
+       FormMessage: CustomErrorMessage,
+     }}
+   />
+   ```
+
+9. **Server Action Error Patterns**
+   ```typescript
+   // Field-level error
+   return {
+     errors: {
+       email: { message: 'Email already exists' }
+     }
+   };
+   
+   // Form-level error
+   return {
+     errors: {
+       _form: { message: 'Server error occurred' }
+     }
+   };
+   
+   // Multiple error types
+   return {
+     errors: {
+       email: { message: 'Email already exists' },
+       _form: { message: 'Please fix the errors above' }
+     }
+   };
+   ```
+
+## FormError Best Practices
+
+### 1. Error Key Conventions
+- Use `_form` for general form-level errors
+- Use descriptive keys for specific categories (`payment`, `shipping`, `auth`)
+- Be consistent across your application
+
+### 2. Error Message Guidelines
+- **Be specific**: "Server temporarily unavailable" vs "Error occurred"
+- **Be actionable**: "Please try again in a few minutes" vs "Failed"
+- **Be user-friendly**: Avoid technical jargon and error codes
+
+### 3. Placement Strategy
+- **Top placement**: For critical errors that should be seen immediately
+- **Inline placement**: For contextual errors related to specific sections
+- **Bottom placement**: For summary or less critical errors
+
+### 4. Component Integration
+- FormError works seamlessly with all existing form components
+- Maintains the same component override pattern as other form components
+- Automatically integrates with form context and validation state
+
 ### Important Reminders:
 - 🔥 **Always import from `@lambdacurry/forms`** for form-aware components
 - 🔥 **Use `createFormData()` for custom submissions** to ensure proper formatting
 - 🔥 **All components are accessible by default** - no additional ARIA setup needed
 - 🔥 **Form context is automatic** - no need to pass `control` props manually
+- 🔥 **FormError provides form-level error handling** - use it for server errors, auth failures, and general business logic errors
+
+This comprehensive guide provides everything needed to implement forms with both field-level and form-level error handling using the LambdaCurry Forms library!
