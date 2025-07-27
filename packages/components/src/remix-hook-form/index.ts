@@ -1,5 +1,6 @@
 export * from './checkbox';
 export * from './form';
+export * from './form-error';
 export * from './date-picker';
 export * from './dropdown-menu-select';
 export * from './text-field';

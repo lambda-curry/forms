@@ -1,0 +1,702 @@
+# LambdaCurry Forms - Complete Implementation Guide for LLMs
+
+This comprehensive guide covers everything needed to implement forms using the `@lambdacurry/forms` remix-hook-form components, including the new FormError component for form-level error handling.
+
+## Core Architecture Overview
+
+The library provides **form-aware wrapper components** in the `remix-hook-form` directory that automatically integrate with React Router forms and Remix Hook Form context. These components eliminate boilerplate while maintaining full customization capabilities.
+
+### Key Principle: Zero Boilerplate Form Integration
+- Components automatically access form context via `useRemixFormContext()`
+- No need to manually pass `control` props
+- Automatic error handling and validation display
+- Built-in accessibility features
+
+## Form-Level Error Handling with FormError
+
+The `FormError` component provides standardized form-level error handling, complementing the existing field-level error system.
+
+### FormError Component Usage
+
+```typescript
+import { FormError } from '@lambdacurry/forms';
+
+// Basic usage - looks for errors._form by default
+<FormError />
+
+// Custom error key
+<FormError name="general" />
+
+// With custom styling and placement
+<FormError className="mb-4 p-3 bg-red-50 border border-red-200 rounded" />
+
+// With custom component override
+<FormError 
+  components={{
+    FormMessage: CustomErrorMessage,
+  }}
+/>
+```
+
+### Server Action Pattern for Form-Level Errors
+
+```typescript
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { data, errors } = await getValidatedFormData<FormData>(
+    request, 
+    zodResolver(formSchema)
+  );
+
+  // Return field-level validation errors
+  if (errors) {
+    return { errors };
+  }
+
+  // Business logic validation
+  try {
+    await processForm(data);
+    return { message: 'Success!' };
+  } catch (error) {
+    // Return form-level error using _form key
+    return {
+      errors: {
+        _form: { message: 'Unable to process form. Please try again.' }
+      }
+    };
+  }
+};
+```
+
+### Error Hierarchy Guidelines
+
+**Field-Level Errors (use FormMessage automatically in form components):**
+- Validation errors: "Email is required", "Password too short"
+- Format errors: "Invalid email format"
+- Field-specific business rules: "Username already taken"
+
+**Form-Level Errors (use FormError component):**
+- Server errors: "Server temporarily unavailable"
+- Authentication failures: "Invalid credentials"
+- Network issues: "Connection timeout"
+- General business logic: "Account suspended"
+- Rate limiting: "Too many attempts, try again later"
+
+## Basic Form Setup Pattern
+
+### 1. Required Imports
+```typescript
+import { zodResolver } from '@hookform/resolvers/zod';
+import { RemixFormProvider, useRemixForm, getValidatedFormData } from 'remix-hook-form';
+import { z } from 'zod';
+import { useFetcher, type ActionFunctionArgs } from 'react-router';
+
+// Import form components including FormError
+import { TextField, Checkbox, FormError } from '@lambdacurry/forms';
+import { Button } from '@lambdacurry/forms/ui/button';
+```
+
+### 2. Complete Form Example with FormError
+
+```typescript
+const LoginForm = () => {
+  const fetcher = useFetcher<{ 
+    message?: string; 
+    errors?: Record<string, { message: string }> 
+  }>();
+  
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    fetcher,
+    submitConfig: {
+      action: '/login',
+      method: 'post',
+    },
+  });
+
+  const isSubmitting = fetcher.state === 'submitting';
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
+        
+        {/* Form-level error display */}
+        <FormError className="mb-4" />
+        
+        <TextField
+          name="email"
+          type="email"
+          label="Email Address"
+          placeholder="Enter your email"
+          disabled={isSubmitting}
+        />
+        
+        <TextField
+          name="password"
+          type="password"
+          label="Password"
+          placeholder="Enter your password"
+          disabled={isSubmitting}
+        />
+        
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? 'Signing In...' : 'Sign In'}
+        </Button>
+        
+        {fetcher.data?.message && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-700 font-medium">{fetcher.data.message}</p>
+          </div>
+        )}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+## Available Form Components
+
+### TextField Component
+```typescript
+<TextField 
+  name="fieldName"           // Required: field name for form registration
+  label="Field Label"        // Optional: display label
+  description="Help text"    // Optional: description text
+  placeholder="Enter text"   // Optional: placeholder text
+  type="text"               // Optional: input type (text, email, password, number, etc.)
+  prefix="$"                // Optional: prefix content (e.g., currency symbol)
+  suffix="USD"              // Optional: suffix content (e.g., units)
+  className="custom-class"   // Optional: additional CSS classes
+  components={{              // Optional: custom component overrides
+    Input: CustomInput,
+    FormLabel: CustomLabel,
+    FormMessage: CustomMessage,
+  }}
+/>
+```
+
+### Textarea Component
+```typescript
+<Textarea 
+  name="message"
+  label="Your Message"
+  description="Enter your detailed message"
+  placeholder="Type your message here..."
+  rows={5}                  // Optional: number of visible rows
+  className="custom-class"
+  components={{
+    TextArea: CustomTextarea,
+    FormLabel: CustomLabel,
+  }}
+/>
+```
+
+### Checkbox Component
+```typescript
+<Checkbox 
+  name="terms"
+  label="Accept Terms and Conditions"
+  description="You must accept our terms to continue"
+  className="custom-class"
+  components={{
+    FormLabel: CustomLabel,
+    FormMessage: CustomMessage,
+  }}
+/>
+```
+
+### FormError Component (NEW)
+```typescript
+<FormError 
+  name="_form"              // Optional: error key (default: "_form")
+  className="mb-4"          // Optional: styling and positioning
+  components={{             // Optional: custom component overrides
+    FormMessage: CustomErrorMessage,
+  }}
+/>
+```
+
+## Advanced Form Patterns with FormError
+
+### Mixed Error Handling (Field + Form Level)
+
+```typescript
+const RegistrationForm = () => {
+  const fetcher = useFetcher<{ 
+    message?: string; 
+    errors?: Record<string, { message: string }> 
+  }>();
+  
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    fetcher,
+    submitConfig: { action: '/register', method: 'post' },
+  });
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Create Account</h2>
+        
+        {/* Form-level error at the top */}
+        <FormError className="mb-4" />
+        
+        <TextField name="email" label="Email Address" />
+        <TextField name="password" type="password" label="Password" />
+        <TextField name="confirmPassword" type="password" label="Confirm Password" />
+        
+        <Button type="submit">Create Account</Button>
+        
+        {/* Optional: Form-level error at bottom too */}
+        <FormError className="mt-4" />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+// Server action handling both error types
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+
+  if (errors) return { errors };
+
+  // Check if email already exists (field-specific error)
+  if (await emailExists(data.email)) {
+    return {
+      errors: {
+        email: { message: 'This email is already registered' }
+      }
+    };
+  }
+
+  // Server/network error (form-level error)
+  try {
+    await createAccount(data);
+    return { message: 'Account created successfully!' };
+  } catch (error) {
+    return {
+      errors: {
+        _form: { message: 'Failed to create account. Please try again.' }
+      }
+    };
+  }
+};
+```
+
+### Custom FormError Styling
+
+```typescript
+const CustomStyledForm = () => {
+  // Custom error message component with icon
+  const AlertErrorMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+    <div className="flex items-center p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
+      <div className="flex-shrink-0">
+        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div className="ml-3">
+        <FormMessage className="text-red-800 font-medium" {...props} />
+      </div>
+    </div>
+  );
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <FormError 
+          className="mb-6"
+          components={{
+            FormMessage: AlertErrorMessage,
+          }}
+        />
+        
+        {/* Form fields */}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+### Multiple FormError Placement
+
+```typescript
+const FlexibleErrorPlacement = () => {
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        {/* Top placement - most visible */}
+        <FormError className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg" />
+        
+        <TextField name="email" label="Email" />
+        
+        {/* Inline placement - contextual */}
+        <FormError className="my-2 text-center text-sm text-red-600" />
+        
+        <TextField name="password" label="Password" />
+        
+        <Button type="submit">Submit</Button>
+        
+        {/* Bottom placement - summary */}
+        <FormError className="mt-4 p-3 bg-red-100 border-l-4 border-red-500" />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+```
+
+### Custom Error Keys for Different Error Types
+
+```typescript
+const MultiErrorForm = () => {
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        {/* General form errors */}
+        <FormError name="_form" className="mb-4" />
+        
+        {/* Payment-specific errors */}
+        <FormError name="payment" className="mb-4 text-orange-600" />
+        
+        {/* Shipping-specific errors */}
+        <FormError name="shipping" className="mb-4 text-blue-600" />
+        
+        {/* Form fields */}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+// Server action with multiple error categories
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+
+  if (errors) return { errors };
+
+  // Payment processing error
+  try {
+    await processPayment(data.payment);
+  } catch (error) {
+    return {
+      errors: {
+        payment: { message: 'Payment processing failed. Please check your card details.' }
+      }
+    };
+  }
+
+  // Shipping calculation error
+  try {
+    await calculateShipping(data.address);
+  } catch (error) {
+    return {
+      errors: {
+        shipping: { message: 'Shipping not available to this address.' }
+      }
+    };
+  }
+
+  // General server error
+  try {
+    await submitOrder(data);
+    return { message: 'Order submitted successfully!' };
+  } catch (error) {
+    return {
+      errors: {
+        _form: { message: 'Unable to submit order. Please try again.' }
+      }
+    };
+  }
+};
+```
+
+## Complete Form Example with All Features
+
+```typescript
+import { zodResolver } from '@hookform/resolvers/zod';
+import { 
+  TextField, 
+  Textarea, 
+  Checkbox, 
+  RadioGroup, 
+  DatePicker,
+  DropdownMenuSelect,
+  FormError 
+} from '@lambdacurry/forms';
+import { Button } from '@lambdacurry/forms/ui/button';
+import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui/dropdown-menu-select-field';
+import { RemixFormProvider, useRemixForm, getValidatedFormData, createFormData } from 'remix-hook-form';
+import { useFetcher, type ActionFunctionArgs } from 'react-router';
+import { z } from 'zod';
+
+// Comprehensive form schema
+const formSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  accountType: z.enum(['personal', 'business'], {
+    required_error: 'Please select an account type',
+  }),
+  terms: z.boolean().refine(val => val === true, 'You must accept the terms'),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const ComprehensiveForm = () => {
+  const fetcher = useFetcher<{ 
+    message?: string; 
+    errors?: Record<string, { message: string }>;
+  }>();
+  
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      accountType: undefined,
+      terms: false,
+    },
+    fetcher,
+    submitConfig: {
+      action: '/register',
+      method: 'post',
+    },
+  });
+
+  const isSubmitting = fetcher.state === 'submitting';
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-2xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
+        
+        {/* Form-level error display */}
+        <FormError className="mb-4" />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextField
+            name="firstName"
+            label="First Name"
+            placeholder="Enter your first name"
+            disabled={isSubmitting}
+          />
+          <TextField
+            name="lastName"
+            label="Last Name"
+            placeholder="Enter your last name"
+            disabled={isSubmitting}
+          />
+        </div>
+        
+        <TextField
+          name="email"
+          type="email"
+          label="Email Address"
+          placeholder="Enter your email"
+          description="We'll use this to send you important updates"
+          disabled={isSubmitting}
+        />
+        
+        <RadioGroup
+          name="accountType"
+          label="Account Type"
+          description="Choose the type of account you want to create"
+          options={[
+            { value: 'personal', label: 'Personal Account' },
+            { value: 'business', label: 'Business Account' },
+          ]}
+          disabled={isSubmitting}
+        />
+        
+        <Checkbox
+          name="terms"
+          label="I accept the Terms of Service and Privacy Policy"
+          description="Required to create an account"
+          disabled={isSubmitting}
+        />
+        
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="w-full"
+        >
+          {isSubmitting ? 'Creating Account...' : 'Create Account'}
+        </Button>
+        
+        {/* Success message */}
+        {fetcher.data?.message && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-700 font-medium">{fetcher.data.message}</p>
+          </div>
+        )}
+        
+        {/* Additional form-level error at bottom */}
+        <FormError className="mt-4" />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+// Server action handler with comprehensive error handling
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { data, errors } = await getValidatedFormData<FormData>(
+    request, 
+    zodResolver(formSchema)
+  );
+
+  // Return field-level validation errors
+  if (errors) {
+    return { errors };
+  }
+
+  // Additional server-side validation
+  const existingUser = await getUserByEmail(data.email);
+  if (existingUser) {
+    return {
+      errors: {
+        email: { message: 'This email address is already registered' }
+      }
+    };
+  }
+
+  // Process the form with comprehensive error handling
+  try {
+    const user = await createUser({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      accountType: data.accountType,
+    });
+
+    return { 
+      message: 'Account created successfully! Welcome aboard!',
+    };
+  } catch (error) {
+    console.error('Account creation failed:', error);
+    
+    // Return form-level error for server/network issues
+    return { 
+      errors: { 
+        _form: { message: 'Failed to create account. Please try again.' }
+      }
+    };
+  }
+};
+
+export default ComprehensiveForm;
+```
+
+## Key Implementation Notes for LLMs
+
+### Essential Patterns to Follow:
+
+1. **Form Provider Setup**
+   ```typescript
+   <RemixFormProvider {...methods}>
+     <fetcher.Form onSubmit={methods.handleSubmit}>
+       {/* Form components including FormError */}
+     </fetcher.Form>
+   </RemixFormProvider>
+   ```
+
+2. **Error Handling Hierarchy**
+   - Field errors display automatically via `FormMessage` component in form fields
+   - Form-level errors use `<FormError />` component
+   - Server errors: `return { errors }` from action
+   - Field-specific: `errors.fieldName.message`
+   - Form-level: `errors._form.message` (or custom key)
+
+3. **FormError Placement Options**
+   ```typescript
+   // Top of form (most common)
+   <FormError className="mb-4" />
+   
+   // Between sections
+   <FormError className="my-4 text-center" />
+   
+   // Bottom of form
+   <FormError className="mt-4" />
+   
+   // Multiple placements with different styling
+   <FormError className="mb-4 p-3 bg-red-50 rounded" />
+   <FormError className="mt-4 text-sm text-red-600" />
+   ```
+
+4. **Loading States**
+   ```typescript
+   const isSubmitting = fetcher.state === 'submitting';
+   <TextField disabled={isSubmitting} />
+   <FormError className={isSubmitting ? 'opacity-50' : ''} />
+   <Button disabled={isSubmitting}>
+     {isSubmitting ? 'Submitting...' : 'Submit'}
+   </Button>
+   ```
+
+5. **Custom FormError Styling**
+   ```typescript
+   const CustomErrorMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+     <div className="alert alert-error">
+       <AlertIcon />
+       <FormMessage {...props} />
+     </div>
+   );
+   
+   <FormError 
+     components={{
+       FormMessage: CustomErrorMessage,
+     }}
+   />
+   ```
+
+6. **Server Action Error Patterns**
+   ```typescript
+   // Field-level error
+   return {
+     errors: {
+       email: { message: 'Email already exists' }
+     }
+   };
+   
+   // Form-level error
+   return {
+     errors: {
+       _form: { message: 'Server error occurred' }
+     }
+   };
+   
+   // Multiple error types
+   return {
+     errors: {
+       email: { message: 'Email already exists' },
+       _form: { message: 'Please fix the errors above' }
+     }
+   };
+   ```
+
+## FormError Best Practices
+
+### 1. Error Key Conventions
+- Use `_form` for general form-level errors
+- Use descriptive keys for specific categories (`payment`, `shipping`, `auth`)
+- Be consistent across your application
+
+### 2. Error Message Guidelines
+- **Be specific**: "Server temporarily unavailable" vs "Error occurred"
+- **Be actionable**: "Please try again in a few minutes" vs "Failed"
+- **Be user-friendly**: Avoid technical jargon and error codes
+
+### 3. Placement Strategy
+- **Top placement**: For critical errors that should be seen immediately
+- **Inline placement**: For contextual errors related to specific sections
+- **Bottom placement**: For summary or less critical errors
+
+### 4. Component Integration
+- FormError works seamlessly with all existing form components
+- Maintains the same component override pattern as other form components
+- Automatically integrates with form context and validation state
+
+This comprehensive guide provides everything needed to implement forms with both field-level and form-level error handling using the LambdaCurry Forms library!
