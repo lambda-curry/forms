@@ -1,6 +1,11 @@
-// Main entry point for @lambdacurry/forms
-// Export UI components first
-export * from './ui';
+// Main exports from both remix-hook-form and ui directories
 
-// Export remix-hook-form components (some may override UI components intentionally)
+// Export all components from remix-hook-form
 export * from './remix-hook-form';
+
+// Explicitly export Textarea from both locations to handle naming conflicts
+// The remix-hook-form Textarea is a form-aware wrapper
+export { Textarea as RemixTextarea } from './remix-hook-form/textarea';
+
+// The ui Textarea is the base component
+export { Textarea } from './ui/textarea';
