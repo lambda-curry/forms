@@ -30,7 +30,7 @@ const ControlledTextareaExample = () => {
       onValid: (data) => {
         fetcher.submit(
           createFormData({
-            submittedMessage: data.message,
+            message: data.message,
           }),
           {
             method: 'post',
