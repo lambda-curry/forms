@@ -19,6 +19,7 @@ The `FormError` component provides standardized form-level error handling, compl
 ### FormError Component Usage
 
 ```typescript
+// Import form-aware FormError component
 import { FormError } from '@lambdacurry/forms';
 
 // Basic usage - looks for errors._form by default
@@ -83,6 +84,117 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 ## Basic Form Setup Pattern
 
+## Import Structure
+
+The `@lambdacurry/forms` library follows a clear import structure:
+
+### Form-Aware Components (from `@lambdacurry/forms`)
+These components automatically integrate with React Router forms and Remix Hook Form context:
+- `TextField` - Form-aware text input with automatic validation
+- `Textarea` - Form-aware textarea with automatic validation  
+- `Checkbox` - Form-aware checkbox with automatic validation
+- `Switch` - Form-aware switch/toggle with automatic validation
+- `RadioGroup` - Form-aware radio group with automatic validation
+- `RadioGroupItem` - Individual radio items for RadioGroup
+- `DatePicker` - Form-aware date picker with automatic validation
+- `DropdownMenuSelect` - Form-aware dropdown select with automatic validation
+- `OtpInput` - Form-aware OTP/PIN input with automatic validation
+- `FormError` - Component for displaying form-level errors
+- `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` - Form field components
+- `useFormField` - Hook for accessing form field context
+- Data table components: `DataTableRouterForm`, `DataTableRouterToolbar`, etc.
+
+### UI Components (from `@lambdacurry/forms/ui`)
+These are the underlying UI components without form integration:
+- `Button` - Button component with variants
+- `Calendar` - Calendar component for date selection
+- `Badge` - Badge/chip component for labels
+- `Dialog` - Modal dialog component
+- `Popover` - Popover/tooltip component
+- `Select` - Basic select dropdown
+- `Separator` - Visual separator/divider
+- `Slider` - Range slider component
+- `Table` - Table components for data display
+- `Tabs` - Tab navigation component
+- `Command` - Command palette/search component
+- Field variants: `CheckboxField`, `TextareaField`, `TextField`, `SwitchField`, etc.
+- And many more UI primitives
+
+## Component Reference
+
+### Complete List of Form-Aware Components (`@lambdacurry/forms`)
+```typescript
+// Form input components (automatically integrate with form context)
+import { 
+  TextField,           // Text input with validation
+  Textarea,           // Multi-line text input with validation
+  Checkbox,           // Checkbox with validation
+  Switch,             // Toggle switch with validation
+  RadioGroup,         // Radio button group with validation
+  RadioGroupItem,     // Individual radio button
+  DatePicker,         // Date selection with validation
+  DropdownMenuSelect, // Dropdown select with validation
+  OtpInput,           // OTP/PIN input with validation
+  
+  // Form structure components
+  FormError,          // Form-level error display
+  FormLabel,          // Form field labels
+  FormControl,        // Form field wrapper
+  FormDescription,    // Form field descriptions
+  FormMessage,        // Form field error messages
+  useFormField,       // Hook for form field context
+  
+  // Data table components
+  DataTableRouterForm,
+  DataTableRouterToolbar,
+  useDataTableUrlState,
+} from '@lambdacurry/forms';
+```
+
+### Complete List of UI Components (`@lambdacurry/forms/ui`)
+```typescript
+// Basic UI components (no form integration)
+import {
+  // Buttons and actions
+  Button,             // Button with variants
+  
+  // Form inputs (non-form-aware versions)
+  CheckboxField,      // Checkbox without form integration
+  TextareaField,      // Textarea without form integration
+  TextField,          // Text input without form integration
+  SwitchField,        // Switch without form integration
+  RadioGroupField,    // Radio group without form integration
+  DatePickerField,    // Date picker without form integration
+  DropdownMenuSelectField, // Dropdown without form integration
+  OtpInputField,      // OTP input without form integration
+  FormErrorField,     // Error display without form integration
+  
+  // Layout and navigation
+  Dialog,             // Modal dialogs
+  Popover,            // Popover/tooltips
+  Tabs,               // Tab navigation
+  Separator,          // Visual dividers
+  
+  // Data display
+  Table,              // Table components
+  Badge,              // Labels and badges
+  Calendar,           // Calendar component
+  
+  // Form primitives
+  Label,              // Basic labels
+  Select,             // Basic select dropdown
+  Slider,             // Range slider
+  Command,            // Command palette
+  
+  // Data table system
+  DataTable,          // Data table components
+  DataTableFilter,    // Table filtering
+  
+  // Utilities
+  DebouncedInput,     // Debounced input
+} from '@lambdacurry/forms/ui';
+```
+
 ### 1. Required Imports
 ```typescript
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -90,9 +202,10 @@ import { RemixFormProvider, useRemixForm, getValidatedFormData } from 'remix-hoo
 import { z } from 'zod';
 import { useFetcher, type ActionFunctionArgs } from 'react-router';
 
-// Import form components including FormError
+// Import form-aware components from main package
 import { TextField, Checkbox, FormError } from '@lambdacurry/forms';
-import { Button } from '@lambdacurry/forms/ui/button';
+// Import UI components from /ui subpath
+import { Button } from '@lambdacurry/forms/ui';
 ```
 
 ### 2. Zod Schema Definition
@@ -784,8 +897,8 @@ import {
   DatePicker,
   DropdownMenuSelect 
 } from '@lambdacurry/forms';
-import { Button } from '@lambdacurry/forms/ui/button';
-import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui/dropdown-menu-select-field';
+import { Button } from '@lambdacurry/forms/ui';
+import { DropdownMenuSelectItem } from '@lambdacurry/forms/ui';
 import { RemixFormProvider, useRemixForm, getValidatedFormData, createFormData } from 'remix-hook-form';
 import { useFetcher, type ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
@@ -1218,7 +1331,8 @@ This comprehensive example serves as a complete reference for implementing any f
 - Automatically integrates with form context and validation state
 
 ### Important Reminders:
-- 🔥 **Always import from `@lambdacurry/forms`** for form-aware components
+- 🔥 **Import form-aware components from `@lambdacurry/forms`** - these automatically integrate with form context
+- 🔥 **Import UI components from `@lambdacurry/forms/ui`** - these are the underlying UI primitives
 - 🔥 **Use `createFormData()` for custom submissions** to ensure proper formatting
 - 🔥 **All components are accessible by default** - no additional ARIA setup needed
 - 🔥 **Form context is automatic** - no need to pass `control` props manually
