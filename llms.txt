@@ -22,7 +22,6 @@ The `FormError` component provides standardized form-level error handling, compl
 import { FormError } from '@lambdacurry/forms';
 
 // Basic usage - looks for errors._form by default
-// Typically placed below inputs and above submit button
 <FormError />
 
 // Custom error key
@@ -153,7 +152,6 @@ const LoginForm = () => {
           disabled={isSubmitting}
         />
         
-        {/* Form-level error display - typically placed below inputs and above submit button */}
         <FormError className="mb-4" />
         
         <Button type="submit" disabled={isSubmitting} className="w-full">
@@ -994,7 +992,7 @@ const ComprehensiveForm = () => {
 
         {/* Submit Button & Status */}
         <div className="pt-6">
-          {/* Form-level error display - below inputs, above submit button */}
+          {/* Form-level errors appear below inputs, above submit button */}
           <FormError className="mb-4" />
           
           <Button 
