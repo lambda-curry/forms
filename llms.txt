@@ -22,6 +22,7 @@ The `FormError` component provides standardized form-level error handling, compl
 import { FormError } from '@lambdacurry/forms';
 
 // Basic usage - looks for errors._form by default
+// Typically placed below inputs and above submit button
 <FormError />
 
 // Custom error key
@@ -136,9 +137,6 @@ const LoginForm = () => {
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
         
-        {/* Form-level error display */}
-        <FormError className="mb-4" />
-        
         <TextField
           name="email"
           type="email"
@@ -154,6 +152,9 @@ const LoginForm = () => {
           placeholder="Enter your password"
           disabled={isSubmitting}
         />
+        
+        {/* Form-level error display - typically placed below inputs and above submit button */}
+        <FormError className="mb-4" />
         
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Signing In...' : 'Sign In'}
@@ -993,6 +994,9 @@ const ComprehensiveForm = () => {
 
         {/* Submit Button & Status */}
         <div className="pt-6">
+          {/* Form-level error display - below inputs, above submit button */}
+          <FormError className="mb-4" />
+          
           <Button 
             type="submit" 
             disabled={isSubmitting}
@@ -1005,13 +1009,6 @@ const ComprehensiveForm = () => {
           {fetcher.data?.message && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
               <p className="text-green-700 font-medium">{fetcher.data.message}</p>
-            </div>
-          )}
-          
-          {/* General Error */}
-          {fetcher.data?.errors?._form && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-700 font-medium">{fetcher.data.errors._form.message}</p>
             </div>
           )}
         </div>
@@ -1144,14 +1141,14 @@ This comprehensive example serves as a complete reference for implementing any f
 
 7. **FormError Placement Options**
    ```typescript
-   // Top of form (most common)
+   // Below inputs, above submit button (most common)
    <FormError className="mb-4" />
    
    // Between sections
    <FormError className="my-4 text-center" />
    
-   // Bottom of form
-   <FormError className="mt-4" />
+   // Top of form (for critical errors that need immediate attention)
+   <FormError className="mb-4" />
    
    // Multiple placements with different styling
    <FormError className="mb-4 p-3 bg-red-50 rounded" />
@@ -1212,9 +1209,10 @@ This comprehensive example serves as a complete reference for implementing any f
 - **Be user-friendly**: Avoid technical jargon and error codes
 
 ### 3. Placement Strategy
-- **Top placement**: For critical errors that should be seen immediately
+- **Below inputs, above submit button**: Most common placement - users see errors after completing form fields but before submitting
+- **Top placement**: For critical errors that need immediate attention before users start filling the form
 - **Inline placement**: For contextual errors related to specific sections
-- **Bottom placement**: For summary or less critical errors
+- **Multiple placements**: FormError can be placed anywhere in the form and styled differently for various use cases
 
 ### 4. Component Integration
 - FormError works seamlessly with all existing form components
