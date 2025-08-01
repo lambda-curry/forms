@@ -24,7 +24,9 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
   delay = 500,
   options?: DebounceOptions,
 ): DebouncedState<T> {
-  const debouncedFunc = useRef<(((...args: Parameters<T>) => ReturnType<T> | undefined) & ControlFunctions) | null>(null);
+  const debouncedFunc = useRef<(((...args: Parameters<T>) => ReturnType<T> | undefined) & ControlFunctions) | null>(
+    null,
+  );
 
   useUnmount(() => {
     if (debouncedFunc.current) {

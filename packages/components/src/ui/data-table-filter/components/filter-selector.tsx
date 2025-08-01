@@ -138,7 +138,7 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>({
     // eslint-disable-next-line no-console
     console.warn('FilterableColumn: id is not a string', column);
   }
-  console.log('FilterableColumn CommandItem value:', column.id, 'keywords:', [displayName]);
+
   const itemRef = useRef<HTMLDivElement>(null);
 
   const prefetch = useCallback(() => {
@@ -237,8 +237,6 @@ function __QuickSearchFilters<TData>({
               const checked = Boolean(filter?.values.includes(v.value));
               const count = optionsCount?.get(v.value) ?? 0;
 
-              console.log('QuickSearchFilters option value:', v.value, 'label:', v.label);
-
               // Defensive check for label
               if (typeof v.label !== 'string') {
                 // eslint-disable-next-line no-console
@@ -289,5 +287,3 @@ function __QuickSearchFilters<TData>({
     </>
   );
 }
-
-console.log('=== filter-selector.tsx loaded ===');

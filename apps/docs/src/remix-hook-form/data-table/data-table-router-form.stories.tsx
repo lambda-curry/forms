@@ -132,40 +132,10 @@ const bazzaFilterColumnConfigs: BazzaFilterColumnConfig[] = [
   // Add more configs for other filterable columns as needed
 ];
 
-// Log all options for each config to help debug undefined labels
-bazzaFilterColumnConfigs.forEach((config) => {
-  // Log the options array for each config, if present
-  console.log(`Config id: ${config.id}, options:`, config.options);
-  if (config.options) {
-    config.options.forEach((opt, idx) => {
-      // Log if label is missing or undefined
-      if (!opt || typeof opt.label !== 'string') {
-        // eslint-disable-next-line no-console
-        console.warn(`Option label is missing or not a string in config '${config.id}' at index ${idx}:`, opt);
-      }
-    });
-  }
-});
-
 function DataTableRouterFormExample() {
   const loaderData = useLoaderData<DataResponse>();
   const data = loaderData?.data ?? [];
   const pageCount = loaderData?.meta.pageCount ?? 0;
-
-  // Log options before rendering to catch runtime issues
-  bazzaFilterColumnConfigs.forEach((config) => {
-    if (config.options) {
-      config.options.forEach((opt, idx) => {
-        if (!opt || typeof opt.label !== 'string') {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `[Render] Option label is missing or not a string in config '${config.id}' at index ${idx}:`,
-            opt,
-          );
-        }
-      });
-    }
-  });
 
   return (
     <div className="container mx-auto py-10">

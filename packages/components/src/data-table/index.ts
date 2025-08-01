@@ -12,4 +12,3 @@ export * from '../ui/data-table';
 
 // Re-export types if needed
 export type * from '../ui/data-table-filter/core/types';
-

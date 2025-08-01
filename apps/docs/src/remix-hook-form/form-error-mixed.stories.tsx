@@ -16,11 +16,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const MixedErrorsExample = () => {
-  const fetcher = useFetcher<{ 
-    message?: string; 
-    errors?: Record<string, { message: string }> 
+  const fetcher = useFetcher<{
+    message?: string;
+    errors?: Record<string, { message: string }>;
   }>();
-  
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,10 +40,10 @@ const MixedErrorsExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">Create Account</h2>
-        
+
         {/* Form-level error at top */}
         <FormError className="p-3 bg-red-50 border border-red-200 rounded-lg" />
-        
+
         <TextField
           name="email"
           type="email"
@@ -51,7 +51,7 @@ const MixedErrorsExample = () => {
           placeholder="Enter your email"
           disabled={isSubmitting}
         />
-        
+
         <TextField
           name="password"
           type="password"
@@ -59,14 +59,14 @@ const MixedErrorsExample = () => {
           placeholder="Enter your password"
           disabled={isSubmitting}
         />
-        
+
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Creating Account...' : 'Create Account'}
         </Button>
-        
+
         {/* Form-level error at bottom */}
         <FormError className="mt-4 p-3 bg-red-100 border-l-4 border-red-500 rounded-r" />
-        
+
         {fetcher.data?.message && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-700 font-medium">{fetcher.data.message}</p>
@@ -79,38 +79,38 @@ const MixedErrorsExample = () => {
 
 const handleFormSubmission = async (request: Request) => {
   const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
-  
+
   if (errors) {
     return { errors };
   }
-  
+
   // Simulate mixed errors - both field and form level
   if (data.email === 'taken@example.com') {
     return {
       errors: {
         email: { message: 'This email address is already registered' },
-        _form: { message: 'Registration failed. Please correct the errors above.' }
-      }
+        _form: { message: 'Registration failed. Please correct the errors above.' },
+      },
     };
   }
-  
+
   // Simulate server error only
   if (data.password === 'servererror') {
     return {
       errors: {
-        _form: { message: 'Server error occurred. Please try again later.' }
-      }
+        _form: { message: 'Server error occurred. Please try again later.' },
+      },
     };
   }
-  
+
   if (data.email === 'valid@example.com' && data.password === 'validpass123') {
     return { message: 'Account created successfully! Welcome aboard.' };
   }
-  
+
   return {
     errors: {
-      _form: { message: 'Registration failed. Please try again.' }
-    }
+      _form: { message: 'Registration failed. Please try again.' },
+    },
   };
 };
 
@@ -193,12 +193,12 @@ This pattern is useful when you want to show form-level context alongside specif
       await userEvent.click(submitButton);
 
       // Wait for errors to appear
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Check for field-level error
       const fieldError = canvas.queryByText(/this email address is already registered/i);
       expect(fieldError).toBeInTheDocument();
-      
+
       // Check for form-level errors - use queryAllByText to avoid "multiple elements" error
       const formErrors = canvas.queryAllByText(/registration failed/i);
       expect(formErrors.length).toBeGreaterThanOrEqual(1);

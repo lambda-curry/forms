@@ -22,7 +22,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         data-slot="textarea"
       />
     );
-  }
+  },
 );
 Textarea.displayName = 'Textarea';
 

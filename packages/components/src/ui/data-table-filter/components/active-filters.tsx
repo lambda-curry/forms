@@ -110,11 +110,6 @@ export function ActiveFiltersMobileContainer({ children }: { children: React.Rea
     }
   };
 
-  // Log blur states for debugging
-  // useEffect(() => {
-  //   console.log('left:', showLeftBlur, '  right:', showRightBlur)
-  // }, [showLeftBlur, showRightBlur])
-
   // Set up ResizeObserver to monitor container size
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {

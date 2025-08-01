@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
 import { FormErrorField } from '../ui/form-error-field';
 import type { FormErrorFieldProps } from '../ui/form-error-field';
