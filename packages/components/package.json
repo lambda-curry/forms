@@ -1,6 +1,6 @@
 {
   "name": "@lambdacurry/forms",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,7 +18,9 @@
       "import": "./dist/ui/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepublishOnly": "yarn run build",
     "build": "vite build",
