@@ -1,5 +1,4 @@
-import * as React from 'react';
-import type { FieldPath, FieldValues, Control } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormMessage } from './form';
 import type { FieldComponents } from './form';
 
@@ -29,9 +28,7 @@ export const FormErrorField = <
       render={({ fieldState }) => (
         <FormItem className={className}>
           {fieldState.error && (
-            <FormMessage Component={components?.FormMessage}>
-              {fieldState.error.message}
-            </FormMessage>
+            <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
           )}
         </FormItem>
       )}

@@ -131,15 +131,15 @@ export const Default: Story = {
       // Find any available day button in the calendar (look for a button with a number)
       // We'll look for any day button that's not disabled
       const dayButtons = await dialogCanvas.findAllByRole('button');
-      const availableDayButton = dayButtons.find(button => {
+      const availableDayButton = dayButtons.find((button) => {
         const text = button.textContent;
         return text && DAY_BUTTON_REGEX.test(text.trim()) && !button.hasAttribute('disabled');
       });
-      
+
       if (!availableDayButton) {
         throw new Error('No available day button found in calendar');
       }
-      
+
       await userEvent.click(availableDayButton);
     });
 

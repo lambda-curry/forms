@@ -11,7 +11,6 @@ export type BazzaFiltersState = BazzaFilterItem[];
 // Runtime parser for BazzaFiltersState
 const parseBazzaFiltersState = (value: unknown): BazzaFiltersState => {
   if (!Array.isArray(value)) {
-    // console.warn('Expected array for filters, got:', value);
     return []; // Return empty array or throw error based on desired strictness
   }
   return value.reduce((acc: BazzaFiltersState, item) => {
@@ -34,7 +33,6 @@ const parseBazzaFiltersState = (value: unknown): BazzaFiltersState => {
         values: item.values,
       });
     } else {
-      // console.warn('Invalid filter item:', item);
     }
     return acc;
   }, []);

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -103,7 +103,7 @@ const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   await userEvent.clear(messageInput);
   await userEvent.type(messageInput, 'Short');
   await userEvent.click(submitButton);
-  
+
   // Check for validation error
   await expect(await canvas.findByText('Message must be at least 10 characters')).toBeInTheDocument();
 };

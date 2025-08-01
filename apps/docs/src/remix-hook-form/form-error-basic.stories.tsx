@@ -16,11 +16,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const BasicFormErrorExample = () => {
-  const fetcher = useFetcher<{ 
-    message?: string; 
-    errors?: Record<string, { message: string }> 
+  const fetcher = useFetcher<{
+    message?: string;
+    errors?: Record<string, { message: string }>;
   }>();
-  
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,10 +40,10 @@ const BasicFormErrorExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">Login Form</h2>
-        
+
         {/* Form-level error display */}
         <FormError className="mb-4" />
-        
+
         <TextField
           name="email"
           type="email"
@@ -51,7 +51,7 @@ const BasicFormErrorExample = () => {
           placeholder="Enter your email"
           disabled={isSubmitting}
         />
-        
+
         <TextField
           name="password"
           type="password"
@@ -59,11 +59,11 @@ const BasicFormErrorExample = () => {
           placeholder="Enter your password"
           disabled={isSubmitting}
         />
-        
+
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Signing In...' : 'Sign In'}
         </Button>
-        
+
         {fetcher.data?.message && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-700 font-medium">{fetcher.data.message}</p>
@@ -76,28 +76,28 @@ const BasicFormErrorExample = () => {
 
 const handleFormSubmission = async (request: Request) => {
   const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
-  
+
   if (errors) {
     return { errors };
   }
-  
+
   // Simulate server-side authentication
   if (data.email === 'wrong@email.com' && data.password === 'wrongpass') {
     return {
       errors: {
-        _form: { message: 'Invalid email or password. Please try again.' }
-      }
+        _form: { message: 'Invalid email or password. Please try again.' },
+      },
     };
   }
-  
+
   if (data.email === 'user@example.com' && data.password === 'password123') {
     return { message: 'Login successful! Welcome back.' };
   }
-  
+
   return {
     errors: {
-      _form: { message: 'Invalid email or password. Please try again.' }
-    }
+      _form: { message: 'Invalid email or password. Please try again.' },
+    },
   };
 };
 
@@ -191,7 +191,7 @@ The FormError component automatically displays when \`errors._form\` exists in t
 
       // Wait for form-level error to appear
       await expect(canvas.findByText(/invalid email or password/i)).resolves.toBeInTheDocument();
-      
+
       // Verify field-level errors are cleared
       expect(canvas.queryByText(/please enter a valid email address/i)).not.toBeInTheDocument();
     });

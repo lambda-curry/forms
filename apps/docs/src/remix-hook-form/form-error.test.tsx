@@ -1,11 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
-import { useFetcher } from 'react-router';
-import { z } from 'zod';
 import { FormError, TextField } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
-import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
+import { render, screen } from '@testing-library/react';
+import { useFetcher } from 'react-router';
+import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
+import { z } from 'zod';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -23,8 +22,8 @@ const testSchema = z.object({
 type TestFormData = z.infer<typeof testSchema>;
 
 // Test component wrapper
-const TestFormWithError = ({ 
-  initialErrors = {}, 
+const TestFormWithError = ({
+  initialErrors = {},
   formErrorName = '_form',
   customComponents = {},
   className = '',
@@ -53,11 +52,7 @@ const TestFormWithError = ({
   return (
     <RemixFormProvider {...methods}>
       <form onSubmit={methods.handleSubmit}>
-        <FormError 
-          name={formErrorName}
-          className={className}
-          components={customComponents}
-        />
+        <FormError name={formErrorName} className={className} components={customComponents} />
         <TextField name="email" label="Email" />
         <TextField name="password" label="Password" />
         <Button type="submit">Submit</Button>
@@ -74,28 +69,28 @@ describe('FormError Component', () => {
   describe('Basic Functionality', () => {
     it('renders without errors when no form-level error exists', () => {
       render(<TestFormWithError />);
-      
+
       // Should not display any error message
       expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
     });
 
     it('displays form-level error when _form error exists', () => {
       const errors = {
-        _form: { message: 'Server error occurred' }
+        _form: { message: 'Server error occurred' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText('Server error occurred')).toBeInTheDocument();
     });
 
     it('does not display error when _form error does not exist', () => {
       const errors = {
-        email: { message: 'Email is invalid' }
+        email: { message: 'Email is invalid' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.queryByText('Server error occurred')).not.toBeInTheDocument();
     });
   });
@@ -103,21 +98,21 @@ describe('FormError Component', () => {
   describe('Custom Error Keys', () => {
     it('displays error for custom error key', () => {
       const errors = {
-        general: { message: 'General form error' }
+        general: { message: 'General form error' },
       };
 
       render(<TestFormWithError initialErrors={errors} formErrorName="general" />);
-      
+
       expect(screen.getByText('General form error')).toBeInTheDocument();
     });
 
     it('does not display error when custom key does not match', () => {
       const errors = {
-        _form: { message: 'Default form error' }
+        _form: { message: 'Default form error' },
       };
 
       render(<TestFormWithError initialErrors={errors} formErrorName="custom" />);
-      
+
       expect(screen.queryByText('Default form error')).not.toBeInTheDocument();
     });
   });
@@ -125,22 +120,22 @@ describe('FormError Component', () => {
   describe('Styling and CSS Classes', () => {
     it('applies custom className to the error container', () => {
       const errors = {
-        _form: { message: 'Test error' }
+        _form: { message: 'Test error' },
       };
 
       render(<TestFormWithError initialErrors={errors} className="custom-error-class" />);
-      
+
       const errorElement = screen.getByText('Test error').closest('[class*="custom-error-class"]');
       expect(errorElement).toBeInTheDocument();
     });
 
     it('renders with default styling when no className provided', () => {
       const errors = {
-        _form: { message: 'Test error' }
+        _form: { message: 'Test error' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText('Test error')).toBeInTheDocument();
     });
   });
@@ -154,27 +149,22 @@ describe('FormError Component', () => {
       );
 
       const errors = {
-        _form: { message: 'Test error' }
+        _form: { message: 'Test error' },
       };
 
-      render(
-        <TestFormWithError 
-          initialErrors={errors} 
-          customComponents={{ FormMessage: CustomFormMessage }}
-        />
-      );
-      
+      render(<TestFormWithError initialErrors={errors} customComponents={{ FormMessage: CustomFormMessage }} />);
+
       expect(screen.getByTestId('custom-form-message')).toBeInTheDocument();
       expect(screen.getByText('Custom: Test error')).toBeInTheDocument();
     });
 
     it('falls back to default FormMessage when no custom component provided', () => {
       const errors = {
-        _form: { message: 'Test error' }
+        _form: { message: 'Test error' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText('Test error')).toBeInTheDocument();
       // Should not have custom wrapper
       expect(screen.queryByTestId('custom-form-message')).not.toBeInTheDocument();
@@ -184,33 +174,33 @@ describe('FormError Component', () => {
   describe('Integration with Form State', () => {
     it('updates when form errors change', async () => {
       const { rerender } = render(<TestFormWithError />);
-      
+
       // Initially no error
       expect(screen.queryByText('New error')).not.toBeInTheDocument();
-      
+
       // Update with error
       const errors = {
-        _form: { message: 'New error' }
+        _form: { message: 'New error' },
       };
-      
+
       rerender(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText('New error')).toBeInTheDocument();
     });
 
     it('hides error when form errors are cleared', async () => {
       const errors = {
-        _form: { message: 'Initial error' }
+        _form: { message: 'Initial error' },
       };
 
       const { rerender } = render(<TestFormWithError initialErrors={errors} />);
-      
+
       // Initially shows error
       expect(screen.getByText('Initial error')).toBeInTheDocument();
-      
+
       // Clear errors
       rerender(<TestFormWithError initialErrors={{}} />);
-      
+
       expect(screen.queryByText('Initial error')).not.toBeInTheDocument();
     });
   });
@@ -218,11 +208,11 @@ describe('FormError Component', () => {
   describe('Multiple FormError Components', () => {
     const MultipleFormErrorsComponent = () => {
       const mockFetcher = {
-        data: { 
-          errors: { 
+        data: {
+          errors: {
             _form: { message: 'General error' },
-            custom: { message: 'Custom error' }
-          } 
+            custom: { message: 'Custom error' },
+          },
         },
         state: 'idle' as const,
         submit: jest.fn(),
@@ -253,7 +243,7 @@ describe('FormError Component', () => {
 
     it('renders multiple FormError components with different error keys', () => {
       render(<MultipleFormErrorsComponent />);
-      
+
       expect(screen.getAllByText('General error')).toHaveLength(2); // top and bottom
       expect(screen.getByText('Custom error')).toBeInTheDocument(); // middle
     });
@@ -262,22 +252,22 @@ describe('FormError Component', () => {
   describe('Accessibility', () => {
     it('has proper ARIA attributes for error messages', () => {
       const errors = {
-        _form: { message: 'Accessibility test error' }
+        _form: { message: 'Accessibility test error' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       const errorMessage = screen.getByText('Accessibility test error');
       expect(errorMessage).toHaveAttribute('data-slot', 'form-message');
     });
 
     it('is properly associated with form context', () => {
       const errors = {
-        _form: { message: 'Form context error' }
+        _form: { message: 'Form context error' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       const errorMessage = screen.getByText('Form context error');
       expect(errorMessage.tagName.toLowerCase()).toBe('p');
       expect(errorMessage).toHaveClass('form-message');
@@ -287,34 +277,35 @@ describe('FormError Component', () => {
   describe('Error Message Content', () => {
     it('handles empty error messages gracefully', () => {
       const errors = {
-        _form: { message: '' }
+        _form: { message: '' },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       // Should not render anything for empty message
       expect(screen.queryByText('')).not.toBeInTheDocument();
     });
 
     it('handles long error messages', () => {
-      const longMessage = 'This is a very long error message that should still be displayed properly even when it contains a lot of text and might wrap to multiple lines in the user interface.';
+      const longMessage =
+        'This is a very long error message that should still be displayed properly even when it contains a lot of text and might wrap to multiple lines in the user interface.';
       const errors = {
-        _form: { message: longMessage }
+        _form: { message: longMessage },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText(longMessage)).toBeInTheDocument();
     });
 
     it('handles special characters in error messages', () => {
       const specialMessage = 'Error with special chars: <>&"\'';
       const errors = {
-        _form: { message: specialMessage }
+        _form: { message: specialMessage },
       };
 
       render(<TestFormWithError initialErrors={errors} />);
-      
+
       expect(screen.getByText(specialMessage)).toBeInTheDocument();
     });
   });
@@ -322,32 +313,24 @@ describe('FormError Component', () => {
   describe('Performance', () => {
     it('does not re-render unnecessarily when unrelated form state changes', () => {
       const renderSpy = jest.fn();
-      
+
       const CustomFormMessage = ({ children, ...props }: any) => {
         renderSpy();
         return <div {...props}>{children}</div>;
       };
 
       const errors = {
-        _form: { message: 'Performance test' }
+        _form: { message: 'Performance test' },
       };
 
       const { rerender } = render(
-        <TestFormWithError 
-          initialErrors={errors} 
-          customComponents={{ FormMessage: CustomFormMessage }}
-        />
+        <TestFormWithError initialErrors={errors} customComponents={{ FormMessage: CustomFormMessage }} />,
       );
 
       const initialRenderCount = renderSpy.mock.calls.length;
 
       // Re-render with same errors (should not cause additional renders)
-      rerender(
-        <TestFormWithError 
-          initialErrors={errors} 
-          customComponents={{ FormMessage: CustomFormMessage }}
-        />
-      );
+      rerender(<TestFormWithError initialErrors={errors} customComponents={{ FormMessage: CustomFormMessage }} />);
 
       expect(renderSpy.mock.calls.length).toBe(initialRenderCount);
     });
@@ -386,14 +369,14 @@ describe('FormError Integration Tests', () => {
     };
 
     render(<TestForm />);
-    
+
     // Form should render without errors initially
     expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-    
+
     // Submit button should be present and functional
     const submitButton = screen.getByRole('button', { name: /submit/i });
     expect(submitButton).toBeInTheDocument();
-    
+
     // Form fields should be present
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();

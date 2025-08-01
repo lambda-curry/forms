@@ -16,11 +16,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const PlacementVariationsExample = () => {
-  const fetcher = useFetcher<{ 
-    message?: string; 
-    errors?: Record<string, { message: string }> 
+  const fetcher = useFetcher<{
+    message?: string;
+    errors?: Record<string, { message: string }>;
   }>();
-  
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,10 +40,10 @@ const PlacementVariationsExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">Payment Form</h2>
-        
+
         {/* Top placement - Alert style */}
         <FormError className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800" />
-        
+
         <TextField
           name="email"
           type="email"
@@ -51,10 +51,10 @@ const PlacementVariationsExample = () => {
           placeholder="Enter your email"
           disabled={isSubmitting}
         />
-        
+
         {/* Inline placement - Minimal style */}
         <FormError className="text-red-600 text-sm font-medium" />
-        
+
         <TextField
           name="password"
           type="password"
@@ -62,14 +62,14 @@ const PlacementVariationsExample = () => {
           placeholder="Enter your password"
           disabled={isSubmitting}
         />
-        
+
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Processing...' : 'Submit Payment'}
         </Button>
-        
+
         {/* Bottom placement - Banner style */}
         <FormError className="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-r-md" />
-        
+
         {fetcher.data?.message && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-700 font-medium">{fetcher.data.message}</p>
@@ -82,16 +82,16 @@ const PlacementVariationsExample = () => {
 
 const handleFormSubmission = async (request: Request) => {
   const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
-  
+
   if (errors) {
     return { errors };
   }
-  
+
   // Always show form error for demo purposes
   return {
     errors: {
-      _form: { message: 'Payment processing failed. Please check your information and try again.' }
-    }
+      _form: { message: 'Payment processing failed. Please check your information and try again.' },
+    },
   };
 };
 
@@ -174,8 +174,8 @@ All three instances show the same error message but with different visual treatm
       await userEvent.click(submitButton);
 
       // Wait for error messages to appear - use queryAllByText to avoid "multiple elements" error
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Verify all three FormError instances are displayed
       const errorMessages = canvas.queryAllByText(/payment processing failed/i);
       expect(errorMessages.length).toBeGreaterThanOrEqual(1);
@@ -184,18 +184,18 @@ All three instances show the same error message but with different visual treatm
 
     await step('Verify different styling for each placement', async () => {
       // Wait a moment for all error messages to be rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const errorMessages = canvas.getAllByText(/payment processing failed/i);
       expect(errorMessages).toHaveLength(3);
-      
+
       // Top placement - alert style
       const topError = errorMessages[0];
       expect(topError).toHaveClass('text-destructive');
       const topContainer = topError.closest('div');
       expect(topContainer).toHaveClass('p-4', 'bg-red-50', 'border', 'border-red-200', 'rounded-lg');
 
-      // Inline placement - minimal style  
+      // Inline placement - minimal style
       const inlineError = errorMessages[1];
       expect(inlineError).toHaveClass('text-destructive');
 

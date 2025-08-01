@@ -15,11 +15,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const SimpleFormErrorExample = () => {
-  const fetcher = useFetcher<{ 
-    message?: string; 
-    errors?: Record<string, { message: string }> 
+  const fetcher = useFetcher<{
+    message?: string;
+    errors?: Record<string, { message: string }>;
   }>();
-  
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,17 +39,11 @@ const SimpleFormErrorExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="max-w-md mx-auto p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">Login</h2>
-        
+
         <FormError />
-        
-        <TextField
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
-          disabled={isSubmitting}
-        />
-        
+
+        <TextField name="email" type="email" label="Email" placeholder="Enter your email" disabled={isSubmitting} />
+
         <TextField
           name="password"
           type="password"
@@ -57,11 +51,11 @@ const SimpleFormErrorExample = () => {
           placeholder="Enter your password"
           disabled={isSubmitting}
         />
-        
+
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Signing In...' : 'Sign In'}
         </Button>
-        
+
         {fetcher.data?.message && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-700 font-medium">{fetcher.data.message}</p>
@@ -74,15 +68,15 @@ const SimpleFormErrorExample = () => {
 
 const handleFormSubmission = async (request: Request) => {
   const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
-  
+
   if (errors) {
     return { errors };
   }
-  
+
   return {
     errors: {
-      _form: { message: 'Invalid credentials. Please try again.' }
-    }
+      _form: { message: 'Invalid credentials. Please try again.' },
+    },
   };
 };
 
@@ -145,4 +139,3 @@ For more comprehensive examples, see the related stories:
     },
   },
 };
-
