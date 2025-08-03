@@ -123,7 +123,12 @@ const testDefaultValues = ({ canvas }: StoryContext) => {
 
 const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   const passwordInput = canvas.getByLabelText('Password');
-  const toggleButton = canvas.getByLabelText('Show password');
+  
+  // Find the toggle button within the same form item as the password input
+  const formItem =
+    passwordInput.closest('[class*="FormItem"], .form-item, [data-testid="form-item"]') ||
+    passwordInput.parentElement?.parentElement;
+  const toggleButton = formItem?.querySelector('button[aria-label="Show password"]') as HTMLElement;
 
   // Initially password should be hidden (type="password")
   expect(passwordInput).toHaveAttribute('type', 'password');
@@ -131,12 +136,18 @@ const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   // Click toggle to show password
   await userEvent.click(toggleButton);
   expect(passwordInput).toHaveAttribute('type', 'text');
-  expect(canvas.getByLabelText('Hide password')).toBeInTheDocument();
+  
+  // Find the hide button for the same field
+  const hideButton = formItem?.querySelector('button[aria-label="Hide password"]') as HTMLElement;
+  expect(hideButton).toBeInTheDocument();
 
   // Click toggle to hide password again
-  await userEvent.click(canvas.getByLabelText('Hide password'));
+  await userEvent.click(hideButton);
   expect(passwordInput).toHaveAttribute('type', 'password');
-  expect(canvas.getByLabelText('Show password')).toBeInTheDocument();
+  
+  // Verify show button is back
+  const showButtonAgain = formItem?.querySelector('button[aria-label="Show password"]') as HTMLElement;
+  expect(showButtonAgain).toBeInTheDocument();
 };
 
 const testWeakPasswordValidation = async ({ canvas }: StoryContext) => {
