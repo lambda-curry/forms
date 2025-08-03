@@ -17,6 +17,7 @@ export * from './switch';
 export * from './switch-field';
 export * from './text-field';
 export * from './text-input';
+export * from './password-field';
 export * from './textarea-field';
 export * from './textarea';
 export * from './utils';
