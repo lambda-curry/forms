@@ -123,7 +123,7 @@ const testDefaultValues = ({ canvas }: StoryContext) => {
 
 const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   const passwordInput = canvas.getByLabelText('Password');
-  const toggleButton = canvas.getByLabelText('Hide password');
+  const toggleButton = canvas.getByLabelText('Show password');
 
   // Initially password should be hidden (type="password")
   expect(passwordInput).toHaveAttribute('type', 'password');
@@ -131,12 +131,12 @@ const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   // Click toggle to show password
   await userEvent.click(toggleButton);
   expect(passwordInput).toHaveAttribute('type', 'text');
-  expect(canvas.getByLabelText('Show password')).toBeInTheDocument();
+  expect(canvas.getByLabelText('Hide password')).toBeInTheDocument();
 
   // Click toggle to hide password again
-  await userEvent.click(canvas.getByLabelText('Show password'));
+  await userEvent.click(canvas.getByLabelText('Hide password'));
   expect(passwordInput).toHaveAttribute('type', 'password');
-  expect(canvas.getByLabelText('Hide password')).toBeInTheDocument();
+  expect(canvas.getByLabelText('Show password')).toBeInTheDocument();
 };
 
 const testWeakPasswordValidation = async ({ canvas }: StoryContext) => {
