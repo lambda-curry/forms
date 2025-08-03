@@ -4,6 +4,7 @@ export * from './form-error';
 export * from './date-picker';
 export * from './dropdown-menu-select';
 export * from './text-field';
+export * from './password-field';
 export * from './radio-group';
 export * from './radio-group-item';
 export * from './switch';
