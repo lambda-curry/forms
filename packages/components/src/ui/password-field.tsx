@@ -14,15 +14,13 @@ import {
 import { type InputProps, TextInput } from './text-input';
 import { cn } from './utils';
 
-export const PasswordToggleButton = ({
-  isVisible,
-  onToggle,
-  className,
-}: {
+export interface PasswordToggleButtonProps {
   isVisible: boolean;
   onToggle: () => void;
   className?: string;
-}) => {
+}
+
+export const PasswordToggleButton = ({ isVisible, onToggle, className }: PasswordToggleButtonProps) => {
   return (
     <button
       type="button"
