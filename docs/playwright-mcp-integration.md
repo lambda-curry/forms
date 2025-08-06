@@ -31,10 +31,10 @@ The updated MCP configuration (as recommended) removes the explicit executable p
       "args": [
         "-y",
         "@supabase/mcp-server-supabase@latest",
-        "--project-ref=kfuyjexvpaghfmbjcygo"
+        "--project-ref=YOUR_PROJECT_REF"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_c4bdb5e8151b8fd7fcd3b0ab0dec8e4643b00722"
+        "SUPABASE_ACCESS_TOKEN": "YOUR_SUPABASE_ACCESS_TOKEN"
       }
     },
     "playwright": {
@@ -162,4 +162,3 @@ yarn test:playwright
 ```
 
 The integration is now ready for use! The MCP server configuration should resolve the previous path resolution issues by allowing Playwright to auto-detect the browser executable.
-
