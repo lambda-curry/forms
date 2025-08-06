@@ -1862,6 +1862,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@playwright/test@npm:^1.54.2":
+  version: 1.54.2
+  resolution: "@playwright/test@npm:1.54.2"
+  dependencies:
+    playwright: "npm:1.54.2"
+  bin:
+    playwright: cli.js
+  checksum: 10c0/a032d9714a91d6dc40405575ca65ec52f95b0ca95974cd0140e2c12b6c39fbe5311239b2d581b289acaa1e227dd871cf5c43a537f32457f6329723e4add6e6f1
+  languageName: node
+  linkType: hard
+
 "@radix-ui/number@npm:1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/number@npm:1.1.1"
@@ -6187,6 +6198,8 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
     "@changesets/cli": "npm:^2.27.11"
+    "@playwright/test": "npm:^1.54.2"
+    playwright: "npm:^1.54.2"
     react-router-dom: "npm:^7.6.2"
     turbo: "npm:^2.3.3"
   languageName: unknown
@@ -9038,7 +9051,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.14.0":
+"playwright@npm:1.54.2, playwright@npm:^1.14.0, playwright@npm:^1.54.2":
   version: 1.54.2
   resolution: "playwright@npm:1.54.2"
   dependencies:

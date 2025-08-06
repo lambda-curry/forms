@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - link "About":
+    - /url: https://about.google/?fg=1&utm_source=google-US&utm_medium=referral&utm_campaign=hp-header
+  - link "Store":
+    - /url: https://store.google.com/US?utm_source=hp_header&utm_medium=google_ooo&utm_campaign=GS100042&hl=en-US
+  - link "Gmail":
+    - /url: https://mail.google.com/mail/&ogbl
+  - link "Search for Images":
+    - /url: https://www.google.com/imghp?hl=en&ogbl
+    - text: Images
+  - button "Google apps":
+    - img
+  - link "Sign in":
+    - /url: https://accounts.google.com/ServiceLogin?hl=en&passive=true&continue=https://www.google.com/&ec=futura_exp_og_so_72776762_e
+- img
+- search:
+  - img
+  - combobox "Search"
+  - button "Search by voice":
+    - img
+  - button "Search by image":
+    - img
+  - link "AI Mode":
+    - img
+    - text: AI Mode
+  - button "Google Search"
+  - button "I'm Feeling Lucky"
+- contentinfo:
+  - link "Advertising":
+    - /url: https://www.google.com/intl/en_us/ads/?subid=ww-ww-et-g-awa-a-g_hpafoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpafooter&fg=1
+  - link "Business":
+    - /url: https://www.google.com/services/?subid=ww-ww-et-g-awa-a-g_hpbfoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpbfooter&fg=1
+  - link "How Search works":
+    - /url: https://google.com/search/howsearchworks/?fg=1
+  - link "Applying AI towards science and the environment":
+    - /url: https://ai.google/societal-impact/?utm_source=googlehpfooter&utm_medium=housepromos&utm_campaign=bottom-footer
+  - link "Privacy":
+    - /url: https://policies.google.com/privacy?hl=en&fg=1
+  - link "Terms":
+    - /url: https://policies.google.com/terms?hl=en&fg=1
+  - button "Settings"
+- dialog "Sign in to Google":
+  - text: Sign in to Google Get the most from your Google account
+  - button "Stay signed out"
+  - button "Sign in"
+```
