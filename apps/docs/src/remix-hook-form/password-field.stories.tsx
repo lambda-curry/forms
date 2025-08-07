@@ -123,7 +123,7 @@ const testDefaultValues = ({ canvas }: StoryContext) => {
 
 const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   const passwordInput = canvas.getByLabelText('Password');
-  
+
   // Find the toggle button within the same form item as the password input
   const formItem =
     passwordInput.closest('[class*="FormItem"], .form-item, [data-testid="form-item"]') ||
@@ -136,7 +136,7 @@ const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   // Click toggle to show password
   await userEvent.click(toggleButton);
   expect(passwordInput).toHaveAttribute('type', 'text');
-  
+
   // Find the hide button for the same field
   const hideButton = formItem?.querySelector('button[aria-label="Hide password"]') as HTMLElement;
   expect(hideButton).toBeInTheDocument();
@@ -144,7 +144,7 @@ const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   // Click toggle to hide password again
   await userEvent.click(hideButton);
   expect(passwordInput).toHaveAttribute('type', 'password');
-  
+
   // Verify show button is back
   const showButtonAgain = formItem?.querySelector('button[aria-label="Show password"]') as HTMLElement;
   expect(showButtonAgain).toBeInTheDocument();

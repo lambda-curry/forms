@@ -17,7 +17,6 @@ function Calendar({
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
 }) {
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -47,7 +46,8 @@ function Calendar({
         ),
         month_caption: 'flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)',
         dropdowns: 'w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5',
-        dropdown_root: 'relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md',
+        dropdown_root:
+          'relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md',
         dropdown: 'absolute inset-0 opacity-0',
         caption_label: cn(
           'select-none font-medium',
