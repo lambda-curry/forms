@@ -54,7 +54,7 @@ export const FieldSuffix = ({
 export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   control?: Control<FieldValues>;
   name: FieldPath<FieldValues>;
-  label?: string | React.ReactNode;
+  label?: string;
   description?: string;
   components?: Partial<FieldComponents> & {
     Input?: React.ComponentType<InputProps & React.RefAttributes<HTMLInputElement>>;
@@ -62,6 +62,9 @@ export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   className?: string;
+  groupClassName?: string;
+  prefixClassName?: string;
+  suffixClassName?: string;
 }
 
 export const TextField = function TextField({
@@ -74,6 +77,9 @@ export const TextField = function TextField({
   prefix,
   suffix,
   ref,
+  groupClassName,
+  prefixClassName,
+  suffixClassName,
   ...props
 }: TextInputProps & { ref?: React.Ref<HTMLInputElement> }) {
   // Use the custom Input component if provided, otherwise use the default TextInput
@@ -91,10 +97,10 @@ export const TextField = function TextField({
               className={cn('flex group transition-all duration-200 rounded-md', {
                 'field__input--with-prefix': prefix,
                 'field__input--with-suffix': suffix,
-                'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
-              })}
+                'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true
+              }, groupClassName)}
             >
-              {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+              {prefix && <FieldPrefix className={prefixClassName}>{prefix}</FieldPrefix>}
               <FormControl Component={components?.FormControl}>
                 <InputComponent
                   {...field}
@@ -106,7 +112,7 @@ export const TextField = function TextField({
                   })}
                 />
               </FormControl>
-              {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
+              {suffix && <FieldSuffix className={suffixClassName}>{suffix}</FieldSuffix>}
             </div>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
