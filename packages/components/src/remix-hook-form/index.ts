@@ -3,6 +3,7 @@ export * from './form';
 export * from './form-error';
 export * from './date-picker';
 export * from './dropdown-menu-select';
+export * from './phone-input';
 export * from './text-field';
 export * from './password-field';
 export * from './radio-group';
