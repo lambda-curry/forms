@@ -5,7 +5,8 @@ import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '
 import { TextInput } from '@lambdacurry/forms/ui/text-input';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
-import { RemixFormProvider, getValidatedFormData, useController, useRemixForm } from 'remix-hook-form';
+import { useController } from 'react-hook-form';
+import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -168,4 +169,3 @@ export const ControlledInputsExample: Story = {
     }),
   ],
 };
-
