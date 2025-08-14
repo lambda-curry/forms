@@ -86,6 +86,9 @@ describe('PhoneInput Component', () => {
       // Check for descriptions
       expect(screen.getByText('Enter a US phone number')).toBeInTheDocument();
       expect(screen.getByText('Enter an international phone number')).toBeInTheDocument();
+      
+      // Check for country select
+      expect(screen.getAllByLabelText('Country code')).toHaveLength(2);
     });
 
     it('displays validation errors when provided', async () => {
@@ -103,7 +106,7 @@ describe('PhoneInput Component', () => {
   });
 
   describe('Input Behavior', () => {
-    it('allows entering a US phone number', async () => {
+    it('allows entering a phone number', async () => {
       const user = userEvent.setup();
       render(<TestPhoneInputForm />);
 
@@ -112,25 +115,25 @@ describe('PhoneInput Component', () => {
       // Type a US phone number
       await user.type(usaPhoneInput, '2025550123');
       
-      // Check that the input contains the formatted number
+      // Check that the input contains the number
       await waitFor(() => {
-        expect(usaPhoneInput).toHaveValue('(202) 555-0123');
+        expect(usaPhoneInput).toHaveValue('2025550123');
       });
     });
 
-    it('allows entering an international phone number', async () => {
+    it('allows selecting a different country', async () => {
       const user = userEvent.setup();
       render(<TestPhoneInputForm />);
 
-      const internationalPhoneInput = screen.getByLabelText('International Phone Number');
+      // Get the country select for international phone
+      const countrySelects = screen.getAllByLabelText('Country code');
+      const internationalCountrySelect = countrySelects[1];
       
-      // Type a UK phone number
-      await user.type(internationalPhoneInput, '447911123456');
+      // Change country to UK (GB)
+      await user.selectOptions(internationalCountrySelect, 'GB');
       
-      // Check that the input contains the formatted number
-      await waitFor(() => {
-        expect(internationalPhoneInput).toHaveValue('+44 7911 123456');
-      });
+      // Check that the select has the new value
+      expect(internationalCountrySelect).toHaveValue('GB');
     });
   });
 
@@ -166,6 +169,10 @@ describe('PhoneInput Component', () => {
       // Verify labels are properly associated with inputs
       expect(screen.getByLabelText('USA Phone Number')).toBeInTheDocument();
       expect(screen.getByLabelText('International Phone Number')).toBeInTheDocument();
+      
+      // Verify country selects have proper aria-labels
+      const countrySelects = screen.getAllByLabelText('Country code');
+      expect(countrySelects).toHaveLength(2);
     });
   });
 });

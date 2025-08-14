@@ -21,6 +21,8 @@ export interface PhoneInputFieldProps extends Omit<PhoneInputProps, 'value' | 'o
     Input?: React.ComponentType<PhoneInputProps & React.RefAttributes<HTMLInputElement>>;
   };
   className?: string;
+  inputClassName?: string;
+  selectClassName?: string;
 }
 
 export const PhoneInputField = function PhoneInputField({
@@ -29,6 +31,8 @@ export const PhoneInputField = function PhoneInputField({
   label,
   description,
   className,
+  inputClassName,
+  selectClassName,
   components,
   ref,
   ...props
@@ -49,7 +53,8 @@ export const PhoneInputField = function PhoneInputField({
                 {...field}
                 {...props}
                 ref={ref}
-                className={cn('focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2')}
+                inputClassName={inputClassName}
+                selectClassName={selectClassName}
               />
             </FormControl>
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}

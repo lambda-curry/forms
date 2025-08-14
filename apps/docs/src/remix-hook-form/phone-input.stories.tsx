@@ -183,7 +183,7 @@ const ControlledPhoneInputExample = () => {
       await userEvent.type(usaPhoneInput, '2025550123');
       
       // Enter an international phone number (UK format)
-      await userEvent.type(internationalPhoneInput, '447911123456');
+      await userEvent.type(internationalPhoneInput, '7911123456');
 
       // Submit form
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
@@ -222,6 +222,7 @@ export const WithCustomStyling: Story = {
               defaultCountry="US"
               className="border-2 border-blue-500 p-4 rounded-lg"
               inputClassName="bg-gray-100"
+              selectClassName="bg-gray-100 border-blue-300"
             />
           </div>
           <Button type="submit" className="mt-8">
