@@ -52,10 +52,9 @@ export const FormControl = React.forwardRef<HTMLElement, React.ComponentPropsWit
     return (
       <BaseFormControl
         ref={ref}
-        error={!!error}
-        formItemId={formItemId}
-        formDescriptionId={formDescriptionId}
-        formMessageId={formMessageId}
+        id={formItemId}
+        aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+        aria-invalid={!!error}
         {...props}
       />
     );
@@ -65,18 +64,25 @@ FormControl.displayName = 'FormControl';
 
 export const FormDescription = (props: React.ComponentPropsWithoutRef<typeof BaseFormDescription>) => {
   const { formDescriptionId } = useFormField();
-  return <BaseFormDescription formDescriptionId={formDescriptionId} {...props} />;
+  return <BaseFormDescription id={formDescriptionId} {...props} />;
 };
 FormDescription.displayName = 'FormDescription';
 
 export const FormMessage = (props: React.ComponentPropsWithoutRef<typeof BaseFormMessage>) => {
   const { error, formMessageId } = useFormField();
+  const body = error ? String(error?.message) : props.children;
+
+  if (!body) {
+    return null;
+  }
+
   return (
     <BaseFormMessage
-      formMessageId={formMessageId}
-      error={error?.message || (error ? String(error) : undefined)}
+      id={formMessageId}
       {...props}
-    />
+    >
+      {body}
+    </BaseFormMessage>
   );
 };
 FormMessage.displayName = 'FormMessage';
