@@ -3,8 +3,8 @@ import { getCountries, getCountryCallingCode } from 'react-phone-number-input/in
 import { parsePhoneNumber, AsYouType, isValidPhoneNumber } from 'libphonenumber-js';
 import { cn } from './utils';
 
-// Import country flags
-import 'country-flag-icons/css/flag-icons.min.css';
+// Remove flag icons import that was causing the error
+// import 'country-flag-icons/css/flag-icons.min.css';
 
 export interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
   value?: string;
