@@ -2,7 +2,10 @@
   "name": "forms",
   "version": "0.2.0",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "start": "yarn dev",
     "dev": "turbo run dev",

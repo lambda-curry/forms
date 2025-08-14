@@ -82,7 +82,7 @@ export function OTPInputField({
   ...props
 }: OTPInputFieldProps) {
   const isEightSlots = maxLength === 8;
-  const { formItemId } = React.useContext(FormItemContext);
+  const { id, formItemId, formDescriptionId, formMessageId } = React.useContext(FormItemContext);
   return (
     <FormField
       control={control}
@@ -128,4 +128,5 @@ export function OTPInputField({
     />
   );
 }
+
 OTPInputField.displayName = 'OTPInputField';
