@@ -53,15 +53,13 @@ const TestPhoneInputForm = ({
           name="usaPhone"
           label="USA Phone Number"
           description="Enter a US phone number"
-          defaultCountry="US"
-          international={false}
           components={customComponents}
         />
         <PhoneInput
           name="internationalPhone"
           label="International Phone Number"
           description="Enter an international phone number"
-          international={true}
+          isInternational
           components={customComponents}
         />
         <Button type="submit">Submit</Button>
@@ -86,9 +84,6 @@ describe('PhoneInput Component', () => {
       // Check for descriptions
       expect(screen.getByText('Enter a US phone number')).toBeInTheDocument();
       expect(screen.getByText('Enter an international phone number')).toBeInTheDocument();
-      
-      // Check for country select
-      expect(screen.getAllByLabelText('Country code')).toHaveLength(2);
     });
 
     it('displays validation errors when provided', async () => {
@@ -106,34 +101,36 @@ describe('PhoneInput Component', () => {
   });
 
   describe('Input Behavior', () => {
-    it('allows entering a phone number', async () => {
+    it('formats and caps US number at 10 digits', async () => {
       const user = userEvent.setup();
       render(<TestPhoneInputForm />);
 
-      const usaPhoneInput = screen.getByLabelText('USA Phone Number');
-      
-      // Type a US phone number
-      await user.type(usaPhoneInput, '2025550123');
-      
-      // Check that the input contains the number
+      const usaPhoneInput = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type more than 10 digits
+      await user.type(usaPhoneInput, '2025550123456');
+
+      // Display should be formatted and capped: (202) 555-0123
       await waitFor(() => {
-        expect(usaPhoneInput).toHaveValue('2025550123');
+        expect(usaPhoneInput.value).toBe('(202) 555-0123');
       });
     });
 
-    it('allows selecting a different country', async () => {
+    it('accepts international number with + and inserts spaces', async () => {
       const user = userEvent.setup();
       render(<TestPhoneInputForm />);
 
-      // Get the country select for international phone
-      const countrySelects = screen.getAllByLabelText('Country code');
-      const internationalCountrySelect = countrySelects[1];
-      
-      // Change country to UK (GB)
-      await user.selectOptions(internationalCountrySelect, 'GB');
-      
-      // Check that the select has the new value
-      expect(internationalCountrySelect).toHaveValue('GB');
+      const intlInput = screen.getByLabelText('International Phone Number') as HTMLInputElement;
+
+      // Type digits without +; component should normalize to + and format
+      await user.type(intlInput, '7911123456');
+
+      await waitFor(() => {
+        expect(intlInput.value.startsWith('+')).toBe(true);
+        // Digits (without non-digits) should match what was typed with leading country code
+        const digitsOnly = intlInput.value.replace(/\D/g, '');
+        expect(digitsOnly.endsWith('7911123456')).toBe(true);
+      });
     });
   });
 
@@ -162,18 +159,13 @@ describe('PhoneInput Component', () => {
 
       const usaPhoneLabel = screen.getByText('USA Phone Number');
       const internationalPhoneLabel = screen.getByText('International Phone Number');
-      
+
       expect(usaPhoneLabel).toBeInTheDocument();
       expect(internationalPhoneLabel).toBeInTheDocument();
-      
+
       // Verify labels are properly associated with inputs
       expect(screen.getByLabelText('USA Phone Number')).toBeInTheDocument();
       expect(screen.getByLabelText('International Phone Number')).toBeInTheDocument();
-      
-      // Verify country selects have proper aria-labels
-      const countrySelects = screen.getAllByLabelText('Country code');
-      expect(countrySelects).toHaveLength(2);
     });
   });
 });
-

@@ -135,11 +135,17 @@ export interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElem
   Component?: React.ComponentType<FormMessageProps>;
 }
 
-export function FormMessage({ Component, className, ...props }: FormMessageProps) {
-  const { formMessageId, error, children } = props;
-
+export function FormMessage({
+  Component,
+  className,
+  formMessageId,
+  error,
+  children,
+  ...rest
+}: FormMessageProps) {
   if (Component) {
-    return <Component id={formMessageId} className={className} {...props} />;
+    // Ensure custom props do not leak to DOM by not spreading them
+    return <Component id={formMessageId} className={className} error={error} {...rest}>{children}</Component>;
   }
 
   const body = error ? error : children;
@@ -153,7 +159,7 @@ export function FormMessage({ Component, className, ...props }: FormMessageProps
       id={formMessageId}
       className={cn('form-message text-sm font-medium text-destructive', className)}
       data-slot="form-message"
-      {...props}
+      {...rest}
     >
       {body}
     </p>

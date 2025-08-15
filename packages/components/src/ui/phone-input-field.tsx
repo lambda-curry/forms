@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
   type FieldComponents,
@@ -18,11 +18,10 @@ export interface PhoneInputFieldProps extends Omit<PhoneInputProps, 'value' | 'o
   label?: string | React.ReactNode;
   description?: string;
   components?: Partial<FieldComponents> & {
-    Input?: React.ComponentType<PhoneInputProps & React.RefAttributes<HTMLInputElement>>;
+    Input?: (props: PhoneInputProps & { ref?: React.Ref<HTMLInputElement> }) => React.ReactElement;
   };
   className?: string;
   inputClassName?: string;
-  selectClassName?: string;
 }
 
 export const PhoneInputField = function PhoneInputField({
@@ -32,7 +31,6 @@ export const PhoneInputField = function PhoneInputField({
   description,
   className,
   inputClassName,
-  selectClassName,
   components,
   ref,
   ...props
@@ -48,16 +46,24 @@ export const PhoneInputField = function PhoneInputField({
         return (
           <FormItem className={className}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <FormControl Component={components?.FormControl}>
-              <InputComponent
-                {...field}
-                {...props}
-                ref={ref}
-                inputClassName={inputClassName}
-                selectClassName={selectClassName}
-              />
-            </FormControl>
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+            <div
+              className={cn(
+                'flex group transition-all duration-200 rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background',
+              )}
+            >
+              <FormControl Component={components?.FormControl}>
+                <InputComponent
+                  {...field}
+                  {...props}
+                  ref={ref}
+                  className={cn('w-full', props.className)}
+                  inputClassName={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', inputClassName)}
+                />
+              </FormControl>
+            </div>
+            {description && (
+              <FormDescription Component={components?.FormDescription}>{description}</FormDescription>
+            )}
             {fieldState.error && (
               <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
             )}
@@ -69,4 +75,3 @@ export const PhoneInputField = function PhoneInputField({
 };
 
 PhoneInputField.displayName = 'PhoneInputField';
-

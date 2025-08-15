@@ -8,6 +8,8 @@ import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hoo
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
+const successMessageRegex = /Form submitted successfully/;
+
 // Define a schema for phone number validation
 const formSchema = z.object({
   usaPhone: z.string().min(1, 'USA phone number is required'),
@@ -37,16 +39,14 @@ const ControlledPhoneInputExample = () => {
         <div className="grid gap-8">
           <PhoneInput
             name="usaPhone"
-            label="USA Phone Number"
+            label="Phone Number"
             description="Enter a US phone number"
-            defaultCountry="US"
-            international={false}
           />
           <PhoneInput
             name="internationalPhone"
             label="International Phone Number"
             description="Enter an international phone number"
-            international={true}
+            isInternational={true}
           />
         </div>
         <Button type="submit" className="mt-8">
@@ -65,8 +65,8 @@ const handleFormSubmission = async (request: Request) => {
     return { errors };
   }
 
-  return { 
-    message: `Form submitted successfully! USA: ${data.usaPhone}, International: ${data.internationalPhone}` 
+  return {
+    message: `Form submitted successfully! USA: ${data.usaPhone}, International: ${data.internationalPhone}`,
   };
 };
 
@@ -75,6 +75,12 @@ const meta: Meta<typeof PhoneInput> = {
   component: PhoneInput,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
+} satisfies Meta<typeof PhoneInput>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
   decorators: [
     withReactRouterStubDecorator({
       routes: [
@@ -86,12 +92,6 @@ const meta: Meta<typeof PhoneInput> = {
       ],
     }),
   ],
-} satisfies Meta<typeof PhoneInput>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
   parameters: {
     docs: {
       description: {
@@ -125,16 +125,14 @@ const ControlledPhoneInputExample = () => {
         <div className="grid gap-8">
           <PhoneInput
             name="usaPhone"
-            label="USA Phone Number"
+            label="Phone Number"
             description="Enter a US phone number"
-            defaultCountry="US"
-            international={false}
           />
           <PhoneInput
             name="internationalPhone"
             label="International Phone Number"
             description="Enter an international phone number"
-            international={true}
+            isInternational
           />
         </div>
         <Button type="submit" className="mt-8">
@@ -152,21 +150,21 @@ const ControlledPhoneInputExample = () => {
     const canvas = within(canvasElement);
 
     await step('Verify initial state', async () => {
-      // Verify phone input fields are present
-      const usaPhoneLabel = canvas.getByLabelText('USA Phone Number');
-      const internationalPhoneLabel = canvas.getByLabelText('International Phone Number');
-      
+      // Wait for inputs to be mounted and associated with their labels
+      const usaPhoneLabel = await canvas.findByLabelText('Phone Number');
+      const internationalPhoneLabel = await canvas.findByLabelText('International Phone Number');
+
       expect(usaPhoneLabel).toBeInTheDocument();
       expect(internationalPhoneLabel).toBeInTheDocument();
 
-      // Verify submit button is present
-      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      // Wait for submit button to be present
+      const submitButton = await canvas.findByRole('button', { name: 'Submit' });
       expect(submitButton).toBeInTheDocument();
     });
 
     await step('Test validation errors on invalid submission', async () => {
       // Submit form without entering phone numbers
-      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      const submitButton = await canvas.findByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
 
       // Verify validation error messages appear
@@ -175,27 +173,36 @@ const ControlledPhoneInputExample = () => {
     });
 
     await step('Test successful form submission with valid phone numbers', async () => {
-      // Enter valid phone numbers
-      const usaPhoneInput = canvas.getByLabelText('USA Phone Number');
-      const internationalPhoneInput = canvas.getByLabelText('International Phone Number');
+      // Enter valid phone numbers (await the inputs before typing)
+      const usaPhoneInput = await canvas.findByLabelText('Phone Number');
+      const internationalPhoneInput = await canvas.findByLabelText('International Phone Number');
 
-      // Enter a US phone number
+      // Enter a US phone number (should format to (202) 555-0123)
       await userEvent.type(usaPhoneInput, '2025550123');
-      
-      // Enter an international phone number (UK format)
+
+      // Enter an international phone number (UK example digits; component will normalize & format with + and spaces)
       await userEvent.type(internationalPhoneInput, '7911123456');
 
       // Submit form
-      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      const submitButton = await canvas.findByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
 
-      // Verify success message
-      await expect(canvas.findByText(/Form submitted successfully/)).resolves.toBeInTheDocument();
+      // Verify success message (regex matches the prefix of the success text)
+      await expect(canvas.findByText(successMessageRegex)).resolves.toBeInTheDocument();
     });
   },
 };
 
 export const WithCustomStyling: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+        },
+      ],
+    }),
+  ],
   render: () => {
     const fetcher = useFetcher<{ message: string }>();
     const methods = useRemixForm<FormData>({
@@ -219,10 +226,16 @@ export const WithCustomStyling: Story = {
               name="usaPhone"
               label="Custom Styled Phone Input"
               description="With custom styling applied"
-              defaultCountry="US"
               className="border-2 border-blue-500 p-4 rounded-lg"
               inputClassName="bg-gray-100"
-              selectClassName="bg-gray-100 border-blue-300"
+            />
+            <PhoneInput
+              name="internationalPhone"
+              label="Custom Styled Intl Phone Input"
+              description="With custom styling applied"
+              isInternational
+              className="border-2 border-blue-500 p-4 rounded-lg"
+              inputClassName="bg-gray-100"
             />
           </div>
           <Button type="submit" className="mt-8">
@@ -235,84 +248,8 @@ export const WithCustomStyling: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Phone input with custom styling applied.',
+        story: 'Phone input with custom styling applied for US and International modes.',
       },
     },
   },
 };
-
-export const WithDifferentDefaultCountries: Story = {
-  render: () => {
-    const fetcher = useFetcher<{ message: string }>();
-    const methods = useRemixForm<{
-      usPhone: string;
-      ukPhone: string;
-      canadaPhone: string;
-      australiaPhone: string;
-    }>({
-      resolver: zodResolver(
-        z.object({
-          usPhone: z.string().optional(),
-          ukPhone: z.string().optional(),
-          canadaPhone: z.string().optional(),
-          australiaPhone: z.string().optional(),
-        })
-      ),
-      defaultValues: {
-        usPhone: '',
-        ukPhone: '',
-        canadaPhone: '',
-        australiaPhone: '',
-      },
-      fetcher,
-      submitConfig: {
-        action: '/',
-        method: 'post',
-      },
-    });
-
-    return (
-      <RemixFormProvider {...methods}>
-        <fetcher.Form onSubmit={methods.handleSubmit}>
-          <div className="grid gap-8">
-            <PhoneInput
-              name="usPhone"
-              label="US Phone Number"
-              defaultCountry="US"
-              international={true}
-            />
-            <PhoneInput
-              name="ukPhone"
-              label="UK Phone Number"
-              defaultCountry="GB"
-              international={true}
-            />
-            <PhoneInput
-              name="canadaPhone"
-              label="Canada Phone Number"
-              defaultCountry="CA"
-              international={true}
-            />
-            <PhoneInput
-              name="australiaPhone"
-              label="Australia Phone Number"
-              defaultCountry="AU"
-              international={true}
-            />
-          </div>
-          <Button type="submit" className="mt-8">
-            Submit
-          </Button>
-        </fetcher.Form>
-      </RemixFormProvider>
-    );
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Phone inputs with different default countries.',
-      },
-    },
-  },
-};
-
