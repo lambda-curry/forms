@@ -1,24 +1,14 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
-import { Button } from '@lambdacurry/forms/ui/button';
 import { RegionSelect, USStateSelect, CanadaProvinceSelect } from '@lambdacurry/forms/remix-hook-form';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
-import { testUSStateSelection, testCanadaProvinceSelection, testFormSubmission, testValidationErrors } from './region-select.test';
-
-// Create a mock fetcher to replace the Remix useFetcher
-const createMockFetcher = () => {
-  return {
-    Form: ({ children, onSubmit }: { children: React.ReactNode; onSubmit: (e: React.FormEvent) => void }) => (
-      <form onSubmit={onSubmit}>{children}</form>
-    ),
-    data: null,
-    state: 'idle',
-    submit: () => {},
-  };
-};
+import { Button } from '@lambdacurry/forms/ui/button';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
+import { type ActionFunctionArgs, useFetcher } from 'react-router';
+import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { z } from 'zod';
+import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
   state: z.string().min(1, 'Please select a state'),
@@ -28,9 +18,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-function RegionSelectExample() {
-  // Replace useFetcher with our mock
-  const fetcher = createMockFetcher();
+const RegionSelectExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedRegions: Record<string, string> }>();
   
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -39,7 +28,7 @@ function RegionSelectExample() {
       province: '',
       region: '',
     },
-    fetcher: fetcher as any, // Cast to any to satisfy TypeScript
+    fetcher,
     submitConfig: { action: '/', method: 'post' },
   });
 
@@ -87,31 +76,141 @@ function RegionSelectExample() {
       </fetcher.Form>
     </RemixFormProvider>
   );
-}
+};
 
-export default {
+const handleFormSubmission = async (request: Request) => {
+  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+
+  if (errors) {
+    return { errors };
+  }
+
+  return { 
+    message: 'Form submitted successfully',
+    selectedRegions: {
+      state: data.state,
+      province: data.province,
+      region: data.region
+    }
+  };
+};
+
+const meta: Meta<typeof RegionSelect> = {
   title: 'RemixHookForm/RegionSelect',
-  component: RegionSelectExample,
-} satisfies Meta<typeof RegionSelectExample>;
+  component: RegionSelect,
+  parameters: { layout: 'centered' },
+  tags: ['autodocs'],
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: RegionSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
+} satisfies Meta<typeof RegionSelect>;
 
-type Story = StoryObj<typeof RegionSelectExample>;
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: () => <RegionSelectExample />,
   parameters: {
     docs: {
       description: {
         story: 'A region select component for selecting US states, Canadian provinces, or custom regions.',
       },
+      source: {
+        code: `
+const formSchema = z.object({
+  state: z.string().min(1, 'Please select a state'),
+  province: z.string().min(1, 'Please select a province'),
+  region: z.string().min(1, 'Please select a region'),
+});
+
+const RegionSelectExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedRegions: Record<string, string> }>();
+  
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      state: '',
+      province: '',
+      region: '',
+    },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <USStateSelect
+            name="state"
+            label="US State"
+            description="Select a US state"
+          />
+          
+          <CanadaProvinceSelect
+            name="province"
+            label="Canadian Province"
+            description="Select a Canadian province"
+          />
+          
+          <RegionSelect
+            name="region"
+            label="Custom Region"
+            description="Select a custom region"
+            options={[
+              ...US_STATES.slice(0, 5),
+              ...CANADA_PROVINCES.slice(0, 5),
+            ]}
+          />
+        </div>
+        
+        <Button type="submit">Submit</Button>
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};`,
+      },
     },
   },
-  play: async (context) => {
-    await testValidationErrors(context);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial state', async () => {
+      // Verify all selects are empty initially
+      const stateSelect = canvas.getByLabelText('US State');
+      const provinceSelect = canvas.getByLabelText('Canadian Province');
+      const regionSelect = canvas.getByLabelText('Custom Region');
+
+      expect(stateSelect).toHaveTextContent('Select a state');
+      expect(provinceSelect).toHaveTextContent('Select a province');
+      expect(regionSelect).toHaveTextContent('Select a custom region');
+
+      // Verify submit button is present
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      expect(submitButton).toBeInTheDocument();
+    });
+
+    await step('Test validation errors on invalid submission', async () => {
+      // Submit form without selecting any options
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+
+      // Verify validation error messages appear
+      await expect(canvas.findByText('Please select a state')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Please select a province')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Please select a region')).resolves.toBeInTheDocument();
+    });
   },
 };
 
-export const USStateSelectionTest: Story = {
-  render: () => <RegionSelectExample />,
+export const USStateSelection: Story = {
   parameters: {
     docs: {
       description: {
@@ -119,13 +218,25 @@ export const USStateSelectionTest: Story = {
       },
     },
   },
-  play: async (context) => {
-    await testUSStateSelection(context);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Select a US state', async () => {
+      // Find and click the US state dropdown
+      const stateSelect = canvas.getByLabelText('US State');
+      await userEvent.click(stateSelect);
+
+      // Wait for dropdown to open and select California
+      const californiaOption = await canvas.findByText('California');
+      await userEvent.click(californiaOption);
+
+      // Verify the selection
+      expect(stateSelect).toHaveTextContent('California');
+    });
   },
 };
 
-export const CanadaProvinceSelectionTest: Story = {
-  render: () => <RegionSelectExample />,
+export const CanadaProvinceSelection: Story = {
   parameters: {
     docs: {
       description: {
@@ -133,13 +244,25 @@ export const CanadaProvinceSelectionTest: Story = {
       },
     },
   },
-  play: async (context) => {
-    await testCanadaProvinceSelection(context);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Select a Canadian province', async () => {
+      // Find and click the Canada province dropdown
+      const provinceSelect = canvas.getByLabelText('Canadian Province');
+      await userEvent.click(provinceSelect);
+
+      // Wait for dropdown to open and select Ontario
+      const ontarioOption = await canvas.findByText('Ontario');
+      await userEvent.click(ontarioOption);
+
+      // Verify the selection
+      expect(provinceSelect).toHaveTextContent('Ontario');
+    });
   },
 };
 
-export const FormSubmissionTest: Story = {
-  render: () => <RegionSelectExample />,
+export const FormSubmission: Story = {
   parameters: {
     docs: {
       description: {
@@ -147,7 +270,37 @@ export const FormSubmissionTest: Story = {
       },
     },
   },
-  play: async (context) => {
-    await testFormSubmission(context);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Select all regions', async () => {
+      // Select a state
+      const stateSelect = canvas.getByLabelText('US State');
+      await userEvent.click(stateSelect);
+      const californiaOption = await canvas.findByText('California');
+      await userEvent.click(californiaOption);
+
+      // Select a province
+      const provinceSelect = canvas.getByLabelText('Canadian Province');
+      await userEvent.click(provinceSelect);
+      const ontarioOption = await canvas.findByText('Ontario');
+      await userEvent.click(ontarioOption);
+
+      // Select a custom region
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      const customOption = await canvas.findByText('New York');
+      await userEvent.click(customOption);
+    });
+
+    await step('Submit the form', async () => {
+      // Submit the form
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+
+      // Verify the submission result
+      await expect(canvas.findByText('Selected regions:')).resolves.toBeInTheDocument();
+    });
   },
 };
+

@@ -11,7 +11,7 @@ export const testUSStateSelection = async ({ canvasElement }: StoryContext) => {
   await userEvent.click(stateDropdown);
   
   // Select a state (e.g., California)
-  const californiaOption = canvas.getByText('California');
+  const californiaOption = await canvas.findByText('California');
   await userEvent.click(californiaOption);
   
   // Verify the selection
@@ -27,7 +27,7 @@ export const testCanadaProvinceSelection = async ({ canvasElement }: StoryContex
   await userEvent.click(provinceDropdown);
   
   // Select a province (e.g., Ontario)
-  const ontarioOption = canvas.getByText('Ontario');
+  const ontarioOption = await canvas.findByText('Ontario');
   await userEvent.click(ontarioOption);
   
   // Verify the selection
@@ -41,19 +41,19 @@ export const testFormSubmission = async ({ canvasElement }: StoryContext) => {
   // Select a state
   const stateDropdown = canvas.getByLabelText('US State');
   await userEvent.click(stateDropdown);
-  const californiaOption = canvas.getByText('California');
+  const californiaOption = await canvas.findByText('California');
   await userEvent.click(californiaOption);
   
   // Select a province
   const provinceDropdown = canvas.getByLabelText('Canadian Province');
   await userEvent.click(provinceDropdown);
-  const ontarioOption = canvas.getByText('Ontario');
+  const ontarioOption = await canvas.findByText('Ontario');
   await userEvent.click(ontarioOption);
   
   // Select a custom region
   const regionDropdown = canvas.getByLabelText('Custom Region');
   await userEvent.click(regionDropdown);
-  const customOption = canvas.getByText('New York');
+  const customOption = await canvas.findByText('New York');
   await userEvent.click(customOption);
   
   // Submit the form
@@ -61,7 +61,7 @@ export const testFormSubmission = async ({ canvasElement }: StoryContext) => {
   await userEvent.click(submitButton);
   
   // Verify the submission (mock response would be shown)
-  await expect(await canvas.findByText('Selected regions:')).toBeInTheDocument();
+  await expect(canvas.findByText('Selected regions:')).resolves.toBeInTheDocument();
 };
 
 // Test validation errors
@@ -73,7 +73,8 @@ export const testValidationErrors = async ({ canvasElement }: StoryContext) => {
   await userEvent.click(submitButton);
   
   // Verify error messages
-  await expect(await canvas.findByText('Please select a state')).toBeInTheDocument();
-  await expect(await canvas.findByText('Please select a province')).toBeInTheDocument();
-  await expect(await canvas.findByText('Please select a region')).toBeInTheDocument();
+  await expect(canvas.findByText('Please select a state')).resolves.toBeInTheDocument();
+  await expect(canvas.findByText('Please select a province')).resolves.toBeInTheDocument();
+  await expect(canvas.findByText('Please select a region')).resolves.toBeInTheDocument();
 };
+
