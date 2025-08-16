@@ -127,7 +127,6 @@ export function RegionSelect({
             {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
             {filtered.map((option) => {
               const isSelected = option.value === value;
-              const isEnterCandidate = enterCandidate?.value === option.value && !isSelected;
               return (
                 <li key={option.value} className="list-none">
                   <button
@@ -142,7 +141,6 @@ export function RegionSelect({
                       'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
                       'text-gray-900',
                       isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
-                      !isSelected && isEnterCandidate && 'bg-gray-50',
                       itemClassName
                     )}
                   >
