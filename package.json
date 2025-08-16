@@ -21,10 +21,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@types/react-dom": "^19",
     "turbo": "^2.3.3"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.11",
+    "@remix-run/react": "^2.17.0",
+    "react-dom": "^19.1.1",
     "react-phone-number-input": "^3.4.12",
     "react-router-dom": "^7.6.2"
   },
