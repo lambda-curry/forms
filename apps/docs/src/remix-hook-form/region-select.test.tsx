@@ -1,4 +1,4 @@
-import { expect } from '@storybook/jest';
+import { expect } from '@storybook/test';
 import { userEvent, within } from '@storybook/testing-library';
 import { StoryContext } from '@storybook/react';
 
@@ -77,4 +77,3 @@ export const testValidationErrors = async ({ canvasElement }: StoryContext) => {
   await expect(await canvas.findByText('Please select a province')).toBeInTheDocument();
   await expect(await canvas.findByText('Please select a region')).toBeInTheDocument();
 };
-

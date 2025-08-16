@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './form';
+import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from './form';
+import { FormField } from '../ui/form';
 import { RegionSelect as UIRegionSelect, type RegionSelectProps as UIRegionSelectProps } from '../ui/region-select';
 
 export interface RegionSelectProps extends Omit<UIRegionSelectProps, 'value' | 'onValueChange'> {
@@ -40,4 +41,3 @@ export function RegionSelect({
     />
   );
 }
-
