@@ -76,12 +76,12 @@ export function RegionSelect({
       <PopoverContent
         ref={popoverRef}
         className={cn(
-          'z-50 p-0',
+          'z-50 p-0 shadow-md border-0',
           contentClassName
         )}
         style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
       >
-        <div className="bg-white p-1.5 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
           <div className="px-1.5 pb-1.5">
             <input
               type="text"
@@ -109,7 +109,7 @@ export function RegionSelect({
                   triggerRef.current?.focus();
                 }
               }}
-              className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border border-input"
+              className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
             />
           </div>
           <ul className="max-h-[200px] overflow-y-auto rounded-md">
@@ -128,8 +128,8 @@ export function RegionSelect({
                     }}
                     className={cn(
                       'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
-                      'text-gray-900 hover:bg-gray-50',
-                      isSelected && 'bg-gray-200',
+                      'text-gray-900 hover:bg-gray-100',
+                      isSelected && 'bg-gray-100',
                       !isSelected && isEnterCandidate && 'bg-gray-50',
                       itemClassName
                     )}
