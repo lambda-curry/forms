@@ -10,6 +10,8 @@ export * from './form-error-field';
 export * from './label';
 export * from './otp-input';
 export * from './otp-input-field';
+export * from './phone-input';
+export * from './phone-input-field';
 export * from './popover';
 export * from './radio-group';
 export * from './radio-group-field';
