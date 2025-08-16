@@ -38,11 +38,22 @@ export function RegionSelect({
   const [query, setQuery] = React.useState('');
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
+  const selectedItemRef = React.useRef<HTMLButtonElement>(null);
   const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
 
   React.useEffect(() => {
     if (triggerRef.current) setMenuWidth(triggerRef.current.offsetWidth);
   }, []);
+
+  // Scroll to selected item when dropdown opens
+  React.useEffect(() => {
+    if (popoverState.isOpen && selectedItemRef.current) {
+      // Use setTimeout to ensure the DOM is fully rendered
+      setTimeout(() => {
+        selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    }
+  }, [popoverState.isOpen]);
 
   const selectedOption = options.find((o) => o.value === value);
 
@@ -121,6 +132,7 @@ export function RegionSelect({
                 <li key={option.value} className="list-none">
                   <button
                     type="button"
+                    ref={isSelected ? selectedItemRef : undefined}
                     onClick={() => {
                       onValueChange?.(option.value);
                       setQuery('');
@@ -128,8 +140,8 @@ export function RegionSelect({
                     }}
                     className={cn(
                       'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
-                      'text-gray-900 hover:bg-gray-100',
-                      isSelected && 'bg-gray-100',
+                      'text-gray-900',
+                      isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
                       !isSelected && isEnterCandidate && 'bg-gray-50',
                       itemClassName
                     )}
