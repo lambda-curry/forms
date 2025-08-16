@@ -1,13 +1,24 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFetcher } from '@remix-run/react';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { RegionSelect, USStateSelect, CanadaProvinceSelect } from '@lambdacurry/forms/remix-hook-form';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
 import { testUSStateSelection, testCanadaProvinceSelection, testFormSubmission, testValidationErrors } from './region-select.test';
+
+// Create a mock fetcher to replace the Remix useFetcher
+const createMockFetcher = () => {
+  return {
+    Form: ({ children, onSubmit }: { children: React.ReactNode; onSubmit: (e: React.FormEvent) => void }) => (
+      <form onSubmit={onSubmit}>{children}</form>
+    ),
+    data: null,
+    state: 'idle',
+    submit: () => {},
+  };
+};
 
 const formSchema = z.object({
   state: z.string().min(1, 'Please select a state'),
@@ -18,7 +29,8 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 function RegionSelectExample() {
-  const fetcher = useFetcher<{ message: string; selectedRegions: Record<string, string> }>();
+  // Replace useFetcher with our mock
+  const fetcher = createMockFetcher();
   
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -27,7 +39,7 @@ function RegionSelectExample() {
       province: '',
       region: '',
     },
-    fetcher,
+    fetcher: fetcher as any, // Cast to any to satisfy TypeScript
     submitConfig: { action: '/', method: 'post' },
   });
 
