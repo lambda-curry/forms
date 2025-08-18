@@ -30,8 +30,10 @@ export * from './badge';
 export * from './command';
 export * from './select';
 export * from './separator';
-export * from './region-select';
+export * from './toggle';
+export * from './tooltip';
 export * from './us-state-select';
 export * from './canada-province-select';
 export * from './data/us-states';
 export * from './data/canada-provinces';
+

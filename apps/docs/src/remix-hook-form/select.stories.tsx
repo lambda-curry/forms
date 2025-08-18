@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RegionSelect, USStateSelect, CanadaProvinceSelect } from '@lambdacurry/forms/remix-hook-form';
+import { USStateSelect, CanadaProvinceSelect, Select } from '@lambdacurry/forms/remix-hook-form';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
 import { Button } from '@lambdacurry/forms/ui/button';
@@ -48,7 +48,7 @@ const RegionSelectExample = () => {
             description="Select a Canadian province"
           />
           
-          <RegionSelect
+          <Select
             name="region"
             label="Custom Region"
             description="Select a custom region"
@@ -56,6 +56,7 @@ const RegionSelectExample = () => {
               ...US_STATES.slice(0, 5),
               ...CANADA_PROVINCES.slice(0, 5),
             ]}
+            placeholder="Select a custom region"
           />
         </div>
         
@@ -95,9 +96,9 @@ const handleFormSubmission = async (request: Request) => {
   };
 };
 
-const meta: Meta<typeof RegionSelect> = {
-  title: 'RemixHookForm/RegionSelect',
-  component: RegionSelect,
+const meta: Meta<typeof Select> = {
+  title: 'RemixHookForm/Select',
+  component: Select,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
@@ -111,7 +112,7 @@ const meta: Meta<typeof RegionSelect> = {
       ],
     }),
   ],
-} satisfies Meta<typeof RegionSelect>;
+} satisfies Meta<typeof Select>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -120,7 +121,7 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A region select component for selecting US states, Canadian provinces, or custom regions.',
+        story: 'A select component for selecting options from a dropdown list. Includes specialized components for US states and Canadian provinces.',
       },
       source: {
         code: `
@@ -160,7 +161,7 @@ const RegionSelectExample = () => {
             description="Select a Canadian province"
           />
           
-          <RegionSelect
+          <Select
             name="region"
             label="Custom Region"
             description="Select a custom region"
@@ -168,6 +169,7 @@ const RegionSelectExample = () => {
               ...US_STATES.slice(0, 5),
               ...CANADA_PROVINCES.slice(0, 5),
             ]}
+            placeholder="Select a custom region"
           />
         </div>
         
@@ -303,4 +305,3 @@ export const FormSubmission: Story = {
     });
   },
 };
-
