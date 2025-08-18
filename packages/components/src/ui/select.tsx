@@ -1,19 +1,16 @@
-import * as React from 'react';
-import { Check, ChevronDown } from 'lucide-react';
-import { cn } from './utils';
-import { useOverlayTriggerState } from 'react-stately';
 import { Popover } from '@radix-ui/react-popover';
-import {
-  PopoverContent,
-  PopoverTrigger,
-} from './popover';
+import { Check, ChevronDown } from 'lucide-react';
+import * as React from 'react';
+import { useOverlayTriggerState } from 'react-stately';
+import { PopoverContent, PopoverTrigger } from './popover';
+import { cn } from './utils';
 
 export interface SelectOption {
   label: string;
   value: string;
 }
 
-export interface SelectProps {
+export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
   options: SelectOption[];
   value?: string;
   onValueChange?: (value: string) => void;
@@ -33,6 +30,7 @@ export function Select({
   className,
   contentClassName,
   itemClassName,
+  ...buttonProps
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
   const [query, setQuery] = React.useState('');
@@ -59,7 +57,7 @@ export function Select({
 
   const filtered = React.useMemo(
     () => (query ? options.filter((o) => `${o.label}`.toLowerCase().includes(query.trim().toLowerCase())) : options),
-    [options, query]
+    [options, query],
   );
 
   // Candidate that would be chosen on Enter (exact match else first filtered)
@@ -72,24 +70,31 @@ export function Select({
 
   return (
     <Popover open={popoverState.isOpen} onOpenChange={popoverState.setOpen}>
-      <PopoverTrigger
-        ref={triggerRef}
-        disabled={disabled}
-        className={cn(
-          'flex items-center justify-between w-full sm:text-base rounded-md border border-input bg-background px-3 py-2 h-10 text-sm ring-offset-background',
-          'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          className
-        )}
-      >
-        {selectedOption?.label || placeholder}
-        <ChevronDown className="w-4 h-4 opacity-50" />
+      <PopoverTrigger asChild>
+        <button
+          ref={triggerRef}
+          type="button"
+          disabled={disabled}
+          className={cn(
+            'flex items-center justify-between w-full sm:text-base rounded-md border border-input bg-background px-3 py-2 h-10 text-sm ring-offset-background',
+            'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+            className,
+          )}
+          // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+          // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+          role="combobox"
+          aria-haspopup="listbox"
+          {...buttonProps}
+        >
+          {selectedOption?.label || placeholder}
+          <ChevronDown className="w-4 h-4 opacity-50" />
+        </button>
       </PopoverTrigger>
       <PopoverContent
         ref={popoverRef}
-        className={cn(
-          'z-50 p-0 shadow-md border-0',
-          contentClassName
-        )}
+        className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
+        // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
+        role="listbox"
         style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
       >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
@@ -143,8 +148,12 @@ export function Select({
                       'text-gray-900',
                       isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
                       isEnterCandidate && 'bg-gray-50',
-                      itemClassName
+                      itemClassName,
                     )}
+                    // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+                    // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+                    role="option"
+                    aria-selected={isSelected}
                   >
                     {isSelected && <Check className="h-4 w-4 flex-shrink-0" />}
                     <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
@@ -160,4 +169,3 @@ export function Select({
     </Popover>
   );
 }
-

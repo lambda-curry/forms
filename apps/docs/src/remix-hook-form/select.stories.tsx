@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { USStateSelect, CanadaProvinceSelect, Select } from '@lambdacurry/forms/remix-hook-form';
-import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
-import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
+import { CanadaProvinceSelect, Select, USStateSelect } from '@lambdacurry/forms/remix-hook-form';
 import { Button } from '@lambdacurry/forms/ui/button';
+import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
+import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
@@ -20,7 +20,7 @@ type FormData = z.infer<typeof formSchema>;
 
 const RegionSelectExample = () => {
   const fetcher = useFetcher<{ message: string; selectedRegions: Record<string, string> }>();
-  
+
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,32 +36,21 @@ const RegionSelectExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-6">
         <div className="space-y-4">
-          <USStateSelect
-            name="state"
-            label="US State"
-            description="Select a US state"
-          />
-          
-          <CanadaProvinceSelect
-            name="province"
-            label="Canadian Province"
-            description="Select a Canadian province"
-          />
-          
+          <USStateSelect name="state" label="US State" description="Select a US state" />
+
+          <CanadaProvinceSelect name="province" label="Canadian Province" description="Select a Canadian province" />
+
           <Select
             name="region"
             label="Custom Region"
             description="Select a custom region"
-            options={[
-              ...US_STATES.slice(0, 5),
-              ...CANADA_PROVINCES.slice(0, 5),
-            ]}
+            options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
             placeholder="Select a custom region"
           />
         </div>
-        
+
         <Button type="submit">Submit</Button>
-        
+
         {fetcher.data?.selectedRegions && (
           <div className="mt-4 p-4 bg-gray-100 rounded-md">
             <p className="text-sm font-medium">Selected regions:</p>
@@ -86,13 +75,13 @@ const handleFormSubmission = async (request: Request) => {
     return { errors };
   }
 
-  return { 
+  return {
     message: 'Form submitted successfully',
     selectedRegions: {
       state: data.state,
       province: data.province,
-      region: data.region
-    }
+      region: data.region,
+    },
   };
 };
 
@@ -121,7 +110,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A select component for selecting options from a dropdown list. Includes specialized components for US states and Canadian provinces.',
+        story:
+          'A select component for selecting options from a dropdown list. Includes specialized components for US states and Canadian provinces.',
       },
       source: {
         code: `
@@ -228,8 +218,9 @@ export const USStateSelection: Story = {
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
 
-      // Wait for dropdown to open and select California
-      const californiaOption = await canvas.findByText('California');
+      // Dropdown content renders in a portal; query via document.body roles
+      const listbox = await within(document.body).findByRole('listbox');
+      const californiaOption = within(listbox).getByRole('option', { name: 'California' });
       await userEvent.click(californiaOption);
 
       // Verify the selection
@@ -254,8 +245,9 @@ export const CanadaProvinceSelection: Story = {
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
 
-      // Wait for dropdown to open and select Ontario
-      const ontarioOption = await canvas.findByText('Ontario');
+      // Query in portal content by role
+      const listbox = await within(document.body).findByRole('listbox');
+      const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
       await userEvent.click(ontarioOption);
 
       // Verify the selection
@@ -279,20 +271,29 @@ export const FormSubmission: Story = {
       // Select a state
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
-      const californiaOption = await canvas.findByText('California');
-      await userEvent.click(californiaOption);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(californiaOption);
+      }
 
       // Select a province
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
-      const ontarioOption = await canvas.findByText('Ontario');
-      await userEvent.click(ontarioOption);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+        await userEvent.click(ontarioOption);
+      }
 
       // Select a custom region
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      const customOption = await canvas.findByText('New York');
-      await userEvent.click(customOption);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const customOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(customOption);
+      }
     });
 
     await step('Submit the form', async () => {
