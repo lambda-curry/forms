@@ -4,7 +4,6 @@ export * from './checkbox-field';
 export * from './date-picker';
 export * from './date-picker-field';
 export * from './dropdown-menu';
-export * from './dropdown-menu-select-field';
 export * from './form';
 export * from './form-error-field';
 export * from './label';
@@ -34,3 +33,4 @@ export * from './us-state-select';
 export * from './canada-province-select';
 export * from './data/us-states';
 export * from './data/canada-provinces';
+
