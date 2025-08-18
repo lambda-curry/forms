@@ -1,6 +1,6 @@
-import { RegionOption } from '../region-select';
+import { SelectOption } from '../select';
 
-export const CANADA_PROVINCES: RegionOption[] = [
+export const CANADA_PROVINCES: SelectOption[] = [
   { value: 'AB', label: 'Alberta' },
   { value: 'BC', label: 'British Columbia' },
   { value: 'MB', label: 'Manitoba' },
@@ -15,4 +15,3 @@ export const CANADA_PROVINCES: RegionOption[] = [
   { value: 'SK', label: 'Saskatchewan' },
   { value: 'YT', label: 'Yukon' },
 ];
-
