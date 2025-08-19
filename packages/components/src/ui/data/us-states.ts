@@ -1,6 +1,6 @@
-import { RegionOption } from '../region-select';
+import { SelectOption } from '../select';
 
-export const US_STATES: RegionOption[] = [
+export const US_STATES: SelectOption[] = [
   { value: 'AL', label: 'Alabama' },
   { value: 'AK', label: 'Alaska' },
   { value: 'AZ', label: 'Arizona' },
@@ -53,4 +53,3 @@ export const US_STATES: RegionOption[] = [
   { value: 'WY', label: 'Wyoming' },
   { value: 'DC', label: 'District of Columbia' },
 ];
-

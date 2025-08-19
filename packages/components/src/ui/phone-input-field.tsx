@@ -56,14 +56,12 @@ export const PhoneInputField = function PhoneInputField({
                   {...field}
                   {...props}
                   ref={ref}
-                  className={cn('w-full', props.className)}
+                  className={cn('w-full', className)}
                   inputClassName={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', inputClassName)}
                 />
               </FormControl>
             </div>
-            {description && (
-              <FormDescription Component={components?.FormDescription}>{description}</FormDescription>
-            )}
+            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
               <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
             )}
