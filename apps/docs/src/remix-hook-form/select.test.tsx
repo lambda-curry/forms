@@ -1,5 +1,4 @@
-import { expect } from '@storybook/test';
-import { userEvent, within } from '@storybook/testing-library';
+import { expect, userEvent, within } from '@storybook/test';
 import { StoryContext } from '@storybook/react';
 
 // Test selecting a US state
@@ -11,7 +10,7 @@ export const testUSStateSelection = async ({ canvasElement }: StoryContext) => {
   await userEvent.click(stateDropdown);
   
   // Select a state (e.g., California)
-  const californiaOption = await canvas.findByText('California');
+  const californiaOption = await within(document.body).findByRole('option', { name: 'California' });
   await userEvent.click(californiaOption);
   
   // Verify the selection
@@ -27,7 +26,7 @@ export const testCanadaProvinceSelection = async ({ canvasElement }: StoryContex
   await userEvent.click(provinceDropdown);
   
   // Select a province (e.g., Ontario)
-  const ontarioOption = await canvas.findByText('Ontario');
+  const ontarioOption = await within(document.body).findByRole('option', { name: 'Ontario' });
   await userEvent.click(ontarioOption);
   
   // Verify the selection
@@ -41,19 +40,19 @@ export const testFormSubmission = async ({ canvasElement }: StoryContext) => {
   // Select a state
   const stateDropdown = canvas.getByLabelText('US State');
   await userEvent.click(stateDropdown);
-  const californiaOption = await canvas.findByText('California');
+  const californiaOption = await within(document.body).findByRole('option', { name: 'California' });
   await userEvent.click(californiaOption);
   
   // Select a province
   const provinceDropdown = canvas.getByLabelText('Canadian Province');
   await userEvent.click(provinceDropdown);
-  const ontarioOption = await canvas.findByText('Ontario');
+  const ontarioOption = await within(document.body).findByRole('option', { name: 'Ontario' });
   await userEvent.click(ontarioOption);
   
   // Select a custom region
   const regionDropdown = canvas.getByLabelText('Custom Region');
   await userEvent.click(regionDropdown);
-  const customOption = await canvas.findByText('New York');
+  const customOption = await within(document.body).findByRole('option', { name: 'New York' });
   await userEvent.click(customOption);
   
   // Submit the form
