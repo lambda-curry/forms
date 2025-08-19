@@ -90,21 +90,20 @@ const meta: Meta<typeof Select> = {
   component: Select,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  decorators: [
-    withReactRouterStubDecorator({
-      routes: [
-        {
-          path: '/',
-          Component: RegionSelectExample,
-          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
-        },
-      ],
-    }),
-  ],
 } satisfies Meta<typeof Select>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+const selectRouterDecorator = withReactRouterStubDecorator({
+  routes: [
+    {
+      path: '/',
+      Component: RegionSelectExample,
+      action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+    },
+  ],
+});
 
 export const Default: Story = {
   parameters: {
@@ -171,10 +170,11 @@ const RegionSelectExample = () => {
       },
     },
   },
+  decorators: [selectRouterDecorator],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state', async () => {
+    await step('Verify initial state', () => {
       // Verify all selects are empty initially
       const stateSelect = canvas.getByLabelText('US State');
       const provinceSelect = canvas.getByLabelText('Canadian Province');
@@ -199,6 +199,45 @@ const RegionSelectExample = () => {
       await expect(canvas.findByText('Please select a province')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('Please select a region')).resolves.toBeInTheDocument();
     });
+
+    await step('Test successful submission', async () => {
+      // Select a state
+      const stateSelect = canvas.getByLabelText('US State');
+      await userEvent.click(stateSelect);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(californiaOption);
+      }
+
+      // Select a province
+      const provinceSelect = canvas.getByLabelText('Canadian Province');
+      await userEvent.click(provinceSelect);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+        await userEvent.click(ontarioOption);
+      }
+
+      // Select a custom region
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      {
+        const listbox = await within(document.body).findByRole('listbox');
+        const customOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(customOption);
+      }
+
+      // Submit
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+
+      // Assert success UI
+      await expect(canvas.findByText('Selected regions:')).resolves.toBeInTheDocument();
+      expect(canvas.getByText('state: CA')).toBeInTheDocument();
+      expect(canvas.getByText('province: ON')).toBeInTheDocument();
+      expect(canvas.getByText('region: CA')).toBeInTheDocument();
+    });
   },
 };
 
@@ -210,6 +249,7 @@ export const USStateSelection: Story = {
       },
     },
   },
+  decorators: [selectRouterDecorator],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -237,6 +277,7 @@ export const CanadaProvinceSelection: Story = {
       },
     },
   },
+  decorators: [selectRouterDecorator],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -264,6 +305,7 @@ export const FormSubmission: Story = {
       },
     },
   },
+  decorators: [selectRouterDecorator],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
