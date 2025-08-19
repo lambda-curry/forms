@@ -9,9 +9,6 @@ import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hoo
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
-// Helper function to wait for a short time
-const waitForSelection = async (ms = 50) => new Promise(resolve => setTimeout(resolve, ms));
-
 const formSchema = z.object({
   region: z.string().min(1, 'Please select a region'),
   theme: z.string().min(1, 'Please select a theme'),
@@ -236,8 +233,7 @@ Each custom component should use React.forwardRef to preserve focus, ARIA, and k
       await userEvent.click(themeSelect);
       const purple = await within(document.body).findByRole('option', { name: 'Purple' });
       await userEvent.click(purple);
-      await waitForSelection();
-      expect(themeSelect).toHaveTextContent('Purple');
+      await expect(themeSelect).toHaveTextContent('Purple');
     });
 
     await step('Open and choose Fruit', async () => {
@@ -245,8 +241,7 @@ Each custom component should use React.forwardRef to preserve focus, ARIA, and k
       await userEvent.click(fruitSelect);
       const banana = await within(document.body).findByRole('option', { name: '🍌 Banana' });
       await userEvent.click(banana);
-      await waitForSelection();
-      expect(fruitSelect).toHaveTextContent('🍌 Banana');
+      await expect(fruitSelect).toHaveTextContent('🍌 Banana');
     });
 
     await step('Submit the form', async () => {

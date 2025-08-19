@@ -51,6 +51,7 @@ export function Select({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLButtonElement>(null);
+  const listboxId = React.useId();
   const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
 
   React.useEffect(() => {
@@ -117,10 +118,10 @@ export function Select({
             'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
             className,
           )}
-          // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-          // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
           role="combobox"
+          aria-expanded={popoverState.isOpen}
           aria-haspopup="listbox"
+          aria-controls={popoverState.isOpen ? listboxId : undefined}
           {...buttonProps}
         >
           {selectedOption?.label || placeholder}
@@ -130,8 +131,8 @@ export function Select({
       <PopoverContent
         ref={popoverRef}
         className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
-        // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
         role="listbox"
+        id={listboxId}
         style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
       >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
@@ -185,8 +186,6 @@ export function Select({
                       isEnterCandidate && 'bg-gray-50',
                       itemClassName,
                     )}
-                    // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-                    // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
                     role="option"
                     aria-selected={isSelected}
                     data-selected={isSelected ? 'true' : 'false'}
@@ -206,3 +205,4 @@ export function Select({
     </Popover>
   );
 }
+
