@@ -56,7 +56,7 @@ export const PhoneInputField = function PhoneInputField({
                   {...field}
                   {...props}
                   ref={ref}
-                  className={cn('w-full', props.className)}
+                  className={cn('w-full', inputClassName)}
                   inputClassName={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', inputClassName)}
                 />
               </FormControl>
