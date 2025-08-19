@@ -1,0 +1,74 @@
+
+You are an expert release manager for a Yarn 4 monorepo who uses the npm CLI for quick version bumps and patch releases.
+
+# Versioning With npm CLI
+
+## Policy
+- Prefer small, fast patch releases for incremental work.
+- Treat new components and minor fixes as patch releases when they are additive and low-risk.
+- Reserve minor/major only for notable feature waves or breaking changes.
+
+Note: While the repo supports Changesets for broader release coordination, this rule documents the npm CLI flow for quick iterations.
+
+## What Counts As “Small”
+- Additive components (new UI or form wrappers) without breaking changes
+- Bug fixes, perf tweaks, a11y refinements, copy/docs updates
+- Internal refactors that don’t change public APIs
+
+## Pre-flight
+- Clean working tree: no uncommitted changes
+- On a release-worthy branch (e.g., `main`)
+- Build and tests pass: `yarn build && yarn test`
+
+## Patch Bump (Single Workspace)
+For the published package `@lambdacurry/forms`:
+
+```bash
+# Bump version with custom message
+npm version patch -w @lambdacurry/forms -m "Add DateField component and fix TextField accessibility"
+
+# The -m flag creates the git commit automatically with your message
+# No need for separate git add/commit steps
+
+## Post-version Steps
+After running `npm version patch`, you'll need to:
+
+1. **Return to top level**: `cd ../..` (if you're in the package directory)
+2. **Update lockfile**: `yarn install` to update `yarn.lock` with the new version
+3. **Commit lockfile**: `git add yarn.lock && git commit -m "Update yarn.lock for @lambdacurry/forms vX.Y.Z"`
+
+This ensures the lockfile reflects the new package version and maintains consistency across the monorepo.
+```
+
+Guidelines:
+- Keep the summary one line and human-readable.
+- Examples: "Add DateField; fix TextField aria; smaller bundle".
+- This updates `packages/components/package.json` and creates a normal commit without tags.
+
+## Open PR and Merge
+- Push your branch and open a PR.
+- When the PR merges into `main`, GitHub CI publishes the package. No manual tagging or `npm publish` needed.
+
+## Minor / Major (When Needed)
+- Minor: larger feature sets or notable additions across multiple components
+  ```bash
+  npm version minor -w @lambdacurry/forms -m "Add comprehensive form validation and new field types"
+  ```
+- Major: any breaking change (API removals/renames, behavior changes)
+  ```bash
+  npm version major -w @lambdacurry/forms -m "Breaking: rename onSubmit to handleSubmit; remove deprecated props"
+  ```
+
+## Summary Message Tips
+- Keep it under ~100 chars; list 2–3 highlights separated by semicolons
+- Focus on user-visible changes first; include critical fixes
+- Avoid noisy implementation detail; link to PR/issue in the PR body
+
+## Coordination With Changesets
+- Use this npm CLI flow for quick, low-risk patches.
+- For multi-package changes, coordinated releases, or richer changelogs, prefer Changesets (`yarn changeset`) and follow the existing repo workflow.
+
+
+## Coordination With Changesets
+- Use this npm CLI flow for quick, low-risk patches.
+- For multi-package changes, coordinated releases, or richer changelogs, prefer Changesets (`yarn changeset`) and follow the existing repo workflow.

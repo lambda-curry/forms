@@ -48,6 +48,7 @@
 - `.cursor/rules/form-component-patterns.mdc`: Remix Hook Form + Zod wrappers, errors, server actions.
 - `.cursor/rules/storybook-testing.mdc`: Storybook play tests, router stub decorator, local/CI flows.
 - `.cursor/rules/monorepo-organization.mdc`: Imports/exports, package boundaries, Turbo/Vite/TS paths.
+- `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps (patch-first), CI publishes on merge.
 
 When to review before starting work
 - Building/refactoring UI components: react-typescript-patterns + ui-component-patterns.
