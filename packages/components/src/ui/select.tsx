@@ -1,5 +1,5 @@
 import { Popover } from '@radix-ui/react-popover';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
 import { PopoverContent, PopoverTrigger } from './popover';
@@ -8,6 +8,18 @@ import { cn } from './utils';
 export interface SelectOption {
   label: string;
   value: string;
+}
+
+export interface SelectUIComponents {
+  Trigger?: React.ComponentType<React.ButtonHTMLAttributes<HTMLButtonElement> & React.RefAttributes<HTMLButtonElement>>;
+  Item?: React.ComponentType<
+    React.ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean } & React.RefAttributes<HTMLButtonElement>
+  >;
+  SearchInput?: React.ComponentType<
+    React.InputHTMLAttributes<HTMLInputElement> & React.RefAttributes<HTMLInputElement>
+  >;
+  CheckIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
@@ -19,6 +31,7 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   className?: string;
   contentClassName?: string;
   itemClassName?: string;
+  components?: Partial<SelectUIComponents>;
 }
 
 export function Select({
@@ -30,6 +43,7 @@ export function Select({
   className,
   contentClassName,
   itemClassName,
+  components,
   ...buttonProps
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
@@ -68,27 +82,50 @@ export function Select({
     return exact ?? filtered[0];
   }, [filtered, query]);
 
+  const Trigger =
+    components?.Trigger ||
+    React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
+      <button ref={ref} type="button" {...props} />
+    ));
+  Trigger.displayName = Trigger.displayName || 'SelectTrigger';
+
+  const Item =
+    components?.Item ||
+    React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean }>(
+      (props, ref) => <button ref={ref} type="button" {...props} />,
+    );
+  Item.displayName = Item.displayName || 'SelectItem';
+
+  const SearchInput =
+    components?.SearchInput ||
+    React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => (
+      <input ref={ref} {...props} />
+    ));
+  SearchInput.displayName = SearchInput.displayName || 'SelectSearchInput';
+
+  const CheckIcon = components?.CheckIcon || DefaultCheckIcon;
+  const ChevronIcon = components?.ChevronIcon || DefaultChevronIcon;
+
   return (
     <Popover open={popoverState.isOpen} onOpenChange={popoverState.setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <Trigger
           ref={triggerRef}
-          type="button"
           disabled={disabled}
           className={cn(
             'flex items-center justify-between w-full sm:text-base rounded-md border border-input bg-background px-3 py-2 h-10 text-sm ring-offset-background',
             'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
             className,
           )}
-          // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
           // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+          // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
           role="combobox"
           aria-haspopup="listbox"
           {...buttonProps}
         >
           {selectedOption?.label || placeholder}
-          <ChevronDown className="w-4 h-4 opacity-50" />
-        </button>
+          <ChevronIcon className="w-4 h-4 opacity-50" />
+        </Trigger>
       </PopoverTrigger>
       <PopoverContent
         ref={popoverRef}
@@ -99,12 +136,11 @@ export function Select({
       >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
           <div className="px-1.5 pb-1.5">
-            <input
+            <SearchInput
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search..."
-              // focus after mount for accessibility without using autoFocus
               ref={(el) => {
                 if (el) queueMicrotask(() => el.focus());
               }}
@@ -135,8 +171,7 @@ export function Select({
               const isEnterCandidate = query.trim() !== '' && enterCandidate?.value === option.value && !isSelected;
               return (
                 <li key={option.value} className="list-none">
-                  <button
-                    type="button"
+                  <Item
                     ref={isSelected ? selectedItemRef : undefined}
                     onClick={() => {
                       onValueChange?.(option.value);
@@ -154,12 +189,14 @@ export function Select({
                     // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
                     role="option"
                     aria-selected={isSelected}
+                    data-selected={isSelected ? 'true' : 'false'}
+                    selected={isSelected}
                   >
-                    {isSelected && <Check className="h-4 w-4 flex-shrink-0" />}
+                    {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
                     <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
                       {option.label}
                     </span>
-                  </button>
+                  </Item>
                 </li>
               );
             })}
