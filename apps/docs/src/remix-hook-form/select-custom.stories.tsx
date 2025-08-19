@@ -3,6 +3,7 @@ import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
+import clsx from 'clsx';
 import * as React from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
@@ -10,20 +11,11 @@ import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const formSchema = z.object({
-  region: z.string().min(1, 'Please select a region'),
   theme: z.string().min(1, 'Please select a theme'),
   fruit: z.string().min(1, 'Please select a fruit'),
 });
 
 type FormData = z.infer<typeof formSchema>;
-
-const regionOptions = [
-  { label: 'California', value: 'CA' },
-  { label: 'Ontario', value: 'ON' },
-  { label: 'New York', value: 'NY' },
-  { label: 'Quebec', value: 'QC' },
-  { label: 'Texas', value: 'TX' },
-];
 
 const themeOptions = [
   { label: 'Default', value: 'default' },
@@ -45,10 +37,10 @@ const PurpleTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttrib
       ref={ref}
       type="button"
       {...props}
-      className={
-        'flex items-center justify-between w-full rounded-md border-2 border-purple-300 bg-purple-50 px-3 py-2 h-10 text-sm text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ' +
-        (props.className || '')
-      }
+      className={clsx(
+        'flex items-center justify-between w-full rounded-md border-2 border-purple-300 bg-purple-50 px-3 py-2 h-10 text-sm text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2',
+        props.className,
+      )}
     />
   ),
 );
@@ -63,10 +55,10 @@ const PurpleItem = React.forwardRef<
     ref={ref}
     type="button"
     {...props}
-    className={
-      'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded text-purple-900 hover:bg-purple-100 data-[selected=true]:bg-purple-100 ' +
-      (props.className || '')
-    }
+    className={clsx(
+      'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded text-purple-900 hover:bg-purple-100 data-[selected=true]:bg-purple-100',
+      props.className,
+    )}
   />
 ));
 PurpleItem.displayName = 'PurpleItem';
@@ -77,7 +69,10 @@ const PurpleSearchInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttr
     <input
       ref={ref}
       {...props}
-      className={'w-full h-9 rounded-md bg-white px-2 text-sm leading-none border-2 border-purple-200 focus:border-purple-400 focus:outline-none ' + (props.className || '')}
+      className={clsx(
+        'w-full h-9 rounded-md bg-white px-2 text-sm leading-none border-2 border-purple-200 focus:border-purple-400 focus:outline-none',
+        props.className,
+      )}
     />
   ),
 );
@@ -92,10 +87,10 @@ const GreenItem = React.forwardRef<
     ref={ref}
     type="button"
     {...props}
-    className={
-      'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded hover:bg-emerald-100 data-[selected=true]:bg-emerald-100 ' +
-      (props.className || '')
-    }
+    className={clsx(
+      'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded hover:bg-emerald-100 data-[selected=true]:bg-emerald-100',
+      props.className,
+    )}
   />
 ));
 GreenItem.displayName = 'GreenItem';
@@ -106,7 +101,6 @@ const SelectCustomizationExample = () => {
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      region: '',
       theme: '',
       fruit: '',
     },
@@ -118,15 +112,6 @@ const SelectCustomizationExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-6">
         <div className="grid gap-6 w-[320px]">
-          {/* Default Select */}
-          <Select
-            name="region"
-            label="Region"
-            description="Default Select styling"
-            options={regionOptions}
-            placeholder="Select a region"
-          />
-
           {/* Custom Trigger and Item using components */}
           <Select
             name="theme"
@@ -231,17 +216,17 @@ Each custom component should use React.forwardRef to preserve focus, ARIA, and k
     await step('Open and choose Theme', async () => {
       const themeSelect = canvas.getByLabelText('Theme');
       await userEvent.click(themeSelect);
-      const purple = await within(document.body).findByRole('option', { name: 'Purple' });
-      await userEvent.click(purple);
-      expect(themeSelect).toHaveTextContent('Purple');
+      const listbox = await within(document.body).findByRole('listbox');
+      await userEvent.click(within(listbox).getByRole('option', { name: /Purple/i }));
+      await expect(canvas.findByRole('combobox', { name: 'Theme' })).resolves.toHaveTextContent('Purple');
     });
 
     await step('Open and choose Fruit', async () => {
       const fruitSelect = canvas.getByLabelText('Favorite Fruit');
       await userEvent.click(fruitSelect);
-      const banana = await within(document.body).findByRole('option', { name: '🍌 Banana' });
-      await userEvent.click(banana);
-      expect(fruitSelect).toHaveTextContent('🍌 Banana');
+      const listbox = await within(document.body).findByRole('listbox');
+      await userEvent.click(within(listbox).getByTestId('select-option-banana'));
+      await expect(canvas.findByRole('combobox', { name: 'Favorite Fruit' })).resolves.toHaveTextContent('Banana');
     });
 
     await step('Submit the form', async () => {

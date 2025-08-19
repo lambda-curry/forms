@@ -92,13 +92,24 @@ export interface FormControlProps extends React.ComponentProps<typeof Slot> {
 }
 
 export function FormControl({ Component, ...props }: FormControlProps) {
-  const { formItemId, formDescriptionId, formMessageId, error, ...restProps } = props;
+  const context = React.useContext(FormItemContext);
+  const {
+    formItemId: fromPropsId,
+    formDescriptionId: fromPropsDesc,
+    formMessageId: fromPropsMsg,
+    error,
+    ...restProps
+  } = props;
+
+  const computedId = fromPropsId ?? context.formItemId;
+  const computedDescriptionId = fromPropsDesc ?? context.formDescriptionId;
+  const computedMessageId = fromPropsMsg ?? context.formMessageId;
 
   const ariaProps = {
-    id: formItemId,
-    'aria-describedby': error ? `${formDescriptionId} ${formMessageId}` : formDescriptionId,
+    id: computedId,
+    'aria-describedby': error ? `${computedDescriptionId} ${computedMessageId}` : computedDescriptionId,
     'aria-invalid': !!error,
-  };
+  } as const;
 
   if (Component) {
     return <Component {...restProps} {...ariaProps} />;
@@ -135,17 +146,14 @@ export interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElem
   Component?: React.ComponentType<FormMessageProps>;
 }
 
-export function FormMessage({
-  Component,
-  className,
-  formMessageId,
-  error,
-  children,
-  ...rest
-}: FormMessageProps) {
+export function FormMessage({ Component, className, formMessageId, error, children, ...rest }: FormMessageProps) {
   if (Component) {
     // Ensure custom props do not leak to DOM by not spreading them
-    return <Component id={formMessageId} className={className} error={error} {...rest}>{children}</Component>;
+    return (
+      <Component id={formMessageId} className={className} error={error} {...rest}>
+        {children}
+      </Component>
+    );
   }
 
   const body = error ? error : children;

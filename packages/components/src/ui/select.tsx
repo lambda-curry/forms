@@ -47,6 +47,7 @@ export function Select({
   ...buttonProps
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
+  const listboxId = React.useId();
   const [query, setQuery] = React.useState('');
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
@@ -121,6 +122,8 @@ export function Select({
           // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
           role="combobox"
           aria-haspopup="listbox"
+          aria-expanded={popoverState.isOpen}
+          aria-controls={listboxId}
           {...buttonProps}
         >
           {selectedOption?.label || placeholder}
@@ -132,6 +135,7 @@ export function Select({
         className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
         // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
         role="listbox"
+        id={listboxId}
         style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
       >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
@@ -190,6 +194,8 @@ export function Select({
                     role="option"
                     aria-selected={isSelected}
                     data-selected={isSelected ? 'true' : 'false'}
+                    data-value={option.value}
+                    data-testid={`select-option-${option.value}`}
                     selected={isSelected}
                   >
                     {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}

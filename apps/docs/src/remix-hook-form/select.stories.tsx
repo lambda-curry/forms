@@ -263,8 +263,8 @@ export const USStateSelection: Story = {
       const californiaOption = within(listbox).getByRole('option', { name: 'California' });
       await userEvent.click(californiaOption);
 
-      // Verify the selection
-      expect(stateSelect).toHaveTextContent('California');
+      // Wait for the trigger text to update after portal selection
+      await expect(canvas.findByRole('combobox', { name: 'US State' })).resolves.toHaveTextContent('California');
     });
   },
 };
@@ -291,8 +291,8 @@ export const CanadaProvinceSelection: Story = {
       const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
       await userEvent.click(ontarioOption);
 
-      // Verify the selection
-      expect(provinceSelect).toHaveTextContent('Ontario');
+      // Wait for the trigger text to update after portal selection
+      await expect(canvas.findByRole('combobox', { name: 'Canadian Province' })).resolves.toHaveTextContent('Ontario');
     });
   },
 };
