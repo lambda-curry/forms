@@ -36,14 +36,16 @@ jobs:
         with:
           node-version: '22.9.0'
 
-      - name: Setup Yarn Corepack
-        run: corepack enable
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: '1.2.20'
 
       - name: Install dependencies
-        run: yarn install
+        run: bun install --frozen-lockfile
 
       - name: Build Storybook
-        run: yarn build-storybook
+        run: bun run build-storybook
 
       # Verify the build output
       - name: Verify build output
@@ -165,3 +167,4 @@ jobs:
           else
             echo "PR preview directory not found"
           fi
+

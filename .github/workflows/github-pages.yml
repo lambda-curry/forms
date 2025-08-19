@@ -37,14 +37,16 @@ jobs:
         with:
           node-version: '22.9.0'
 
-      - name: Setup Yarn Corepack
-        run: corepack enable
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: '1.2.20'
 
       - name: Install dependencies
-        run: yarn install
+        run: bun install --frozen-lockfile
 
       - name: Build Storybook
-        run: yarn build-storybook
+        run: bun run build-storybook
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -59,3 +61,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+

@@ -20,21 +20,21 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install Correct Yarn Version
-        run: corepack prepare yarn@4.4.1 --activate
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: '1.2.20'
 
       - name: Install Dependencies
-        run: yarn
+        run: bun install --frozen-lockfile
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: yarn release
+          publish: bun run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
