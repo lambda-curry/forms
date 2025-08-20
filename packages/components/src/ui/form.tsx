@@ -105,9 +105,14 @@ export function FormControl({ Component, ...props }: FormControlProps) {
   const computedDescriptionId = fromPropsDesc ?? context.formDescriptionId;
   const computedMessageId = fromPropsMsg ?? context.formMessageId;
 
+  // Fix: Only include aria-describedby if there's an error or description
+  const ariaDescribedBy = [];
+  if (computedDescriptionId) ariaDescribedBy.push(computedDescriptionId);
+  if (error && computedMessageId) ariaDescribedBy.push(computedMessageId);
+  
   const ariaProps = {
     id: computedId,
-    'aria-describedby': error ? `${computedDescriptionId} ${computedMessageId}` : computedDescriptionId,
+    ...(ariaDescribedBy.length > 0 ? { 'aria-describedby': ariaDescribedBy.join(' ') } : {}),
     'aria-invalid': !!error,
   } as const;
 
