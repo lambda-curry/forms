@@ -116,6 +116,21 @@ describe('PhoneInput Component', () => {
       });
     });
 
+    it('handles 11-digit US numbers with leading 1 (autofill case)', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const usaPhoneInput = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Simulate autofill with 11 digits starting with 1
+      await user.type(usaPhoneInput, '12025550123');
+
+      // Should format correctly by removing the leading 1
+      await waitFor(() => {
+        expect(usaPhoneInput.value).toBe('(202) 555-0123');
+      });
+    });
+
     it('accepts international number with + and inserts spaces', async () => {
       const user = userEvent.setup();
       render(<TestPhoneInputForm />);
