@@ -23,7 +23,14 @@ function extractDigits(input: string): string {
 }
 
 function formatUS(digits: string): string {
-  const d = digits.slice(0, 10);
+  // Handle case where an 11-digit number with leading "1" is provided (common in autofill)
+  let d = digits;
+  if (digits.length === 11 && digits.startsWith('1')) {
+    d = digits.slice(1); // Remove the leading "1" country code
+  } else {
+    d = digits.slice(0, 10); // Otherwise just take first 10 digits as before
+  }
+
   if (d.length === 0) return '';
   if (d.length <= 3) return `(${d}`;
   if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
@@ -62,7 +69,8 @@ export const PhoneNumberInput = ({
       const formatted = typer.input(normalized);
       setDisplay(formatted);
     } else {
-      const digits = extractDigits(String(value)).slice(0, 10);
+      // Remove the slice(0, 10) to allow handling 11-digit numbers with leading 1
+      const digits = extractDigits(String(value));
       setDisplay(formatUS(digits));
     }
   }, [value, isInternational]);
@@ -80,10 +88,19 @@ export const PhoneNumberInput = ({
       return;
     }
 
-    const digits = extractDigits(raw).slice(0, 10);
+    // Remove the slice(0, 10) to allow handling 11-digit numbers with leading 1
+    const digits = extractDigits(raw);
+    // Handle case where an 11-digit number with leading "1" is provided
+    let normalizedDigits = digits;
+    if (digits.length === 11 && digits.startsWith('1')) {
+      normalizedDigits = digits.slice(1); // Remove the leading "1" country code
+    } else {
+      normalizedDigits = digits.slice(0, 10); // Otherwise just take first 10 digits
+    }
+
     const formatted = formatUS(digits);
     setDisplay(formatted);
-    onChange?.(digits || undefined);
+    onChange?.(normalizedDigits || undefined);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -92,13 +109,17 @@ export const PhoneNumberInput = ({
       const isNumberKey = NUMBER_KEY_REGEX.test(e.key);
       const isModifier = e.ctrlKey || e.metaKey || e.altKey;
       const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End', 'Enter'];
-      if (!isModifier && isNumberKey && currentDigits.length >= 10) {
+      
+      // Allow typing if we have fewer than 10 digits or if we have 11 digits but the first is '1'
+      const isComplete = currentDigits.length >= 10 && !(currentDigits.length === 11 && currentDigits.startsWith('1'));
+      
+      if (!isModifier && isNumberKey && isComplete) {
         // Prevent adding more digits once 10-digit US number is complete
         e.preventDefault();
         return;
       }
       if (allowed.includes(e.key)) return;
-      // Allow other typical keys; restriction handled by formatting and slice(0,10)
+      // Allow other typical keys; restriction handled by formatting
     }
   };
 
