@@ -5,9 +5,9 @@ import { useOverlayTriggerState } from 'react-stately';
 import { PopoverContent, PopoverTrigger } from './popover';
 import { cn } from './utils';
 
-export interface SelectOption {
+export interface SelectOption<T = string> {
   label: string;
-  value: string;
+  value: T;
 }
 
 export interface SelectUIComponents {
@@ -22,10 +22,11 @@ export interface SelectUIComponents {
   ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
-export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
-  options: SelectOption[];
-  value?: string;
-  onValueChange?: (value: string) => void;
+export interface SelectProps<T = string>
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
+  options: SelectOption<T>[];
+  value?: T;
+  onValueChange?: (value: T) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -34,7 +35,7 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   components?: Partial<SelectUIComponents>;
 }
 
-export function Select({
+export function Select<T = string>({
   options,
   value,
   onValueChange,
@@ -45,7 +46,7 @@ export function Select({
   itemClassName,
   components,
   ...buttonProps
-}: SelectProps) {
+}: SelectProps<T>) {
   const popoverState = useOverlayTriggerState({});
   const listboxId = React.useId();
   const [query, setQuery] = React.useState('');
@@ -174,7 +175,7 @@ export function Select({
               const isSelected = option.value === value;
               const isEnterCandidate = query.trim() !== '' && enterCandidate?.value === option.value && !isSelected;
               return (
-                <li key={option.value} className="list-none">
+                <li key={String(option.value)} className="list-none">
                   <Item
                     ref={isSelected ? selectedItemRef : undefined}
                     onClick={() => {
