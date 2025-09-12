@@ -134,10 +134,10 @@ export const PhoneNumberInput = ({
       )}
       data-slot="input"
       aria-label={props['aria-label']}
-      {...props}
       value={display}
       onChange={handleInputChange}
       onKeyDown={handleKeyDown}
+      {...props}
     />
   );
 };
