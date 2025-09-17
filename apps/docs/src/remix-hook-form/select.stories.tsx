@@ -348,3 +348,96 @@ export const FormSubmission: Story = {
     });
   },
 };
+
+export const KeyboardNavigation: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Test keyboard navigation with arrow keys and Enter selection.',
+      },
+    },
+  },
+  decorators: [selectRouterDecorator],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Test keyboard navigation on Custom Region select', async () => {
+      // Open the Custom Region select
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      // Verify the dropdown is open and input is focused
+      const listbox = await within(document.body).findByRole('listbox');
+      expect(listbox).toBeInTheDocument();
+
+      const searchInput = within(listbox).getByPlaceholderText('Search...');
+      expect(searchInput).toHaveFocus();
+
+      // Verify first item is active by default (should have aria-activedescendant)
+      const firstOptionId = searchInput.getAttribute('aria-activedescendant');
+      expect(firstOptionId).toBeTruthy();
+
+      // Verify the first option exists and has the correct ID
+      const firstOption = within(listbox).getByRole('option', { name: 'Alabama' });
+      expect(firstOption).toHaveAttribute('id', firstOptionId);
+      expect(firstOption).toHaveAttribute('data-active', 'true');
+    });
+
+    await step('Navigate with arrow keys', async () => {
+      const listbox = within(document.body).getByRole('listbox');
+      const searchInput = within(listbox).getByPlaceholderText('Search...');
+
+      // Press ArrowDown twice to move to the third item
+      await userEvent.keyboard('{ArrowDown}');
+      await userEvent.keyboard('{ArrowDown}');
+
+      // Verify the active item has changed
+      const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+      const activeOption = document.getElementById(activeOptionId!);
+      expect(activeOption).toHaveAttribute('data-active', 'true');
+
+      // Should be the third option (index 2)
+      expect(activeOption).toHaveAttribute('data-index', '2');
+    });
+
+    await step('Select with Enter key', async () => {
+      const listbox = within(document.body).getByRole('listbox');
+      const searchInput = within(listbox).getByPlaceholderText('Search...');
+
+      // Press Enter to select the active item
+      await userEvent.keyboard('{Enter}');
+
+      // Verify the dropdown closed and the trigger shows the selected value
+      await expect(() => within(document.body).getByRole('listbox')).rejects.toThrow();
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      // The third item should be "Arizona" (AL, AK, AZ...)
+      expect(regionSelect).toHaveTextContent('Arizona');
+    });
+
+    await step('Test filtering and active item reset', async () => {
+      // Open the dropdown again
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      const listbox = await within(document.body).findByRole('listbox');
+      const searchInput = within(listbox).getByPlaceholderText('Search...');
+
+      // Type to filter
+      await userEvent.type(searchInput, 'cal');
+
+      // Verify the active item reset to the first filtered item
+      const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+      const activeOption = document.getElementById(activeOptionId!);
+      expect(activeOption).toHaveAttribute('data-index', '0');
+      expect(activeOption).toHaveTextContent('California');
+
+      // Press Enter to select the filtered item
+      await userEvent.keyboard('{Enter}');
+
+      // Verify selection
+      await expect(() => within(document.body).getByRole('listbox')).rejects.toThrow();
+      expect(regionSelect).toHaveTextContent('California');
+    });
+  },
+};
