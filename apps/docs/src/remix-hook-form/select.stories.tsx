@@ -380,6 +380,9 @@ export const KeyboardNavigation: Story = {
       // Verify the first option exists and has the correct ID
       const firstOption = within(listbox).getByRole('option', { name: 'Alabama' });
       expect(firstOption).toHaveAttribute('id', firstOptionId);
+      
+      // Wait a bit for the component to fully initialize
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(firstOption).toHaveAttribute('data-active', 'true');
     });
 
