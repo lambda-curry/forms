@@ -74,12 +74,17 @@ export function Select({
     [options, query],
   );
 
-  // Reset activeIndex when filtered items change or dropdown opens
+  // Reset activeIndex when filtered items change
   React.useEffect(() => {
-    if (filtered.length > 0) {
+    setActiveIndex(0);
+  }, [filtered]);
+
+  // Reset activeIndex when dropdown opens
+  React.useEffect(() => {
+    if (popoverState.isOpen) {
       setActiveIndex(0);
     }
-  }, [filtered, popoverState.isOpen]);
+  }, [popoverState.isOpen]);
 
   // Scroll active item into view when activeIndex changes
   React.useEffect(() => {

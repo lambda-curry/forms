@@ -381,8 +381,12 @@ export const KeyboardNavigation: Story = {
       const firstOption = within(listbox).getByRole('option', { name: 'Alabama' });
       expect(firstOption).toHaveAttribute('id', firstOptionId);
       
-      // Wait a bit for the component to fully initialize
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait a bit for the component to fully initialize and ensure it's stable
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Check that the first option is still active (no unintended keyboard events)
+      const currentActiveOptionId = searchInput.getAttribute('aria-activedescendant');
+      expect(currentActiveOptionId).toBe(firstOptionId);
       expect(firstOption).toHaveAttribute('data-active', 'true');
     });
 
