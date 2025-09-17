@@ -50,6 +50,7 @@ export function Select({
   const listboxId = React.useId();
   const [query, setQuery] = React.useState('');
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [isInitialized, setIsInitialized] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLButtonElement>(null);
@@ -77,17 +78,19 @@ export function Select({
     [options, query],
   );
 
-  // Reset activeIndex when filtered items change
-  React.useEffect(() => {
-    setActiveIndex(0);
-  }, [filtered]);
-
-  // Reset activeIndex when dropdown opens
+  // Reset activeIndex when filtered items change or dropdown opens
   React.useEffect(() => {
     if (popoverState.isOpen) {
       setActiveIndex(0);
+      // Add a small delay to ensure the component is fully initialized
+      const timer = setTimeout(() => {
+        setIsInitialized(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsInitialized(false);
     }
-  }, [popoverState.isOpen]);
+  }, [filtered, popoverState.isOpen]);
 
   // Scroll active item into view when activeIndex changes
   React.useEffect(() => {
