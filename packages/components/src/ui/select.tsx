@@ -57,29 +57,24 @@ export function Select({
   React.useEffect(() => {
     if (!triggerRef.current) return;
 
-    // Check if ResizeObserver is available
-    if (typeof ResizeObserver === 'undefined') {
-      // Fallback to simple width measurement
-      setMenuWidth(triggerRef.current.offsetWidth);
-      return;
-    }
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        // Use borderBoxSize for more accurate measurements with fallback
-        const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
-                     entry.contentBoxSize?.[0]?.inlineSize ?? 
-                     (entry.target as HTMLElement).offsetWidth;
-        setMenuWidth(width);
-      }
-    });
-
-    observer.observe(triggerRef.current);
-    
-    // Set initial width immediately
+    // Set initial width immediately (original behavior)
     setMenuWidth(triggerRef.current.offsetWidth);
 
-    return () => observer.disconnect();
+    // Add ResizeObserver for dynamic width tracking if available
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          // Use borderBoxSize for more accurate measurements with fallback
+          const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
+                       entry.contentBoxSize?.[0]?.inlineSize ?? 
+                       (entry.target as HTMLElement).offsetWidth;
+          setMenuWidth(width);
+        }
+      });
+
+      observer.observe(triggerRef.current);
+      return () => observer.disconnect();
+    }
   }, []); // Only run once - observer handles all future changes
 
   // Scroll to selected item when dropdown opens
