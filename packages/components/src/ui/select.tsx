@@ -58,8 +58,16 @@ export function Select({
   React.useEffect(() => {
     if (!triggerRef.current) return;
 
-    // Set initial width immediately (original behavior)
-    setMenuWidth(triggerRef.current.offsetWidth);
+    const updateWidth = () => {
+      if (triggerRef.current) {
+        const width = triggerRef.current.offsetWidth;
+        console.log('Setting menu width to:', width); // Debug log
+        setMenuWidth(width);
+      }
+    };
+
+    // Set initial width immediately
+    updateWidth();
 
     // Add ResizeObserver for dynamic width tracking if available
     if (typeof ResizeObserver !== 'undefined') {
@@ -69,6 +77,7 @@ export function Select({
           const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
                        entry.contentBoxSize?.[0]?.inlineSize ?? 
                        (entry.target as HTMLElement).offsetWidth;
+          console.log('ResizeObserver detected width change:', width); // Debug log
           setMenuWidth(width);
         }
       });
@@ -77,6 +86,11 @@ export function Select({
       return () => observer.disconnect();
     }
   }, []); // Only run once - observer handles all future changes
+
+  // Debug effect to log menuWidth changes
+  React.useEffect(() => {
+    console.log('menuWidth changed to:', menuWidth);
+  }, [menuWidth]);
 
   // Scroll to selected item when dropdown opens
   React.useEffect(() => {
@@ -170,7 +184,7 @@ export function Select({
           style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
           data-slot="popover-content"
         >
-        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
+        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
           <div className="px-1.5 pb-1.5">
             <SearchInput
               type="text"
@@ -200,7 +214,7 @@ export function Select({
               className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
             />
           </div>
-          <ul className="max-h-[200px] overflow-y-auto rounded-md">
+          <ul className="max-h-[200px] overflow-y-auto rounded-md w-full">
             {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
             {filtered.map((option) => {
               const isSelected = option.value === value;
