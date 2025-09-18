@@ -69,7 +69,7 @@ export function Select({
         // Use borderBoxSize for more accurate measurements with fallback
         const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
                      entry.contentBoxSize?.[0]?.inlineSize ?? 
-                     entry.target.offsetWidth;
+                     (entry.target as HTMLElement).offsetWidth;
         setMenuWidth(width);
       }
     });
