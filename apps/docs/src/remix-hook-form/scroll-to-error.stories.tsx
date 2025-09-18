@@ -11,7 +11,7 @@ import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
-import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
+import { RemixFormProvider, getValidatedFormData, useRemixForm, useRemixFormContext } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
@@ -54,36 +54,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-// Component using the hook approach
-const ScrollToErrorHookExample = () => {
-  const fetcher = useFetcher<{ message: string; errors?: Record<string, unknown> }>();
-  const methods = useRemixForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      newsletter: false,
-      notifications: undefined,
-      company: '',
-      jobTitle: '',
-      experience: '',
-      bio: '',
-      terms: false,
-      privacy: false,
-    },
-    fetcher,
-    submitConfig: {
-      action: '/',
-      method: 'post',
-    },
-  });
-
+// Component that uses the hook inside the form provider
+const ScrollToErrorHookForm = () => {
   // Use the scroll-to-error hook with custom options
   useScrollToErrorOnSubmit({
     methods, // Pass the methods explicitly
@@ -96,20 +68,11 @@ const ScrollToErrorHookExample = () => {
     delay: 150,
   });
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Scroll-to-Error Demo (Hook)</h1>
-          <p className="text-gray-600">
-            This form demonstrates the scroll-to-error functionality using the{' '}
-            <code className="bg-gray-100 px-2 py-1 rounded text-sm">useScrollToErrorOnSubmit</code> hook. Try submitting
-            the form without filling out required fields to see the scroll behavior.
-          </p>
-        </div>
+  const { handleSubmit } = useRemixFormContext();
+  const fetcher = useFetcher<{ message: string; errors?: Record<string, unknown> }>();
 
-        <RemixFormProvider {...methods}>
-          <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-8">
+  return (
+    <fetcher.Form onSubmit={handleSubmit} className="space-y-8">
             {/* Personal Information Section */}
             <section>
               <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Personal Information</h2>
@@ -273,6 +236,53 @@ const ScrollToErrorHookExample = () => {
               </div>
             )}
           </fetcher.Form>
+  );
+};
+
+// Component using the hook approach
+const ScrollToErrorHookExample = () => {
+  const fetcher = useFetcher<{ message: string; errors?: Record<string, unknown> }>();
+  const methods = useRemixForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      newsletter: false,
+      notifications: undefined,
+      company: '',
+      jobTitle: '',
+      experience: '',
+      bio: '',
+      terms: false,
+      privacy: false,
+    },
+    fetcher,
+    submitConfig: {
+      action: '/',
+      method: 'post',
+    },
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Scroll-to-Error Demo (Hook)</h1>
+          <p className="text-gray-600">
+            This form demonstrates the scroll-to-error functionality using the{' '}
+            <code className="bg-gray-100 px-2 py-1 rounded text-sm">useScrollToErrorOnSubmit</code> hook. Try submitting
+            the form without filling out required fields to see the scroll behavior.
+          </p>
+        </div>
+
+        <RemixFormProvider {...methods}>
+          <ScrollToErrorHookForm />
         </RemixFormProvider>
       </div>
     </div>
