@@ -53,44 +53,7 @@ export function Select({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLButtonElement>(null);
-  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (!triggerRef.current) return;
-
-    const updateWidth = () => {
-      if (triggerRef.current) {
-        const width = triggerRef.current.offsetWidth;
-        console.log('Setting menu width to:', width); // Debug log
-        setMenuWidth(width);
-      }
-    };
-
-    // Set initial width immediately
-    updateWidth();
-
-    // Add ResizeObserver for dynamic width tracking if available
-    if (typeof ResizeObserver !== 'undefined') {
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          // Use borderBoxSize for more accurate measurements with fallback
-          const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
-                       entry.contentBoxSize?.[0]?.inlineSize ?? 
-                       (entry.target as HTMLElement).offsetWidth;
-          console.log('ResizeObserver detected width change:', width); // Debug log
-          setMenuWidth(width);
-        }
-      });
-
-      observer.observe(triggerRef.current);
-      return () => observer.disconnect();
-    }
-  }, []); // Only run once - observer handles all future changes
-
-  // Debug effect to log menuWidth changes
-  React.useEffect(() => {
-    console.log('menuWidth changed to:', menuWidth);
-  }, [menuWidth]);
+  // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
   // Scroll to selected item when dropdown opens
   React.useEffect(() => {
@@ -181,7 +144,7 @@ export function Select({
           // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
           role="listbox"
           id={listboxId}
-          style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
+          style={{ width: 'var(--radix-popover-trigger-width)' }}
           data-slot="popover-content"
         >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
