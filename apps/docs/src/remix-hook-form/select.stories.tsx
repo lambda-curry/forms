@@ -5,7 +5,7 @@ import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fireEvent, userEvent, waitFor, within } from '@storybook/test';
-import { type ActionFunctionArgs, useFetcher } from 'react-router';
+import { type ActionFunctionArgs, useFetcher, createMemoryRouter, RouterProvider } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
@@ -66,6 +66,21 @@ const RegionSelectExample = () => {
       </fetcher.Form>
     </RemixFormProvider>
   );
+};
+
+// Create a wrapper that provides Router context directly
+const RouterWrapper = ({ children }: { children: React.ReactNode }) => {
+  const router = createMemoryRouter([
+    {
+      path: '/',
+      Component: () => <>{children}</>,
+      action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+    },
+  ], {
+    initialEntries: ['/'],
+  });
+
+  return <RouterProvider router={router} />;
 };
 
 const handleFormSubmission = async (request: Request) => {
@@ -170,7 +185,11 @@ const RegionSelectExample = () => {
       },
     },
   },
-  decorators: [selectRouterDecorator],
+  render: () => (
+    <RouterWrapper>
+      <RegionSelectExample />
+    </RouterWrapper>
+  ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -249,7 +268,11 @@ export const USStateSelection: Story = {
       },
     },
   },
-  decorators: [selectRouterDecorator],
+  render: () => (
+    <RouterWrapper>
+      <RegionSelectExample />
+    </RouterWrapper>
+  ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -277,7 +300,11 @@ export const CanadaProvinceSelection: Story = {
       },
     },
   },
-  decorators: [selectRouterDecorator],
+  render: () => (
+    <RouterWrapper>
+      <RegionSelectExample />
+    </RouterWrapper>
+  ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -305,7 +332,11 @@ export const FormSubmission: Story = {
       },
     },
   },
-  decorators: [selectRouterDecorator],
+  render: () => (
+    <RouterWrapper>
+      <RegionSelectExample />
+    </RouterWrapper>
+  ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
@@ -357,7 +388,11 @@ export const KeyboardNavigation: Story = {
       },
     },
   },
-  decorators: [selectRouterDecorator],
+  render: () => (
+    <RouterWrapper>
+      <RegionSelectExample />
+    </RouterWrapper>
+  ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 

@@ -5,7 +5,8 @@ import {
   type LinksFunction,
   type LoaderFunction,
   type MetaFunction,
-  createRoutesStub,
+  createMemoryRouter,
+  RouterProvider,
 } from 'react-router';
 
 export interface StubRouteObject {
@@ -47,10 +48,12 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
     // Combine them for the initial entry
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
-    // Use React Router's official createRoutesStub
-    const Stub = createRoutesStub(mappedRoutes);
+    // Use React Router's createMemoryRouter instead of createRoutesStub
+    const router = createMemoryRouter(mappedRoutes, {
+      initialEntries: [actualInitialPath],
+    });
 
-    return <Stub initialEntries={[actualInitialPath]} />;
+    return <RouterProvider router={router} />;
   };
 };
 
