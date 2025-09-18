@@ -14,14 +14,17 @@ export const useScrollToErrorOnSubmit = (options: UseScrollToErrorOnSubmitOption
   const { delay = 100, enabled = true, scrollOnServerErrors = true, scrollOnMount = true, ...scrollOptions } = options;
 
   // Memoize scroll options to prevent unnecessary re-renders
-  const memoizedScrollOptions = useMemo(() => scrollOptions, [
-    scrollOptions.behavior,
-    scrollOptions.block,
-    scrollOptions.inline,
-    scrollOptions.offset,
-    scrollOptions.shouldFocus,
-    scrollOptions.retryAttempts,
-  ]);
+  const memoizedScrollOptions = useMemo(
+    () => scrollOptions,
+    [
+      scrollOptions.behavior,
+      scrollOptions.block,
+      scrollOptions.inline,
+      scrollOptions.offset,
+      scrollOptions.shouldFocus,
+      scrollOptions.retryAttempts,
+    ],
+  );
 
   // Handle form submission errors
   useEffect(() => {
@@ -50,5 +53,13 @@ export const useScrollToErrorOnSubmit = (options: UseScrollToErrorOnSubmitOption
 
       return () => clearTimeout(timeoutId);
     }
-  }, [enabled, scrollOnMount, scrollOnServerErrors, formState.errors, formState.isSubmitting, delay, memoizedScrollOptions]);
+  }, [
+    enabled,
+    scrollOnMount,
+    scrollOnServerErrors,
+    formState.errors,
+    formState.isSubmitting,
+    delay,
+    memoizedScrollOptions,
+  ]);
 };
