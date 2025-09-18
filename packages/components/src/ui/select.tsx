@@ -78,7 +78,7 @@ export function Select({
     [options, query],
   );
 
-  // Reset activeIndex when filtered items change or dropdown opens
+  // Reset activeIndex when dropdown opens or when query changes (which affects filtered results)
   React.useEffect(() => {
     if (popoverState.isOpen) {
       setActiveIndex(0);
@@ -90,7 +90,7 @@ export function Select({
     } else {
       setIsInitialized(false);
     }
-  }, [filtered, popoverState.isOpen]);
+  }, [query, popoverState.isOpen]);
 
   // Scroll active item into view when activeIndex changes
   React.useEffect(() => {

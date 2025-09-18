@@ -392,6 +392,10 @@ export const KeyboardNavigation: Story = {
         return activeOptionId;
       }, { timeout: 1000 });
 
+      // Wait for the component's 100ms initialization delay to complete
+      // This is crucial for keyboard navigation to work properly
+      await new Promise(resolve => setTimeout(resolve, 150));
+
       // Get the current active option ID after initialization
       const firstOptionId = searchInput.getAttribute('aria-activedescendant');
       
@@ -411,24 +415,39 @@ export const KeyboardNavigation: Story = {
       const listbox = within(document.body).getByRole('listbox');
       const searchInput = within(listbox).getByPlaceholderText('Search...');
 
-      // Debug: Log the current state before navigation
-      console.log('Before navigation - activeIndex should be 0');
+      // Verify initial state
       const initialActiveOptionId = searchInput.getAttribute('aria-activedescendant');
       const initialActiveOption = document.getElementById(initialActiveOptionId!);
-      console.log('Initial active option index:', initialActiveOption?.getAttribute('data-index'));
+      expect(initialActiveOption).toHaveAttribute('data-index', '0');
 
       // Press ArrowDown once to move to the second item
-      fireEvent.keyDown(searchInput, { key: 'ArrowDown', code: 'ArrowDown' });
+      // Focus the search input first to ensure keyboard events are received
+      searchInput.focus();
+      
+      fireEvent.keyDown(searchInput, { 
+        key: 'ArrowDown', 
+        code: 'ArrowDown', 
+        keyCode: 40,
+        which: 40,
+        bubbles: true,
+        cancelable: true
+      });
       
       // Wait for first arrow down to take effect
       await waitFor(() => {
         const activeOptionId = searchInput.getAttribute('aria-activedescendant');
         const activeOption = document.getElementById(activeOptionId!);
-        console.log('After first arrow down - expected index 1, actual:', activeOption?.getAttribute('data-index'));
         expect(activeOption).toHaveAttribute('data-index', '1');
       }, { timeout: 2000 });
       
-      fireEvent.keyDown(searchInput, { key: 'ArrowDown', code: 'ArrowDown' });
+      fireEvent.keyDown(searchInput, { 
+        key: 'ArrowDown', 
+        code: 'ArrowDown', 
+        keyCode: 40,
+        which: 40,
+        bubbles: true,
+        cancelable: true
+      });
 
       // Wait for the aria-activedescendant to update after second keyboard navigation
       await waitFor(() => {
@@ -450,7 +469,14 @@ export const KeyboardNavigation: Story = {
       const searchInput = within(listbox).getByPlaceholderText('Search...');
 
       // Press Enter to select the active item
-      fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+      fireEvent.keyDown(searchInput, { 
+        key: 'Enter', 
+        code: 'Enter', 
+        keyCode: 13,
+        which: 13,
+        bubbles: true,
+        cancelable: true
+      });
 
       // Wait for the ShadCN popover to close (Portal cleanup)
       await waitFor(() => {
@@ -492,7 +518,14 @@ export const KeyboardNavigation: Story = {
       }, { timeout: 1000 });
 
       // Press Enter to select the filtered item
-      fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+      fireEvent.keyDown(searchInput, { 
+        key: 'Enter', 
+        code: 'Enter', 
+        keyCode: 13,
+        which: 13,
+        bubbles: true,
+        cancelable: true
+      });
 
       // Wait for the popover to close and selection to update
       await waitFor(() => {
