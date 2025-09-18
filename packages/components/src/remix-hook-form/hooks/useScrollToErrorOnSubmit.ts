@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
+import type { UseRemixFormReturn } from 'remix-hook-form';
 import { type ScrollToErrorOptions, scrollToFirstError } from '../../utils/scrollToError';
 
 export interface UseScrollToErrorOnSubmitOptions extends ScrollToErrorOptions {
@@ -7,11 +8,15 @@ export interface UseScrollToErrorOnSubmitOptions extends ScrollToErrorOptions {
   enabled?: boolean;
   scrollOnServerErrors?: boolean;
   scrollOnMount?: boolean;
+  methods?: UseRemixFormReturn<any>; // Optional methods parameter
 }
 
 export const useScrollToErrorOnSubmit = (options: UseScrollToErrorOnSubmitOptions = {}) => {
-  const { formState } = useRemixFormContext();
-  const { delay = 100, enabled = true, scrollOnServerErrors = true, scrollOnMount = true, ...scrollOptions } = options;
+  // Use provided methods or fall back to context
+  const contextMethods = useRemixFormContext();
+  const { methods, delay = 100, enabled = true, scrollOnServerErrors = true, scrollOnMount = true, ...scrollOptions } = options;
+  const formMethods = methods || contextMethods;
+  const { formState } = formMethods;
 
   // Memoize scroll options to prevent unnecessary re-renders
   const memoizedScrollOptions = useMemo(

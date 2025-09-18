@@ -86,6 +86,7 @@ const ScrollToErrorHookExample = () => {
 
   // Use the scroll-to-error hook with custom options
   useScrollToErrorOnSubmit({
+    methods, // Pass the methods explicitly
     offset: 100, // Account for fixed header
     behavior: 'smooth',
     shouldFocus: true,
