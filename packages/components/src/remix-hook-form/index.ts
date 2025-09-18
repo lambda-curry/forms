@@ -1,3 +1,8 @@
+// Add scroll-to-error functionality
+export * from './hooks/useScrollToErrorOnSubmit';
+export * from './components/ScrollToErrorOnSubmit';
+
+// Keep all existing exports
 export * from './checkbox';
 export * from './form';
 export * from './form-error';
