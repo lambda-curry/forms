@@ -1,8 +1,9 @@
 import { Popover } from '@radix-ui/react-popover';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
-import { PopoverContent, PopoverTrigger } from './popover';
+import { PopoverTrigger } from './popover';
 import { cn } from './utils';
 
 export interface SelectOption {
@@ -149,14 +150,26 @@ export function Select({
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
-      <PopoverContent
-        ref={popoverRef}
-        className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
-        // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
-        role="listbox"
-        id={listboxId}
-        style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
-      >
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          ref={popoverRef}
+          align="start"
+          sideOffset={4}
+          className={cn(
+            'z-50 rounded-md border bg-popover text-popover-foreground shadow-md outline-none',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+            'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            'p-0 shadow-md border-0',
+            contentClassName
+          )}
+          // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
+          role="listbox"
+          id={listboxId}
+          style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
+          data-slot="popover-content"
+        >
         <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
           <div className="px-1.5 pb-1.5">
             <SearchInput
@@ -227,7 +240,8 @@ export function Select({
             })}
           </ul>
         </div>
-      </PopoverContent>
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
     </Popover>
   );
 }
