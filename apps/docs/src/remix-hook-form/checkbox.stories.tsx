@@ -136,7 +136,7 @@ const ControlledCheckboxExample = () => {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state', async () => {
+    await step('Verify initial state', () => {
       // Verify all checkboxes are unchecked initially
       const termsCheckbox = canvas.getByLabelText('Accept terms and conditions');
       const marketingCheckbox = canvas.getByLabelText('Receive marketing emails');

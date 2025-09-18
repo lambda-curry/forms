@@ -24,6 +24,64 @@ import {
 } from './data-table-stories.helpers';
 import { testFiltering, testInitialRender, testPagination } from './data-table-stories.test-utils';
 
+type ParsedFilter = { type: string; columnId: string; values: unknown[] };
+
+const isPrimitiveForFiltering = (value: unknown): value is string | number | boolean | null => {
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null;
+};
+
+const matchesOptionFilter = (item: MockIssue, filter: ParsedFilter): boolean => {
+  if (!Array.isArray(filter.values) || filter.values.length === 0) {
+    return true;
+  }
+
+  const value = item[filter.columnId as keyof MockIssue];
+  if (!isPrimitiveForFiltering(value)) {
+    return true;
+  }
+
+  return filter.values.some((candidate) => candidate === value);
+};
+
+const matchesTextFilter = (item: MockIssue, filter: ParsedFilter): boolean => {
+  if (!Array.isArray(filter.values) || filter.values.length === 0) {
+    return true;
+  }
+
+  const [searchTerm] = filter.values;
+  if (typeof searchTerm !== 'string') {
+    return true;
+  }
+
+  const value = item[filter.columnId as keyof MockIssue];
+  if (typeof value !== 'string') {
+    return true;
+  }
+
+  return value.toLowerCase().includes(searchTerm.toLowerCase());
+};
+
+const doesItemMatchFilter = (item: MockIssue, filter: ParsedFilter): boolean => {
+  switch (filter.type) {
+    case 'option':
+      return matchesOptionFilter(item, filter);
+    case 'text':
+      return matchesTextFilter(item, filter);
+    default:
+      return true;
+  }
+};
+
+const applyFilters = (data: MockIssue[], filters: ParsedFilter[]): MockIssue[] => {
+  if (filters.length === 0) {
+    return data;
+  }
+
+  return filters.reduce<MockIssue[]>((currentData, filter) => {
+    return currentData.filter((item) => doesItemMatchFilter(item, filter));
+  }, data);
+};
+
 // --- Data Fetch Handler ---
 const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataResponse> => {
   await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate latency
@@ -42,7 +100,7 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
     pageSize = 10;
   }
 
-  let parsedFilters: Array<{ type: string; columnId: string; values: unknown[] }> = [];
+  let parsedFilters: ParsedFilter[] = [];
   try {
     if (filtersParam) {
       // Parse and validate filters strictly according to Bazza v0.2 model
@@ -54,45 +112,7 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs): Promise<DataRes
   }
 
   // --- Apply filtering, sorting, pagination ---
-  let processedData = [...mockDatabase];
-
-  // 1. Apply filters (support option and text types)
-  if (parsedFilters.length > 0) {
-    parsedFilters.forEach((filter) => {
-      processedData = processedData.filter((item) => {
-        switch (filter.type) {
-          case 'option': {
-            // Option filter: support multi-value (is any of)
-            if (Array.isArray(filter.values) && filter.values.length > 0) {
-              const value = item[filter.columnId as keyof MockIssue];
-              if (
-                typeof value === 'string' ||
-                typeof value === 'number' ||
-                typeof value === 'boolean' ||
-                value === null
-              ) {
-                return filter.values.includes(value);
-              }
-              // If value is not a supported type (e.g., Date), skip filtering
-              return true;
-            }
-            return true;
-          }
-          case 'text': {
-            // Text filter: support contains
-            if (Array.isArray(filter.values) && filter.values.length > 0 && typeof filter.values[0] === 'string') {
-              const value = item[filter.columnId as keyof MockIssue];
-              return typeof value === 'string' && value.toLowerCase().includes(String(filter.values[0]).toLowerCase());
-            }
-            return true;
-          }
-          // Add more filter types as needed (number, date, etc.)
-          default:
-            return true;
-        }
-      });
-    });
-  }
+  const processedData = applyFilters([...mockDatabase], parsedFilters);
 
   // 2. Apply sorting
   if (sortField && sortField in mockDatabase[0]) {

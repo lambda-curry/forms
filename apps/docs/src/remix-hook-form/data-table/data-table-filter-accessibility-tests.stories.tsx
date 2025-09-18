@@ -283,8 +283,6 @@ export const KeyboardNavigationTest: Story = {
     },
   },
   play: async (storyContext) => {
-    const { canvas } = storyContext;
-
     // Test basic rendering first
     testBasicRendering(storyContext);
 
@@ -304,8 +302,6 @@ export const AriaAttributesTest: Story = {
     },
   },
   play: async (storyContext) => {
-    const { canvas } = storyContext;
-
     // Test basic rendering first
     testBasicRendering(storyContext);
 

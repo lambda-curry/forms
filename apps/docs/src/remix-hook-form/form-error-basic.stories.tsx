@@ -157,7 +157,7 @@ The FormError component automatically displays when \`errors._form\` exists in t
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state', async () => {
+    await step('Verify initial state', () => {
       const emailInput = canvas.getByLabelText(/email address/i);
       const passwordInput = canvas.getByLabelText(/password/i);
       const submitButton = canvas.getByRole('button', { name: /sign in/i });

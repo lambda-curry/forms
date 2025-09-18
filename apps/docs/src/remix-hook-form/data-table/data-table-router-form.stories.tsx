@@ -39,6 +39,90 @@ const users: User[] = Array.from({ length: 100 }).map((_, i) => ({
   createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
 }));
 
+const applyGlobalSearch = (data: User[], search: string | null | undefined): User[] => {
+  if (!search) {
+    return data;
+  }
+
+  const searchLower = search.toLowerCase();
+  return data.filter((user) => {
+    return user.name.toLowerCase().includes(searchLower) || user.email.toLowerCase().includes(searchLower);
+  });
+};
+
+const matchesTextFilter = (user: User, filter: BazzaFilterItem): boolean => {
+  if (!filter.values || filter.values.length === 0) {
+    return true;
+  }
+
+  const [rawValue] = filter.values;
+  if (typeof rawValue !== 'string') {
+    return true;
+  }
+
+  const userValue = user[filter.columnId as keyof User];
+  if (typeof userValue !== 'string') {
+    return true;
+  }
+
+  const normalizedValue = rawValue.toLowerCase();
+  const normalizedUserValue = userValue.toLowerCase();
+
+  switch (filter.operator) {
+    case 'contains':
+      return normalizedUserValue.includes(normalizedValue);
+    case 'is':
+    case 'equals':
+      return normalizedUserValue === normalizedValue;
+    case 'starts with':
+      return normalizedUserValue.startsWith(normalizedValue);
+    default:
+      return true;
+  }
+};
+
+const matchesOptionFilter = (user: User, filter: BazzaFilterItem): boolean => {
+  if (!filter.values || filter.values.length === 0) {
+    return true;
+  }
+
+  const userValue = user[filter.columnId as keyof User];
+  if (filter.operator === 'is any of') {
+    return filter.values.includes(userValue as string);
+  }
+
+  if (filter.operator === 'is') {
+    return userValue === filter.values[0];
+  }
+
+  return true;
+};
+
+const matchesBazzaFilter = (user: User, filter: BazzaFilterItem): boolean => {
+  switch (filter.type) {
+    case 'text':
+      return matchesTextFilter(user, filter);
+    case 'option':
+      return matchesOptionFilter(user, filter);
+    default:
+      return true;
+  }
+};
+
+const applyBazzaFilters = (data: User[], filters: BazzaFiltersState | null): User[] => {
+  if (!filters || filters.length === 0) {
+    return data;
+  }
+
+  return filters.reduce<User[]>((current, filter) => {
+    if (!filter.values || filter.values.length === 0) {
+      return current;
+    }
+
+    return current.filter((user) => matchesBazzaFilter(user, filter));
+  }, data);
+};
+
 // Define response type
 interface DataResponse {
   data: User[];
@@ -170,50 +254,10 @@ const handleDataFetch = async ({ request }: LoaderFunctionArgs) => {
   const search = dataTableRouterParsers.search.parse(params.get('search'));
 
   // Parse BazzaFiltersState
-  const bazzaFilters = dataTableRouterParsers.filters.parse(params.get('filters')) as BazzaFiltersState;
+  const bazzaFilters = dataTableRouterParsers.filters.parse(params.get('filters')) as BazzaFiltersState | null;
 
-  let filteredData = [...users];
-
-  // 1. Apply global search (if still used)
-  if (search) {
-    const searchLower = search.toLowerCase();
-    filteredData = filteredData.filter(
-      (user) => user.name.toLowerCase().includes(searchLower) || user.email.toLowerCase().includes(searchLower),
-    );
-  }
-
-  // 2. Apply Bazza UI filters
-  if (bazzaFilters && bazzaFilters.length > 0) {
-    bazzaFilters.forEach((filter: BazzaFilterItem) => {
-      const { columnId, type, operator, values } = filter;
-      if (!values || values.length === 0) return;
-
-      filteredData = filteredData.filter((user) => {
-        const userValue = user[columnId as keyof User];
-
-        switch (type) {
-          case 'text': {
-            if (operator === 'contains' && typeof userValue === 'string' && typeof values[0] === 'string') {
-              return userValue.toLowerCase().includes(values[0].toLowerCase());
-            }
-            // Add other text operators: equals, startsWith, etc.
-            return true; // Default pass if operator not handled
-          }
-
-          case 'option': {
-            if (operator === 'is any of' && Array.isArray(values)) return values.includes(userValue as string);
-            if (operator === 'is' && typeof values[0] === 'string') return userValue === values[0];
-            // Add other option operators
-            return true;
-          }
-
-          // Add cases for 'number', 'date' filters based on bazza/ui operators
-          default:
-            return true;
-        }
-      });
-    });
-  }
+  let filteredData = applyGlobalSearch([...users], search);
+  filteredData = applyBazzaFilters(filteredData, bazzaFilters);
 
   // 3. Apply sorting (same as before)
   if (sortField && sortOrder && sortField in users[0]) {

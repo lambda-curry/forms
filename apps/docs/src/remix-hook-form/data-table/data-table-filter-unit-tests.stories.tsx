@@ -316,7 +316,7 @@ export const CoreUtilitiesTests: Story = {
       </div>
     </div>
   ),
-  play: async () => {
+  play: () => {
     console.log('🚀 Starting Core Utilities Unit Tests...');
 
     // Run all test suites
@@ -385,7 +385,7 @@ export const PerformanceTests: Story = {
       </div>
     </div>
   ),
-  play: async () => {
+  play: () => {
     console.log('🚀 Starting Performance Tests...');
     testPerformance();
     console.log('🎉 Performance Tests completed successfully!');

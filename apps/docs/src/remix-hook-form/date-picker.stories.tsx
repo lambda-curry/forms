@@ -108,7 +108,7 @@ export const Default: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state', async () => {
+    await step('Verify initial state', () => {
       // Verify the date picker trigger is present and has correct label
       const datePickerTrigger = canvas.getByRole('button', { name: /select a date/i });
       expect(datePickerTrigger).toBeInTheDocument();

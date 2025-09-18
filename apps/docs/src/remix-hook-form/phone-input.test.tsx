@@ -1,8 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { PhoneInput } from '@lambdacurry/forms';
+import type { PhoneInputProps } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { type ComponentProps, forwardRef } from 'react';
 import { useFetcher } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -23,19 +26,21 @@ const testSchema = z.object({
 type TestFormData = z.infer<typeof testSchema>;
 
 // Test component wrapper
+type PhoneInputComponents = PhoneInputProps['components'];
+
 const TestPhoneInputForm = ({
   initialErrors = {},
-  customComponents = {},
+  customComponents,
 }: {
   initialErrors?: Record<string, { message: string }>;
-  customComponents?: any;
+  customComponents?: PhoneInputComponents;
 }) => {
   const mockFetcher = {
     data: { errors: initialErrors },
     state: 'idle' as const,
     submit: jest.fn(),
-    Form: 'form' as any,
-  };
+    Form: forwardRef<HTMLFormElement, ComponentProps<'form'>>((props, ref) => <form ref={ref} {...props} />),
+  } as ReturnType<typeof useFetcher>;
 
   mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -86,7 +91,7 @@ describe('PhoneInput Component', () => {
       expect(screen.getByText('Enter an international phone number')).toBeInTheDocument();
     });
 
-    it('displays validation errors when provided', async () => {
+    it('displays validation errors when provided', () => {
       const errors = {
         usaPhone: { message: 'USA phone number is required' },
         internationalPhone: { message: 'International phone number is required' },
@@ -151,7 +156,10 @@ describe('PhoneInput Component', () => {
 
   describe('Component Customization', () => {
     it('uses custom FormMessage component when provided', () => {
-      const CustomFormMessage = ({ children, ...props }: any) => (
+      type FormMessageComponent = NonNullable<PhoneInputComponents>['FormMessage'];
+      type FormMessageProps = Parameters<NonNullable<FormMessageComponent>>[0];
+
+      const CustomFormMessage = ({ children, ...props }: FormMessageProps) => (
         <div data-testid="custom-form-message" className="custom-message" {...props}>
           Custom: {children}
         </div>

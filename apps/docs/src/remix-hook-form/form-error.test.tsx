@@ -1,7 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { FormError, TextField } from '@lambdacurry/forms';
+import type { FormErrorProps } from '@lambdacurry/forms';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { render, screen } from '@testing-library/react';
+import { type ComponentProps, forwardRef } from 'react';
 import { useFetcher } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -13,6 +16,10 @@ jest.mock('react-router', () => ({
 
 const mockUseFetcher = useFetcher as jest.MockedFunction<typeof useFetcher>;
 
+const MockFetcherForm = forwardRef<HTMLFormElement, ComponentProps<'form'>>((props, ref) => (
+  <form ref={ref} {...props} />
+));
+
 // Test form schema
 const testSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -22,23 +29,27 @@ const testSchema = z.object({
 type TestFormData = z.infer<typeof testSchema>;
 
 // Test component wrapper
+type FormErrorComponents = FormErrorProps['components'];
+type FormMessageComponent = NonNullable<NonNullable<FormErrorComponents>['FormMessage']>;
+type FormMessageProps = Parameters<FormMessageComponent>[0];
+
 const TestFormWithError = ({
   initialErrors = {},
   formErrorName = '_form',
-  customComponents = {},
+  customComponents,
   className = '',
 }: {
   initialErrors?: Record<string, { message: string }>;
   formErrorName?: string;
-  customComponents?: any;
+  customComponents?: FormErrorComponents;
   className?: string;
 }) => {
   const mockFetcher = {
     data: { errors: initialErrors },
     state: 'idle' as const,
     submit: jest.fn(),
-    Form: 'form' as any,
-  };
+    Form: MockFetcherForm,
+  } as ReturnType<typeof useFetcher>;
 
   mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -142,7 +153,7 @@ describe('FormError Component', () => {
 
   describe('Component Customization', () => {
     it('uses custom FormMessage component when provided', () => {
-      const CustomFormMessage = ({ children, ...props }: any) => (
+      const CustomFormMessage = ({ children, ...props }: FormMessageProps) => (
         <div data-testid="custom-form-message" className="custom-message" {...props}>
           Custom: {children}
         </div>
@@ -172,7 +183,7 @@ describe('FormError Component', () => {
   });
 
   describe('Integration with Form State', () => {
-    it('updates when form errors change', async () => {
+    it('updates when form errors change', () => {
       const { rerender } = render(<TestFormWithError />);
 
       // Initially no error
@@ -188,7 +199,7 @@ describe('FormError Component', () => {
       expect(screen.getByText('New error')).toBeInTheDocument();
     });
 
-    it('hides error when form errors are cleared', async () => {
+    it('hides error when form errors are cleared', () => {
       const errors = {
         _form: { message: 'Initial error' },
       };
@@ -216,8 +227,8 @@ describe('FormError Component', () => {
         },
         state: 'idle' as const,
         submit: jest.fn(),
-        Form: 'form' as any,
-      };
+        Form: MockFetcherForm,
+      } as ReturnType<typeof useFetcher>;
 
       mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -314,7 +325,7 @@ describe('FormError Component', () => {
     it('does not re-render unnecessarily when unrelated form state changes', () => {
       const renderSpy = jest.fn();
 
-      const CustomFormMessage = ({ children, ...props }: any) => {
+      const CustomFormMessage = ({ children, ...props }: FormMessageProps) => {
         renderSpy();
         return <div {...props}>{children}</div>;
       };
@@ -344,8 +355,8 @@ describe('FormError Integration Tests', () => {
         data: null,
         state: 'idle' as const,
         submit: jest.fn(),
-        Form: 'form' as any,
-      };
+        Form: MockFetcherForm,
+      } as ReturnType<typeof useFetcher>;
 
       mockUseFetcher.mockReturnValue(mockFetcher);
 

@@ -4,6 +4,7 @@ import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, type within } from '@storybook/test';
+import type { ComponentPropsWithoutRef } from 'react';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, createFormData, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -26,7 +27,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom FormLabel component that makes the entire area clickable
-const FullWidthLabel = ({ className, children, htmlFor, ...props }: React.ComponentPropsWithoutRef<'label'>) => {
+const FullWidthLabel = ({ className, children, htmlFor, ...props }: ComponentPropsWithoutRef<'label'>) => {
   return (
     <label
       htmlFor={htmlFor}

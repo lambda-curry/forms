@@ -7,6 +7,7 @@ import { cn } from '@lambdacurry/forms/ui/utils';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -24,7 +25,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom FormLabel component that makes the entire area clickable
-const FullWidthCardLabel = ({ className, children, htmlFor, ...props }: React.ComponentPropsWithoutRef<'label'>) => {
+const FullWidthCardLabel = ({ className, children, htmlFor, ...props }: ComponentPropsWithoutRef<'label'>) => {
   return (
     <label
       htmlFor={htmlFor}
@@ -40,7 +41,7 @@ const FullWidthCardLabel = ({ className, children, htmlFor, ...props }: React.Co
 };
 
 // Custom radio group component
-const PurpleRadioGroup = (props: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>) => {
+const PurpleRadioGroup = (props: ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>) => {
   return (
     <RadioGroupPrimitive.Root
       className="flex flex-col space-y-4 border-2 border-purple-300 rounded-lg p-4 bg-purple-50"
@@ -52,8 +53,8 @@ PurpleRadioGroup.displayName = 'PurpleRadioGroup';
 
 // Custom radio group item component
 const PurpleRadioGroupItem = (
-  props: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
-    indicator?: React.ReactNode;
+  props: ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
+    indicator?: ReactNode;
   },
 ) => {
   return (
@@ -68,7 +69,7 @@ const PurpleRadioGroupItem = (
 PurpleRadioGroupItem.displayName = 'PurpleRadioGroupItem';
 
 // Custom radio group indicator component
-const PurpleRadioGroupIndicator = (props: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>) => {
+const PurpleRadioGroupIndicator = (props: ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>) => {
   return (
     <RadioGroupPrimitive.Indicator className="flex items-center justify-center" {...props}>
       <div className="h-3 w-3 rounded-full bg-purple-500" />
@@ -78,7 +79,7 @@ const PurpleRadioGroupIndicator = (props: React.ComponentPropsWithoutRef<typeof 
 PurpleRadioGroupIndicator.displayName = 'PurpleRadioGroupIndicator';
 
 // Custom radio group indicator with icon
-const IconRadioGroupIndicator = (props: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>) => {
+const IconRadioGroupIndicator = (props: ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Indicator>) => {
   return (
     <RadioGroupPrimitive.Indicator className="flex items-center justify-center" {...props}>
       <svg
@@ -103,19 +104,19 @@ const IconRadioGroupIndicator = (props: React.ComponentPropsWithoutRef<typeof Ra
 IconRadioGroupIndicator.displayName = 'IconRadioGroupIndicator';
 
 // Custom form label component
-const PurpleLabel = (props: React.ComponentPropsWithoutRef<typeof FormLabel>) => (
+const PurpleLabel = (props: ComponentPropsWithoutRef<typeof FormLabel>) => (
   <FormLabel className="text-purple-700 font-bold text-lg" {...props} />
 );
 PurpleLabel.displayName = 'PurpleLabel';
 
 // Custom error message component
-const PurpleErrorMessage = (props: React.ComponentPropsWithoutRef<typeof FormMessage>) => (
+const PurpleErrorMessage = (props: ComponentPropsWithoutRef<typeof FormMessage>) => (
   <FormMessage className="text-red-500 bg-red-50 p-2 rounded-md border border-red-200 mt-1" {...props} />
 );
 PurpleErrorMessage.displayName = 'PurpleErrorMessage';
 
 // Card-style radio group item component
-const CardRadioGroupItem = (props: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>) => {
+const CardRadioGroupItem = (props: ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>) => {
   const { value, children, className, ...otherProps } = props;
 
   return (
@@ -370,11 +371,10 @@ const CustomRadioGroupExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors, receivedValues: defaultValues } = await getValidatedFormData<FormData>(
+    request,
+    zodResolver(formSchema),
+  );
 
   if (errors) {
     return { errors, defaultValues };

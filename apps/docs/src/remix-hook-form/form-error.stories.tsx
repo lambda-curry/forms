@@ -67,7 +67,7 @@ const SimpleFormErrorExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };

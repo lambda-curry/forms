@@ -121,7 +121,7 @@ export const Default: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state', async () => {
+    await step('Verify initial state', () => {
       // Verify switches are initially unchecked
       const notificationsSwitch = canvas.getByLabelText('Enable notifications');
       const marketingSwitch = canvas.getByLabelText('Receive marketing emails');

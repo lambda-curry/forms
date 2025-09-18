@@ -32,7 +32,6 @@ const parseBazzaFiltersState = (value: unknown): BazzaFiltersState => {
         operator: item.operator,
         values: item.values,
       });
-    } else {
     }
     return acc;
   }, []);

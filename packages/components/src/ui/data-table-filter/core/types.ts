@@ -106,7 +106,7 @@ export type ColumnConfig<TData, TType extends ColumnDataType = any, TVal = unkno
   orderFn?: TType extends OptionBasedColumnDataType ? TOrderFn<TVal> : never;
 };
 
-export type OptionColumnId<T> = T extends ColumnConfig<infer TData, 'option' | 'multiOption', infer TVal, infer TId>
+export type OptionColumnId<T> = T extends ColumnConfig<infer _TData, 'option' | 'multiOption', infer _TVal, infer TId>
   ? TId
   : never;
 
@@ -115,7 +115,7 @@ export type OptionColumnIds<T extends readonly ColumnConfig<any, any, any, any>[
   [K in keyof T]: OptionColumnId<T[K]>;
 }[number];
 
-export type NumberColumnId<T> = T extends ColumnConfig<infer TData, 'number', infer TVal, infer TId> ? TId : never;
+export type NumberColumnId<T> = T extends ColumnConfig<infer _TData, 'number', infer _TVal, infer TId> ? TId : never;
 
 // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
 export type NumberColumnIds<T extends readonly ColumnConfig<any, any, any, any>[]> = {

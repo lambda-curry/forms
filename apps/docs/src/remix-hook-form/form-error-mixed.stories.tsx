@@ -169,7 +169,7 @@ This pattern is useful when you want to show form-level context alongside specif
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state with multiple FormError placements', async () => {
+    await step('Verify initial state with multiple FormError placements', () => {
       const emailInput = canvas.getByLabelText(/email address/i);
       const passwordInput = canvas.getByLabelText(/password/i);
       const submitButton = canvas.getByRole('button', { name: /create account/i });

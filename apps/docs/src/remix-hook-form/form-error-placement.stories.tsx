@@ -81,7 +81,7 @@ const PlacementVariationsExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };
@@ -152,7 +152,7 @@ All three instances show the same error message but with different visual treatm
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state with multiple placement options', async () => {
+    await step('Verify initial state with multiple placement options', () => {
       const emailInput = canvas.getByLabelText(/email address/i);
       const passwordInput = canvas.getByLabelText(/password/i);
       const submitButton = canvas.getByRole('button', { name: /submit payment/i });

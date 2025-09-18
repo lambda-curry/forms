@@ -4,6 +4,7 @@ import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
+import type { ComponentProps } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -17,9 +18,10 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // Custom error message component with icon
-const AlertErrorMessage = (props: React.ComponentProps<typeof FormMessage>) => (
+const AlertErrorMessage = (props: ComponentProps<typeof FormMessage>) => (
   <div className="flex items-center p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
     <svg className="h-5 w-5 text-red-400 mr-3" viewBox="0 0 20 20" fill="currentColor">
+      <title>Error icon</title>
       <path
         fillRule="evenodd"
         d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -94,7 +96,7 @@ const CustomStyledFormErrorExample = () => {
 };
 
 const handleFormSubmission = async (request: Request) => {
-  const { data, errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
+  const { errors } = await getValidatedFormData<FormData>(request, zodResolver(formSchema));
 
   if (errors) {
     return { errors };
@@ -170,7 +172,7 @@ The custom component receives all the same props as the default FormMessage comp
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify initial state with custom styling', async () => {
+    await step('Verify initial state with custom styling', () => {
       const emailInput = canvas.getByLabelText(/email address/i);
       const passwordInput = canvas.getByLabelText(/password/i);
       const submitButton = canvas.getByRole('button', { name: /sign in/i });
