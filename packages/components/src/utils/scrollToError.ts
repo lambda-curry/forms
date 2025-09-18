@@ -7,7 +7,13 @@ export interface ScrollToErrorOptions {
   offset?: number;
   shouldFocus?: boolean;
   retryAttempts?: number;
+  selectors?: string[];
 }
+
+const DEFAULT_ERROR_SELECTORS = [
+  '[data-slot="form-message"]', // Target error message first (best UX)
+  '[data-slot="form-control"][aria-invalid="true"]', // Input with error state
+];
 
 const findFirstErrorElement = (selectors: string[]): HTMLElement | null => {
   for (const selector of selectors) {
@@ -36,18 +42,19 @@ const focusElement = (element: HTMLElement, shouldFocus: boolean, behavior: Scro
 };
 
 export const scrollToFirstError = (errors: FieldErrors, options: ScrollToErrorOptions = {}) => {
-  const { behavior = 'smooth', offset = 80, shouldFocus = true, retryAttempts = 3 } = options;
+  const {
+    behavior = 'smooth',
+    offset = 80,
+    shouldFocus = true,
+    retryAttempts = 3,
+    selectors = DEFAULT_ERROR_SELECTORS,
+  } = options;
 
   if (Object.keys(errors).length === 0) return false;
 
   const attemptScroll = (attempt = 0): boolean => {
-    // Use existing data-slot selectors - no new attributes needed!
-    const selectors = [
-      '[data-slot="form-message"]', // Target error message first (best UX)
-      '[data-slot="form-control"][aria-invalid="true"]', // Input with error state
-    ];
-
-    const element = findFirstErrorElement(selectors);
+    const selectorList = selectors.length > 0 ? selectors : DEFAULT_ERROR_SELECTORS;
+    const element = findFirstErrorElement(selectorList);
     if (element) {
       scrollToElement(element, offset, behavior);
       focusElement(element, shouldFocus, behavior);
