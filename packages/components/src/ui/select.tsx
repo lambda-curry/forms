@@ -1,8 +1,9 @@
 import { Popover } from '@radix-ui/react-popover';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
-import { PopoverContent, PopoverTrigger } from './popover';
+import { PopoverTrigger } from './popover';
 import { cn } from './utils';
 
 export interface SelectOption {
@@ -52,11 +53,7 @@ export function Select({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLButtonElement>(null);
-  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (triggerRef.current) setMenuWidth(triggerRef.current.offsetWidth);
-  }, []);
+  // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
   // Scroll to selected item when dropdown opens
   React.useEffect(() => {
@@ -130,15 +127,27 @@ export function Select({
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
-      <PopoverContent
-        ref={popoverRef}
-        className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
-        // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
-        role="listbox"
-        id={listboxId}
-        style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
-      >
-        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          ref={popoverRef}
+          align="start"
+          sideOffset={4}
+          className={cn(
+            'z-50 rounded-md border bg-popover text-popover-foreground shadow-md outline-none',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+            'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            'p-0 shadow-md border-0',
+            contentClassName
+          )}
+          // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
+          role="listbox"
+          id={listboxId}
+          style={{ width: 'var(--radix-popover-trigger-width)' }}
+          data-slot="popover-content"
+        >
+        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
           <div className="px-1.5 pb-1.5">
             <SearchInput
               type="text"
@@ -168,7 +177,7 @@ export function Select({
               className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
             />
           </div>
-          <ul className="max-h-[200px] overflow-y-auto rounded-md">
+          <ul className="max-h-[200px] overflow-y-auto rounded-md w-full">
             {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
             {filtered.map((option) => {
               const isSelected = option.value === value;
@@ -208,7 +217,8 @@ export function Select({
             })}
           </ul>
         </div>
-      </PopoverContent>
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
     </Popover>
   );
 }
