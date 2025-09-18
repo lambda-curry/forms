@@ -16,6 +16,13 @@ export const useScrollToErrorOnSubmit = (options: UseScrollToErrorOnSubmitOption
   const contextMethods = useRemixFormContext();
   const { methods, delay = 100, enabled = true, scrollOnServerErrors = true, scrollOnMount = true, ...scrollOptions } = options;
   const formMethods = methods || contextMethods;
+  
+  // Early return if no form methods are available
+  if (!formMethods) {
+    console.warn('useScrollToErrorOnSubmit: No form methods available. Make sure you are either inside a RemixFormProvider or passing methods explicitly.');
+    return;
+  }
+  
   const { formState } = formMethods;
 
   // Memoize scroll options to prevent unnecessary re-renders
