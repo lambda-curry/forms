@@ -1,8 +1,8 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { useRemixFormContext } from 'remix-hook-form';
-import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 import { FormField, FormItem } from '../ui/form';
-import { Select as UISelect, type SelectProps as UISelectProps, type SelectUIComponents } from '../ui/select';
+import { type SelectUIComponents, Select as UISelect, type SelectProps as UISelectProps } from '../ui/select';
+import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 
 export interface SelectProps extends Omit<UISelectProps, 'value' | 'onValueChange'> {
   name: string;
@@ -19,14 +19,7 @@ export interface SelectProps extends Omit<UISelectProps, 'value' | 'onValueChang
   >;
 }
 
-export function Select({
-  name,
-  label,
-  description,
-  className,
-  components,
-  ...props
-}: SelectProps) {
+export function Select({ name, label, description, className, components, ...props }: SelectProps) {
   const { control } = useRemixFormContext();
 
   return (
@@ -50,9 +43,7 @@ export function Select({
               }}
             />
           </FormControl>
-          {description && (
-            <FormDescription Component={components?.FormDescription}>{description}</FormDescription>
-          )}
+          {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
           <FormMessage Component={components?.FormMessage} />
         </FormItem>
       )}

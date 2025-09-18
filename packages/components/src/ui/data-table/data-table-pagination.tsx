@@ -23,7 +23,6 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
 
   return (
     <nav
-      role="navigation"
       aria-label="Data table pagination"
       className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2"
     >

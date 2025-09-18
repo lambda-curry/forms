@@ -1,5 +1,8 @@
-import * as React from 'react';
-import { PhoneInputField as BasePhoneInputField, type PhoneInputFieldProps as BasePhoneInputFieldProps } from '../ui/phone-input-field';
+import type * as React from 'react';
+import {
+  PhoneInputField as BasePhoneInputField,
+  type PhoneInputFieldProps as BasePhoneInputFieldProps,
+} from '../ui/phone-input-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
 
 import { useRemixFormContext } from 'remix-hook-form';

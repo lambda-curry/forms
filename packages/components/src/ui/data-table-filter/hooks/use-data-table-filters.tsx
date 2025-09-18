@@ -29,7 +29,7 @@ import {
 export interface DataTableFiltersOptions<
   TData,
   // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
-  TColumns extends ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  TColumns extends readonly ColumnConfig<TData, any, any, any>[],
   TStrategy extends FilterStrategy,
 > {
   strategy: TStrategy;
@@ -48,7 +48,7 @@ export interface DataTableFiltersOptions<
 export function useDataTableFilters<
   TData,
   // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
-  TColumns extends ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  TColumns extends readonly ColumnConfig<TData, any, any, any>[],
   TStrategy extends FilterStrategy,
 >({
   strategy,
@@ -77,7 +77,7 @@ export function useDataTableFilters<
       // Set options, if exists
       if (options && (config.type === 'option' || config.type === 'multiOption')) {
         const optionsInput = options[config.id as OptionColumnIds<TColumns>];
-        if (!optionsInput || !isColumnOptionArray(optionsInput)) return config;
+        if (!(optionsInput && isColumnOptionArray(optionsInput))) return config;
 
         final = { ...final, options: optionsInput };
       }
@@ -85,7 +85,7 @@ export function useDataTableFilters<
       // Set faceted options, if exists
       if (faceted && (config.type === 'option' || config.type === 'multiOption')) {
         const facetedOptionsInput = faceted[config.id as OptionColumnIds<TColumns>];
-        if (!facetedOptionsInput || !isColumnOptionMap(facetedOptionsInput)) return config;
+        if (!(facetedOptionsInput && isColumnOptionMap(facetedOptionsInput))) return config;
 
         final = { ...final, facetedOptions: facetedOptionsInput };
       }
@@ -93,7 +93,7 @@ export function useDataTableFilters<
       // Set faceted min/max values, if exists
       if (config.type === 'number' && faceted) {
         const minMaxTuple = faceted[config.id as NumberColumnIds<TColumns>];
-        if (!minMaxTuple || !isMinMaxTuple(minMaxTuple)) return config;
+        if (!(minMaxTuple && isMinMaxTuple(minMaxTuple))) return config;
 
         final = {
           ...final,

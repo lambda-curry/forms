@@ -160,7 +160,7 @@ export function getColumnOptions<TData, TType extends ColumnDataType, TVal>(
 
   if (column.orderFn) {
     models = models.sort((m1, m2) =>
-      column.orderFn!(m1 as ElementType<NonNullable<TVal>>, m2 as ElementType<NonNullable<TVal>>),
+      column.orderFn?.(m1 as ElementType<NonNullable<TVal>>, m2 as ElementType<NonNullable<TVal>>),
     );
   }
 
@@ -168,7 +168,7 @@ export function getColumnOptions<TData, TType extends ColumnDataType, TVal>(
     // Memoize transformOptionFn calls
     const memoizedTransform = memo(
       () => [models],
-      (deps) => deps[0].map((m) => column.transformOptionFn!(m as ElementType<NonNullable<TVal>>)),
+      (deps) => deps[0].map((m) => column.transformOptionFn?.(m as ElementType<NonNullable<TVal>>)),
       { key: `transform-${column.id}` },
     );
     return memoizedTransform();
@@ -287,7 +287,7 @@ export function getFacetedMinMaxValues<TData, TType extends ColumnDataType, TVal
 
 export function createColumns<TData>(
   data: TData[],
-  columnConfigs: ReadonlyArray<ColumnConfig<TData, any, any, any>>,
+  columnConfigs: readonly ColumnConfig<TData, any, any, any>[],
   strategy: FilterStrategy,
 ): Column<TData>[] {
   return columnConfigs.map((columnConfig) => {

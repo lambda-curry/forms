@@ -57,7 +57,7 @@ export function DataTableFacetedFilter<TData>({
       if (onValuesChange) {
         onValuesChange(filterValues);
       } else if (column) {
-        column.setFilterValue(filterValues.length ? filterValues : undefined);
+        column.setFilterValue(filterValues.length > 0 ? filterValues : undefined);
       }
 
       return next;

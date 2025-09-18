@@ -68,7 +68,7 @@ export type ColumnDataNativeMap = {
  * Represents the value of a column filter.
  * Contigent on the filtered column's data type.
  */
-export type FilterValues<T extends ColumnDataType> = Array<ElementType<ColumnDataNativeMap[T]>>;
+export type FilterValues<T extends ColumnDataType> = ElementType<ColumnDataNativeMap[T]>[];
 
 /*
  * An accessor function for a column's data.
@@ -111,14 +111,14 @@ export type OptionColumnId<T> = T extends ColumnConfig<infer TData, 'option' | '
   : never;
 
 // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
-export type OptionColumnIds<T extends ReadonlyArray<ColumnConfig<any, any, any, any>>> = {
+export type OptionColumnIds<T extends readonly ColumnConfig<any, any, any, any>[]> = {
   [K in keyof T]: OptionColumnId<T[K]>;
 }[number];
 
 export type NumberColumnId<T> = T extends ColumnConfig<infer TData, 'number', infer TVal, infer TId> ? TId : never;
 
 // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
-export type NumberColumnIds<T extends ReadonlyArray<ColumnConfig<any, any, any, any>>> = {
+export type NumberColumnIds<T extends readonly ColumnConfig<any, any, any, any>[]> = {
   [K in keyof T]: NumberColumnId<T[K]>;
 }[number];
 
@@ -140,7 +140,7 @@ export type DataTableFilterConfig<TData> = {
 // Alias for backward compatibility
 export type DataTableColumnConfig<TData> = ColumnConfig<TData>;
 
-export type ColumnProperties<TData, TVal> = {
+export type ColumnProperties<_TData, TVal> = {
   getOptions: () => ColumnOption[];
   getValues: () => ElementType<NonNullable<TVal>>[];
   getFacetedUniqueValues: () => Map<string, number> | undefined;
@@ -151,7 +151,7 @@ export type ColumnProperties<TData, TVal> = {
   prefetchFacetedMinMaxValues: () => Promise<void>; // Prefetch faceted min/max values
 };
 
-export type ColumnPrivateProperties<TData, TVal> = {
+export type ColumnPrivateProperties<_TData, TVal> = {
   _prefetchedOptionsCache: ColumnOption[] | null;
   _prefetchedValuesCache: ElementType<NonNullable<TVal>>[] | null;
   _prefetchedFacetedUniqueValuesCache: Map<string, number> | null;
@@ -255,7 +255,7 @@ export type FilterModel<TType extends ColumnDataType = any> = {
   values: FilterValues<TType>;
 };
 
-export type FiltersState = Array<FilterModel>;
+export type FiltersState = FilterModel[];
 
 /*
  * FilterDetails is a type that represents the details of all the filter operators for a specific column data type.
@@ -278,7 +278,7 @@ export type FilterOperatorDetailsBase<OperatorValue, T extends ColumnDataType> =
   /* The singular form of the operator, if applicable. */
   pluralOf?: FilterOperators[T];
   /* All related operators. Normally, all the operators which share the same target. */
-  relativeOf: FilterOperators[T] | Array<FilterOperators[T]>;
+  relativeOf: FilterOperators[T] | FilterOperators[T][];
   /* Whether the operator is negated. */
   isNegated: boolean;
   /* If the operator is not negated, this provides the negated equivalent. */

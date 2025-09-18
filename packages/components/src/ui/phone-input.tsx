@@ -109,10 +109,10 @@ export const PhoneNumberInput = ({
       const isNumberKey = NUMBER_KEY_REGEX.test(e.key);
       const isModifier = e.ctrlKey || e.metaKey || e.altKey;
       const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End', 'Enter'];
-      
+
       // Allow typing if we have fewer than 10 digits or if we have 11 digits but the first is '1'
       const isComplete = currentDigits.length >= 10 && !(currentDigits.length === 11 && currentDigits.startsWith('1'));
-      
+
       if (!isModifier && isNumberKey && isComplete) {
         // Prevent adding more digits once 10-digit US number is complete
         e.preventDefault();

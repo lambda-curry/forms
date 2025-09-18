@@ -231,7 +231,7 @@ const testEdgeCases = () => {
 
   // Test building column without required fields
   try {
-    const incompleteColumn = dtf.text().build();
+    const _incompleteColumn = dtf.text().build();
     // Should not reach here - should throw an error
     throw new Error('Expected build() to throw an error for incomplete column');
   } catch (error) {

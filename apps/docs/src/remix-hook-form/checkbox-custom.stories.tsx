@@ -62,7 +62,7 @@ const CustomErrorMessage = (props: React.ComponentPropsWithoutRef<typeof FormMes
 CustomErrorMessage.displayName = 'CustomErrorMessage';
 
 // Example with custom checkbox components
-const PurpleCheckboxExample = () => {
+const _PurpleCheckboxExample = () => {
   const fetcher = useFetcher<{ message: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -102,7 +102,7 @@ const PurpleCheckboxExample = () => {
 };
 
 // Example with custom label components
-const CustomLabelExample = () => {
+const _CustomLabelExample = () => {
   const fetcher = useFetcher<{ message: string }>();
   const methods = useRemixForm<FormData>({
     resolver: zodResolver(formSchema),

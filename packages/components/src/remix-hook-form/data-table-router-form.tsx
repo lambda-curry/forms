@@ -212,7 +212,7 @@ export function DataTableRouterForm<TData, TValue>({
                     ))}
                   </TableRow>
                 ))
-              ) : table.getRowModel().rows?.length ? (
+              ) : table.getRowModel().rows?.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="even:bg-gray-50">
                     {row.getVisibleCells().map((cell) => (

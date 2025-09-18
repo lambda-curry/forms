@@ -292,7 +292,7 @@ export function FilterValueNumberDisplay<TData>({
   actions,
   locale = 'en',
 }: FilterValueDisplayProps<TData, 'number'>) {
-  if (!filter || !filter.values || filter.values.length === 0) return null;
+  if (!filter?.values || filter.values.length === 0) return null;
 
   if (filter.operator === 'is between' || filter.operator === 'is not between') {
     const minValue = filter.values[0];

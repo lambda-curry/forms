@@ -1,7 +1,7 @@
 export function memo<TDeps extends readonly any[], TResult>(
   getDeps: () => TDeps,
   compute: (deps: TDeps) => TResult,
-  options: { key: string },
+  _options: { key: string },
 ): () => TResult {
   let prevDeps: TDeps | undefined;
   let cachedResult: TResult | undefined;
@@ -10,10 +10,10 @@ export function memo<TDeps extends readonly any[], TResult>(
     const deps = getDeps();
 
     // If no previous deps or deps have changed, recompute
-    if (!prevDeps || !shallowEqual(prevDeps, deps)) {
+    if (prevDeps && shallowEqual(prevDeps, deps)) {
+    } else {
       cachedResult = compute(deps);
       prevDeps = deps;
-    } else {
     }
 
     return cachedResult!;

@@ -42,7 +42,8 @@
         "all": true,
         "noAccumulatingSpread": "off",
         "noReExportAll": "off",
-        "noBarrelFile": "off"
+        "noBarrelFile": "off",
+        "useTopLevelRegex": "off"
       },
       "suspicious": {
         "noConsoleLog": "off",
