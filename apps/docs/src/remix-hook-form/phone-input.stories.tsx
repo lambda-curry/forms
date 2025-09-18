@@ -37,11 +37,7 @@ const ControlledPhoneInputExample = () => {
     <RemixFormProvider {...methods}>
       <fetcher.Form onSubmit={methods.handleSubmit}>
         <div className="grid gap-8">
-          <PhoneInput
-            name="usaPhone"
-            label="Phone Number"
-            description="Enter a US phone number"
-          />
+          <PhoneInput name="usaPhone" label="Phone Number" description="Enter a US phone number" />
           <PhoneInput
             name="internationalPhone"
             label="International Phone Number"

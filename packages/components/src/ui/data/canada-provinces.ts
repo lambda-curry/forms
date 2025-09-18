@@ -1,4 +1,4 @@
-import { SelectOption } from '../select';
+import type { SelectOption } from '../select';
 
 export const CANADA_PROVINCES: SelectOption[] = [
   { value: 'AB', label: 'Alberta' },

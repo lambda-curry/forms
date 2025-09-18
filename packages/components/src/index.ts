@@ -1,5 +1,9 @@
 // Main exports from both remix-hook-form and ui directories
 
+// Add scroll-to-error utilities
+export { scrollToFirstError } from './utils/scrollToError';
+export type { ScrollToErrorOptions } from './utils/scrollToError';
+
 // Export all components from remix-hook-form
 export * from './remix-hook-form';
 
