@@ -57,10 +57,19 @@ export function Select({
   React.useEffect(() => {
     if (!triggerRef.current) return;
 
+    // Check if ResizeObserver is available
+    if (typeof ResizeObserver === 'undefined') {
+      // Fallback to simple width measurement
+      setMenuWidth(triggerRef.current.offsetWidth);
+      return;
+    }
+
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // Use borderBoxSize for more accurate measurements
-        const width = entry.borderBoxSize?.[0]?.inlineSize || entry.target.offsetWidth;
+        // Use borderBoxSize for more accurate measurements with fallback
+        const width = entry.borderBoxSize?.[0]?.inlineSize ?? 
+                     entry.contentBoxSize?.[0]?.inlineSize ?? 
+                     entry.target.offsetWidth;
         setMenuWidth(width);
       }
     });
