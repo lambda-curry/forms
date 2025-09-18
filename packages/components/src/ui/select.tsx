@@ -55,8 +55,23 @@ export function Select({
   const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
 
   React.useEffect(() => {
-    if (triggerRef.current) setMenuWidth(triggerRef.current.offsetWidth);
-  }, []);
+    if (!triggerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // Use borderBoxSize for more accurate measurements
+        const width = entry.borderBoxSize?.[0]?.inlineSize || entry.target.offsetWidth;
+        setMenuWidth(width);
+      }
+    });
+
+    observer.observe(triggerRef.current);
+    
+    // Set initial width immediately
+    setMenuWidth(triggerRef.current.offsetWidth);
+
+    return () => observer.disconnect();
+  }, []); // Only run once - observer handles all future changes
 
   // Scroll to selected item when dropdown opens
   React.useEffect(() => {
