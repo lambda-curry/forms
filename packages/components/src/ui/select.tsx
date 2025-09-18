@@ -1,8 +1,9 @@
 import { Popover } from '@radix-ui/react-popover';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
-import { PopoverContent, PopoverTrigger } from './popover';
+import { PopoverTrigger } from './popover';
 import { cn } from './utils';
 
 export interface SelectOption {
@@ -49,14 +50,13 @@ export function Select({
   const popoverState = useOverlayTriggerState({});
   const listboxId = React.useId();
   const [query, setQuery] = React.useState('');
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [isInitialized, setIsInitialized] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLButtonElement>(null);
-  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (triggerRef.current) setMenuWidth(triggerRef.current.offsetWidth);
-  }, []);
+  const listContainerRef = React.useRef<HTMLUListElement>(null);
+  // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
   // Scroll to selected item when dropdown opens
   React.useEffect(() => {
@@ -75,13 +75,29 @@ export function Select({
     [options, query],
   );
 
-  // Candidate that would be chosen on Enter (exact match else first filtered)
-  const enterCandidate = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (filtered.length === 0) return undefined;
-    const exact = q ? filtered.find((o) => o.label.toLowerCase() === q) : undefined;
-    return exact ?? filtered[0];
-  }, [filtered, query]);
+  // Reset activeIndex when filtered items change or dropdown opens
+  React.useEffect(() => {
+    if (popoverState.isOpen) {
+      setActiveIndex(0);
+      // Add a small delay to ensure the component is fully initialized
+      const timer = setTimeout(() => {
+        setIsInitialized(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsInitialized(false);
+    }
+  }, [filtered, popoverState.isOpen]);
+
+  // Scroll active item into view when activeIndex changes
+  React.useEffect(() => {
+    if (popoverState.isOpen && listContainerRef.current && filtered.length > 0) {
+      const activeElement = listContainerRef.current.querySelector(`[data-index="${activeIndex}"]`) as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [activeIndex, popoverState.isOpen, filtered.length]);
 
   const Trigger =
     components?.Trigger ||
@@ -130,15 +146,27 @@ export function Select({
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
-      <PopoverContent
-        ref={popoverRef}
-        className={cn('z-50 p-0 shadow-md border-0', contentClassName)}
-        // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
-        role="listbox"
-        id={listboxId}
-        style={{ width: menuWidth ? `${menuWidth}px` : undefined }}
-      >
-        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm">
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          ref={popoverRef}
+          align="start"
+          sideOffset={4}
+          className={cn(
+            'z-50 rounded-md border bg-popover text-popover-foreground shadow-md outline-none',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+            'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            'p-0 shadow-md border-0',
+            contentClassName
+          )}
+          // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
+          role="listbox"
+          id={listboxId}
+          style={{ width: 'var(--radix-popover-trigger-width)' }}
+          data-slot="popover-content"
+        >
+        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
           <div className="px-1.5 pb-1.5">
             <SearchInput
               type="text"
@@ -148,10 +176,11 @@ export function Select({
               ref={(el) => {
                 if (el) queueMicrotask(() => el.focus());
               }}
+              aria-activedescendant={filtered.length > 0 ? `${listboxId}-option-${activeIndex}` : undefined}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  const toSelect = enterCandidate;
+                  const toSelect = filtered[activeIndex];
                   if (toSelect) {
                     onValueChange?.(toSelect.value);
                     setQuery('');
@@ -163,16 +192,24 @@ export function Select({
                   setQuery('');
                   popoverState.close();
                   triggerRef.current?.focus();
+                } else if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  if (filtered.length === 0) return;
+                  setActiveIndex((prev) => Math.min(prev + 1, filtered.length - 1));
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  if (filtered.length === 0) return;
+                  setActiveIndex((prev) => Math.max(prev - 1, 0));
                 }
               }}
               className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
             />
           </div>
-          <ul className="max-h-[200px] overflow-y-auto rounded-md">
+          <ul ref={listContainerRef} className="max-h-[200px] overflow-y-auto rounded-md w-full">
             {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
-            {filtered.map((option) => {
+            {filtered.map((option, index) => {
               const isSelected = option.value === value;
-              const isEnterCandidate = query.trim() !== '' && enterCandidate?.value === option.value && !isSelected;
+              const isActive = index === activeIndex;
               return (
                 <li key={option.value} className="list-none">
                   <Item
@@ -186,14 +223,17 @@ export function Select({
                       'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
                       'text-gray-900',
                       isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
-                      isEnterCandidate && 'bg-gray-50',
+                      isActive && !isSelected && 'bg-gray-50',
                       itemClassName,
                     )}
                     // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
                     // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
                     role="option"
                     aria-selected={isSelected}
+                    id={`${listboxId}-option-${index}`}
                     data-selected={isSelected ? 'true' : 'false'}
+                    data-active={isActive ? 'true' : 'false'}
+                    data-index={index}
                     data-value={option.value}
                     data-testid={`select-option-${option.value}`}
                     selected={isSelected}
@@ -208,7 +248,8 @@ export function Select({
             })}
           </ul>
         </div>
-      </PopoverContent>
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
     </Popover>
   );
 }

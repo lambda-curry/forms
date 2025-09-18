@@ -31,7 +31,7 @@ const RadioGroupItemField = ({
   const LabelComponent = components?.Label || Label;
 
   return (
-    <div className={cn('flex items-center space-x-2', wrapperClassName)}>
+    <div className={cn('flex items-center', wrapperClassName)}>
       <RadioGroupItemComponent
         className={cn(
           'h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
@@ -47,7 +47,7 @@ const RadioGroupItemField = ({
         <LabelComponent
           htmlFor={props.id}
           className={cn(
-            'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+            'text-sm pl-2 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
             labelClassName,
           )}
         >
