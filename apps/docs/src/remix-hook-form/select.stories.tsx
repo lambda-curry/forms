@@ -4,7 +4,7 @@ import { Button } from '@lambdacurry/forms/ui/button';
 import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, fireEvent, userEvent, waitFor, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -366,58 +366,83 @@ export const KeyboardNavigation: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      // Verify the dropdown is open and input is focused
-      const listbox = await within(document.body).findByRole('listbox');
+      // Wait for the ShadCN popover to render in the Portal (document.body)
+      // This is the key fix: ShadCN components render via Radix UI Portal to document.body
+      const listbox = await waitFor(
+        () => within(document.body).getByRole('listbox'),
+        { timeout: 3000 }
+      );
       expect(listbox).toBeInTheDocument();
 
-      const searchInput = within(listbox).getByPlaceholderText('Search...');
-      expect(searchInput).toHaveFocus();
+      // Wait for the search input to be focused and ready
+      const searchInput = await waitFor(
+        () => within(listbox).getByPlaceholderText('Search...'),
+        { timeout: 1000 }
+      );
+      
+      // Wait for focus to be properly set (ShadCN uses queueMicrotask for focus)
+      await waitFor(() => {
+        expect(searchInput).toHaveFocus();
+      }, { timeout: 1000 });
 
-      // Verify first item is active by default (should have aria-activedescendant)
+      // Wait for the component to initialize and set aria-activedescendant
+      await waitFor(() => {
+        const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+        expect(activeOptionId).toBeTruthy();
+        return activeOptionId;
+      }, { timeout: 1000 });
+
+      // Get the current active option ID after initialization
       const firstOptionId = searchInput.getAttribute('aria-activedescendant');
-      expect(firstOptionId).toBeTruthy();
-
+      
       // Verify the first option exists and has the correct ID
       const firstOption = within(listbox).getByRole('option', { name: 'Alabama' });
       expect(firstOption).toHaveAttribute('id', firstOptionId);
       
-      // Wait a bit for the component to fully initialize and ensure it's stable
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Check that an option is active (the test environment may trigger keyboard events)
-      const currentActiveOptionId = searchInput.getAttribute('aria-activedescendant');
-      expect(currentActiveOptionId).toBeTruthy();
-      
-      // Find the currently active option and check it immediately
-      const currentActiveOption = document.getElementById(currentActiveOptionId!);
-      expect(currentActiveOption).toBeTruthy();
-      
-      // Check the data-active attribute immediately to avoid timing issues
-      expect(currentActiveOption).toHaveAttribute('data-active', 'true');
+      // Verify the active state is properly set
+      await waitFor(() => {
+        const currentActiveOption = document.getElementById(firstOptionId!);
+        expect(currentActiveOption).toHaveAttribute('data-active', 'true');
+      }, { timeout: 1000 });
     });
 
     await step('Navigate with arrow keys', async () => {
+      // Get the listbox that should still be open from the previous step
       const listbox = within(document.body).getByRole('listbox');
       const searchInput = within(listbox).getByPlaceholderText('Search...');
 
-      // Press ArrowDown twice to move to the third item
-      await userEvent.keyboard('{ArrowDown}');
-      await userEvent.keyboard('{ArrowDown}');
+      // Debug: Log the current state before navigation
+      console.log('Before navigation - activeIndex should be 0');
+      const initialActiveOptionId = searchInput.getAttribute('aria-activedescendant');
+      const initialActiveOption = document.getElementById(initialActiveOptionId!);
+      console.log('Initial active option index:', initialActiveOption?.getAttribute('data-index'));
 
-      // Wait for React to re-render with the new activeIndex
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Re-query the search input to get the fresh DOM state
-      const listboxAfterNavigation = within(document.body).getByRole('listbox');
-      const searchInputAfterNavigation = within(listboxAfterNavigation).getByPlaceholderText('Search...');
+      // Press ArrowDown once to move to the second item
+      fireEvent.keyDown(searchInput, { key: 'ArrowDown', code: 'ArrowDown' });
       
-      // Verify the active item has changed
-      const activeOptionId = searchInputAfterNavigation.getAttribute('aria-activedescendant');
+      // Wait for first arrow down to take effect
+      await waitFor(() => {
+        const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+        const activeOption = document.getElementById(activeOptionId!);
+        console.log('After first arrow down - expected index 1, actual:', activeOption?.getAttribute('data-index'));
+        expect(activeOption).toHaveAttribute('data-index', '1');
+      }, { timeout: 2000 });
+      
+      fireEvent.keyDown(searchInput, { key: 'ArrowDown', code: 'ArrowDown' });
+
+      // Wait for the aria-activedescendant to update after second keyboard navigation
+      await waitFor(() => {
+        const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+        const activeOption = document.getElementById(activeOptionId!);
+        console.log('After second arrow down - expected index 2, actual:', activeOption?.getAttribute('data-index'));
+        expect(activeOption).toHaveAttribute('data-index', '2');
+        return activeOption;
+      }, { timeout: 2000 });
+
+      // Verify the active state is properly set on the third option
+      const activeOptionId = searchInput.getAttribute('aria-activedescendant');
       const activeOption = document.getElementById(activeOptionId!);
       expect(activeOption).toHaveAttribute('data-active', 'true');
-
-      // Should be the third option (index 2)
-      expect(activeOption).toHaveAttribute('data-index', '2');
     });
 
     await step('Select with Enter key', async () => {
@@ -425,17 +450,19 @@ export const KeyboardNavigation: Story = {
       const searchInput = within(listbox).getByPlaceholderText('Search...');
 
       // Press Enter to select the active item
-      await userEvent.keyboard('{Enter}');
+      fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
 
-      // Wait for the dropdown to close
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for the ShadCN popover to close (Portal cleanup)
+      await waitFor(() => {
+        expect(() => within(document.body).getByRole('listbox')).toThrow();
+      }, { timeout: 2000 });
 
-      // Verify the dropdown closed and the trigger shows the selected value
-      await expect(() => within(document.body).getByRole('listbox')).rejects.toThrow();
-
+      // Verify the trigger shows the selected value
       const regionSelect = canvas.getByLabelText('Custom Region');
       // The third item should be "Arizona" (AL, AK, AZ...)
-      expect(regionSelect).toHaveTextContent('Arizona');
+      await waitFor(() => {
+        expect(regionSelect).toHaveTextContent('Arizona');
+      }, { timeout: 1000 });
     });
 
     await step('Test filtering and active item reset', async () => {
@@ -443,24 +470,38 @@ export const KeyboardNavigation: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      const listbox = await within(document.body).findByRole('listbox');
-      const searchInput = within(listbox).getByPlaceholderText('Search...');
+      // Wait for the ShadCN popover to open again
+      const listbox = await waitFor(
+        () => within(document.body).getByRole('listbox'),
+        { timeout: 3000 }
+      );
+      const searchInput = await waitFor(
+        () => within(listbox).getByPlaceholderText('Search...'),
+        { timeout: 1000 }
+      );
 
       // Type to filter
       await userEvent.type(searchInput, 'cal');
 
-      // Verify the active item reset to the first filtered item
-      const activeOptionId = searchInput.getAttribute('aria-activedescendant');
-      const activeOption = document.getElementById(activeOptionId!);
-      expect(activeOption).toHaveAttribute('data-index', '0');
-      expect(activeOption).toHaveTextContent('California');
+      // Wait for filtering to complete and active item to reset
+      await waitFor(() => {
+        const activeOptionId = searchInput.getAttribute('aria-activedescendant');
+        const activeOption = document.getElementById(activeOptionId!);
+        expect(activeOption).toHaveAttribute('data-index', '0');
+        expect(activeOption).toHaveTextContent('California');
+      }, { timeout: 1000 });
 
       // Press Enter to select the filtered item
-      await userEvent.keyboard('{Enter}');
+      fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
 
-      // Verify selection
-      await expect(() => within(document.body).getByRole('listbox')).rejects.toThrow();
-      expect(regionSelect).toHaveTextContent('California');
+      // Wait for the popover to close and selection to update
+      await waitFor(() => {
+        expect(() => within(document.body).getByRole('listbox')).toThrow();
+      }, { timeout: 2000 });
+      
+      await waitFor(() => {
+        expect(regionSelect).toHaveTextContent('California');
+      }, { timeout: 1000 });
     });
   },
 };
