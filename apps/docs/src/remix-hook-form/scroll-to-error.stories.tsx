@@ -67,7 +67,8 @@ const ScrollToErrorHookForm = () => {
     delay: 150,
   });
 
-  const { handleSubmit } = useRemixFormContext();
+  const methods = useRemixFormContext();
+  const { handleSubmit } = methods;
   const fetcher = useFetcher<{ message: string; errors?: Record<string, unknown> }>();
 
   return (
