@@ -45,8 +45,6 @@ export const scrollToFirstError = (errors: FieldErrors, options: ScrollToErrorOp
     const selectors = [
       '[data-slot="form-message"]', // Target error message first (best UX)
       '[data-slot="form-control"][aria-invalid="true"]', // Input with error state
-      '[data-slot="form-control"]', // Any form control as fallback
-      '[data-slot="form-item"]', // Form item container
     ];
 
     const element = findFirstErrorElement(selectors);

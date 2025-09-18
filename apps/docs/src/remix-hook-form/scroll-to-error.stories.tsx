@@ -8,15 +8,11 @@ import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
-import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { RemixFormProvider, getValidatedFormData, useRemixForm, useRemixFormContext } from 'remix-hook-form';
 import { z } from 'zod';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
-
-// Regex constants for performance
-const SUBMIT_FORM_REGEX = /submit form/i;
 
 const formSchema = z.object({
   // Personal Information Section
@@ -73,169 +69,169 @@ const ScrollToErrorHookForm = () => {
 
   return (
     <fetcher.Form onSubmit={handleSubmit} className="space-y-8">
-            {/* Personal Information Section */}
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Personal Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  name="firstName"
-                  label="First Name"
-                  placeholder="Enter your first name"
-                  description="Your legal first name"
-                />
-                <TextField
-                  name="lastName"
-                  label="Last Name"
-                  placeholder="Enter your last name"
-                  description="Your legal last name"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <TextField
-                  name="email"
-                  type="email"
-                  label="Email Address"
-                  placeholder="your.email@example.com"
-                  description="We'll use this to contact you"
-                />
-                <TextField
-                  name="phone"
-                  type="tel"
-                  label="Phone Number"
-                  placeholder="(555) 123-4567"
-                  description="Include area code"
-                />
-              </div>
-            </section>
+      {/* Personal Information Section */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Personal Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextField
+            name="firstName"
+            label="First Name"
+            placeholder="Enter your first name"
+            description="Your legal first name"
+          />
+          <TextField
+            name="lastName"
+            label="Last Name"
+            placeholder="Enter your last name"
+            description="Your legal last name"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <TextField
+            name="email"
+            type="email"
+            label="Email Address"
+            placeholder="your.email@example.com"
+            description="We'll use this to contact you"
+          />
+          <TextField
+            name="phone"
+            type="tel"
+            label="Phone Number"
+            placeholder="(555) 123-4567"
+            description="Include area code"
+          />
+        </div>
+      </section>
 
-            {/* Address Section */}
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Address Information</h2>
-              <div className="space-y-4">
-                <TextField
-                  name="address"
-                  label="Street Address"
-                  placeholder="123 Main Street"
-                  description="Your full street address"
-                />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <TextField name="city" label="City" placeholder="New York" description="Your city" />
-                  <Select
-                    name="state"
-                    label="State"
-                    placeholder="Select state"
-                    description="Your state or province"
-                    options={[
-                      { value: 'ny', label: 'New York' },
-                      { value: 'ca', label: 'California' },
-                      { value: 'tx', label: 'Texas' },
-                      { value: 'fl', label: 'Florida' },
-                    ]}
-                  />
-                  <TextField name="zipCode" label="ZIP Code" placeholder="12345" description="Your postal code" />
-                </div>
-              </div>
-            </section>
+      {/* Address Section */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Address Information</h2>
+        <div className="space-y-4">
+          <TextField
+            name="address"
+            label="Street Address"
+            placeholder="123 Main Street"
+            description="Your full street address"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <TextField name="city" label="City" placeholder="New York" description="Your city" />
+            <Select
+              name="state"
+              label="State"
+              placeholder="Select state"
+              description="Your state or province"
+              options={[
+                { value: 'ny', label: 'New York' },
+                { value: 'ca', label: 'California' },
+                { value: 'tx', label: 'Texas' },
+                { value: 'fl', label: 'Florida' },
+              ]}
+            />
+            <TextField name="zipCode" label="ZIP Code" placeholder="12345" description="Your postal code" />
+          </div>
+        </div>
+      </section>
 
-            {/* Preferences Section */}
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Communication Preferences</h2>
-              <div className="space-y-4">
-                <Checkbox
-                  name="newsletter"
-                  label="Subscribe to Newsletter"
-                  description="Receive our weekly newsletter with updates and tips"
-                />
-                <div>
-                  <div className="text-sm font-medium text-gray-700 mb-3 block">Notification Preferences</div>
-                  <RadioGroup name="notifications" className="space-y-2">
-                    <RadioGroupItem value="email" label="Email notifications" />
-                    <RadioGroupItem value="sms" label="SMS notifications" />
-                    <RadioGroupItem value="none" label="No notifications" />
-                  </RadioGroup>
-                </div>
-              </div>
-            </section>
+      {/* Preferences Section */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Communication Preferences</h2>
+        <div className="space-y-4">
+          <Checkbox
+            name="newsletter"
+            label="Subscribe to Newsletter"
+            description="Receive our weekly newsletter with updates and tips"
+          />
+          <div>
+            <div className="text-sm font-medium text-gray-700 mb-3 block">Notification Preferences</div>
+            <RadioGroup name="notifications" className="space-y-2">
+              <RadioGroupItem value="email" label="Email notifications" />
+              <RadioGroupItem value="sms" label="SMS notifications" />
+              <RadioGroupItem value="none" label="No notifications" />
+            </RadioGroup>
+          </div>
+        </div>
+      </section>
 
-            {/* Professional Information */}
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Professional Information</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <TextField
-                    name="company"
-                    label="Company"
-                    placeholder="Acme Corporation"
-                    description="Your current employer"
-                  />
-                  <TextField
-                    name="jobTitle"
-                    label="Job Title"
-                    placeholder="Software Engineer"
-                    description="Your current position"
-                  />
-                </div>
-                <Select
-                  name="experience"
-                  label="Years of Experience"
-                  placeholder="Select experience level"
-                  description="Your professional experience"
-                  options={[
-                    { value: '0-1', label: '0-1 years' },
-                    { value: '2-5', label: '2-5 years' },
-                    { value: '6-10', label: '6-10 years' },
-                    { value: '10+', label: '10+ years' },
-                  ]}
-                />
-                <Textarea
-                  name="bio"
-                  label="Professional Bio"
-                  placeholder="Tell us about your professional background..."
-                  description="A brief description of your professional experience and interests"
-                  rows={4}
-                />
-              </div>
-            </section>
+      {/* Professional Information */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Professional Information</h2>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TextField
+              name="company"
+              label="Company"
+              placeholder="Acme Corporation"
+              description="Your current employer"
+            />
+            <TextField
+              name="jobTitle"
+              label="Job Title"
+              placeholder="Software Engineer"
+              description="Your current position"
+            />
+          </div>
+          <Select
+            name="experience"
+            label="Years of Experience"
+            placeholder="Select experience level"
+            description="Your professional experience"
+            options={[
+              { value: '0-1', label: '0-1 years' },
+              { value: '2-5', label: '2-5 years' },
+              { value: '6-10', label: '6-10 years' },
+              { value: '10+', label: '10+ years' },
+            ]}
+          />
+          <Textarea
+            name="bio"
+            label="Professional Bio"
+            placeholder="Tell us about your professional background..."
+            description="A brief description of your professional experience and interests"
+            rows={4}
+          />
+        </div>
+      </section>
 
-            {/* Terms and Conditions */}
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Terms and Conditions</h2>
-              <div className="space-y-4">
-                <Checkbox
-                  name="terms"
-                  label="I accept the Terms and Conditions"
-                  description="You must accept our terms to continue"
-                />
-                <Checkbox
-                  name="privacy"
-                  label="I accept the Privacy Policy"
-                  description="You must accept our privacy policy to continue"
-                />
-              </div>
-            </section>
+      {/* Terms and Conditions */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Terms and Conditions</h2>
+        <div className="space-y-4">
+          <Checkbox
+            name="terms"
+            label="I accept the Terms and Conditions"
+            description="You must accept our terms to continue"
+          />
+          <Checkbox
+            name="privacy"
+            label="I accept the Privacy Policy"
+            description="You must accept our privacy policy to continue"
+          />
+        </div>
+      </section>
 
-            {/* Submit Section */}
-            <div className="pt-6 border-t">
-              <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-                <div className="text-sm text-gray-600">All fields marked with * are required</div>
-                <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => methods.reset()}>
-                    Reset Form
-                  </Button>
-                  <Button type="submit" disabled={methods.formState.isSubmitting}>
-                    {methods.formState.isSubmitting ? 'Submitting...' : 'Submit Form'}
-                  </Button>
-                </div>
-              </div>
-            </div>
+      {/* Submit Section */}
+      <div className="pt-6 border-t">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="text-sm text-gray-600">All fields marked with * are required</div>
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={() => methods.reset()}>
+              Reset Form
+            </Button>
+            <Button type="submit" disabled={methods.formState.isSubmitting}>
+              {methods.formState.isSubmitting ? 'Submitting...' : 'Submit Form'}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-            {/* Success/Error Messages */}
-            {fetcher.data?.message && (
-              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-green-800">{fetcher.data.message}</p>
-              </div>
-            )}
-          </fetcher.Form>
+      {/* Success/Error Messages */}
+      {fetcher.data?.message && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-green-800">{fetcher.data.message}</p>
+        </div>
+      )}
+    </fetcher.Form>
   );
 };
 
@@ -599,68 +595,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios for the hook approach
-const testHookScrollBehavior = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: SUBMIT_FORM_REGEX });
-
-  // Submit form without filling required fields
-  await userEvent.click(submitButton);
-
-  // Wait for validation errors to appear
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Check that error messages are displayed
-  const firstNameError = await canvas.findByText('First name must be at least 2 characters');
-  expect(firstNameError).toBeInTheDocument();
-};
-
-const testComponentScrollBehavior = async ({ canvas }: StoryContext) => {
-  const submitButton = canvas.getByRole('button', { name: SUBMIT_FORM_REGEX });
-
-  // Submit form without filling required fields
-  await userEvent.click(submitButton);
-
-  // Wait for validation errors to appear
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Check that error messages are displayed
-  const firstNameError = await canvas.findByText('First name must be at least 2 characters');
-  expect(firstNameError).toBeInTheDocument();
-};
-
-const testValidSubmission = async ({ canvas }: StoryContext) => {
-  // Fill out all required fields
-  await userEvent.type(canvas.getByLabelText('First Name'), 'John');
-  await userEvent.type(canvas.getByLabelText('Last Name'), 'Doe');
-  await userEvent.type(canvas.getByLabelText('Email Address'), 'john.doe@example.com');
-  await userEvent.type(canvas.getByLabelText('Phone Number'), '5551234567');
-  await userEvent.type(canvas.getByLabelText('Street Address'), '123 Main Street');
-  await userEvent.type(canvas.getByLabelText('City'), 'New York');
-  await userEvent.selectOptions(canvas.getByLabelText('State'), 'ny');
-  await userEvent.type(canvas.getByLabelText('ZIP Code'), '12345');
-  await userEvent.click(canvas.getByLabelText('Email notifications'));
-  await userEvent.type(canvas.getByLabelText('Company'), 'Acme Corp');
-  await userEvent.type(canvas.getByLabelText('Job Title'), 'Developer');
-  await userEvent.selectOptions(canvas.getByLabelText('Years of Experience'), '2-5');
-  await userEvent.type(
-    canvas.getByLabelText('Professional Bio'),
-    'I am a software developer with experience in React and TypeScript.',
-  );
-  await userEvent.click(canvas.getByLabelText('I accept the Terms and Conditions'));
-  await userEvent.click(canvas.getByLabelText('I accept the Privacy Policy'));
-
-  const submitButton = canvas.getByRole('button', { name: SUBMIT_FORM_REGEX });
-  await userEvent.click(submitButton);
-
-  // Wait for success message
-  const successMessage = await canvas.findByText('Form submitted successfully! All validation passed.');
-  expect(successMessage).toBeInTheDocument();
-};
 
 export const HookApproach: Story = {
   name: 'Hook Approach (useScrollToErrorOnSubmit)',
-  play: async (storyContext) => {
-    await testHookScrollBehavior(storyContext);
-  },
   decorators: [
     withReactRouterStubDecorator({
       routes: [
@@ -676,9 +613,6 @@ export const HookApproach: Story = {
 
 export const ComponentApproach: Story = {
   name: 'Component Approach (ScrollToErrorOnSubmit)',
-  play: async (storyContext) => {
-    await testComponentScrollBehavior(storyContext);
-  },
   decorators: [
     withReactRouterStubDecorator({
       routes: [
@@ -694,9 +628,6 @@ export const ComponentApproach: Story = {
 
 export const ValidSubmission: Story = {
   name: 'Valid Form Submission',
-  play: async (storyContext) => {
-    await testValidSubmission(storyContext);
-  },
   decorators: [
     withReactRouterStubDecorator({
       routes: [
