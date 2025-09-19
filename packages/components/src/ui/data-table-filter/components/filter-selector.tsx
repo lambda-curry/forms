@@ -1,6 +1,5 @@
 import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from 'lucide-react';
-import { isValidElement, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React from 'react';
+import React, { isValidElement, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../button';
 import { Checkbox } from '../../checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../command';

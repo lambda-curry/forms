@@ -1,7 +1,6 @@
-import { isEqual } from 'date-fns';
-import { format } from 'date-fns';
+import { format, isEqual } from 'date-fns';
 import { Ellipsis } from 'lucide-react';
-import { type ElementType, cloneElement, isValidElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { cloneElement, type ElementType, isValidElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { Button } from '../../button';
 import { Calendar } from '../../calendar';

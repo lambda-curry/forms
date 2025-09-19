@@ -1,5 +1,5 @@
-import { Popover } from '@radix-ui/react-popover';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { Popover } from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
@@ -158,7 +158,7 @@ export function Select({
             'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
             'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
             'p-0 shadow-md border-0',
-            contentClassName
+            contentClassName,
           )}
           // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
           role="listbox"
@@ -166,88 +166,88 @@ export function Select({
           style={{ width: 'var(--radix-popover-trigger-width)' }}
           data-slot="popover-content"
         >
-        <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
-          <div className="px-1.5 pb-1.5">
-            <SearchInput
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search..."
-              ref={(el) => {
-                if (el) queueMicrotask(() => el.focus());
-              }}
-              aria-activedescendant={filtered.length > 0 ? `${listboxId}-option-${activeIndex}` : undefined}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const toSelect = filtered[activeIndex];
-                  if (toSelect) {
-                    onValueChange?.(toSelect.value);
+          <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
+            <div className="px-1.5 pb-1.5">
+              <SearchInput
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search..."
+                ref={(el) => {
+                  if (el) queueMicrotask(() => el.focus());
+                }}
+                aria-activedescendant={filtered.length > 0 ? `${listboxId}-option-${activeIndex}` : undefined}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const toSelect = filtered[activeIndex];
+                    if (toSelect) {
+                      onValueChange?.(toSelect.value);
+                      setQuery('');
+                      popoverState.close();
+                      triggerRef.current?.focus();
+                    }
+                  } else if (e.key === 'Escape') {
+                    e.preventDefault();
                     setQuery('');
                     popoverState.close();
                     triggerRef.current?.focus();
+                  } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (filtered.length === 0) return;
+                    setActiveIndex((prev) => Math.min(prev + 1, filtered.length - 1));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (filtered.length === 0) return;
+                    setActiveIndex((prev) => Math.max(prev - 1, 0));
                   }
-                } else if (e.key === 'Escape') {
-                  e.preventDefault();
-                  setQuery('');
-                  popoverState.close();
-                  triggerRef.current?.focus();
-                } else if (e.key === 'ArrowDown') {
-                  e.preventDefault();
-                  if (filtered.length === 0) return;
-                  setActiveIndex((prev) => Math.min(prev + 1, filtered.length - 1));
-                } else if (e.key === 'ArrowUp') {
-                  e.preventDefault();
-                  if (filtered.length === 0) return;
-                  setActiveIndex((prev) => Math.max(prev - 1, 0));
-                }
-              }}
-              className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
-            />
+                }}
+                className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
+              />
+            </div>
+            <ul ref={listContainerRef} className="max-h-[200px] overflow-y-auto rounded-md w-full">
+              {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
+              {filtered.map((option, index) => {
+                const isSelected = option.value === value;
+                const isActive = index === activeIndex;
+                return (
+                  <li key={option.value} className="list-none">
+                    <Item
+                      ref={isSelected ? selectedItemRef : undefined}
+                      onClick={() => {
+                        onValueChange?.(option.value);
+                        setQuery('');
+                        popoverState.close();
+                      }}
+                      className={cn(
+                        'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
+                        'text-gray-900',
+                        isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
+                        isActive && !isSelected && 'bg-gray-50',
+                        itemClassName,
+                      )}
+                      // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+                      // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
+                      role="option"
+                      aria-selected={isSelected}
+                      id={`${listboxId}-option-${index}`}
+                      data-selected={isSelected ? 'true' : 'false'}
+                      data-active={isActive ? 'true' : 'false'}
+                      data-index={index}
+                      data-value={option.value}
+                      data-testid={`select-option-${option.value}`}
+                      selected={isSelected}
+                    >
+                      {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
+                      <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
+                        {option.label}
+                      </span>
+                    </Item>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-          <ul ref={listContainerRef} className="max-h-[200px] overflow-y-auto rounded-md w-full">
-            {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
-            {filtered.map((option, index) => {
-              const isSelected = option.value === value;
-              const isActive = index === activeIndex;
-              return (
-                <li key={option.value} className="list-none">
-                  <Item
-                    ref={isSelected ? selectedItemRef : undefined}
-                    onClick={() => {
-                      onValueChange?.(option.value);
-                      setQuery('');
-                      popoverState.close();
-                    }}
-                    className={cn(
-                      'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
-                      'text-gray-900',
-                      isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
-                      isActive && !isSelected && 'bg-gray-50',
-                      itemClassName,
-                    )}
-                    // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-                    // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-                    role="option"
-                    aria-selected={isSelected}
-                    id={`${listboxId}-option-${index}`}
-                    data-selected={isSelected ? 'true' : 'false'}
-                    data-active={isActive ? 'true' : 'false'}
-                    data-index={index}
-                    data-value={option.value}
-                    data-testid={`select-option-${option.value}`}
-                    selected={isSelected}
-                  >
-                    {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
-                    <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
-                      {option.label}
-                    </span>
-                  </Item>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </Popover>

@@ -1,16 +1,16 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import {
+  assigneeOptions,
   CalendarIcon,
   CheckCircledIcon,
+  createColumnConfigHelper,
   DataTableColumnHeader,
   type MockIssue,
   PersonIcon,
-  StarIcon,
-  TextIcon,
-  assigneeOptions,
-  createColumnConfigHelper,
   priorityOptions,
+  StarIcon,
   statusOptions,
+  TextIcon,
 } from './data-table-stories.helpers';
 
 // --- Column Configuration ---

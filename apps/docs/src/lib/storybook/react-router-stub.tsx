@@ -2,10 +2,10 @@ import type { Decorator } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
 import {
   type ActionFunction,
+  createRoutesStub,
   type LinksFunction,
   type LoaderFunction,
   type MetaFunction,
-  createRoutesStub,
 } from 'react-router';
 
 export interface StubRouteObject {

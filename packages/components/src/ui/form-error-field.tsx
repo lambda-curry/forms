@@ -1,6 +1,6 @@
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { FormField, FormItem, FormMessage } from './form';
 import type { FieldComponents } from './form';
+import { FormField, FormItem, FormMessage } from './form';
 
 export interface FormErrorFieldProps<
   TFieldValues extends FieldValues = FieldValues,

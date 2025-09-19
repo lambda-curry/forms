@@ -16,8 +16,7 @@ import type {
   OptionBasedColumnDataType,
   OptionColumnIds,
 } from '../core/types';
-import { uniq } from '../lib/array';
-import { addUniq, removeUniq } from '../lib/array';
+import { addUniq, removeUniq, uniq } from '../lib/array';
 import {
   createDateFilterValue,
   createNumberFilterValue,
