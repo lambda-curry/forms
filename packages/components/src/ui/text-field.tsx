@@ -12,13 +12,7 @@ import {
 import { type InputProps, TextInput } from './text-input';
 import { cn } from './utils';
 
-export const FieldPrefix = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
+export const FieldPrefix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (
     <div
       className={cn(
@@ -31,13 +25,7 @@ export const FieldPrefix = ({
   );
 };
 
-export const FieldSuffix = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
+export const FieldSuffix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (
     <div
       className={cn(

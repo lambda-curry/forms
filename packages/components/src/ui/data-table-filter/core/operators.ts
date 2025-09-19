@@ -1,8 +1,8 @@
 import type {
   ColumnDataType,
   FilterDetails,
-  FilterOperatorTarget,
   FilterOperators,
+  FilterOperatorTarget,
   FilterTypeOperatorDetails,
   FilterValues,
 } from './types';

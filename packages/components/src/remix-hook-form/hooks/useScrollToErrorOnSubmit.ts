@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useRemixFormContext } from 'remix-hook-form';
 import type { UseRemixFormReturn } from 'remix-hook-form';
+import { useRemixFormContext } from 'remix-hook-form';
 import { type ScrollToErrorOptions, scrollToFirstError } from '../../utils/scrollToError';
 
 export interface UseScrollToErrorOnSubmitOptions extends ScrollToErrorOptions {

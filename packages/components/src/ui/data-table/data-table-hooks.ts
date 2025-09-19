@@ -1,7 +1,7 @@
 import { type ComponentType, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { debounce } from '../utils/debounce';
-import { type DataTableFilterParams, createFilterSchema } from './data-table-schema';
+import { createFilterSchema, type DataTableFilterParams } from './data-table-schema';
 
 /**
  * Custom hook for managing data table filter state in the URL

@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form';
+import type { ActionFunctionArgs } from 'react-router';
 // Example of using the new middleware feature in remix-hook-form v7.0.0
 import { Form } from 'react-router';
-import type { ActionFunctionArgs } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { getValidatedFormData } from 'remix-hook-form/middleware';
 import * as zod from 'zod';

@@ -218,16 +218,16 @@ export const priorityOptions = [
 
 // --- Shared Imports (for re-export) ---
 export { dataTableRouterParsers } from '@lambdacurry/forms/remix-hook-form/data-table-router-parsers';
+export { DataTable } from '@lambdacurry/forms/ui/data-table/data-table';
+export { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 export { DataTableFilter } from '@lambdacurry/forms/ui/data-table-filter/components/data-table-filter';
 export { createColumnConfigHelper } from '@lambdacurry/forms/ui/data-table-filter/core/filters';
 export { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hooks/use-data-table-filters';
-export { DataTable } from '@lambdacurry/forms/ui/data-table/data-table';
-export { DataTableColumnHeader } from '@lambdacurry/forms/ui/data-table/data-table-column-header';
 export type { FiltersState } from '@lambdacurry/forms/ui/utils/filters';
 export { filtersArraySchema } from '@lambdacurry/forms/ui/utils/filters';
 export { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
 export { CalendarIcon, CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
-export type { ColumnDef, PaginationState, SortingState, OnChangeFn } from '@tanstack/react-table';
+export type { ColumnDef, OnChangeFn, PaginationState, SortingState } from '@tanstack/react-table';
 export { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 export { useMemo } from 'react';
 export { type LoaderFunctionArgs, useLoaderData, useLocation, useNavigate, useSearchParams } from 'react-router';
