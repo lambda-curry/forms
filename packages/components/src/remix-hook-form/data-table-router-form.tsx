@@ -36,11 +36,11 @@ export interface DataTableRouterFormProps<TData, TValue> {
   pageCount?: number;
   defaultStateValues?: Partial<DataTableRouterState>;
   // New prop for Bazza UI filter configurations
-  // This should be typed according to bazza/ui's ColumnConfig type (e.g., from createColumnConfigHelper(...).build())
-  filterColumnConfigs: any[]; // Placeholder type for Bazza UI ColumnConfig[]
+  // Shape is intentionally loose to allow passing configs from various sources without tight coupling
+  filterColumnConfigs: unknown[];
   // Props for server-fetched options/faceted data for bazza/ui, if needed for server strategy
-  dtfOptions?: Record<string, any[]>;
-  dtfFacetedData?: Record<string, any>;
+  dtfOptions?: unknown;
+  dtfFacetedData?: unknown;
 }
 
 export function DataTableRouterForm<TData, TValue>({
@@ -69,9 +69,10 @@ export function DataTableRouterForm<TData, TValue>({
   } = useDataTableFilters({
     strategy: 'server',
     data: data,
-    columnsConfig: filterColumnConfigs,
-    options: dtfOptions,
-    faceted: dtfFacetedData,
+    // Cast to the exact parameter type to preserve strong typing without using `any`
+    columnsConfig: filterColumnConfigs as Parameters<typeof useDataTableFilters>[0]['columnsConfig'],
+    options: dtfOptions as Parameters<typeof useDataTableFilters>[0]['options'],
+    faceted: dtfFacetedData as Parameters<typeof useDataTableFilters>[0]['faceted'],
     filters: urlState.filters, // Use URL filters as the source of truth
     onFiltersChange: (newFilters) => {
       // Update URL state when filters change

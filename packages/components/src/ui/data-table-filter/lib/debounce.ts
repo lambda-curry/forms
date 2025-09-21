@@ -10,7 +10,7 @@ type DebounceOptions = {
   maxWait?: number;
 };
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number,
   options: DebounceOptions = {},

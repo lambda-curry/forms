@@ -87,7 +87,7 @@ export function Select({
     } else {
       setIsInitialized(false);
     }
-  }, [filtered, popoverState.isOpen]);
+  }, [popoverState.isOpen]);
 
   // Scroll active item into view when activeIndex changes
   React.useEffect(() => {
@@ -134,8 +134,6 @@ export function Select({
             'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
             className,
           )}
-          // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-          // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
           role="combobox"
           aria-haspopup="listbox"
           aria-expanded={popoverState.isOpen}
@@ -160,7 +158,6 @@ export function Select({
             'p-0 shadow-md border-0 min-w-[8rem]',
             contentClassName,
           )}
-          // biome-ignore lint/a11y/useSemanticElements: using <div> for PopoverContent to ensure keyboard accessibility and focus management
           role="listbox"
           id={listboxId}
           style={{ width: 'var(--radix-popover-trigger-width)' }}
@@ -226,8 +223,6 @@ export function Select({
                         isActive && !isSelected && 'bg-gray-50',
                         itemClassName,
                       )}
-                      // biome-ignore lint/a11y/useSemanticElements: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
-                      // biome-ignore lint/a11y/useAriaPropsForRole: using <button> for PopoverTrigger to ensure keyboard accessibility and focus management
                       role="option"
                       aria-selected={isSelected}
                       id={`${listboxId}-option-${index}`}

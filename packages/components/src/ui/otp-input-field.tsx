@@ -1,6 +1,5 @@
 import { OTPInputContext, type OTPInputProps } from 'input-otp';
 import { Dot } from 'lucide-react';
-// biome-ignore lint/style/noNamespaceImport: prevents React undefined errors when exporting as a component library
 import * as React from 'react';
 import type { Control, FieldValues } from 'react-hook-form';
 import {
@@ -48,9 +47,7 @@ export function OTPInputSlot({ index, className, ...props }: React.ComponentProp
 
 export function OTPInputSeparator({ ...props }: React.ComponentProps<'div'>) {
   return (
-    // biome-ignore lint/a11y/useFocusableInteractive: from ShadCN
-    // biome-ignore lint/a11y/useSemanticElements: from ShadCN
-    <div role="separator" data-slot="otp-input-separator" {...props}>
+    <div aria-hidden="true" data-slot="otp-input-separator" {...props}>
       <Dot />
     </div>
   );
@@ -79,7 +76,6 @@ export function OTPInputField({
   inputClassName,
   maxLength,
   components,
-  ...props
 }: OTPInputFieldProps) {
   const isEightSlots = maxLength === 8;
   const { formItemId } = React.useContext(FormItemContext);

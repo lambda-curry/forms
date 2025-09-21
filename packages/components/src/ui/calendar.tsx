@@ -72,9 +72,11 @@ function Calendar({
         ...classNames,
       }}
       components={{
+        // biome-ignore lint/correctness/noNestedComponentDefinitions: Inline override required by DayPicker components API
         Root: ({ className, rootRef, ...props }) => {
           return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
         },
+        // biome-ignore lint/correctness/noNestedComponentDefinitions: Inline override required by DayPicker components API
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === 'left') {
             return <ChevronLeftIcon className={cn('size-4', className)} {...props} />;
@@ -87,6 +89,7 @@ function Calendar({
           return <ChevronDownIcon className={cn('size-4', className)} {...props} />;
         },
         DayButton: CalendarDayButton,
+        // biome-ignore lint/correctness/noNestedComponentDefinitions: Inline override required by DayPicker components API
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>

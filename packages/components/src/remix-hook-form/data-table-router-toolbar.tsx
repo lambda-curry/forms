@@ -5,6 +5,7 @@ import { type ChangeEvent, useCallback } from 'react';
 import { Button } from '../ui/button';
 import { DataTableViewOptions } from '../ui/data-table/data-table-view-options';
 import { DataTableFilter } from '../ui/data-table-filter';
+import type { Column, DataTableFilterActions, FilterStrategy } from '../ui/data-table-filter/core/types';
 import type { BazzaFiltersState } from './data-table-router-parsers';
 import { TextField } from './text-field';
 
@@ -15,10 +16,10 @@ export interface DataTableRouterToolbarProps<TData> {
   onResetFiltersAndSearch: () => void;
   hasActiveFiltersOrSearch: boolean;
 
-  dtfColumns: any[];
+  dtfColumns: Column<TData>[];
   dtfFilters: BazzaFiltersState;
-  dtfActions: any;
-  dtfStrategy: 'client' | 'server';
+  dtfActions: DataTableFilterActions;
+  dtfStrategy: FilterStrategy;
 }
 
 export function DataTableRouterToolbar<TData>({

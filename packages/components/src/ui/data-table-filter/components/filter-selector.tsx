@@ -208,8 +208,8 @@ function __QuickSearchFilters<TData>({
   filters,
   columns,
   actions,
-  strategy,
-  locale = 'en',
+  strategy: _strategy,
+  locale: _locale = 'en',
 }: QuickSearchFiltersProps<TData>) {
   const cols = useMemo(
     () => columns.filter((c) => isAnyOf<ColumnDataType>(c.type, ['option', 'multiOption'])),

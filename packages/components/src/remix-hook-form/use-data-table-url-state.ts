@@ -25,7 +25,7 @@ export function useDataTableUrlState() {
   };
 
   // Function to update URL search parameters
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setSearchParams is stable; urlState is read at call time
   const setUrlState = useCallback(
     (newState: Partial<DataTableRouterState>) => {
       const updatedState = { ...urlState, ...newState };

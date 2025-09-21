@@ -23,7 +23,6 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
 
   return (
     <nav
-      role="navigation"
       aria-label="Data table pagination"
       className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2"
     >
@@ -34,7 +33,7 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => {
-              updateParams(page, Number.parseInt(value));
+              updateParams(page, Number.parseInt(value, 10));
             }}
             options={[
               { value: '10', label: '10' },

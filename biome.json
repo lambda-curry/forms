@@ -9,7 +9,7 @@
     "ignoreUnknown": false,
     "includes": ["**", "!**/.turbo", "!**/yarn.lock", "!**/dist", "!**/node_modules", "!**/storybook-static"]
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": { "actions": { "source": { "organizeImports": "off" } } },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -45,12 +45,15 @@
       },
       "suspicious": {
         "noConsole": "off",
-        "noReactSpecificProps": "off"
+        "noReactSpecificProps": "off",
+        "noUnknownAtRules": "off"
       },
       "correctness": {
         "noNodejsModules": "off",
         "noUndeclaredDependencies": "off",
-        "useImportExtensions": "off"
+        "useImportExtensions": "off",
+        "noUnusedVariables": "off",
+        "useUniqueElementIds": "off"
       }
     }
   }
