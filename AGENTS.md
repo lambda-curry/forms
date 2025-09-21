@@ -50,6 +50,9 @@
 - `.cursor/rules/monorepo-organization.mdc`: Imports/exports, package boundaries, Turbo/Vite/TS paths.
 - `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps (patch-first), CI publishes on merge.
 
+## AI Agent Workflows
+- `:researcher` - Investigate bugs/implementation questions and produce evidence-backed recommendations aligned with the constitution and tech stack.
+
 When to review before starting work
 - Building/refactoring UI components: react-typescript-patterns + ui-component-patterns.
 - Form-aware components or validation: form-component-patterns.
