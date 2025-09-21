@@ -87,8 +87,11 @@ export const Default: Story = {
       await userEvent.click(provinceSelect);
 
       // Ensure listbox is present and Saskatchewan option exists
-      const listbox = await within(document.body).findByRole('listbox');
-      await expect(within(listbox).findByRole('option', { name: /Saskatchewan/i })).resolves.toBeInTheDocument();
+      const listboxes = await within(document.body).findAllByRole('listbox');
+      const provinceListbox = listboxes[0]; // First listbox should be the province select
+      await expect(
+        within(provinceListbox).findByRole('option', { name: /Saskatchewan/i }),
+      ).resolves.toBeInTheDocument();
     });
 
     await step('Open command combobox', async () => {
@@ -96,8 +99,11 @@ export const Default: Story = {
       await userEvent.click(regionSelect);
 
       // Ensure listbox is present and British Columbia option exists
-      const listbox = await within(document.body).findByRole('listbox');
-      await expect(within(listbox).findByRole('option', { name: /British Columbia/i })).resolves.toBeInTheDocument();
+      const listboxes = await within(document.body).findAllByRole('listbox');
+      const commandListbox = listboxes[listboxes.length - 1]; // Last listbox should be the command select
+      await expect(
+        within(commandListbox).findByRole('option', { name: /British Columbia/i }),
+      ).resolves.toBeInTheDocument();
     });
   },
 };

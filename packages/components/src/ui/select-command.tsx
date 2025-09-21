@@ -6,13 +6,13 @@ import { PopoverTrigger } from './popover';
 import { cn } from './utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
 
-export interface SelectOption {
+export interface CommandSelectOption {
   label: string;
   value: string;
 }
 
 export interface CommandSelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
-  options: SelectOption[];
+  options: CommandSelectOption[];
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
@@ -39,22 +39,13 @@ export function CommandSelect({
   ...buttonProps
 }: CommandSelectProps) {
   const [open, setOpen] = React.useState(false);
-  const listRef = React.useRef<HTMLDivElement>(null); // CommandList renders a div
   const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const selectedItemRef = React.useRef<HTMLDivElement>(null); // CommandItem renders a div
   const listboxId = React.useId();
 
   const selectedOption = options.find((o) => o.value === value);
 
-  // When opening, ensure the selected item is scrolled into view
-  React.useEffect(() => {
-    if (!open) return;
-    // Wait for content mount and layout
-    const id = requestAnimationFrame(() => {
-      selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [open]);
+  // Note: scroll-into-view functionality removed due to ref limitations with Command components
+  // This could be re-implemented using a different approach if needed
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -99,8 +90,8 @@ export function CommandSelect({
           <Command className="bg-white rounded-md focus:outline-none sm:text-sm w-full">
             <CommandInput autoFocus placeholder="Search..." />
             <CommandEmpty>No results.</CommandEmpty>
-            {/* CommandList renders a div. Add role so tests continue to work. */}
-            <CommandList ref={listRef} className="max-h-[200px] overflow-y-auto rounded-md w-full" role="listbox">
+            {/* CommandList renders a div. */}
+            <CommandList className="max-h-[200px] overflow-y-auto rounded-md w-full">
               <CommandGroup>
                 {options.map((option) => {
                   const isSelected = option.value === value;
@@ -108,7 +99,6 @@ export function CommandSelect({
                     <CommandItem
                       key={option.value}
                       // Keep a ref on the selected item so we can scroll it into view on open
-                      ref={isSelected ? selectedItemRef : undefined}
                       value={`${option.label} ${option.value}`}
                       onSelect={() => {
                         onValueChange?.(option.value);
@@ -126,8 +116,6 @@ export function CommandSelect({
                       aria-selected={isSelected}
                       data-value={option.value}
                       data-testid={`select-option-${option.value}`}
-                      // @ts-expect-error allow passing through to support Form customization patterns
-                      selected={isSelected}
                     >
                       {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
                       <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
