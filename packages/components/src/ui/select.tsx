@@ -63,7 +63,7 @@ export function Select({
     if (popoverState.isOpen && selectedItemRef.current) {
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
-        selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
+        selectedItemRef.current?.scrollIntoView({ block: 'center' });
       }, 0);
     }
   }, [popoverState.isOpen]);
@@ -78,7 +78,8 @@ export function Select({
   // Reset activeIndex when filtered items change or dropdown opens
   React.useEffect(() => {
     if (popoverState.isOpen) {
-      setActiveIndex(0);
+      const selectedIndex = filtered.findIndex((o) => o.value === value);
+      setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
       // Add a small delay to ensure the component is fully initialized
       const timer = setTimeout(() => {
         setIsInitialized(true);
@@ -87,14 +88,14 @@ export function Select({
     } else {
       setIsInitialized(false);
     }
-  }, [filtered, popoverState.isOpen]);
+  }, [filtered, popoverState.isOpen, value]);
 
   // Scroll active item into view when activeIndex changes
   React.useEffect(() => {
     if (popoverState.isOpen && listContainerRef.current && filtered.length > 0) {
       const activeElement = listContainerRef.current.querySelector(`[data-index="${activeIndex}"]`) as HTMLElement;
       if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest' });
+        activeElement.scrollIntoView({ block: 'center' });
       }
     }
   }, [activeIndex, popoverState.isOpen, filtered.length]);
