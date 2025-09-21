@@ -24,6 +24,8 @@ export * from './radio-group';
 export * from './radio-group-field';
 export * from './select';
 export * from './separator';
+export * from './select-command';
+
 export * from './switch';
 export * from './switch-field';
 export * from './table';

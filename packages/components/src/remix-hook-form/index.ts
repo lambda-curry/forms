@@ -18,6 +18,8 @@ export * from './radio-group';
 export * from './radio-group-item';
 export * from './select';
 export * from './switch';
+export * from './select-command';
+
 export * from './text-field';
 export * from './textarea';
 export * from './us-state-select';
