@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
 import { PopoverTrigger } from './popover';
 import { cn } from './utils';
-
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
 export interface SelectOption {
   label: string;
   value: string;
@@ -49,55 +49,20 @@ export function Select({
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
   const listboxId = React.useId();
-  const [query, setQuery] = React.useState('');
-  const [activeIndex, setActiveIndex] = React.useState(0);
-  const [isInitialized, setIsInitialized] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
-  const selectedItemRef = React.useRef<HTMLButtonElement>(null);
-  const listContainerRef = React.useRef<HTMLUListElement>(null);
+  const selectedItemRef = React.useRef<HTMLElement>(null);
   // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
-  // Scroll to selected item when dropdown opens
+  // Scroll to selected item when dropdown opens (cmdk also helps with focus/scroll)
   React.useEffect(() => {
-    if (popoverState.isOpen && selectedItemRef.current) {
-      // Use setTimeout to ensure the DOM is fully rendered
-      setTimeout(() => {
-        selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    }
+    if (!popoverState.isOpen) return;
+    requestAnimationFrame(() => {
+      selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
+    });
   }, [popoverState.isOpen]);
 
   const selectedOption = options.find((o) => o.value === value);
-
-  const filtered = React.useMemo(
-    () => (query ? options.filter((o) => `${o.label}`.toLowerCase().includes(query.trim().toLowerCase())) : options),
-    [options, query],
-  );
-
-  // Reset activeIndex when filtered items change or dropdown opens
-  React.useEffect(() => {
-    if (popoverState.isOpen) {
-      setActiveIndex(0);
-      // Add a small delay to ensure the component is fully initialized
-      const timer = setTimeout(() => {
-        setIsInitialized(true);
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      setIsInitialized(false);
-    }
-  }, [popoverState.isOpen]);
-
-  // Scroll active item into view when activeIndex changes
-  React.useEffect(() => {
-    if (popoverState.isOpen && listContainerRef.current && filtered.length > 0) {
-      const activeElement = listContainerRef.current.querySelector(`[data-index="${activeIndex}"]`) as HTMLElement;
-      if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest' });
-      }
-    }
-  }, [activeIndex, popoverState.isOpen, filtered.length]);
 
   const Trigger =
     components?.Trigger ||
@@ -112,13 +77,6 @@ export function Select({
       (props, ref) => <button ref={ref} type="button" {...props} />,
     );
   Item.displayName = Item.displayName || 'SelectItem';
-
-  const SearchInput =
-    components?.SearchInput ||
-    React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => (
-      <input ref={ref} {...props} />
-    ));
-  SearchInput.displayName = SearchInput.displayName || 'SelectSearchInput';
 
   const CheckIcon = components?.CheckIcon || DefaultCheckIcon;
   const ChevronIcon = components?.ChevronIcon || DefaultChevronIcon;
@@ -158,91 +116,81 @@ export function Select({
             'p-0 shadow-md border-0 min-w-[8rem]',
             contentClassName,
           )}
-          role="listbox"
-          id={listboxId}
           style={{ width: 'var(--radix-popover-trigger-width)' }}
           data-slot="popover-content"
         >
-          <div className="bg-white p-1.5 rounded-md focus:outline-none sm:text-sm w-full">
-            <div className="px-1.5 pb-1.5">
-              <SearchInput
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                ref={(el) => {
-                  if (el) queueMicrotask(() => el.focus());
-                }}
-                aria-activedescendant={filtered.length > 0 ? `${listboxId}-option-${activeIndex}` : undefined}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const toSelect = filtered[activeIndex];
-                    if (toSelect) {
-                      onValueChange?.(toSelect.value);
-                      setQuery('');
-                      popoverState.close();
-                      triggerRef.current?.focus();
-                    }
-                  } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    setQuery('');
-                    popoverState.close();
-                    triggerRef.current?.focus();
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (filtered.length === 0) return;
-                    setActiveIndex((prev) => Math.min(prev + 1, filtered.length - 1));
-                  } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (filtered.length === 0) return;
-                    setActiveIndex((prev) => Math.max(prev - 1, 0));
-                  }
-                }}
-                className="w-full h-9 rounded-md bg-white px-2 text-sm leading-none focus:ring-0 focus:outline-none border-0"
-              />
+          <Command className="bg-white rounded-md focus:outline-none sm:text-sm w-full">
+            <div className="px-1.5 pb-1.5 pt-1.5">
+              <CommandInput placeholder="Search..." />
             </div>
-            <ul ref={listContainerRef} className="max-h-[200px] overflow-y-auto rounded-md w-full">
-              {filtered.length === 0 && <li className="px-3 py-2 text-sm text-gray-500">No results.</li>}
-              {filtered.map((option, index) => {
-                const isSelected = option.value === value;
-                const isActive = index === activeIndex;
-                return (
-                  <li key={option.value} className="list-none">
-                    <Item
-                      ref={isSelected ? selectedItemRef : undefined}
-                      onClick={() => {
+            <CommandList id={listboxId} className="max-h-[200px] rounded-md w-full">
+              <CommandEmpty className="px-3 py-2 text-sm text-gray-500">No results.</CommandEmpty>
+              <CommandGroup>
+                {options.map((option, index) => {
+                  const isSelected = option.value === value;
+                  const commonProps = {
+                    'data-selected': isSelected ? 'true' : 'false',
+                    'data-value': option.value,
+                    'data-testid': `select-option-${option.value}`,
+                  } as const;
+
+                  // When a custom Item is provided, use asChild to let it render as the actual item element
+                  if (components?.Item) {
+                    const CustomItem = Item;
+                    return (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => {
+                          onValueChange?.(option.value);
+                          popoverState.close();
+                        }}
+                        value={option.label}
+                        aria-selected={isSelected}
+                        id={`${listboxId}-option-${index}`}
+                        {...commonProps}
+                        className={cn(itemClassName)}
+                        ref={isSelected ? selectedItemRef : undefined}
+                        asChild
+                      >
+                        <CustomItem selected={isSelected}>
+                          {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
+                          <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
+                            {option.label}
+                          </span>
+                        </CustomItem>
+                      </CommandItem>
+                    );
+                  }
+
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => {
                         onValueChange?.(option.value);
-                        setQuery('');
                         popoverState.close();
                       }}
+                      value={option.label}
+                      aria-selected={isSelected}
+                      id={`${listboxId}-option-${index}`}
+                      {...commonProps}
                       className={cn(
                         'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
                         'text-gray-900',
                         isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
-                        isActive && !isSelected && 'bg-gray-50',
                         itemClassName,
                       )}
-                      role="option"
-                      aria-selected={isSelected}
-                      id={`${listboxId}-option-${index}`}
-                      data-selected={isSelected ? 'true' : 'false'}
-                      data-active={isActive ? 'true' : 'false'}
-                      data-index={index}
-                      data-value={option.value}
-                      data-testid={`select-option-${option.value}`}
-                      selected={isSelected}
+                      ref={isSelected ? selectedItemRef : undefined}
                     >
                       {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
                       <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>
                         {option.label}
                       </span>
-                    </Item>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </Popover>
