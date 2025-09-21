@@ -22,3 +22,4 @@ export * from './text-field';
 export * from './textarea';
 export * from './us-state-select';
 export * from './use-data-table-url-state';
+export * from './hidden-field';
