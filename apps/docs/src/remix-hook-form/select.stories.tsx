@@ -511,11 +511,12 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      // Add a small delay to ensure the dropdown has time to render
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      
+      // Wait for the dropdown to appear in the portal
       const listbox = await within(document.body).findByRole('listbox');
+      
       // The search input is outside the listbox container; query from the portal root
-      const input = within(document.body).getByPlaceholderText('Search...');
+      const input = await within(document.body).findByPlaceholderText('Search...');
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'Atlantis');
@@ -535,11 +536,12 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      // Add a small delay to ensure the dropdown has time to render
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      
+      // Wait for the dropdown to appear in the portal
       const listbox = await within(document.body).findByRole('listbox');
+      
       // The search input is outside the listbox container; query from the portal root
-      const input = within(document.body).getByPlaceholderText('Search...');
+      const input = await within(document.body).findByPlaceholderText('Search...');
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'California');
