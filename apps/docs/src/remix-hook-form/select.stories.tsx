@@ -298,21 +298,14 @@ export const USStateSelection: Story = {
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
 
-      try {
-        // Wait for the dropdown to open and find the listbox with timeout
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
 
-        // Find and click the California option
-        const californiaOption = within(listbox).getByRole('option', { name: 'California' });
-        expect(californiaOption).toBeInTheDocument();
-        await userEvent.click(californiaOption);
-      } catch (error) {
-        // Fallback: try clicking the option directly if listbox approach fails
-        console.warn('Listbox approach failed, trying direct option selection', error);
-        const californiaOption = canvas.getByRole('option', { name: 'California' });
-        await userEvent.click(californiaOption);
-      }
+      // Find and click the California option
+      const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+      expect(californiaOption).toBeInTheDocument();
+      await userEvent.click(californiaOption);
 
       // Wait for the trigger text to update after portal selection
       await expect(canvas.findByRole('combobox', { name: 'US State' })).resolves.toHaveTextContent('California');
@@ -340,21 +333,14 @@ export const CanadaProvinceSelection: Story = {
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
 
-      try {
-        // Wait for the dropdown to open and find the listbox with timeout
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
 
-        // Find and click the Ontario option
-        const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
-        expect(ontarioOption).toBeInTheDocument();
-        await userEvent.click(ontarioOption);
-      } catch (error) {
-        // Fallback: try clicking the option directly if listbox approach fails
-        console.warn('Listbox approach failed, trying direct option selection', error);
-        const ontarioOption = canvas.getByRole('option', { name: 'Ontario' });
-        await userEvent.click(ontarioOption);
-      }
+      // Find and click the Ontario option
+      const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+      expect(ontarioOption).toBeInTheDocument();
+      await userEvent.click(ontarioOption);
 
       // Wait for the trigger text to update after portal selection
       await expect(canvas.findByRole('combobox', { name: 'Canadian Province' })).resolves.toHaveTextContent('Ontario');
@@ -382,52 +368,31 @@ export const FormSubmission: Story = {
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
 
-      try {
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
-        const californiaOption = within(listbox).getByRole('option', { name: 'California' });
-        expect(californiaOption).toBeInTheDocument();
-        await userEvent.click(californiaOption);
-      } catch (error) {
-        // Fallback: try clicking the option directly if listbox approach fails
-        console.warn('Listbox approach failed, trying direct option selection', error);
-        const californiaOption = canvas.getByRole('option', { name: 'California' });
-        await userEvent.click(californiaOption);
-      }
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+      const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+      expect(californiaOption).toBeInTheDocument();
+      await userEvent.click(californiaOption);
 
       // Select a province
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
 
-      try {
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
-        const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
-        expect(ontarioOption).toBeInTheDocument();
-        await userEvent.click(ontarioOption);
-      } catch (error) {
-        // Fallback: try clicking the option directly if listbox approach fails
-        console.warn('Listbox approach failed, trying direct option selection', error);
-        const ontarioOption = canvas.getByRole('option', { name: 'Ontario' });
-        await userEvent.click(ontarioOption);
-      }
+      const provinceListbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(provinceListbox).toBeInTheDocument();
+      const ontarioOption = within(provinceListbox).getByRole('option', { name: 'Ontario' });
+      expect(ontarioOption).toBeInTheDocument();
+      await userEvent.click(ontarioOption);
 
       // Select a custom region
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      try {
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
-        const customOption = within(listbox).getByRole('option', { name: 'California' });
-        expect(customOption).toBeInTheDocument();
-        await userEvent.click(customOption);
-      } catch (error) {
-        // Fallback: try clicking the option directly if listbox approach fails
-        console.warn('Listbox approach failed, trying direct option selection', error);
-        const customOption = canvas.getByRole('option', { name: 'California' });
-        await userEvent.click(customOption);
-      }
+      const regionListbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(regionListbox).toBeInTheDocument();
+      const customOption = within(regionListbox).getByRole('option', { name: 'California' });
+      expect(customOption).toBeInTheDocument();
+      await userEvent.click(customOption);
     });
 
     await step('Submit the form', async () => {
@@ -488,18 +453,13 @@ export const SearchDisabled: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      try {
-        // Wait for the dropdown to open
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
+      // Wait for the dropdown to open
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
 
-        // Verify no search input is present when searchable is disabled
-        const searchInput = within(listbox).queryByPlaceholderText('Search...');
-        expect(searchInput).not.toBeInTheDocument();
-      } catch (error) {
-        // If listbox approach fails, that's okay - we're testing search disabled
-        console.warn('Listbox approach failed for search disabled test', error);
-      }
+      // Verify no search input is present when searchable is disabled
+      const searchInput = within(listbox).queryByPlaceholderText('Search...');
+      expect(searchInput).not.toBeInTheDocument();
     });
   },
 };
@@ -549,16 +509,9 @@ export const CustomSearchPlaceholder: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      try {
-        // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
-        const searchInput = await within(document.body).findByPlaceholderText('Type to filter…', {}, { timeout: 5000 });
-        expect(searchInput).toBeInTheDocument();
-      } catch (error) {
-        // Fallback: try to find the search input within the canvas
-        console.warn('Portal search input approach failed, trying canvas search', error);
-        const searchInput = canvas.getByPlaceholderText('Type to filter…');
-        expect(searchInput).toBeInTheDocument();
-      }
+      // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
+      const searchInput = await within(document.body).findByPlaceholderText('Type to filter…', {}, { timeout: 5000 });
+      expect(searchInput).toBeInTheDocument();
     });
   },
 };
@@ -611,6 +564,7 @@ export const CreatableOption: Story = {
 
     await step('Create new option when no exact match', async () => {
       // Wait for the component to fully load - check for loading screen absence
+      // This prevents the "sb-loader" (loading screen) from interfering with interactions
       await canvas.findByLabelText('Custom Region');
 
       // Additional wait to ensure the component is fully interactive
@@ -619,41 +573,23 @@ export const CreatableOption: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      try {
-        // Wait for the dropdown to open and find the listbox with more specific timeout and error handling
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
 
-        // Verify the listbox is properly rendered
-        expect(listbox).toBeInTheDocument();
-        expect(listbox).toHaveAttribute('role', 'listbox');
+      // The search input is outside the listbox container; query from the portal root
+      const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
 
-        // The search input is outside the listbox container; query from the portal root
-        const input = await within(document.body).findByPlaceholderText('Search...');
-        expect(input).toBeInTheDocument();
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Atlantis');
 
-        await userEvent.click(input);
-        await userEvent.clear(input);
-        await userEvent.type(input, 'Atlantis');
+      // Wait for the creatable option to appear
+      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' }, { timeout: 2000 });
+      expect(createItem).toBeInTheDocument();
 
-        // Wait for the creatable option to appear
-        const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' }, { timeout: 2000 });
-        expect(createItem).toBeInTheDocument();
-
-        await userEvent.click(createItem);
-      } catch (error) {
-        // Fallback: try to find and interact with elements within the canvas
-        console.warn('Portal approach failed, trying canvas-based interaction', error);
-
-        // Try to find and type in the search input within the canvas
-        const input = canvas.getByPlaceholderText('Search...');
-        await userEvent.click(input);
-        await userEvent.clear(input);
-        await userEvent.type(input, 'Atlantis');
-
-        // Try to find and click the create option
-        const createItem = canvas.getByRole('option', { name: 'Select "Atlantis"' });
-        await userEvent.click(createItem);
-      }
+      await userEvent.click(createItem);
 
       // Verify the selection was applied
       await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
@@ -674,36 +610,21 @@ export const CreatableOption: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      try {
-        // Wait for the dropdown to open and find the listbox
-        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
-        expect(listbox).toBeInTheDocument();
+      // Wait for the dropdown to open and find the listbox
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
 
-        // The search input is outside the listbox container; query from the portal root
-        const input = await within(document.body).findByPlaceholderText('Search...');
-        expect(input).toBeInTheDocument();
+      // The search input is outside the listbox container; query from the portal root
+      const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
 
-        await userEvent.click(input);
-        await userEvent.clear(input);
-        await userEvent.type(input, 'California');
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'California');
 
-        // Verify no creatable option appears when exact match exists
-        const createOption = within(listbox).queryByRole('option', { name: 'Select "California"' });
-        expect(createOption).not.toBeInTheDocument();
-      } catch (error) {
-        // Fallback: try canvas-based approach
-        console.warn('Portal approach failed for exact match test', error);
-
-        // Try to find and type in the search input within the canvas
-        const input = canvas.getByPlaceholderText('Search...');
-        await userEvent.click(input);
-        await userEvent.clear(input);
-        await userEvent.type(input, 'California');
-
-        // Verify no creatable option appears when exact match exists
-        const createOption = canvas.queryByRole('option', { name: 'Select "California"' });
-        expect(createOption).not.toBeInTheDocument();
-      }
+      // Verify no creatable option appears when exact match exists
+      const createOption = within(listbox).queryByRole('option', { name: 'Select "California"' });
+      expect(createOption).not.toBeInTheDocument();
 
       // Close the dropdown
       await userEvent.click(regionSelect);
