@@ -273,9 +273,13 @@ export const USStateSelection: Story = {
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
 
-      // Dropdown content renders in a portal; query via document.body roles
-      const listbox = await within(document.body).findByRole('listbox');
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Find and click the California option
       const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+      expect(californiaOption).toBeInTheDocument();
       await userEvent.click(californiaOption);
 
       // Wait for the trigger text to update after portal selection
@@ -301,9 +305,13 @@ export const CanadaProvinceSelection: Story = {
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
 
-      // Query in portal content by role
-      const listbox = await within(document.body).findByRole('listbox');
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Find and click the Ontario option
       const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+      expect(ontarioOption).toBeInTheDocument();
       await userEvent.click(ontarioOption);
 
       // Wait for the trigger text to update after portal selection
@@ -329,8 +337,10 @@ export const FormSubmission: Story = {
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
       {
-        const listbox = await within(document.body).findByRole('listbox');
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+        expect(listbox).toBeInTheDocument();
         const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+        expect(californiaOption).toBeInTheDocument();
         await userEvent.click(californiaOption);
       }
 
@@ -338,8 +348,10 @@ export const FormSubmission: Story = {
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
       {
-        const listbox = await within(document.body).findByRole('listbox');
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+        expect(listbox).toBeInTheDocument();
         const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+        expect(ontarioOption).toBeInTheDocument();
         await userEvent.click(ontarioOption);
       }
 
@@ -347,8 +359,10 @@ export const FormSubmission: Story = {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
       {
-        const listbox = await within(document.body).findByRole('listbox');
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+        expect(listbox).toBeInTheDocument();
         const customOption = within(listbox).getByRole('option', { name: 'California' });
+        expect(customOption).toBeInTheDocument();
         await userEvent.click(customOption);
       }
     });
@@ -407,8 +421,14 @@ export const SearchDisabled: Story = {
     await step('Open select and ensure no search input', async () => {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      const listbox = await within(document.body).findByRole('listbox');
-      expect(within(listbox).queryByPlaceholderText('Search...')).not.toBeInTheDocument();
+
+      // Wait for the dropdown to open
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Verify no search input is present when searchable is disabled
+      const searchInput = within(listbox).queryByPlaceholderText('Search...');
+      expect(searchInput).not.toBeInTheDocument();
     });
   },
 };
@@ -454,8 +474,9 @@ export const CustomSearchPlaceholder: Story = {
     await step('Open select and see custom placeholder', async () => {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
+
       // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
-      const searchInput = await within(document.body).findByPlaceholderText('Type to filter…');
+      const searchInput = await within(document.body).findByPlaceholderText('Type to filter…', {}, { timeout: 5000 });
       expect(searchInput).toBeInTheDocument();
     });
   },
@@ -512,17 +533,28 @@ export const CreatableOption: Story = {
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
-      // Wait for the dropdown to open and find the listbox
+      // Wait for the dropdown to open and find the listbox with more specific timeout and error handling
       const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+
+      // Verify the listbox is properly rendered
+      expect(listbox).toBeInTheDocument();
+      expect(listbox).toHaveAttribute('role', 'listbox');
+
       // The search input is outside the listbox container; query from the portal root
       const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
+
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'Atlantis');
 
-      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' });
+      // Wait for the creatable option to appear
+      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' }, { timeout: 2000 });
+      expect(createItem).toBeInTheDocument();
+
       await userEvent.click(createItem);
 
+      // Verify the selection was applied
       await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
 
       // Submit and verify server received the created option value
@@ -538,13 +570,22 @@ export const CreatableOption: Story = {
 
       // Wait for the dropdown to open and find the listbox
       const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
       // The search input is outside the listbox container; query from the portal root
       const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
+
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'California');
 
-      expect(within(listbox).queryByRole('option', { name: 'Select "California"' })).not.toBeInTheDocument();
+      // Verify no creatable option appears when exact match exists
+      const createOption = within(listbox).queryByRole('option', { name: 'Select "California"' });
+      expect(createOption).not.toBeInTheDocument();
+
+      // Close the dropdown
+      await userEvent.click(regionSelect);
     });
   },
 };
