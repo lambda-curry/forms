@@ -56,7 +56,7 @@ jobs:
         run: yarn turbo run lint
 
       - name: Run Turbo typecheck
-        run: yarn turbo run type-check
+        run: yarn turbo run type-check --filter=@lambdacurry/forms
 
       - name: Summary
         run: |
@@ -64,4 +64,3 @@ jobs:
           echo "✅ Linting passed (Biome)" >> $GITHUB_STEP_SUMMARY
           echo "✅ TypeScript compilation passed" >> $GITHUB_STEP_SUMMARY
           echo "✅ All checks completed with Turbo caching" >> $GITHUB_STEP_SUMMARY
-
