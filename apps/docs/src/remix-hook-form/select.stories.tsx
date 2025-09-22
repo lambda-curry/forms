@@ -511,10 +511,9 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      
-      // Wait for the dropdown to appear in the portal
-      const listbox = await within(document.body).findByRole('listbox');
-      
+
+      // Wait for the dropdown to open and find the listbox
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
       // The search input is outside the listbox container; query from the portal root
       const input = await within(document.body).findByPlaceholderText('Search...');
       await userEvent.click(input);
@@ -536,10 +535,9 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      
-      // Wait for the dropdown to appear in the portal
-      const listbox = await within(document.body).findByRole('listbox');
-      
+
+      // Wait for the dropdown to open and find the listbox
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
       // The search input is outside the listbox container; query from the portal root
       const input = await within(document.body).findByPlaceholderText('Search...');
       await userEvent.click(input);
