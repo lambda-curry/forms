@@ -24,11 +24,8 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "tailwindCSS.classAttributes": [
-    "class",
-    "className",
-    "ngClass",
-    "class:list",
-    "wrapperClassName"
-  ]
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", "wrapperClassName"],
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
 }

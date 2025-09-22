@@ -1,0 +1,66 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - '.github/workflows/**'
+      - '*.json'
+      - '*.js'
+      - '*.ts'
+      - '*.tsx'
+      - 'yarn.lock'
+      - 'turbo.json'
+      - 'biome.json'
+      - '!**/*.md'
+      - '!**/*.txt'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.9.0'
+
+      - name: Setup Yarn Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-
+            ${{ runner.os }}-turbo-${{ github.ref_name }}-
+            ${{ runner.os }}-turbo-
+
+      - name: Run Turbo lint
+        run: yarn turbo run lint
+
+      - name: Run Turbo typecheck
+        run: yarn turbo run type-check --filter=@lambdacurry/forms
+
+      - name: Summary
+        run: |
+          echo "## PR Quality Checks Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Linting passed (Biome)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ TypeScript compilation passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All checks completed with Turbo caching" >> $GITHUB_STEP_SUMMARY

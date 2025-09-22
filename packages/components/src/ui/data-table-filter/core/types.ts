@@ -1,5 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ElementType as ReactElementType } from 'react';
 
 /*
  * # GENERAL NOTES:
@@ -96,7 +95,7 @@ export type ColumnConfig<TData, TType extends ColumnDataType = any, TVal = unkno
   id: TId;
   accessor: TAccessorFn<TData, TVal>;
   displayName: string;
-  icon: LucideIcon;
+  icon: ReactElementType;
   type: TType;
   options?: TType extends OptionBasedColumnDataType ? ColumnOption[] : never;
   facetedOptions?: TType extends OptionBasedColumnDataType ? Map<string, number> : never;
