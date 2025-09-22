@@ -1,24 +1,32 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Popover } from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
-import * as React from 'react';
 import { useOverlayTriggerState } from 'react-stately';
 import { PopoverTrigger } from './popover';
 import { cn } from './utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
+import {
+  forwardRef,
+  type Ref,
+  useEffect,
+  type ButtonHTMLAttributes,
+  type ComponentType,
+  type InputHTMLAttributes,
+  type RefAttributes,
+  useId,
+  useRef,
+} from 'react';
 export interface SelectOption {
   label: string;
   value: string;
 }
 
 export interface SelectUIComponents {
-  Trigger?: React.ComponentType<React.ButtonHTMLAttributes<HTMLButtonElement> & React.RefAttributes<HTMLButtonElement>>;
-  Item?: React.ComponentType<
-    React.ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean } & React.RefAttributes<HTMLButtonElement>
+  Trigger?: ComponentType<ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>>;
+  Item?: ComponentType<
+    ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean } & RefAttributes<HTMLButtonElement>
   >;
-  SearchInput?: React.ComponentType<
-    React.InputHTMLAttributes<HTMLInputElement> & React.RefAttributes<HTMLInputElement>
-  >;
+  SearchInput?: ComponentType<InputHTMLAttributes<HTMLInputElement> & React.RefAttributes<HTMLInputElement>>;
   CheckIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
@@ -48,17 +56,18 @@ export function Select({
   ...buttonProps
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
-  const listboxId = React.useId();
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const popoverRef = React.useRef<HTMLDivElement>(null);
-  const selectedItemRef = React.useRef<HTMLElement>(null);
+  const listboxId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const selectedItemRef = useRef<HTMLElement>(null);
   // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
-  // Scroll to selected item when dropdown opens (cmdk also helps with focus/scroll)
-  React.useEffect(() => {
+  // When opening, ensure the currently selected option is the active item for keyboard nav
+  useEffect(() => {
     if (!popoverState.isOpen) return;
     requestAnimationFrame(() => {
-      selectedItemRef.current?.scrollIntoView({ block: 'nearest' });
+      const selectedEl = selectedItemRef.current as HTMLElement | null;
+      if (selectedEl) selectedEl.scrollIntoView({ block: 'center' });
     });
   }, [popoverState.isOpen]);
 
@@ -66,16 +75,16 @@ export function Select({
 
   const Trigger =
     components?.Trigger ||
-    React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
+    forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
       <button ref={ref} type="button" {...props} />
     ));
   Trigger.displayName = Trigger.displayName || 'SelectTrigger';
 
   const Item =
     components?.Item ||
-    React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean }>(
-      (props, ref) => <button ref={ref} type="button" {...props} />,
-    );
+    forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean }>((props, ref) => (
+      <button ref={ref} type="button" {...props} />
+    ));
   Item.displayName = Item.displayName || 'SelectItem';
 
   const CheckIcon = components?.CheckIcon || DefaultCheckIcon;
@@ -113,7 +122,7 @@ export function Select({
             'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
             'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
             'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-            'p-0 shadow-md border-0 min-w-[8rem]',
+            'p-0 shadow-md border-0 min-w-2xs',
             contentClassName,
           )}
           style={{ width: 'var(--radix-popover-trigger-width)' }}
@@ -145,11 +154,11 @@ export function Select({
                           popoverState.close();
                         }}
                         value={option.label}
-                        aria-selected={isSelected}
                         id={`${listboxId}-option-${index}`}
                         {...commonProps}
                         className={cn(itemClassName)}
-                        ref={isSelected ? selectedItemRef : undefined}
+                        // Attach ref to CommandItem (even with asChild) so we can focus the selected item on open
+                        ref={isSelected ? (selectedItemRef as unknown as Ref<HTMLDivElement>) : undefined}
                         asChild
                       >
                         <CustomItem selected={isSelected}>
@@ -170,7 +179,6 @@ export function Select({
                         popoverState.close();
                       }}
                       value={option.label}
-                      aria-selected={isSelected}
                       id={`${listboxId}-option-${index}`}
                       {...commonProps}
                       className={cn(
@@ -179,7 +187,8 @@ export function Select({
                         isSelected ? 'bg-gray-100' : 'hover:bg-gray-100',
                         itemClassName,
                       )}
-                      ref={isSelected ? selectedItemRef : undefined}
+                      // Ensure we can programmatically focus the selected item when opening
+                      ref={isSelected ? (selectedItemRef as unknown as Ref<HTMLDivElement>) : undefined}
                     >
                       {isSelected && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
                       <span className={cn('block truncate', !isSelected && 'ml-6', isSelected && 'font-semibold')}>

@@ -4,6 +4,7 @@
     "Bazza",
     "biomejs",
     "cleanbuild",
+    "cmdk",
     "Filenaming",
     "hookform",
     "isbot",
@@ -23,5 +24,11 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", "wrapperClassName"]
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass",
+    "class:list",
+    "wrapperClassName"
+  ]
 }
