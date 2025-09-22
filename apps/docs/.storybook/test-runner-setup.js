@@ -1,5 +1,5 @@
 // Configure testing-library for CI environments
-import { configure } from '@testing-library/react';
+const { configure } = require('@testing-library/react');
 
 // Increase timeout for element queries in CI environments
 configure({

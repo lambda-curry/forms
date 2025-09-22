@@ -528,16 +528,47 @@ export const CreatableOption: Story = {
     await step('Create new option when no exact match', async () => {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
+
+      // Verify the select is initially closed
+      expect(regionSelect).toHaveAttribute('aria-expanded', 'false');
+
       await userEvent.click(regionSelect);
 
-      // Wait for the dropdown to appear in the portal and ensure it's stable
-      const listbox = await within(document.body).findByRole('listbox');
+      // Verify the select opened
+      await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
 
-      // Additional wait to ensure portal content is fully rendered
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // Wait for the dropdown to appear in the portal and ensure it's stable
+      let listbox: HTMLElement;
+      try {
+        // Try different strategies to find the listbox
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Give more time for portal to render
+
+        // First try to find by role
+        listbox = await within(document.body).findByRole('listbox', {}, { timeout: 10000 });
+      } catch (error) {
+        // If that fails, try to find by id or data attributes as fallback
+        try {
+          listbox = document.body.querySelector('[role="listbox"]');
+          if (!listbox) {
+            // Log more detailed DOM state for debugging
+            console.log(
+              'Failed to find listbox by role. Popover content:',
+              document.body.querySelector('[data-state="open"]')?.innerHTML || 'No open popover found',
+            );
+            console.log('Full body content:', document.body.innerHTML);
+            throw new Error('Listbox not found by role or selector');
+          }
+        } catch (selectorError) {
+          console.log('Failed to find listbox. Current document.body content:', document.body.innerHTML);
+          throw error;
+        }
+      }
 
       // Wait for the search input to be available in the portal
-      const input = await within(document.body).findByPlaceholderText('Search...');
+      const input = await within(document.body).findByPlaceholderText('Search...', {}, { timeout: 10000 });
 
       // Ensure the input is ready for interaction with explicit focus
       await userEvent.click(input);
@@ -545,7 +576,7 @@ export const CreatableOption: Story = {
       await userEvent.type(input, 'Atlantis');
 
       // Wait for the create option to appear after typing
-      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' });
+      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' }, { timeout: 10000 });
       await userEvent.click(createItem);
 
       // Verify the selection updated
@@ -563,13 +594,22 @@ export const CreatableOption: Story = {
       await userEvent.click(regionSelect);
 
       // Wait for the dropdown to appear in the portal and ensure it's stable
-      const listbox = await within(document.body).findByRole('listbox');
-
-      // Additional wait to ensure portal content is fully rendered
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      let listbox: HTMLElement;
+      try {
+        // Give more time for portal to render
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        listbox = await within(document.body).findByRole('listbox', {}, { timeout: 10000 });
+      } catch (error) {
+        // Fallback strategy
+        listbox = document.body.querySelector('[role="listbox"]');
+        if (!listbox) {
+          console.log('Failed to find listbox. Current document.body content:', document.body.innerHTML);
+          throw error;
+        }
+      }
 
       // Wait for the search input to be available in the portal
-      const input = await within(document.body).findByPlaceholderText('Search...');
+      const input = await within(document.body).findByPlaceholderText('Search...', {}, { timeout: 10000 });
 
       // Ensure the input is ready for interaction with explicit focus
       await userEvent.click(input);
