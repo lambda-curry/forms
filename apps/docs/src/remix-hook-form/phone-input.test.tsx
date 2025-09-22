@@ -6,7 +6,9 @@ import userEvent from '@testing-library/user-event';
 import { useFetcher } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import type { ElementType, PropsWithChildren } from 'react';
+import type { ElementType } from 'react';
+import type { FetcherWithComponents } from 'react-router';
+import type { FormMessageProps } from '@lambdacurry/forms/ui/form';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -29,14 +31,14 @@ const TestPhoneInputForm = ({
   customComponents = {},
 }: {
   initialErrors?: Record<string, { message: string }>;
-  customComponents?: { FormMessage?: React.ComponentType<PropsWithChildren<Record<string, unknown>>> };
+  customComponents?: { FormMessage?: React.ComponentType<FormMessageProps> };
 }) => {
   const mockFetcher = {
     data: { errors: initialErrors },
     state: 'idle' as const,
     submit: jest.fn(),
     Form: 'form' as ElementType,
-  };
+  } as unknown as FetcherWithComponents<unknown>;
 
   mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -152,9 +154,9 @@ describe('PhoneInput Component', () => {
 
   describe('Component Customization', () => {
     it('uses custom FormMessage component when provided', () => {
-      const CustomFormMessage = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => (
+      const CustomFormMessage = (props: FormMessageProps) => (
         <div data-testid="custom-form-message" className="custom-message" {...props}>
-          Custom: {children}
+          Custom: {props.children}
         </div>
       );
 

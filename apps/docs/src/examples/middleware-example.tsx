@@ -33,11 +33,7 @@ export const action = async ({ context }: ActionFunctionArgs) => {
 
 // Component
 export default function MiddlewareExample() {
-  const {
-    handleSubmit,
-    formState: { errors },
-    register,
-  } = useRemixForm<FormData>({
+  const methods = useRemixForm<FormData>({
     mode: 'onSubmit',
     resolver,
   });
@@ -46,12 +42,12 @@ export default function MiddlewareExample() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Remix Hook Form v7 Middleware Example</h1>
 
-      <RemixFormProvider>
-        <Form method="POST" onSubmit={handleSubmit}>
+      <RemixFormProvider {...methods}>
+        <Form method="POST" onSubmit={methods.handleSubmit}>
           <div className="space-y-4">
-            <TextField label="Name" {...register('name')} error={errors.name?.message} />
+            <TextField name="name" label="Name" />
 
-            <TextField label="Email" type="email" {...register('email')} error={errors.email?.message} />
+            <TextField name="email" type="email" label="Email" />
 
             <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
               Submit

@@ -12,7 +12,9 @@
       "cache": false
     },
     "type-check": {
-      "outputs": ["**/*.ts", "**/*.tsx"]
+      "dependsOn": ["^type-check"],
+      "inputs": ["**/*.ts", "**/*.tsx", "tsconfig.json", "tsconfig.*.json"],
+      "outputs": []
     },
     "dev": {
       "cache": false,

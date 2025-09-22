@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { useRef } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
@@ -109,12 +109,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-const testDefaultValues = ({ canvas }: StoryContext) => {
+const testDefaultValues = ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const input = canvas.getByLabelText('Username');
   expect(input).toHaveValue(INITIAL_USERNAME);
 };
 
-const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+const testInvalidSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -127,7 +129,8 @@ const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText('Username must be at least 3 characters')).toBeInTheDocument();
 };
 
-const testUsernameTaken = async ({ canvas }: StoryContext) => {
+const testUsernameTaken = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -143,7 +146,8 @@ const testUsernameTaken = async ({ canvas }: StoryContext) => {
   await expect(canvas.getByText(USERNAME_TAKEN_ERROR)).toBeInTheDocument();
 };
 
-const testValidSubmission = async ({ canvas }: StoryContext) => {
+const testValidSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const input = canvas.getByLabelText('Username');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 

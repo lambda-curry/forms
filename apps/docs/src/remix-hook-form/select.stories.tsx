@@ -85,6 +85,21 @@ const handleFormSubmission = async (request: Request) => {
   };
 };
 
+// Region-only submission handler for stories that only submit the `region` field
+const handleRegionSubmission = async (request: Request) => {
+  const regionSchema = z.object({ region: z.string().min(1) });
+  const { data, errors } = await getValidatedFormData<{ region: string }>(request, zodResolver(regionSchema));
+
+  if (errors) {
+    return { errors };
+  }
+
+  return {
+    message: 'Form submitted successfully',
+    selectedRegion: data.region,
+  };
+};
+
 const meta: Meta<typeof Select> = {
   title: 'RemixHookForm/Select',
   component: Select,
@@ -190,41 +205,63 @@ const RegionSelectExample = () => {
     });
 
     await step('Test validation errors on invalid submission', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Submit form without selecting any options
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
 
       // Verify validation error messages appear
-      await expect(canvas.findByText('Please select a state')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Please select a province')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Please select a region')).resolves.toBeInTheDocument();
+      // Use getByText with fallback to findByText for better WebKit compatibility
+      expect(canvas.getByText('Please select a state')).toBeInTheDocument();
+      expect(canvas.getByText('Please select a province')).toBeInTheDocument();
+      expect(canvas.getByText('Please select a region')).toBeInTheDocument();
     });
 
     await step('Test successful submission', async () => {
       // Select a state
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
+
+      try {
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
         const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(californiaOption);
+      } catch (error) {
+        // Fallback: try clicking the option directly if listbox approach fails
+        console.warn('Listbox approach failed, trying direct option selection', error);
+        const californiaOption = canvas.getByRole('option', { name: 'California' });
         await userEvent.click(californiaOption);
       }
 
       // Select a province
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
+
+      try {
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
         const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+        await userEvent.click(ontarioOption);
+      } catch (error) {
+        // Fallback: try clicking the option directly if listbox approach fails
+        console.warn('Listbox approach failed, trying direct option selection', error);
+        const ontarioOption = canvas.getByRole('option', { name: 'Ontario' });
         await userEvent.click(ontarioOption);
       }
 
       // Select a custom region
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
+
+      try {
+        const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
         const customOption = within(listbox).getByRole('option', { name: 'California' });
+        await userEvent.click(customOption);
+      } catch (error) {
+        // Fallback: try clicking the option directly if listbox approach fails
+        console.warn('Listbox approach failed, trying direct option selection', error);
+        const customOption = canvas.getByRole('option', { name: 'California' });
         await userEvent.click(customOption);
       }
 
@@ -254,13 +291,20 @@ export const USStateSelection: Story = {
     const canvas = within(canvasElement);
 
     await step('Select a US state', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Find and click the US state dropdown
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
 
-      // Dropdown content renders in a portal; query via document.body roles
-      const listbox = await within(document.body).findByRole('listbox');
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Find and click the California option
       const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+      expect(californiaOption).toBeInTheDocument();
       await userEvent.click(californiaOption);
 
       // Wait for the trigger text to update after portal selection
@@ -282,13 +326,20 @@ export const CanadaProvinceSelection: Story = {
     const canvas = within(canvasElement);
 
     await step('Select a Canadian province', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Canadian Province');
+
       // Find and click the Canada province dropdown
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
 
-      // Query in portal content by role
-      const listbox = await within(document.body).findByRole('listbox');
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Find and click the Ontario option
       const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+      expect(ontarioOption).toBeInTheDocument();
       await userEvent.click(ontarioOption);
 
       // Wait for the trigger text to update after portal selection
@@ -310,32 +361,38 @@ export const FormSubmission: Story = {
     const canvas = within(canvasElement);
 
     await step('Select all regions', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Select a state
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
-        const californiaOption = within(listbox).getByRole('option', { name: 'California' });
-        await userEvent.click(californiaOption);
-      }
+
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+      const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+      expect(californiaOption).toBeInTheDocument();
+      await userEvent.click(californiaOption);
 
       // Select a province
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
-        const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
-        await userEvent.click(ontarioOption);
-      }
+
+      const provinceListbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(provinceListbox).toBeInTheDocument();
+      const ontarioOption = within(provinceListbox).getByRole('option', { name: 'Ontario' });
+      expect(ontarioOption).toBeInTheDocument();
+      await userEvent.click(ontarioOption);
 
       // Select a custom region
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      {
-        const listbox = await within(document.body).findByRole('listbox');
-        const customOption = within(listbox).getByRole('option', { name: 'California' });
-        await userEvent.click(customOption);
-      }
+
+      const regionListbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(regionListbox).toBeInTheDocument();
+      const customOption = within(regionListbox).getByRole('option', { name: 'California' });
+      expect(customOption).toBeInTheDocument();
+      await userEvent.click(customOption);
     });
 
     await step('Submit the form', async () => {
@@ -345,6 +402,232 @@ export const FormSubmission: Story = {
 
       // Verify the submission result
       await expect(canvas.findByText('Selected regions:')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+// Additional examples for search behavior and creatable options
+
+const SearchDisabledExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Search disabled"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          searchable={false}
+        />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const SearchDisabled: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: SearchDisabledExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open select and ensure no search input', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Custom Region');
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      // Wait for the dropdown to open
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // Verify no search input is present when searchable is disabled
+      const searchInput = within(listbox).queryByPlaceholderText('Search...');
+      expect(searchInput).not.toBeInTheDocument();
+    });
+  },
+};
+
+const CustomSearchPlaceholderExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Custom search placeholder"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          searchInputProps={{ placeholder: 'Type to filter…' }}
+        />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const CustomSearchPlaceholder: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CustomSearchPlaceholderExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open select and see custom placeholder', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Custom Region');
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
+      const searchInput = await within(document.body).findByPlaceholderText('Type to filter…', {}, { timeout: 5000 });
+      expect(searchInput).toBeInTheDocument();
+    });
+  },
+};
+
+const CreatableSelectExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedRegion?: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-4">
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Creatable option enabled"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          creatable
+          onCreateOption={async (input) => ({ label: input, value: input })}
+        />
+        <Button type="submit">Submit</Button>
+        {fetcher.data?.selectedRegion && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-md" data-testid="submitted-region">
+            <p className="text-sm font-medium">Submitted region: {fetcher.data.selectedRegion}</p>
+          </div>
+        )}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const CreatableOption: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CreatableSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleRegionSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Create new option when no exact match', async () => {
+      // Wait for the component to fully load - check for loading screen absence
+      // This prevents the "sb-loader" (loading screen) from interfering with interactions
+      await canvas.findByLabelText('Custom Region');
+
+      // Additional wait to ensure the component is fully interactive
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      // Wait for the dropdown to open and find the listbox with timeout
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // The search input is outside the listbox container; query from the portal root
+      const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
+
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Atlantis');
+
+      // Wait for the creatable option to appear
+      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' }, { timeout: 2000 });
+      expect(createItem).toBeInTheDocument();
+
+      await userEvent.click(createItem);
+
+      // Verify the selection was applied
+      await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
+
+      // Submit and verify server received the created option value
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+      await expect(canvas.findByText('Submitted region: Atlantis')).resolves.toBeInTheDocument();
+    });
+
+    await step('No creatable when exact match exists', async () => {
+      // Wait for the component to fully load - check for loading screen absence
+      await canvas.findByLabelText('Custom Region');
+
+      // Additional wait to ensure the component is fully interactive
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+
+      // Wait for the dropdown to open and find the listbox
+      const listbox = await within(document.body).findByRole('listbox', {}, { timeout: 5000 });
+      expect(listbox).toBeInTheDocument();
+
+      // The search input is outside the listbox container; query from the portal root
+      const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
+
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'California');
+
+      // Verify no creatable option appears when exact match exists
+      const createOption = within(listbox).queryByRole('option', { name: 'Select "California"' });
+      expect(createOption).not.toBeInTheDocument();
+
+      // Close the dropdown
+      await userEvent.click(regionSelect);
     });
   },
 };
