@@ -1,11 +1,10 @@
 import type * as React from 'react';
+import { useRemixFormContext } from 'remix-hook-form';
 import {
   PasswordField as BasePasswordField,
   type PasswordInputProps as BasePasswordFieldProps,
 } from '../ui/password-field';
 import { FormControl, FormDescription, FormLabel, FormMessage } from './form';
-
-import { useRemixFormContext } from 'remix-hook-form';
 
 export type PasswordFieldProps = Omit<BasePasswordFieldProps, 'control'>;
 

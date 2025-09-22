@@ -12,7 +12,7 @@
 - `yarn build`: Build all packages/apps.
 - `yarn serve`: Serve built Storybook (`apps/docs`).
 - `yarn test`: Run workspace tests (Storybook test-runner in `apps/docs`).
-- `yarn format-and-lint` | `:fix`: Check/auto-fix with Biome.
+- `yarn lint` | `:fix`: Check/auto-fix with Biome.
 - Per workspace (examples):
   - `yarn workspace @lambdacurry/forms build`
   - `yarn workspace @lambdacurry/forms-docs dev`
@@ -34,7 +34,7 @@
 - Commits: short imperative subject, optional scope, concise body explaining rationale.
   - Example: `Fix: remove deprecated dropdown select`.
 - PRs: clear description, linked issues, screenshots or Storybook links, notes on testing.
-- Required checks: `yarn format-and-lint` passes; build succeeds; tests updated/added.
+- Required checks: `yarn lint` passes; build succeeds; tests updated/added.
 - Versioning: when changing published package(s), add a Changeset (`yarn changeset`) before merge.
 
 ## Security & Configuration
@@ -49,6 +49,9 @@
 - `.cursor/rules/storybook-testing.mdc`: Storybook play tests, router stub decorator, local/CI flows.
 - `.cursor/rules/monorepo-organization.mdc`: Imports/exports, package boundaries, Turbo/Vite/TS paths.
 - `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps (patch-first), CI publishes on merge.
+
+## AI Agent Workflows
+- `:researcher` - Investigate bugs/implementation questions and produce evidence-backed recommendations aligned with the constitution and tech stack.
 
 When to review before starting work
 - Building/refactoring UI components: react-typescript-patterns + ui-component-patterns.

@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { useFetcher } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
+import type { ElementType, PropsWithChildren } from 'react';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -30,14 +31,14 @@ const TestFormWithError = ({
 }: {
   initialErrors?: Record<string, { message: string }>;
   formErrorName?: string;
-  customComponents?: any;
+  customComponents?: { FormMessage?: React.ComponentType<PropsWithChildren<Record<string, unknown>>> };
   className?: string;
 }) => {
   const mockFetcher = {
     data: { errors: initialErrors },
     state: 'idle' as const,
     submit: jest.fn(),
-    Form: 'form' as any,
+    Form: 'form' as ElementType,
   };
 
   mockUseFetcher.mockReturnValue(mockFetcher);
@@ -142,7 +143,7 @@ describe('FormError Component', () => {
 
   describe('Component Customization', () => {
     it('uses custom FormMessage component when provided', () => {
-      const CustomFormMessage = ({ children, ...props }: any) => (
+      const CustomFormMessage = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => (
         <div data-testid="custom-form-message" className="custom-message" {...props}>
           Custom: {children}
         </div>
@@ -216,7 +217,7 @@ describe('FormError Component', () => {
         },
         state: 'idle' as const,
         submit: jest.fn(),
-        Form: 'form' as any,
+        Form: 'form' as ElementType,
       };
 
       mockUseFetcher.mockReturnValue(mockFetcher);
@@ -314,7 +315,7 @@ describe('FormError Component', () => {
     it('does not re-render unnecessarily when unrelated form state changes', () => {
       const renderSpy = jest.fn();
 
-      const CustomFormMessage = ({ children, ...props }: any) => {
+      const CustomFormMessage = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => {
         renderSpy();
         return <div {...props}>{children}</div>;
       };
@@ -344,7 +345,7 @@ describe('FormError Integration Tests', () => {
         data: null,
         state: 'idle' as const,
         submit: jest.fn(),
-        Form: 'form' as any,
+        Form: 'form' as ElementType,
       };
 
       mockUseFetcher.mockReturnValue(mockFetcher);

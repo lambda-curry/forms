@@ -1,6 +1,5 @@
 import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from 'lucide-react';
-import { isValidElement, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React from 'react';
+import React, { isValidElement, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../button';
 import { Checkbox } from '../../checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../command';
@@ -209,8 +208,8 @@ function __QuickSearchFilters<TData>({
   filters,
   columns,
   actions,
-  strategy,
-  locale = 'en',
+  strategy: _strategy,
+  locale: _locale = 'en',
 }: QuickSearchFiltersProps<TData>) {
   const cols = useMemo(
     () => columns.filter((c) => isAnyOf<ColumnDataType>(c.type, ['option', 'multiOption'])),

@@ -1,7 +1,6 @@
-import { isEqual } from 'date-fns';
-import { format } from 'date-fns';
+import { format, isEqual } from 'date-fns';
 import { Ellipsis } from 'lucide-react';
-import { type ElementType, cloneElement, isValidElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { cloneElement, type ElementType, isValidElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { Button } from '../../button';
 import { Calendar } from '../../calendar';
@@ -137,8 +136,8 @@ export function FilterValueDisplay<TData, TType extends ColumnDataType>({
 export function FilterValueOptionDisplay<TData>({
   filter,
   column,
-  actions,
-  locale = 'en',
+  actions: _actions,
+  locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'option'>) {
   const options = useMemo(() => column.getOptions(), [column]);
   const selected = options.filter((o) => filter?.values.includes(o.value));
@@ -183,8 +182,8 @@ export function FilterValueOptionDisplay<TData>({
 export function FilterValueMultiOptionDisplay<TData>({
   filter,
   column,
-  actions,
-  locale = 'en',
+  actions: _actions,
+  locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'multiOption'>) {
   const options = useMemo(() => column.getOptions(), [column]);
   const selected = options.filter((o) => filter.values.includes(o.value));
@@ -247,9 +246,9 @@ function formatDateRange(start: Date | string | number, end: Date | string | num
 
 export function FilterValueDateDisplay<TData>({
   filter,
-  column,
-  actions,
-  locale = 'en',
+  column: _column,
+  actions: _actions,
+  locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null;
   if (filter.values.length === 0) return <Ellipsis className="size-4" />;
@@ -274,9 +273,9 @@ export function FilterValueDateDisplay<TData>({
 
 export function FilterValueTextDisplay<TData>({
   filter,
-  column,
-  actions,
-  locale = 'en',
+  column: _column,
+  actions: _actions,
+  locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null;
   if (filter.values.length === 0 || filter.values[0].trim() === '') return <Ellipsis className="size-4" />;
@@ -288,9 +287,9 @@ export function FilterValueTextDisplay<TData>({
 
 export function FilterValueNumberDisplay<TData>({
   filter,
-  column,
-  actions,
-  locale = 'en',
+  column: _column,
+  actions: _actions,
+  locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'number'>) {
   if (!filter || !filter.values || filter.values.length === 0) return null;
 

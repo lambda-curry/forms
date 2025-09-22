@@ -302,8 +302,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  args: {} as any, // Args for DataTableRouterForm if needed, handled by Example component
+  args: {} satisfies Record<string, unknown>, // Args for DataTableRouterForm if needed, handled by Example component
   render: () => <DataTableRouterFormExample />,
   parameters: {
     docs: {

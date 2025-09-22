@@ -26,12 +26,14 @@
       "import": "./dist/ui/*.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepublishOnly": "yarn run build",
     "build": "vite build",
     "lint": "biome check .",
-    "lint:fix": "biome check --apply .",
+    "lint:fix": "biome check . --write",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {

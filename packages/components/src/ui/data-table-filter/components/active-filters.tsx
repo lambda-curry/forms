@@ -111,7 +111,7 @@ export function ActiveFiltersMobileContainer({ children }: { children: React.Rea
   };
 
   // Set up ResizeObserver to monitor container size
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: set once on mount; ref element is stable
   useEffect(() => {
     if (scrollContainerRef.current) {
       const resizeObserver = new ResizeObserver(() => {
@@ -125,7 +125,7 @@ export function ActiveFiltersMobileContainer({ children }: { children: React.Rea
   }, []);
 
   // Update blur states when children change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally depends on children only to recompute blur
   useEffect(() => {
     checkScroll();
   }, [children]);

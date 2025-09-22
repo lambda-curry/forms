@@ -1,7 +1,5 @@
 import {
   type ColumnDef,
-  // type ColumnFilter, // No longer directly used for state.columnFilters
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -10,6 +8,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  // type ColumnFilter, // No longer directly used for state.columnFilters
+  type VisibilityState,
 } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from 'react-router';
@@ -17,17 +17,15 @@ import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 // import { z } from 'zod'; // Schema is now more for URL state structure
 
 import { DataTablePagination } from '../ui/data-table/data-table-pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { DataTableRouterToolbar } from './data-table-router-toolbar';
-
 // Bazza UI imports - assuming types for ColumnConfig and output of useDataTableFilters
 // For now, using 'any' for some bazza types if not precisely known.
 import {
   useDataTableFilters, // The hook from bazza/ui
   // createColumnConfigHelper, // Assume columnsConfig is pre-built and passed in
 } from '../ui/data-table-filter'; // Adjusted path
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import type { BazzaFiltersState, DataTableRouterState } from './data-table-router-parsers';
+import { DataTableRouterToolbar } from './data-table-router-toolbar';
 import { getDefaultDataTableState, useDataTableUrlState } from './use-data-table-url-state';
 
 // dataTableSchema can remain to validate the shape of URL params if desired, but RemixForm doesn't use a resolver here.
@@ -38,11 +36,11 @@ export interface DataTableRouterFormProps<TData, TValue> {
   pageCount?: number;
   defaultStateValues?: Partial<DataTableRouterState>;
   // New prop for Bazza UI filter configurations
-  // This should be typed according to bazza/ui's ColumnConfig type (e.g., from createColumnConfigHelper(...).build())
-  filterColumnConfigs: any[]; // Placeholder type for Bazza UI ColumnConfig[]
+  // Shape is intentionally loose to allow passing configs from various sources without tight coupling
+  filterColumnConfigs: unknown[];
   // Props for server-fetched options/faceted data for bazza/ui, if needed for server strategy
-  dtfOptions?: Record<string, any[]>;
-  dtfFacetedData?: Record<string, any>;
+  dtfOptions?: unknown;
+  dtfFacetedData?: unknown;
 }
 
 export function DataTableRouterForm<TData, TValue>({
@@ -71,9 +69,10 @@ export function DataTableRouterForm<TData, TValue>({
   } = useDataTableFilters({
     strategy: 'server',
     data: data,
-    columnsConfig: filterColumnConfigs,
-    options: dtfOptions,
-    faceted: dtfFacetedData,
+    // Cast to the exact parameter type to preserve strong typing without using `any`
+    columnsConfig: filterColumnConfigs as Parameters<typeof useDataTableFilters>[0]['columnsConfig'],
+    options: dtfOptions as Parameters<typeof useDataTableFilters>[0]['options'],
+    faceted: dtfFacetedData as Parameters<typeof useDataTableFilters>[0]['faceted'],
     filters: urlState.filters, // Use URL filters as the source of truth
     onFiltersChange: (newFilters) => {
       // Update URL state when filters change
