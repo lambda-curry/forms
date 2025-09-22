@@ -3,7 +3,7 @@ import { Checkbox } from '@lambdacurry/forms/remix-hook-form/checkbox';
 import { FormMessage } from '@lambdacurry/forms/remix-hook-form/form';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, type within } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { createFormData, getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -137,18 +137,18 @@ const meta: Meta<typeof Checkbox> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-interface StoryContext {
-  canvas: ReturnType<typeof within>;
-}
+type StoryContext = { canvasElement: HTMLElement };
 
-const testDefaultValues = ({ canvas }: StoryContext) => {
+const testDefaultValues = ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   AVAILABLE_COLORS.forEach(({ label }) => {
     const checkbox = canvas.getByLabelText(label);
     expect(checkbox).not.toBeChecked();
   });
 };
 
-const testErrorState = async ({ canvas }: StoryContext) => {
+const testErrorState = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   // Submit form without selecting any colors
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
   await userEvent.click(submitButton);
@@ -157,7 +157,8 @@ const testErrorState = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText('Please select at least one color')).toBeInTheDocument();
 };
 
-const testColorSelection = async ({ canvas }: StoryContext) => {
+const testColorSelection = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   // Select two colors
   const redCheckbox = canvas.getByLabelText('Red');
   const blueCheckbox = canvas.getByLabelText('Blue');

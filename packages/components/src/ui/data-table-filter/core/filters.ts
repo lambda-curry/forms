@@ -50,7 +50,7 @@ class ColumnConfigBuilder<
     return newInstance;
   }
 
-  icon(value: import('lucide-react').LucideIcon): ColumnConfigBuilder<TData, TType, TVal, TId> {
+  icon(value: import('react').ElementType): ColumnConfigBuilder<TData, TType, TVal, TId> {
     const newInstance = this.clone();
     newInstance.config.icon = value as unknown as ColumnConfig<TData, TType, TVal, TId>['icon'];
     return newInstance;

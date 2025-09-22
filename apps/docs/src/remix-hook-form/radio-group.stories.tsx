@@ -7,6 +7,8 @@ import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, Form, useFetcher } from 'react-router';
 import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
+import type { ComponentType, ComponentPropsWithoutRef } from 'react';
+import { Label } from '@lambdacurry/forms/ui/label';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 const AVAILABLE_SIZES: RadioOption[] = [

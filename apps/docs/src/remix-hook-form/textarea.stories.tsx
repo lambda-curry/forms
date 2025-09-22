@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from '@lambdacurry/forms/remix-hook-form/textarea';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { createFormData, getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
@@ -94,7 +94,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-const testInvalidSubmission = async ({ canvas }: StoryContext) => {
+const testInvalidSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const messageInput = canvas.getByLabelText('Your message');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
@@ -108,7 +109,8 @@ const testInvalidSubmission = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText('Message must be at least 10 characters')).toBeInTheDocument();
 };
 
-const testValidSubmission = async ({ canvas }: StoryContext) => {
+const testValidSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const messageInput = canvas.getByLabelText('Your message');
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
 
