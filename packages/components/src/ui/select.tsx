@@ -162,7 +162,7 @@ export function Select({
                 />
               </div>
             )}
-            <CommandList id={listboxId} className="max-h-[200px] rounded-md w-full">
+            <CommandList id={listboxId} role="listbox" className="max-h-[200px] rounded-md w-full">
               <CommandEmpty className="px-3 py-2 text-sm text-gray-500">No results.</CommandEmpty>
               <CommandGroup>
                 {options.map((option, index) => {
@@ -185,6 +185,7 @@ export function Select({
                         }}
                         value={option.label}
                         id={`${listboxId}-option-${index}`}
+                        role="option"
                         {...commonProps}
                         className={cn(itemClassName)}
                         // Attach ref to CommandItem (even with asChild) so we can focus the selected item on open
@@ -210,6 +211,7 @@ export function Select({
                       }}
                       value={option.label}
                       id={`${listboxId}-option-${index}`}
+                      role="option"
                       {...commonProps}
                       className={cn(
                         'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
@@ -240,6 +242,7 @@ export function Select({
                       key={`__create__-${q}`}
                       data-value={`__create__-${q}`}
                       value={q}
+                      role="option"
                       onSelect={async () => {
                         if (!onCreateOption) return;
                         const created = await onCreateOption(q);

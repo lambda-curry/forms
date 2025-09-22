@@ -6,32 +6,34 @@ import { userEvent, within } from '@storybook/testing-library';
 export const testUSStateSelection = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
-  // Find and click the US state dropdown
-  const stateDropdown = canvas.getByLabelText('US State');
-  await userEvent.click(stateDropdown);
+  // Wait for and click the US state trigger (combobox)
+  const stateTrigger = await canvas.findByLabelText('US State');
+  await userEvent.click(stateTrigger);
 
-  // Select a state (e.g., California)
-  const californiaOption = await canvas.findByText('California');
+  // Dropdown content is portaled; query from document.body
+  const listbox = await within(document.body).findByRole('listbox');
+  const californiaOption = within(listbox).getByRole('option', { name: 'California' });
   await userEvent.click(californiaOption);
 
-  // Verify the selection
-  expect(stateDropdown).toHaveTextContent('California');
+  // Verify the trigger text updates
+  await expect(canvas.findByRole('combobox', { name: 'US State' })).resolves.toHaveTextContent('California');
 };
 
 // Test selecting a Canadian province
 export const testCanadaProvinceSelection = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
-  // Find and click the Canada province dropdown
-  const provinceDropdown = canvas.getByLabelText('Canadian Province');
-  await userEvent.click(provinceDropdown);
+  // Wait for and click the province trigger
+  const provinceTrigger = await canvas.findByLabelText('Canadian Province');
+  await userEvent.click(provinceTrigger);
 
-  // Select a province (e.g., Ontario)
-  const ontarioOption = await canvas.findByText('Ontario');
+  // Query in the portaled content
+  const listbox = await within(document.body).findByRole('listbox');
+  const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
   await userEvent.click(ontarioOption);
 
-  // Verify the selection
-  expect(provinceDropdown).toHaveTextContent('Ontario');
+  // Verify the trigger text updates
+  await expect(canvas.findByRole('combobox', { name: 'Canadian Province' })).resolves.toHaveTextContent('Ontario');
 };
 
 // Test form submission
@@ -39,22 +41,31 @@ export const testFormSubmission = async ({ canvasElement }: StoryContext) => {
   const canvas = within(canvasElement);
 
   // Select a state
-  const stateDropdown = canvas.getByLabelText('US State');
-  await userEvent.click(stateDropdown);
-  const californiaOption = await canvas.findByText('California');
-  await userEvent.click(californiaOption);
+  const stateTrigger = await canvas.findByLabelText('US State');
+  await userEvent.click(stateTrigger);
+  {
+    const listbox = await within(document.body).findByRole('listbox');
+    const californiaOption = within(listbox).getByRole('option', { name: 'California' });
+    await userEvent.click(californiaOption);
+  }
 
   // Select a province
-  const provinceDropdown = canvas.getByLabelText('Canadian Province');
-  await userEvent.click(provinceDropdown);
-  const ontarioOption = await canvas.findByText('Ontario');
-  await userEvent.click(ontarioOption);
+  const provinceTrigger = await canvas.findByLabelText('Canadian Province');
+  await userEvent.click(provinceTrigger);
+  {
+    const listbox = await within(document.body).findByRole('listbox');
+    const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
+    await userEvent.click(ontarioOption);
+  }
 
-  // Select a custom region
-  const regionDropdown = canvas.getByLabelText('Custom Region');
-  await userEvent.click(regionDropdown);
-  const customOption = await canvas.findByText('New York');
-  await userEvent.click(customOption);
+  // Select a custom region (use an option that exists in the story's options)
+  const regionTrigger = await canvas.findByLabelText('Custom Region');
+  await userEvent.click(regionTrigger);
+  {
+    const listbox = await within(document.body).findByRole('listbox');
+    const customOption = within(listbox).getByRole('option', { name: 'California' });
+    await userEvent.click(customOption);
+  }
 
   // Submit the form
   const submitButton = canvas.getByRole('button', { name: 'Submit' });
