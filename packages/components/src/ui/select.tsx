@@ -9,9 +9,9 @@ import {
   forwardRef,
   type Ref,
   useEffect,
+  useState,
   type ButtonHTMLAttributes,
   type ComponentType,
-  type InputHTMLAttributes,
   type RefAttributes,
   useId,
   useRef,
@@ -26,7 +26,7 @@ export interface SelectUIComponents {
   Item?: ComponentType<
     ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean } & RefAttributes<HTMLButtonElement>
   >;
-  SearchInput?: ComponentType<InputHTMLAttributes<HTMLInputElement> & React.RefAttributes<HTMLInputElement>>;
+  SearchInput?: ComponentType<React.ComponentPropsWithoutRef<typeof CommandInput>>;
   CheckIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
@@ -41,7 +41,20 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   contentClassName?: string;
   itemClassName?: string;
   components?: Partial<SelectUIComponents>;
+  // Search behavior
+  searchable?: boolean;
+  searchInputProps?: React.ComponentPropsWithoutRef<typeof CommandInput>;
+  // Creatable behavior
+  creatable?: boolean;
+  onCreateOption?: (input: string) => SelectOption | Promise<SelectOption>;
+  createOptionLabel?: (input: string) => string;
 }
+
+// Default search input built on top of CommandInput. Supports cmdk props at runtime.
+const DefaultSearchInput = forwardRef<HTMLInputElement, React.ComponentPropsWithoutRef<typeof CommandInput>>(
+  (props, _ref) => <CommandInput {...props} />,
+);
+DefaultSearchInput.displayName = 'SelectSearchInput';
 
 export function Select({
   options,
@@ -53,6 +66,11 @@ export function Select({
   contentClassName,
   itemClassName,
   components,
+  searchable = true,
+  searchInputProps,
+  creatable = false,
+  onCreateOption,
+  createOptionLabel,
   ...buttonProps
 }: SelectProps) {
   const popoverState = useOverlayTriggerState({});
@@ -60,6 +78,7 @@ export function Select({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const selectedItemRef = useRef<HTMLElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
   // When opening, ensure the currently selected option is the active item for keyboard nav
@@ -89,6 +108,7 @@ export function Select({
 
   const CheckIcon = components?.CheckIcon || DefaultCheckIcon;
   const ChevronIcon = components?.ChevronIcon || DefaultChevronIcon;
+  const SearchInput = components?.SearchInput || DefaultSearchInput;
 
   return (
     <Popover open={popoverState.isOpen} onOpenChange={popoverState.setOpen}>
@@ -107,7 +127,7 @@ export function Select({
           aria-controls={listboxId}
           {...buttonProps}
         >
-          {selectedOption?.label || placeholder}
+          {value !== '' ? (selectedOption?.label ?? value) : placeholder}
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
@@ -129,9 +149,19 @@ export function Select({
           data-slot="popover-content"
         >
           <Command className="bg-white rounded-md focus:outline-none sm:text-sm w-full">
-            <div className="px-1.5 pb-1.5 pt-1.5">
-              <CommandInput placeholder="Search..." />
-            </div>
+            {searchable && (
+              <div className="px-1.5 pb-1.5 pt-1.5">
+                <SearchInput
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onValueChange={(v: string) => {
+                    setSearchQuery(v);
+                    searchInputProps?.onValueChange?.(v);
+                  }}
+                  {...searchInputProps}
+                />
+              </div>
+            )}
             <CommandList id={listboxId} className="max-h-[200px] rounded-md w-full">
               <CommandEmpty className="px-3 py-2 text-sm text-gray-500">No results.</CommandEmpty>
               <CommandGroup>
@@ -197,6 +227,35 @@ export function Select({
                     </CommandItem>
                   );
                 })}
+                {(() => {
+                  const q = searchQuery.trim();
+                  const lower = q.toLowerCase();
+                  const hasExactMatch =
+                    q.length > 0 &&
+                    options.some((o) => o.label.toLowerCase() === lower || o.value.toLowerCase() === lower);
+                  if (!creatable || !q || hasExactMatch) return null;
+                  const label = createOptionLabel?.(q) ?? `Create "${q}"`;
+                  return (
+                    <CommandItem
+                      key={`__create__-${q}`}
+                      data-value={`__create__-${q}`}
+                      value={q}
+                      onSelect={async () => {
+                        if (!onCreateOption) return;
+                        const created = await onCreateOption(q);
+                        if (created?.value) onValueChange?.(created.value);
+                        popoverState.close();
+                      }}
+                      className={cn(
+                        'w-full text-left cursor-pointer select-none py-3 px-3 transition-colors duration-150 flex items-center gap-2 rounded',
+                        'text-gray-900 hover:bg-gray-100',
+                        itemClassName,
+                      )}
+                    >
+                      <span className="block truncate font-semibold">{label}</span>
+                    </CommandItem>
+                  );
+                })()}
               </CommandGroup>
             </CommandList>
           </Command>

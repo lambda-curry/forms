@@ -85,6 +85,21 @@ const handleFormSubmission = async (request: Request) => {
   };
 };
 
+// Region-only submission handler for stories that only submit the `region` field
+const handleRegionSubmission = async (request: Request) => {
+  const regionSchema = z.object({ region: z.string().min(1) });
+  const { data, errors } = await getValidatedFormData<{ region: string }>(request, zodResolver(regionSchema));
+
+  if (errors) {
+    return { errors };
+  }
+
+  return {
+    message: 'Form submitted successfully',
+    selectedRegion: data.region,
+  };
+};
+
 const meta: Meta<typeof Select> = {
   title: 'RemixHookForm/Select',
   component: Select,
@@ -345,6 +360,185 @@ export const FormSubmission: Story = {
 
       // Verify the submission result
       await expect(canvas.findByText('Selected regions:')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+// Additional examples for search behavior and creatable options
+
+const SearchDisabledExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Search disabled"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          searchable={false}
+        />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const SearchDisabled: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: SearchDisabledExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open select and ensure no search input', async () => {
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      const listbox = await within(document.body).findByRole('listbox');
+      expect(within(listbox).queryByPlaceholderText('Search...')).not.toBeInTheDocument();
+    });
+  },
+};
+
+const CustomSearchPlaceholderExample = () => {
+  const fetcher = useFetcher<{ message: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit}>
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Custom search placeholder"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          searchInputProps={{ placeholder: 'Type to filter…' }}
+        />
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const CustomSearchPlaceholder: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CustomSearchPlaceholderExample,
+          action: async ({ request }: ActionFunctionArgs) => handleFormSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open select and see custom placeholder', async () => {
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
+      const searchInput = await within(document.body).findByPlaceholderText('Type to filter…');
+      expect(searchInput).toBeInTheDocument();
+    });
+  },
+};
+
+const CreatableSelectExample = () => {
+  const fetcher = useFetcher<{ message: string; selectedRegion?: string }>();
+  const methods = useRemixForm<{ region: string }>({
+    resolver: zodResolver(z.object({ region: z.string().min(1) })),
+    defaultValues: { region: '' },
+    fetcher,
+    submitConfig: { action: '/', method: 'post' },
+  });
+  return (
+    <RemixFormProvider {...methods}>
+      <fetcher.Form onSubmit={methods.handleSubmit} className="space-y-4">
+        <Select
+          name="region"
+          label="Custom Region"
+          description="Creatable option enabled"
+          options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
+          placeholder="Select a custom region"
+          creatable
+          onCreateOption={async (input) => ({ label: input, value: input })}
+        />
+        <Button type="submit">Submit</Button>
+        {fetcher.data?.selectedRegion && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-md" data-testid="submitted-region">
+            <p className="text-sm font-medium">Submitted region: {fetcher.data.selectedRegion}</p>
+          </div>
+        )}
+      </fetcher.Form>
+    </RemixFormProvider>
+  );
+};
+
+export const CreatableOption: Story = {
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: CreatableSelectExample,
+          action: async ({ request }: ActionFunctionArgs) => handleRegionSubmission(request),
+        },
+      ],
+    }),
+  ],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Create new option when no exact match', async () => {
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      const listbox = await within(document.body).findByRole('listbox');
+      // The search input is outside the listbox container; query from the portal root
+      const input = within(document.body).getByPlaceholderText('Search...');
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Atlantis');
+
+      const createItem = await within(listbox).findByRole('option', { name: 'Create \"Atlantis\"' });
+      await userEvent.click(createItem);
+
+      await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
+
+      // Submit and verify server received the created option value
+      const submitButton = canvas.getByRole('button', { name: 'Submit' });
+      await userEvent.click(submitButton);
+      await expect(canvas.findByText('Submitted region: Atlantis')).resolves.toBeInTheDocument();
+    });
+
+    await step('No creatable when exact match exists', async () => {
+      const regionSelect = canvas.getByLabelText('Custom Region');
+      await userEvent.click(regionSelect);
+      const listbox = await within(document.body).findByRole('listbox');
+      // The search input is outside the listbox container; query from the portal root
+      const input = within(document.body).getByPlaceholderText('Search...');
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await userEvent.type(input, 'California');
+
+      expect(within(listbox).queryByRole('option', { name: 'Create \"California\"' })).not.toBeInTheDocument();
     });
   },
 };

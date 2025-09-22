@@ -53,6 +53,7 @@
         "noUndeclaredDependencies": "off",
         "useImportExtensions": "off",
         "noUnusedVariables": "off",
+        "noUnusedFunctionParameters": "off",
         "useUniqueElementIds": "off"
       }
     }

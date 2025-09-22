@@ -136,7 +136,7 @@ export function FilterValueDisplay<TData, TType extends ColumnDataType>({
 export function FilterValueOptionDisplay<TData>({
   filter,
   column,
-  actions: _actions,
+  actions,
   locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'option'>) {
   const options = useMemo(() => column.getOptions(), [column]);
@@ -182,7 +182,7 @@ export function FilterValueOptionDisplay<TData>({
 export function FilterValueMultiOptionDisplay<TData>({
   filter,
   column,
-  actions: _actions,
+  actions,
   locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'multiOption'>) {
   const options = useMemo(() => column.getOptions(), [column]);
@@ -246,8 +246,8 @@ function formatDateRange(start: Date | string | number, end: Date | string | num
 
 export function FilterValueDateDisplay<TData>({
   filter,
-  column: _column,
-  actions: _actions,
+  column,
+  actions,
   locale: _locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null;
@@ -273,9 +273,9 @@ export function FilterValueDateDisplay<TData>({
 
 export function FilterValueTextDisplay<TData>({
   filter,
-  column: _column,
-  actions: _actions,
-  locale: _locale = 'en',
+  column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null;
   if (filter.values.length === 0 || filter.values[0].trim() === '') return <Ellipsis className="size-4" />;
@@ -287,9 +287,9 @@ export function FilterValueTextDisplay<TData>({
 
 export function FilterValueNumberDisplay<TData>({
   filter,
-  column: _column,
-  actions: _actions,
-  locale: _locale = 'en',
+  column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'number'>) {
   if (!filter || !filter.values || filter.values.length === 0) return null;
 
@@ -654,8 +654,10 @@ export function FilterValueNumberController<TData>({
     // filter && values.length === 2
     filter && numberFilterOperators[filter.operator].target === 'multiple';
 
-  const setFilterOperatorDebounced = useDebounceCallback(actions.setFilterOperator, 500);
-  const setFilterValueDebounced = useDebounceCallback(actions.setFilterValue, 500);
+  // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
+  const setFilterOperatorDebounced = useDebounceCallback(actions.setFilterOperator as any, 500);
+  // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
+  const setFilterValueDebounced = useDebounceCallback(actions.setFilterValue as any, 500);
 
   const changeNumber = (value: number[]) => {
     setValues(value);
