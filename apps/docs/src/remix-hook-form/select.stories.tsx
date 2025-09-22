@@ -205,6 +205,9 @@ const RegionSelectExample = () => {
     });
 
     await step('Test validation errors on invalid submission', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Submit form without selecting any options
       const submitButton = canvas.getByRole('button', { name: 'Submit' });
       await userEvent.click(submitButton);
@@ -288,6 +291,9 @@ export const USStateSelection: Story = {
     const canvas = within(canvasElement);
 
     await step('Select a US state', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Find and click the US state dropdown
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
@@ -327,6 +333,9 @@ export const CanadaProvinceSelection: Story = {
     const canvas = within(canvasElement);
 
     await step('Select a Canadian province', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Canadian Province');
+
       // Find and click the Canada province dropdown
       const provinceSelect = canvas.getByLabelText('Canadian Province');
       await userEvent.click(provinceSelect);
@@ -366,6 +375,9 @@ export const FormSubmission: Story = {
     const canvas = within(canvasElement);
 
     await step('Select all regions', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('US State');
+
       // Select a state
       const stateSelect = canvas.getByLabelText('US State');
       await userEvent.click(stateSelect);
@@ -470,6 +482,9 @@ export const SearchDisabled: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     await step('Open select and ensure no search input', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Custom Region');
+
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
@@ -528,6 +543,9 @@ export const CustomSearchPlaceholder: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     await step('Open select and see custom placeholder', async () => {
+      // Wait for component to be fully loaded
+      await canvas.findByLabelText('Custom Region');
+
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
@@ -592,8 +610,13 @@ export const CreatableOption: Story = {
     const canvas = within(canvasElement);
 
     await step('Create new option when no exact match', async () => {
-      // Wait for the component to render before interacting
-      const regionSelect = await canvas.findByLabelText('Custom Region');
+      // Wait for the component to fully load - check for loading screen absence
+      await canvas.findByLabelText('Custom Region');
+
+      // Additional wait to ensure the component is fully interactive
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
       try {
@@ -642,8 +665,13 @@ export const CreatableOption: Story = {
     });
 
     await step('No creatable when exact match exists', async () => {
-      // Wait for the component to render before interacting
-      const regionSelect = await canvas.findByLabelText('Custom Region');
+      // Wait for the component to fully load - check for loading screen absence
+      await canvas.findByLabelText('Custom Region');
+
+      // Additional wait to ensure the component is fully interactive
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
 
       try {
