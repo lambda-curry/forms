@@ -1707,6 +1707,7 @@ __metadata:
     vite: "npm:^6.2.2"
     vite-tsconfig-paths: "npm:^5.1.4"
     wait-on: "npm:^8.0.3"
+    zod: "npm:^3.24.1"
   languageName: unknown
   linkType: soft
 
@@ -1769,6 +1770,7 @@ __metadata:
     react-router: ^7.0.0
     react-router-dom: ^7.0.0
     remix-hook-form: 7.1.0
+    zod: ^3.24.1 || ^4.0.0
   languageName: unknown
   linkType: soft
 
