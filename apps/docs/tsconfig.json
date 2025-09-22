@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "moduleResolution": "bundler",
+    "types": ["vite/client", "node", "@playwright/test", "jest", "@testing-library/jest-dom"],
     "paths": {
       "@lambdacurry/forms/*": ["../../packages/components/src/*"],
       "@lambdacurry/forms/lib/*": ["../../packages/components/lib/*"]

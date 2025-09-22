@@ -302,7 +302,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {} satisfies Record<string, unknown>, // Args for DataTableRouterForm if needed, handled by Example component
+  // biome-ignore lint/suspicious/noExplicitAny: any for flexibility
+  args: {} as any,
   render: () => <DataTableRouterFormExample />,
   parameters: {
     docs: {

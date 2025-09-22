@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { PasswordField } from '@lambdacurry/forms/remix-hook-form/password-field';
 import { Button } from '@lambdacurry/forms/ui/button';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { useRef } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
@@ -114,14 +114,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Test scenarios
-const testDefaultValues = ({ canvas }: StoryContext) => {
+const testDefaultValues = ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const passwordInput = canvas.getByLabelText('Password');
   const confirmInput = canvas.getByLabelText('Confirm Password');
   expect(passwordInput).toHaveValue(INITIAL_PASSWORD);
   expect(confirmInput).toHaveValue(INITIAL_PASSWORD);
 };
 
-const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
+const testPasswordVisibilityToggle = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const passwordInput = canvas.getByLabelText('Password');
 
   // Find the toggle button within the same form item as the password input
@@ -150,7 +152,8 @@ const testPasswordVisibilityToggle = async ({ canvas }: StoryContext) => {
   expect(showButtonAgain).toBeInTheDocument();
 };
 
-const testWeakPasswordValidation = async ({ canvas }: StoryContext) => {
+const testWeakPasswordValidation = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const passwordInput = canvas.getByLabelText('Password');
   const submitButton = canvas.getByRole('button', { name: 'Create Account' });
 
@@ -162,7 +165,8 @@ const testWeakPasswordValidation = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText(WEAK_PASSWORD_ERROR)).toBeInTheDocument();
 };
 
-const testPasswordMismatchValidation = async ({ canvas }: StoryContext) => {
+const testPasswordMismatchValidation = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const passwordInput = canvas.getByLabelText('Password');
   const confirmInput = canvas.getByLabelText('Confirm Password');
   const submitButton = canvas.getByRole('button', { name: 'Create Account' });
@@ -180,7 +184,8 @@ const testPasswordMismatchValidation = async ({ canvas }: StoryContext) => {
   await expect(await canvas.findByText(MISMATCH_PASSWORD_ERROR)).toBeInTheDocument();
 };
 
-const testValidSubmission = async ({ canvas }: StoryContext) => {
+const testValidSubmission = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const passwordInput = canvas.getByLabelText('Password');
   const confirmInput = canvas.getByLabelText('Confirm Password');
   const submitButton = canvas.getByRole('button', { name: 'Create Account' });
@@ -199,7 +204,8 @@ const testValidSubmission = async ({ canvas }: StoryContext) => {
   expect(successMessage).toBeInTheDocument();
 };
 
-const testRefFunctionality = async ({ canvas }: StoryContext) => {
+const testRefFunctionality = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const refInput = canvas.getByLabelText('Ref Example');
   const focusButton = canvas.getByRole('button', { name: 'Focus' });
 

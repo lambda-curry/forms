@@ -5,7 +5,9 @@ import { render, screen } from '@testing-library/react';
 import { useFetcher } from 'react-router';
 import { RemixFormProvider, useRemixForm } from 'remix-hook-form';
 import { z } from 'zod';
-import type { ElementType, PropsWithChildren } from 'react';
+import type { ElementType } from 'react';
+import type { FetcherWithComponents } from 'react-router';
+import type { FormMessageProps } from '@lambdacurry/forms/ui/form';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -31,7 +33,7 @@ const TestFormWithError = ({
 }: {
   initialErrors?: Record<string, { message: string }>;
   formErrorName?: string;
-  customComponents?: { FormMessage?: React.ComponentType<PropsWithChildren<Record<string, unknown>>> };
+  customComponents?: { FormMessage?: React.ComponentType<FormMessageProps> };
   className?: string;
 }) => {
   const mockFetcher = {
@@ -39,7 +41,7 @@ const TestFormWithError = ({
     state: 'idle' as const,
     submit: jest.fn(),
     Form: 'form' as ElementType,
-  };
+  } as unknown as FetcherWithComponents<unknown>;
 
   mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -143,9 +145,9 @@ describe('FormError Component', () => {
 
   describe('Component Customization', () => {
     it('uses custom FormMessage component when provided', () => {
-      const CustomFormMessage = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => (
+      const CustomFormMessage = (props: FormMessageProps) => (
         <div data-testid="custom-form-message" className="custom-message" {...props}>
-          Custom: {children}
+          Custom: {props.children}
         </div>
       );
 
@@ -218,7 +220,7 @@ describe('FormError Component', () => {
         state: 'idle' as const,
         submit: jest.fn(),
         Form: 'form' as ElementType,
-      };
+      } as unknown as FetcherWithComponents<unknown>;
 
       mockUseFetcher.mockReturnValue(mockFetcher);
 
@@ -315,9 +317,9 @@ describe('FormError Component', () => {
     it('does not re-render unnecessarily when unrelated form state changes', () => {
       const renderSpy = jest.fn();
 
-      const CustomFormMessage = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => {
+      const CustomFormMessage = (props: FormMessageProps) => {
         renderSpy();
-        return <div {...props}>{children}</div>;
+        return <div {...props}>{props.children}</div>;
       };
 
       const errors = {
@@ -346,7 +348,7 @@ describe('FormError Integration Tests', () => {
         state: 'idle' as const,
         submit: jest.fn(),
         Form: 'form' as ElementType,
-      };
+      } as unknown as FetcherWithComponents<unknown>;
 
       mockUseFetcher.mockReturnValue(mockFetcher);
 

@@ -4,7 +4,7 @@ import { useDataTableFilters } from '@lambdacurry/forms/ui/data-table-filter/hoo
 import { useFilterSync } from '@lambdacurry/forms/ui/utils/use-filter-sync';
 import { CheckCircledIcon, PersonIcon, StarIcon, TextIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react';
-import { expect } from '@storybook/test';
+import { expect, within } from '@storybook/test';
 import { withReactRouterStubDecorator } from '../../lib/storybook/react-router-stub';
 
 /**
@@ -228,7 +228,8 @@ type Story = StoryObj<typeof meta>;
 /**
  * Test functions for accessibility testing
  */
-const testBasicRendering = ({ canvas }: StoryContext) => {
+const testBasicRendering = ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   const title = canvas.getByText('Data Table Filter Accessibility Test');
   expect(title).toBeInTheDocument();
 
@@ -236,7 +237,8 @@ const testBasicRendering = ({ canvas }: StoryContext) => {
   expect(filterInterface).toBeInTheDocument();
 };
 
-const testKeyboardNavigation = async ({ canvas }: StoryContext) => {
+const testKeyboardNavigation = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   // Look for filter-related buttons or elements
   const buttons = canvas.getAllByRole('button');
   await expect(buttons.length).toBeGreaterThan(0);
@@ -248,7 +250,8 @@ const testKeyboardNavigation = async ({ canvas }: StoryContext) => {
   }
 };
 
-const testAriaAttributes = async ({ canvas }: StoryContext) => {
+const testAriaAttributes = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
   // Test that interactive elements have proper roles
   const buttons = canvas.getAllByRole('button');
   expect(buttons.length).toBeGreaterThan(0);
