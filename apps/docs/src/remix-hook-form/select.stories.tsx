@@ -221,6 +221,8 @@ const RegionSelectExample = () => {
       await userEvent.click(stateSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const californiaOption = within(listbox).getByRole('option', { name: 'California' });
         await userEvent.click(californiaOption);
       }
@@ -230,6 +232,8 @@ const RegionSelectExample = () => {
       await userEvent.click(provinceSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
         await userEvent.click(ontarioOption);
       }
@@ -239,6 +243,8 @@ const RegionSelectExample = () => {
       await userEvent.click(regionSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const customOption = within(listbox).getByRole('option', { name: 'California' });
         await userEvent.click(customOption);
       }
@@ -275,6 +281,8 @@ export const USStateSelection: Story = {
 
       // Dropdown content renders in a portal; query via document.body roles
       const listbox = await within(document.body).findByRole('listbox');
+      // Small delay to ensure portal content is stable
+      await new Promise((resolve) => setTimeout(resolve, 100));
       const californiaOption = within(listbox).getByRole('option', { name: 'California' });
       await userEvent.click(californiaOption);
 
@@ -303,6 +311,8 @@ export const CanadaProvinceSelection: Story = {
 
       // Query in portal content by role
       const listbox = await within(document.body).findByRole('listbox');
+      // Small delay to ensure portal content is stable
+      await new Promise((resolve) => setTimeout(resolve, 100));
       const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
       await userEvent.click(ontarioOption);
 
@@ -330,6 +340,8 @@ export const FormSubmission: Story = {
       await userEvent.click(stateSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const californiaOption = within(listbox).getByRole('option', { name: 'California' });
         await userEvent.click(californiaOption);
       }
@@ -339,6 +351,8 @@ export const FormSubmission: Story = {
       await userEvent.click(provinceSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const ontarioOption = within(listbox).getByRole('option', { name: 'Ontario' });
         await userEvent.click(ontarioOption);
       }
@@ -348,6 +362,8 @@ export const FormSubmission: Story = {
       await userEvent.click(regionSelect);
       {
         const listbox = await within(document.body).findByRole('listbox');
+        // Small delay to ensure portal content is stable
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const customOption = within(listbox).getByRole('option', { name: 'California' });
         await userEvent.click(customOption);
       }
@@ -454,6 +470,8 @@ export const CustomSearchPlaceholder: Story = {
     await step('Open select and see custom placeholder', async () => {
       const regionSelect = canvas.getByLabelText('Custom Region');
       await userEvent.click(regionSelect);
+      // Small delay to ensure portal content is stable
+      await new Promise((resolve) => setTimeout(resolve, 100));
       // The search input is rendered alongside the listbox in the portal, not inside the listbox itself.
       const searchInput = await within(document.body).findByPlaceholderText('Type to filter…');
       expect(searchInput).toBeInTheDocument();
@@ -511,19 +529,26 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      
-      // Wait for the dropdown to appear in the portal
+
+      // Wait for the dropdown to appear in the portal and ensure it's stable
       const listbox = await within(document.body).findByRole('listbox');
-      
-      // The search input is outside the listbox container; query from the portal root
+
+      // Additional wait to ensure portal content is fully rendered
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Wait for the search input to be available in the portal
       const input = await within(document.body).findByPlaceholderText('Search...');
+
+      // Ensure the input is ready for interaction with explicit focus
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'Atlantis');
 
+      // Wait for the create option to appear after typing
       const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' });
       await userEvent.click(createItem);
 
+      // Verify the selection updated
       await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
 
       // Submit and verify server received the created option value
@@ -536,15 +561,23 @@ export const CreatableOption: Story = {
       // Wait for the component to render before interacting
       const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
-      
-      // Wait for the dropdown to appear in the portal
+
+      // Wait for the dropdown to appear in the portal and ensure it's stable
       const listbox = await within(document.body).findByRole('listbox');
-      
-      // The search input is outside the listbox container; query from the portal root
+
+      // Additional wait to ensure portal content is fully rendered
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Wait for the search input to be available in the portal
       const input = await within(document.body).findByPlaceholderText('Search...');
+
+      // Ensure the input is ready for interaction with explicit focus
       await userEvent.click(input);
       await userEvent.clear(input);
       await userEvent.type(input, 'California');
+
+      // Allow time for filtering to complete and DOM to stabilize
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       expect(within(listbox).queryByRole('option', { name: 'Select "California"' })).not.toBeInTheDocument();
     });
