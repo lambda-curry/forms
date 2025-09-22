@@ -517,7 +517,7 @@ export const CreatableOption: Story = {
       await userEvent.clear(input);
       await userEvent.type(input, 'Atlantis');
 
-      const createItem = await within(listbox).findByRole('option', { name: 'Create \"Atlantis\"' });
+      const createItem = await within(listbox).findByRole('option', { name: 'Select "Atlantis"' });
       await userEvent.click(createItem);
 
       await expect(canvas.findByRole('combobox', { name: 'Custom Region' })).resolves.toHaveTextContent('Atlantis');
@@ -538,7 +538,7 @@ export const CreatableOption: Story = {
       await userEvent.clear(input);
       await userEvent.type(input, 'California');
 
-      expect(within(listbox).queryByRole('option', { name: 'Create \"California\"' })).not.toBeInTheDocument();
+      expect(within(listbox).queryByRole('option', { name: 'Select "California"' })).not.toBeInTheDocument();
     });
   },
 };

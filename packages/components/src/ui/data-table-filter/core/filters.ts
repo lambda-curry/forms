@@ -318,20 +318,20 @@ export function createColumns<TData>(
 ): Column<TData>[] {
   return columnConfigs.map((columnConfig) => {
     const getOptions: () => ColumnOption[] = memo(
-      () => [data, strategy, columnConfig.options],
+      () => [data, strategy, columnConfig.options] as const,
       ([data, strategy]) =>
         getColumnOptions(columnConfig as ColumnConfig<TData, ColumnDataType, unknown, string>, data, strategy),
       { key: `options-${columnConfig.id}` },
     );
 
     const getValues: () => ElementType<NonNullable<unknown>>[] = memo(
-      () => [data, strategy],
+      () => [data, strategy] as const,
       () => (strategy === 'client' ? getColumnValues(columnConfig, data) : []),
       { key: `values-${columnConfig.id}` },
     );
 
     const getUniqueValues: () => Map<string, number> | undefined = memo(
-      () => [getValues(), strategy],
+      () => [getValues(), strategy] as const,
       ([values, strategy]) =>
         getFacetedUniqueValues(
           columnConfig as ColumnConfig<TData, ColumnDataType, unknown, string>,

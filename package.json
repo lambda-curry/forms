@@ -12,6 +12,7 @@
     "build": "turbo run build",
     "serve": "turbo run serve",
     "test": "turbo run test",
+    "typecheck": "turbo run type-check --filter=@lambdacurry/forms",
     "clean": "find . -name '.turbo' -type d -prune -exec rm -rf {} + && find . -name 'node_modules' -type d -prune -exec rm -rf {} + && find . -name 'yarn.lock' -type f -delete",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",

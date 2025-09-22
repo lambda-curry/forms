@@ -234,7 +234,7 @@ export function Select({
                     q.length > 0 &&
                     options.some((o) => o.label.toLowerCase() === lower || o.value.toLowerCase() === lower);
                   if (!creatable || !q || hasExactMatch) return null;
-                  const label = createOptionLabel?.(q) ?? `Create "${q}"`;
+                  const label = createOptionLabel?.(q) ?? `Select "${q}"`;
                   return (
                     <CommandItem
                       key={`__create__-${q}`}
