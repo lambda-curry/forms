@@ -508,7 +508,8 @@ export const CreatableOption: Story = {
     const canvas = within(canvasElement);
 
     await step('Create new option when no exact match', async () => {
-      const regionSelect = canvas.getByLabelText('Custom Region');
+      // Wait for the component to render before interacting
+      const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
       const listbox = await within(document.body).findByRole('listbox');
       // The search input is outside the listbox container; query from the portal root
@@ -529,7 +530,8 @@ export const CreatableOption: Story = {
     });
 
     await step('No creatable when exact match exists', async () => {
-      const regionSelect = canvas.getByLabelText('Custom Region');
+      // Wait for the component to render before interacting
+      const regionSelect = await canvas.findByLabelText('Custom Region');
       await userEvent.click(regionSelect);
       const listbox = await within(document.body).findByRole('listbox');
       // The search input is outside the listbox container; query from the portal root
