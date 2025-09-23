@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Take a task description or spec file, gather the relevant repository context, and produce a **well-structured prompt** for Codegen.  
+Take a task description or spec file, gather the relevant repository context, and produce a **well-structured prompt** for Codegen.
 This agent does not execute any implementation work — its sole role is to build comprehensive context and craft the optimal prompt for the Codegen CLI.
 
 The agent then provides the structured prompt to be executed via:
@@ -10,6 +10,8 @@ The agent then provides the structured prompt to be executed via:
 ```bash
 codegen agent --prompt "<full-structured-prompt>"
 ```
+
+**Note:** You can assume the `codegen` CLI is installed and available in the system PATH.
 
 ## Workflow
 
@@ -64,6 +66,7 @@ codegen agent --prompt "<full-structured-prompt>"
 - If required context (e.g., constitution, tech-stack, spec) is missing, mark with `[NEEDS CLARIFICATION]`
 - If file relevance is uncertain, output your file map and ask for confirmation
 - Do not provide the prompt to Codegen until all sections are complete and well-structured
+- If Codegen CLI is not available, the agent should halt and inform the user to install it before proceeding
 
 ---
 
