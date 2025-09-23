@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
-import * as React from 'react';
 import { Select, type SelectOption } from '@lambdacurry/forms/ui/select';
 
 const meta: Meta<typeof Select> = {
@@ -30,11 +29,7 @@ export const RightAlignedWithEndContent: Story = {
       <div className="w-[480px]">
         <div className="flex justify-end">
           <div className="w-[280px]">
-            <Select
-              options={OPTIONS}
-              placeholder="Choose a state"
-              contentProps={{ align: 'end' }}
-            />
+            <Select options={OPTIONS} placeholder="Choose a state" contentProps={{ align: 'end' }} />
           </div>
         </div>
       </div>
@@ -74,5 +69,3 @@ export const RightAlignedWithEndContent: Story = {
     });
   },
 };
-
-
