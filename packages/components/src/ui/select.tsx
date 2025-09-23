@@ -133,7 +133,7 @@ export function Select<T extends React.Key = string>({
           aria-controls={listboxId}
           {...buttonProps}
         >
-          {value != null ? (selectedOption?.label ?? String(value)) : placeholder}
+          {value != null && value !== '' ? (selectedOption?.label ?? String(value)) : placeholder}
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
