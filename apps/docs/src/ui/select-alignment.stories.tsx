@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
+import { useState } from 'react';
 import { Select, type SelectOption } from '@lambdacurry/forms/ui/select';
 
 const meta: Meta<typeof Select> = {
@@ -25,11 +26,19 @@ export const RightAlignedWithEndContent: Story = {
   name: 'Right-aligned trigger with content align="end"',
   args: {},
   render: () => {
+    const [value, setValue] = useState<string>('');
+    
     return (
       <div className="w-[480px]">
         <div className="flex justify-end">
           <div className="w-[280px]">
-            <Select options={OPTIONS} placeholder="Choose a state" contentProps={{ align: 'end' }} />
+            <Select 
+              options={OPTIONS} 
+              placeholder="Choose a state" 
+              contentProps={{ align: 'end' }}
+              value={value}
+              onChange={setValue}
+            />
           </div>
         </div>
       </div>
@@ -39,10 +48,12 @@ export const RightAlignedWithEndContent: Story = {
     const canvas = within(canvasElement);
 
     await step('Open the select', async () => {
-      const trigger = await canvas.findByRole('combobox', { name: /Choose a state/i });
+      // Find the trigger by its role and accessible name (which should be the placeholder)
+      const trigger = await canvas.findByRole('combobox', { name: 'Choose a state' });
       await userEvent.click(trigger);
 
-      // Ensure popover content is rendered
+      // Wait for popover content to be rendered
+      await new Promise((r) => setTimeout(r, 100));
       const contentEl = document.body.querySelector('[data-slot="popover-content"]') as HTMLElement | null;
       expect(contentEl).toBeTruthy();
 
@@ -55,15 +66,19 @@ export const RightAlignedWithEndContent: Story = {
       await userEvent.keyboard('[ArrowDown]');
       await userEvent.keyboard('[Enter]');
 
+      // Wait for the selection to be processed
+      await new Promise((r) => setTimeout(r, 100));
+
       // The trigger should now show the selected option (first item: Alabama)
-      await expect(canvas.findByRole('combobox', { name: /Alabama/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('combobox', { name: 'Alabama' })).resolves.toBeInTheDocument();
 
       // Re-open and press Escape to close
-      const trigger = await canvas.findByRole('combobox', { name: /Alabama/i });
+      const trigger = await canvas.findByRole('combobox', { name: 'Alabama' });
       await userEvent.click(trigger);
       await userEvent.keyboard('[Escape]');
+      
       // Ensure popover content is removed
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 200));
       const stillOpen = document.body.querySelector('[data-slot="popover-content"]');
       expect(stillOpen).toBeNull();
     });
