@@ -136,8 +136,9 @@ export function Select({
           aria-expanded={popoverState.isOpen}
           aria-controls={listboxId}
           {...buttonProps}
+          aria-label={value ? (selectedOption?.label ?? value) : placeholder}
         >
-          {value !== '' ? (selectedOption?.label ?? value) : placeholder}
+          {value ? (selectedOption?.label ?? value) : placeholder}
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
