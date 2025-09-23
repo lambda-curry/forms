@@ -1,6 +1,4 @@
-# Research Agent — Usage Notes
-
----
+# Research Agent
 
 ## Purpose
 

@@ -50,8 +50,21 @@
 - `.cursor/rules/monorepo-organization.mdc`: Imports/exports, package boundaries, Turbo/Vite/TS paths.
 - `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps (patch-first), CI publishes on merge.
 
-## AI Agent Workflows
+## Agent OS
+
+AgentOS is a governance and automation framework embedded in this repository to ensure consistency, safety, and traceability across all development workflows. It defines a set of agents (e.g., :researcher, :spec-creation) that guide how features are specified, implemented, and reviewed.
+
+Two foundational documents provide essential context for all contributors and agents:
+- `.agentos/memory/constitution.md`: Codifies the non-negotiable principles, rules, and review gates that govern how code is written, tested, versioned, and released. This constitution enforces standards for code style, module boundaries, testing, forms, UI, accessibility, security, and traceability.
+- `.agentos/standards/tech-stack.md`: Documents the enforced technologies, frameworks, and tooling for the repository. It operationalizes the constitution by specifying the required stack (e.g., Node, Yarn, TypeScript, React, Tailwind, Storybook, Turbo, Biome) and the structure of the monorepo.
+
+Together, these files ensure that all changes are aligned with the repository’s philosophy and technical standards, providing clear context and guardrails for both human contributors and AI agents.
+
+
+### AI Agent Workflows
 - `:researcher` - Investigate bugs/implementation questions and produce evidence-backed recommendations aligned with the constitution and tech stack.
+- `:spec-creation` - Drafts clear, testable AI specs with scope, acceptance criteria, and open questions; see `.agentos/agents/:spec-creation.md`.
+
 
 When to review before starting work
 - Building/refactoring UI components: react-typescript-patterns + ui-component-patterns.
