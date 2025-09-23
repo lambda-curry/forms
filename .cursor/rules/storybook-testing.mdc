@@ -985,4 +985,35 @@ When creating or modifying Storybook interaction tests, ensure:
 - Fast feedback loop optimized for developer productivity
 - Individual story decorators provide flexibility for different testing scenarios
 
-Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows. **Always place decorators on individual stories for maximum flexibility and clarity.** 
+Remember: Every story should test real user workflows and serve as living documentation. Focus on behavior, not implementation details. The testing infrastructure should be reliable, fast, and easy to maintain for local development and Codegen workflows. **Always place decorators on individual stories for maximum flexibility and clarity.**
+
+### Testing Portaled UI (Select, Popover, Combobox)
+
+- Open the trigger first, then query the portaled content (many libs render to document.body).
+- Query portal content from document.body using findByRole/waitFor; avoid raw setTimeout.
+- Give the trigger a stable accessible name via aria-label; do not rely on placeholder text (it changes after selection).
+- Prefer role-based queries:
+  - role="listbox" for the popup container
+  - role="option" for items
+- It’s OK to assert component-specific data attributes for positioning checks (e.g., data-slot="popover-content", data-align="end").
+- After selection or Escape, assert teardown with waitFor(() => expect(document.body.querySelector('[data-slot="popover-content"]').toBeNull())).
+- In play functions, use within(document.body) to scope queries to the portal when needed.
+- For controlled components, use the correct handler (e.g., onValueChange) so state updates reflect in assertions.
+
+Example snippet:
+```
+await step('Open', async () => {
+  const trigger = await canvas.findByRole('combobox', { name: 'Favorite state' });
+  await userEvent.click(trigger);
+  const listbox = await within(document.body).findByRole('listbox');
+  expect(listbox).toBeInTheDocument();
+});
+
+await step('Select and close', async () => {
+  await userEvent.keyboard('{ArrowDown}{Enter}');
+  await waitFor(() => {
+    expect(document.body.querySelector('[data-slot="popover-content"]').toBeNull());
+  });
+});
+```
+

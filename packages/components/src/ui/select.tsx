@@ -11,6 +11,7 @@ import {
   useEffect,
   useState,
   type ButtonHTMLAttributes,
+  type ComponentProps,
   type ComponentType,
   type RefAttributes,
   useId,
@@ -31,6 +32,8 @@ export interface SelectUIComponents {
   ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
+export type SelectContentProps = Pick<ComponentProps<typeof PopoverPrimitive.Content>, 'align' | 'side' | 'sideOffset'>;
+
 export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
   options: SelectOption[];
   value?: string;
@@ -40,6 +43,7 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   className?: string;
   contentClassName?: string;
   itemClassName?: string;
+  contentProps?: SelectContentProps;
   components?: Partial<SelectUIComponents>;
   // Search behavior
   searchable?: boolean;
@@ -65,6 +69,7 @@ export function Select({
   className,
   contentClassName,
   itemClassName,
+  contentProps,
   components,
   searchable = true,
   searchInputProps,
@@ -134,8 +139,9 @@ export function Select({
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           ref={popoverRef}
-          align="start"
-          sideOffset={4}
+          align={contentProps?.align ?? 'start'}
+          side={contentProps?.side}
+          sideOffset={contentProps?.sideOffset ?? 4}
           className={cn(
             'z-50 rounded-md border bg-popover text-popover-foreground shadow-md outline-none',
             'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
