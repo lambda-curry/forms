@@ -17,9 +17,9 @@ import {
   useId,
   useRef,
 } from 'react';
-export interface SelectOption {
+export interface SelectOption<T extends React.Key = string> {
   label: string;
-  value: string;
+  value: T;
 }
 
 export interface SelectUIComponents {
@@ -34,10 +34,11 @@ export interface SelectUIComponents {
 
 export type SelectContentProps = Pick<ComponentProps<typeof PopoverPrimitive.Content>, 'align' | 'side' | 'sideOffset'>;
 
-export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
-  options: SelectOption[];
-  value?: string;
-  onValueChange?: (value: string) => void;
+export interface SelectProps<T extends React.Key = string>
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
+  options: SelectOption<T>[];
+  value?: T;
+  onValueChange?: (value: T) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -50,7 +51,7 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   searchInputProps?: React.ComponentPropsWithoutRef<typeof CommandInput>;
   // Creatable behavior
   creatable?: boolean;
-  onCreateOption?: (input: string) => SelectOption | Promise<SelectOption>;
+  onCreateOption?: (input: string) => SelectOption<T> | Promise<SelectOption<T>>;
   createOptionLabel?: (input: string) => string;
 }
 
@@ -60,7 +61,7 @@ const DefaultSearchInput = forwardRef<HTMLInputElement, React.ComponentPropsWith
 );
 DefaultSearchInput.displayName = 'SelectSearchInput';
 
-export function Select({
+export function Select<T extends React.Key = string>({
   options,
   value,
   onValueChange,
@@ -77,7 +78,7 @@ export function Select({
   onCreateOption,
   createOptionLabel,
   ...buttonProps
-}: SelectProps) {
+}: SelectProps<T>) {
   const popoverState = useOverlayTriggerState({});
   const listboxId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -132,7 +133,7 @@ export function Select({
           aria-controls={listboxId}
           {...buttonProps}
         >
-          {value !== '' ? (selectedOption?.label ?? value) : placeholder}
+          {value != null ? (selectedOption?.label ?? String(value)) : placeholder}
           <ChevronIcon className="w-4 h-4 opacity-50" />
         </Trigger>
       </PopoverTrigger>
@@ -175,8 +176,8 @@ export function Select({
                   const isSelected = option.value === value;
                   const commonProps = {
                     'data-selected': isSelected ? 'true' : 'false',
-                    'data-value': option.value,
-                    'data-testid': `select-option-${option.value}`,
+                    'data-value': String(option.value),
+                    'data-testid': `select-option-${String(option.value)}`,
                   } as const;
 
                   // When a custom Item is provided, use asChild to let it render as the actual item element
@@ -240,7 +241,7 @@ export function Select({
                   const lower = q.toLowerCase();
                   const hasExactMatch =
                     q.length > 0 &&
-                    options.some((o) => o.label.toLowerCase() === lower || o.value.toLowerCase() === lower);
+                    options.some((o) => o.label.toLowerCase() === lower || String(o.value).toLowerCase() === lower);
                   if (!creatable || !q || hasExactMatch) return null;
                   const label = createOptionLabel?.(q) ?? `Select "${q}"`;
                   return (
@@ -252,7 +253,7 @@ export function Select({
                       onSelect={async () => {
                         if (!onCreateOption) return;
                         const created = await onCreateOption(q);
-                        if (created?.value) onValueChange?.(created.value);
+                        onValueChange?.(created.value);
                         popoverState.close();
                       }}
                       className={cn(
