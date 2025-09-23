@@ -1,6 +1,8 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Popover } from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
+import type * as React from 'react';
+
 import { useOverlayTriggerState } from 'react-stately';
 import { PopoverTrigger } from './popover';
 import { cn } from './utils';
@@ -31,6 +33,11 @@ export interface SelectUIComponents {
   ChevronIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
+export type SelectContentProps = Pick<
+  React.ComponentProps<typeof PopoverPrimitive.Content>,
+  'align' | 'side' | 'sideOffset'
+>;
+
 export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
   options: SelectOption[];
   value?: string;
@@ -41,6 +48,8 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   contentClassName?: string;
   itemClassName?: string;
   components?: Partial<SelectUIComponents>;
+  // Content positioning props (forwarded to Radix PopoverPrimitive.Content)
+  contentProps?: SelectContentProps;
   // Search behavior
   searchable?: boolean;
   searchInputProps?: React.ComponentPropsWithoutRef<typeof CommandInput>;
@@ -66,6 +75,7 @@ export function Select({
   contentClassName,
   itemClassName,
   components,
+  contentProps,
   searchable = true,
   searchInputProps,
   creatable = false,
@@ -134,8 +144,9 @@ export function Select({
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           ref={popoverRef}
-          align="start"
-          sideOffset={4}
+          align={contentProps?.align ?? 'start'}
+          side={contentProps?.side}
+          sideOffset={contentProps?.sideOffset ?? 4}
           className={cn(
             'z-50 rounded-md border bg-popover text-popover-foreground shadow-md outline-none',
             'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -147,6 +158,7 @@ export function Select({
           )}
           style={{ width: 'var(--radix-popover-trigger-width)' }}
           data-slot="popover-content"
+          data-align={contentProps?.align ?? 'start'}
         >
           <Command className="bg-white rounded-md focus:outline-none sm:text-sm w-full">
             {searchable && (
