@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.22.2
+
+### Patch Changes
+
+- 8886fe6: Allow Select popover content alignment overrides through `contentProps` and document right-aligned usage.
+
 ## 0.14.2
 
 ### Patch Changes
