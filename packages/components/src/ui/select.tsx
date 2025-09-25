@@ -251,8 +251,12 @@ export function Select<T extends React.Key = string>({
                       value={q}
                       role="option"
                       onSelect={async () => {
-                        if (!onCreateOption) return;
-                        const created = await onCreateOption(q);
+                        const defaultCreate = (input: string): SelectOption<T> => {
+                          const normalized = input.trim();
+                          // Keep value as a string; schema can coerce on submit if needed
+                          return { label: normalized, value: normalized as unknown as T };
+                        };
+                        const created = await Promise.resolve((onCreateOption ?? defaultCreate)(q));
                         onValueChange?.(created.value);
                         popoverState.close();
                       }}

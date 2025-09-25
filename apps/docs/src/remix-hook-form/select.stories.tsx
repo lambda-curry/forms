@@ -530,11 +530,10 @@ const CreatableSelectExample = () => {
         <Select
           name="region"
           label="Custom Region"
-          description="Creatable option enabled"
+          description="Creatable option enabled (defaults to trimming the input and using it as label/value)"
           options={[...US_STATES.slice(0, 5), ...CANADA_PROVINCES.slice(0, 5)]}
           placeholder="Select a custom region"
           creatable
-          onCreateOption={async (input) => ({ label: input, value: input })}
         />
         <Button type="submit">Submit</Button>
         {fetcher.data?.selectedRegion && (
