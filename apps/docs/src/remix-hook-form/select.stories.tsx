@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from 'react';
 import { CanadaProvinceSelect, Select, USStateSelect } from '@lambdacurry/forms/remix-hook-form';
+import { Select as UISelect } from '@lambdacurry/forms/ui/select';
 import { Button } from '@lambdacurry/forms/ui/button';
 import { CANADA_PROVINCES } from '@lambdacurry/forms/ui/data/canada-provinces';
 import { US_STATES } from '@lambdacurry/forms/ui/data/us-states';
@@ -627,6 +629,65 @@ export const CreatableOption: Story = {
 
       // Close the dropdown
       await userEvent.click(regionSelect);
+    });
+  },
+};
+
+// Story to verify custom input type for search input
+const NumberSearchTypeExample = () => {
+  // Use UI Select directly with number-valued options
+  const numberOptions = [
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+    { label: '4', value: 4 },
+    { label: '5', value: 5 },
+    { label: '6', value: 6 },
+    { label: '7', value: 7 },
+    { label: '8', value: 8 },
+    { label: '9', value: 9 },
+    { label: '10', value: 10 },
+    { label: '11', value: 11 },
+    { label: '12', value: 12 },
+    { label: '13', value: 13 },
+    { label: '14', value: 14 },
+    { label: '15', value: 15 },
+    { label: '16', value: 16 },
+    { label: '17', value: 17 },
+    { label: '18', value: 18 },
+    { label: '19', value: 19 },
+    { label: '20', value: 20 },
+  ];
+  const [value, setValue] = React.useState<number | undefined>(10);
+  return (
+    <div style={{ width: 320 }}>
+      <UISelect<number>
+        options={numberOptions}
+        placeholder="Pick a number"
+        searchInputProps={{ type: 'number' }}
+        value={value}
+        onValueChange={setValue}
+      />
+    </div>
+  );
+};
+
+export const NumberSearchInputType: Story = {
+  decorators: [
+    // No router needed for this simple UI-only story
+    (StoryFn) => <StoryFn />,
+  ],
+  render: () => <NumberSearchTypeExample />,
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open select and assert input type is number', async () => {
+      // Open the UI select
+      const trigger = await canvas.findByRole('combobox');
+      await userEvent.click(trigger);
+
+      const input = await within(document.body).findByPlaceholderText('Search...');
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute('type', 'number');
     });
   },
 };

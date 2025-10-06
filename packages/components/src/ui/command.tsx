@@ -30,15 +30,25 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   );
 };
 
-const CommandInput = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>) => (
+type CommandInputProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+  type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
+};
+
+const CommandInput = ({ className, type = 'text', ...props }: CommandInputProps) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <CommandPrimitive.Input
-      className={cn(
-        'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
-        className,
-      )}
-      {...props}
-    />
+    {/*
+      To override the type of the input, we couldn't apply the type attribute to the CommandPrimitive.Input component b/c it's hardcoded as 'text' in the cmdk library
+      Reference: https://github.com/pacocoursey/cmdk/blob/main/cmdk/src/index.tsx#L816
+     */}
+    <CommandPrimitive.Input asChild {...props}>
+      <input
+        type={type}
+        className={cn(
+          'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
+          className,
+        )}
+      />
+    </CommandPrimitive.Input>
   </div>
 );
 
