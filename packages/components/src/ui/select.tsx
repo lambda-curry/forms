@@ -49,6 +49,8 @@ export interface SelectProps<T extends React.Key = string>
   // Search behavior
   searchable?: boolean;
   searchInputProps?: React.ComponentPropsWithoutRef<typeof CommandInput>;
+  // Clear the search input when the dropdown closes
+  clearSearchOnClose?: boolean;
   // Creatable behavior
   creatable?: boolean;
   onCreateOption?: (input: string) => SelectOption<T> | Promise<SelectOption<T>>;
@@ -74,6 +76,7 @@ export function Select<T extends React.Key = string>({
   components,
   searchable = true,
   searchInputProps,
+  clearSearchOnClose = false,
   creatable = false,
   onCreateOption,
   createOptionLabel,
@@ -95,6 +98,13 @@ export function Select<T extends React.Key = string>({
       if (selectedEl) selectedEl.scrollIntoView({ block: 'center' });
     });
   }, [popoverState.isOpen]);
+
+  // When closing, optionally clear the search query to reset the input value
+  useEffect(() => {
+    if (!popoverState.isOpen && clearSearchOnClose) {
+      setSearchQuery('');
+    }
+  }, [popoverState.isOpen, clearSearchOnClose]);
 
   const selectedOption = options.find((o) => o.value === value);
 
