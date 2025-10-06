@@ -30,15 +30,21 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   );
 };
 
-const CommandInput = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>) => (
+type CommandInputProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+  type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
+};
+
+const CommandInput = ({ className, type, ...props }: CommandInputProps) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <CommandPrimitive.Input
-      className={cn(
-        'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
-        className,
-      )}
-      {...props}
-    />
+    <CommandPrimitive.Input asChild {...props}>
+      <input
+        type={type}
+        className={cn(
+          'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
+          className,
+        )}
+      />
+    </CommandPrimitive.Input>
   </div>
 );
 
