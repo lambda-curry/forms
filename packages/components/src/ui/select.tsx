@@ -84,17 +84,26 @@ export function Select<T extends React.Key = string>({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const selectedItemRef = useRef<HTMLElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   // No need for JavaScript width measurement - Radix provides --radix-popover-trigger-width CSS variable
 
   // When opening, ensure the currently selected option is the active item for keyboard nav
+  // and focus the search input if searchable
   useEffect(() => {
-    if (!popoverState.isOpen) return;
+    if (!popoverState.isOpen) {
+      // Clear search query when closing
+      setSearchQuery('');
+      return;
+    }
     requestAnimationFrame(() => {
+      if (searchable && searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
       const selectedEl = selectedItemRef.current as HTMLElement | null;
       if (selectedEl) selectedEl.scrollIntoView({ block: 'center' });
     });
-  }, [popoverState.isOpen]);
+  }, [popoverState.isOpen, searchable]);
 
   const selectedOption = options.find((o) => o.value === value);
 
@@ -116,6 +125,34 @@ export function Select<T extends React.Key = string>({
   const ChevronIcon = components?.ChevronIcon || DefaultChevronIcon;
   const SearchInput = components?.SearchInput || DefaultSearchInput;
 
+  // Handle keydown on trigger to open popover and start typing
+  const handleTriggerKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    // Allow normal keyboard navigation (Enter, Space, Arrow keys, etc.)
+    if (
+      e.key === 'Enter' ||
+      e.key === ' ' ||
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowUp' ||
+      e.key === 'Escape' ||
+      e.key === 'Tab'
+    ) {
+      return;
+    }
+
+    // If it's a printable character and searchable is enabled, open the popover and start typing
+    if (searchable && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      if (!popoverState.isOpen) {
+        popoverState.open();
+      }
+      // Set the initial search query
+      setSearchQuery(e.key);
+    }
+
+    // Call the original onKeyDown if provided
+    buttonProps.onKeyDown?.(e);
+  };
+
   return (
     <Popover open={popoverState.isOpen} onOpenChange={popoverState.setOpen}>
       <PopoverTrigger asChild>
@@ -131,6 +168,7 @@ export function Select<T extends React.Key = string>({
           aria-haspopup="listbox"
           aria-expanded={popoverState.isOpen}
           aria-controls={listboxId}
+          onKeyDown={handleTriggerKeyDown}
           {...buttonProps}
         >
           {value != null && value !== '' ? (selectedOption?.label ?? String(value)) : placeholder}
@@ -159,6 +197,7 @@ export function Select<T extends React.Key = string>({
             {searchable && (
               <div className="px-1.5 pb-1.5 pt-1.5">
                 <SearchInput
+                  ref={searchInputRef}
                   placeholder="Search..."
                   value={searchQuery}
                   onValueChange={(v: string) => {
