@@ -70,9 +70,9 @@ export const useOnFormValueChange = <
 
   useEffect(() => {
     // Early return if no form methods are available or hook is disabled
-    if (!enabled || !formMethods) return;
+    if (!enabled || !formMethods || !formMethods.watch || !formMethods.getValues) return;
 
-    const { watch } = formMethods;
+    const { watch, getValues } = formMethods;
 
     // Subscribe to the field value changes
     const subscription = watch((value, { name: changedFieldName }) => {
@@ -80,7 +80,7 @@ export const useOnFormValueChange = <
       if (changedFieldName === name) {
         const currentValue = value[name] as PathValue<TFieldValues, TName>;
         // Get previous value from the form state
-        const prevValue = formMethods.getValues(name);
+        const prevValue = getValues(name);
 
         onChange(currentValue, prevValue);
       }
