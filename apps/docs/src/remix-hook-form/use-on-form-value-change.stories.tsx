@@ -84,15 +84,9 @@ const CascadingDropdownExample = () => {
     },
   });
 
-  // Don't render if methods is not ready
-  if (!methods || !methods.handleSubmit) {
-    return <div>Loading...</div>;
-  }
-
   // When country changes, update available states and reset state selection
   useOnFormValueChange({
     name: 'country',
-    methods,
     onChange: (value) => {
       const states = statesByCountry[value] || [];
       setAvailableStates(states);
@@ -101,6 +95,11 @@ const CascadingDropdownExample = () => {
       methods.setValue('city', '');
     },
   });
+
+  // Don't render if methods is not ready
+  if (!methods || !methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <RemixFormProvider {...methods}>
@@ -238,31 +237,28 @@ const AutoCalculationExample = () => {
     methods.setValue('total', total.toFixed(2));
   };
 
-  // Don't render if methods is not ready
-  if (!methods || !methods.handleSubmit) {
-    return <div>Loading...</div>;
-  }
-
   // Recalculate when quantity changes
   useOnFormValueChange({
     name: 'quantity',
-    methods,
     onChange: calculateTotal,
   });
 
   // Recalculate when price changes
   useOnFormValueChange({
     name: 'pricePerUnit',
-    methods,
     onChange: calculateTotal,
   });
 
   // Recalculate when discount changes
   useOnFormValueChange({
     name: 'discount',
-    methods,
     onChange: calculateTotal,
   });
+
+  // Don't render if methods is not ready
+  if (!methods || !methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <RemixFormProvider {...methods}>
@@ -396,15 +392,9 @@ const ConditionalFieldsExample = () => {
     },
   });
 
-  // Don't render if methods is not ready
-  if (!methods || !methods.handleSubmit) {
-    return <div>Loading...</div>;
-  }
-
   // Show/hide fields based on delivery type
   useOnFormValueChange({
     name: 'deliveryType',
-    methods,
     onChange: (value) => {
       setShowShipping(value === 'delivery');
       setShowPickup(value === 'pickup');
@@ -417,6 +407,11 @@ const ConditionalFieldsExample = () => {
       }
     },
   });
+
+  // Don't render if methods is not ready
+  if (!methods || !methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <RemixFormProvider {...methods}>
