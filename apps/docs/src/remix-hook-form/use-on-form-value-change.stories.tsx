@@ -96,9 +96,14 @@ const CascadingDropdownExample = () => {
     },
   });
 
+  // Don't render if methods is not ready
+  if (!methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} className="w-96">
+      <form onSubmit={methods.handleSubmit} className="w-96">
         <div className="space-y-6">
           <Select
             name="country"
@@ -131,7 +136,7 @@ const CascadingDropdownExample = () => {
           </Button>
           {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
         </div>
-      </fetcher.Form>
+      </form>
     </RemixFormProvider>
   );
 };
@@ -250,9 +255,14 @@ const AutoCalculationExample = () => {
     onChange: calculateTotal,
   });
 
+  // Don't render if methods is not ready
+  if (!methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} className="w-96">
+      <form onSubmit={methods.handleSubmit} className="w-96">
         <div className="space-y-6">
           <TextField type="number" name="quantity" label="Quantity" description="Number of items" min={1} />
 
@@ -290,7 +300,7 @@ const AutoCalculationExample = () => {
           </Button>
           {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
         </div>
-      </fetcher.Form>
+      </form>
     </RemixFormProvider>
   );
 };
@@ -398,9 +408,14 @@ const ConditionalFieldsExample = () => {
     },
   });
 
+  // Don't render if methods is not ready
+  if (!methods.handleSubmit) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <RemixFormProvider {...methods}>
-      <fetcher.Form onSubmit={methods.handleSubmit} className="w-96">
+      <form onSubmit={methods.handleSubmit} className="w-96">
         <div className="space-y-6">
           <Select
             name="deliveryType"
@@ -441,7 +456,7 @@ const ConditionalFieldsExample = () => {
           </Button>
           {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
         </div>
-      </fetcher.Form>
+      </form>
     </RemixFormProvider>
   );
 };

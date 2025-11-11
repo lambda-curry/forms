@@ -68,10 +68,11 @@ export const useOnFormValueChange = <
   const contextMethods = useRemixFormContext<TFieldValues>();
   const formMethods = providedMethods || contextMethods;
 
-  const { watch } = formMethods;
-
   useEffect(() => {
-    if (!enabled) return;
+    // Early return if no form methods are available or hook is disabled
+    if (!enabled || !formMethods) return;
+
+    const { watch } = formMethods;
 
     // Subscribe to the field value changes
     const subscription = watch((value, { name: changedFieldName }) => {
@@ -87,5 +88,5 @@ export const useOnFormValueChange = <
 
     // Cleanup subscription on unmount
     return () => subscription.unsubscribe();
-  }, [name, onChange, enabled, watch, formMethods]);
+  }, [name, onChange, enabled, formMethods]);
 };
