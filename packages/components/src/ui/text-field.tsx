@@ -10,8 +10,13 @@ import {
   FormMessage,
 } from './form';
 import { type InputProps, TextInput } from './text-input';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from './input-group';
 import { cn } from './utils';
 
+/**
+ * @deprecated Use InputGroupAddon with InputGroupText instead
+ * These components are kept for backward compatibility but will be removed in a future version.
+ */
 export const FieldPrefix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (
     <div
@@ -25,6 +30,10 @@ export const FieldPrefix = ({ children, className }: { children: React.ReactNode
   );
 };
 
+/**
+ * @deprecated Use InputGroupAddon with InputGroupText instead
+ * These components are kept for backward compatibility but will be removed in a future version.
+ */
 export const FieldSuffix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (
     <div
@@ -72,30 +81,35 @@ export const TextField = function TextField({
       control={control}
       name={name}
       render={({ field, fieldState }) => {
+        // Use the new InputGroup pattern when prefix or suffix is provided
+        const hasAddon = prefix || suffix;
+
         return (
           <FormItem className={className}>
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
-            <div
-              className={cn('flex group transition-all duration-200 rounded-md', {
-                'field__input--with-prefix': prefix,
-                'field__input--with-suffix': suffix,
-                'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background': true,
-              })}
-            >
-              {prefix && <FieldPrefix>{prefix}</FieldPrefix>}
+            {hasAddon ? (
+              // New shadcn/ui InputGroup pattern
               <FormControl Component={components?.FormControl}>
-                <InputComponent
-                  {...field}
-                  {...props}
-                  ref={ref}
-                  className={cn('focus-visible:ring-0 focus-visible:ring-offset-0 border-input', {
-                    'rounded-l-none border-l-0': prefix,
-                    'rounded-r-none border-r-0': suffix,
-                  })}
-                />
+                <InputGroup>
+                  {prefix && (
+                    <InputGroupAddon>
+                      <InputGroupText>{prefix}</InputGroupText>
+                    </InputGroupAddon>
+                  )}
+                  <InputGroupInput {...field} {...props} ref={ref} aria-invalid={fieldState.error ? 'true' : 'false'} />
+                  {suffix && (
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText>{suffix}</InputGroupText>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
               </FormControl>
-              {suffix && <FieldSuffix>{suffix}</FieldSuffix>}
-            </div>
+            ) : (
+              // Original pattern without addons
+              <FormControl Component={components?.FormControl}>
+                <InputComponent {...field} {...props} ref={ref} />
+              </FormControl>
+            )}
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
             {fieldState.error && (
               <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>

@@ -13,6 +13,7 @@ export * from './date-picker-field';
 export * from './dropdown-menu';
 export * from './form';
 export * from './form-error-field';
+export * from './input-group';
 export * from './label';
 export * from './otp-input';
 export * from './otp-input-field';
