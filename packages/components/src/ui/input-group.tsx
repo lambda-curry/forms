@@ -128,11 +128,8 @@ function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>)
       data-slot="input-group-control"
       className={cn(
         // Match original input styling but remove focus ring/offset (handled by wrapper)
-        // Remove left border and radius if prefix exists, remove right if suffix exists
+        // Border removal for prefix/suffix should be handled by the parent component
         'flex-1 focus-visible:ring-0 focus-visible:ring-offset-0 border-input',
-        // Conditionally remove borders based on presence of addons
-        'group-has-[>[data-align=inline-start]]:rounded-l-none group-has-[>[data-align=inline-start]]:border-l-0',
-        'group-has-[>[data-align=inline-end]]:rounded-r-none group-has-[>[data-align=inline-end]]:border-r-0',
         className,
       )}
       {...props}

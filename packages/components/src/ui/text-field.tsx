@@ -96,7 +96,16 @@ export const TextField = function TextField({
                       <InputGroupText>{prefix}</InputGroupText>
                     </InputGroupAddon>
                   )}
-                  <InputGroupInput {...field} {...props} ref={ref} aria-invalid={fieldState.error ? 'true' : 'false'} />
+                  <InputGroupInput
+                    {...field}
+                    {...props}
+                    ref={ref}
+                    aria-invalid={fieldState.error ? 'true' : 'false'}
+                    className={cn(props.className, {
+                      'rounded-l-none border-l-0': prefix,
+                      'rounded-r-none border-r-0': suffix,
+                    })}
+                  />
                   {suffix && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupText>{suffix}</InputGroupText>
