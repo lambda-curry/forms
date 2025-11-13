@@ -67,7 +67,7 @@ export const TextField = function TextField({
                     {...props}
                     ref={ref}
                     aria-invalid={fieldState.error ? 'true' : 'false'}
-                    className={cn(props.className, {
+                    className={cn(className, {
                       'rounded-l-none border-l-0': prefix,
                       'rounded-r-none border-r-0': suffix,
                     })}
