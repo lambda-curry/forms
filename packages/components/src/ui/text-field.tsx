@@ -13,40 +13,6 @@ import { type InputProps, TextInput } from './text-input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from './input-group';
 import { cn } from './utils';
 
-/**
- * @deprecated Use InputGroupAddon with InputGroupText instead
- * These components are kept for backward compatibility but will be removed in a future version.
- */
-export const FieldPrefix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
-  return (
-    <div
-      className={cn(
-        'flex h-full text-base items-center pl-3 pr-0 text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200 border-y border-l border-input rounded-l-md bg-background',
-        className,
-      )}
-    >
-      <span className="whitespace-nowrap">{children}</span>
-    </div>
-  );
-};
-
-/**
- * @deprecated Use InputGroupAddon with InputGroupText instead
- * These components are kept for backward compatibility but will be removed in a future version.
- */
-export const FieldSuffix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
-  return (
-    <div
-      className={cn(
-        'flex h-full text-base items-center pr-3 pl-0 text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200 border-y border-r border-input rounded-r-md bg-background',
-        className,
-      )}
-    >
-      <span className="whitespace-nowrap">{children}</span>
-    </div>
-  );
-};
-
 // Create a specific interface for the input props that includes className explicitly
 export interface TextInputProps extends Omit<InputProps, 'prefix' | 'suffix'> {
   control?: Control<FieldValues>;
@@ -92,7 +58,7 @@ export const TextField = function TextField({
               <FormControl Component={components?.FormControl}>
                 <InputGroup>
                   {prefix && (
-                    <InputGroupAddon>
+                    <InputGroupAddon align="start">
                       <InputGroupText>{prefix}</InputGroupText>
                     </InputGroupAddon>
                   )}
@@ -107,7 +73,7 @@ export const TextField = function TextField({
                     })}
                   />
                   {suffix && (
-                    <InputGroupAddon align="inline-end">
+                    <InputGroupAddon align="end">
                       <InputGroupText>{suffix}</InputGroupText>
                     </InputGroupAddon>
                   )}

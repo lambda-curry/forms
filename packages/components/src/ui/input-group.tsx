@@ -15,16 +15,9 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="input-group"
       role="group"
       className={cn(
-        // Match original TextField wrapper styling: simple border with focus-within ring
-        'group/input-group flex w-full rounded-md transition-all duration-200',
+        // Simple wrapper with focus-within ring, matching original design
+        'group flex w-full rounded-md transition-all duration-200',
         'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background',
-
-        // Variants based on alignment - simplified to match original behavior
-        'has-[>[data-align=inline-start]]:[&>input]:pl-2',
-        'has-[>[data-align=inline-end]]:[&>input]:pr-2',
-        'has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-3',
-        'has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3',
-
         className,
       )}
       {...props}
@@ -32,46 +25,26 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-const inputGroupAddonVariants = cva(
-  // Match original FieldPrefix/FieldSuffix styling: simple borders with gray text
-  'flex h-full text-base items-center text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200 border-y border-input bg-background',
-  {
-    variants: {
-      align: {
-        // inline-start = prefix (left side)
-        'inline-start': 'order-first pl-3 pr-0 border-l rounded-l-md',
-        // inline-end = suffix (right side)
-        'inline-end': 'order-last pr-3 pl-0 border-r rounded-r-md',
-        // block alignment for advanced use cases
-        'block-start': 'order-first w-full justify-start px-3 pt-3 pb-2',
-        'block-end': 'order-last w-full justify-start px-3 pt-2 pb-3',
-      },
-    },
-    defaultVariants: {
-      align: 'inline-start',
-    },
-  },
-);
-
 function InputGroupAddon({
   className,
-  align = 'inline-start',
+  align = 'start',
   ...props
-}: React.ComponentProps<'div'> & VariantProps<typeof inputGroupAddonVariants>) {
+}: React.ComponentProps<'div'> & { align?: 'start' | 'end' }) {
+  const isPrefix = align === 'start';
+  const isSuffix = align === 'end';
+
   return (
-    // biome-ignore lint/a11y/useSemanticElements: role="group" is appropriate for input group addons per WAI-ARIA
-    // biome-ignore lint/a11y/useKeyWithClickEvents: onClick is for focus management, not interactive action
     <div
-      role="group"
-      data-slot="input-group-addon"
-      data-align={align}
-      className={cn(inputGroupAddonVariants({ align }), className)}
-      onClick={(e) => {
-        if ((e.target as HTMLElement).closest('button')) {
-          return;
-        }
-        e.currentTarget.parentElement?.querySelector('input')?.focus();
-      }}
+      className={cn(
+        // Base styling matching original FieldPrefix/FieldSuffix
+        'flex h-10 items-center text-base text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200',
+        'border border-input bg-background',
+        // Prefix styling (left side)
+        isPrefix && 'pl-3 pr-0 rounded-l-md border-r-0',
+        // Suffix styling (right side)
+        isSuffix && 'pr-3 pl-0 rounded-r-md border-l-0',
+        className,
+      )}
       {...props}
     />
   );
@@ -110,16 +83,7 @@ function InputGroupButton({
 }
 
 function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
-  return (
-    <span
-      className={cn(
-        // Match original FieldPrefix/FieldSuffix inner span: simple whitespace-nowrap
-        'whitespace-nowrap',
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <span className={cn('whitespace-nowrap', className)} {...props} />;
 }
 
 function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>) {
