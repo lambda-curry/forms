@@ -2,6 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRigh
 import { useSearchParams } from 'react-router';
 import { Button } from '../button';
 import { Select } from '../select';
+import { cn } from '../utils';
 
 interface DataTablePaginationProps {
   pageCount: number;
@@ -24,9 +25,13 @@ export function DataTablePagination({ pageCount, onPaginationChange }: DataTable
   return (
     <nav
       aria-label="Data table pagination"
-      className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2"
+      className={cn(
+        "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-2",
+        "h-[var(--lc-datatable-pagination-height,140px)]",
+        "sm:h-[var(--lc-datatable-pagination-height,96px)]",
+      )}
     >
-      <div className="flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
+      <div className="max-sm:hidden flex-1 text-sm text-muted-foreground">{pageSize} rows per page</div>
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>

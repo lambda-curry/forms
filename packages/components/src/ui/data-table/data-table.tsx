@@ -19,10 +19,10 @@ export function DataTable<TData>({
   className,
 }: DataTableProps<TData>) {
   return (
-    <div className={cn('space-y-4', className)}>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
+    <div className={cn('space-y-4 h-full [--lc-datatable-pagination-height:140px] sm:[--lc-datatable-pagination-height:96px]', className)}>
+      <div className="rounded-md border flex flex-col max-h-[calc(100%-var(--lc-datatable-pagination-height,140px)-1rem)] sm:max-h-[calc(100%-var(--lc-datatable-pagination-height,96px)-1rem)] overflow-hidden">
+        <Table className="[&>div]:h-full [&>div>table]:h-full">
+          <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -35,7 +35,7 @@ export function DataTable<TData>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className={cn(!table.getRowModel().rows?.length && 'min-h-[calc(100%-3rem)]')}>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
@@ -45,8 +45,8 @@ export function DataTable<TData>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns} className="h-24 text-center">
+              <TableRow className="h-full">
+                <TableCell colSpan={columns} className="h-full text-center">
                   No results.
                 </TableCell>
               </TableRow>

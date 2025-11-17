@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryContext, StoryObj } from '@storybook/react';
+import { expect, within } from '@storybook/test';
 import { useMemo } from 'react';
 import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router';
 import { columnConfigs, columns } from './data-table-stories.components';
@@ -252,9 +253,199 @@ function DataTableWithBazzaFilters() {
   );
 }
 
+// --- DataTableWithScrolling ---
+function DataTableWithScrolling() {
+  // Get the loader data (filtered/paginated/sorted data from server)
+  const loaderData = useLoaderData<DataResponse>();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize data from loader response
+  const data = loaderData?.data ?? [];
+  const pageCount = loaderData?.meta.pageCount ?? 0;
+  const facetedCounts = loaderData?.facetedCounts ?? {};
+
+  // Convert facetedCounts to the correct type for useDataTableFilters (Map-based)
+  const facetedOptionCounts = useMemo(() => {
+    const result: Partial<Record<string, Map<string, number>>> = {};
+    Object.entries(facetedCounts).forEach(([col, valueObj]) => {
+      result[col] = new Map(Object.entries(valueObj));
+    });
+    return result;
+  }, [facetedCounts]);
+
+  // --- Bazza UI Filter Setup ---
+  // 1. Initialize filters state with useFilterSync (syncs with URL)
+  const [filters, setFilters] = useFilterSync();
+
+  // --- Read pagination and sorting directly from URL ---
+  // Use larger page size to ensure scrolling is needed
+  const pageIndex = Number.parseInt(searchParams.get('page') ?? '0', 10);
+  const pageSize = Number.parseInt(searchParams.get('pageSize') ?? '20', 10);
+  const sortField = searchParams.get('sortField');
+  const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+
+  // --- Pagination and Sorting State ---
+  const pagination = { pageIndex, pageSize };
+  const sorting = sortField ? [{ id: sortField, desc: sortOrder === 'desc' }] : [];
+
+  // --- Event Handlers: update URL directly ---
+  const handlePaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(pagination) : updaterOrValue;
+    searchParams.set('page', next.pageIndex.toString());
+    searchParams.set('pageSize', next.pageSize.toString());
+    setSearchParams(searchParams);
+  };
+
+  const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue;
+    if (next.length > 0) {
+      searchParams.set('sortField', next[0].id);
+      searchParams.set('sortOrder', next[0].desc ? 'desc' : 'asc');
+    } else {
+      searchParams.delete('sortField');
+      searchParams.delete('sortOrder');
+    }
+    setSearchParams(searchParams);
+  };
+
+  // --- Bazza UI Filter Setup ---
+  const bazzaProcessedColumns = useMemo(() => columnConfigs, []);
+
+  // Define a filter strategy (replace with your actual strategy if needed)
+  const filterStrategy = 'server' as const;
+
+  // Setup filter actions and strategy (controlled mode)
+  const {
+    columns: filterColumns,
+    actions,
+    strategy,
+  } = useDataTableFilters({
+    columnsConfig: bazzaProcessedColumns,
+    filters,
+    onFiltersChange: setFilters,
+    faceted: facetedOptionCounts,
+    strategy: filterStrategy,
+    data,
+  });
+
+  // --- TanStack Table Setup ---
+  const table = useReactTable({
+    data,
+    columns,
+    pageCount,
+    state: {
+      pagination,
+      sorting,
+    },
+    onPaginationChange: handlePaginationChange,
+    onSortingChange: handleSortingChange,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    manualSorting: true,
+  });
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Data Table with Scrolling and Sticky Header</h1>
+        <p className="text-gray-600 mb-6">
+          This demonstrates the table with vertical scrolling and a sticky header that remains visible while scrolling
+          through table rows. The table is contained within a fixed-height container.
+        </p>
+      </div>
+
+      {/* Bazza UI Filter Interface */}
+      <DataTableFilter columns={filterColumns} filters={filters} actions={actions} strategy={strategy} />
+
+      <div className="h-[500px] overflow-hidden">
+        {/* Data Table */}
+        <DataTable table={table} columns={columns.length} pageCount={pageCount} />
+      </div>
+    </div>
+  );
+}
+
 // --- Test Functions ---
 const testInitialRenderServerSide = testInitialRender('Issues Table (Bazza UI Server Filters via Loader)');
 const testPaginationServerSide = testPagination({ serverSide: true });
+
+/**
+ * Test scrolling functionality and sticky header
+ */
+const testScrolling = async ({ canvasElement }: StoryContext) => {
+  const canvas = within(canvasElement);
+
+  // Wait for table to render
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  // Find the table container
+  const tableContainer = canvasElement.querySelector('[class*="rounded-md border"]');
+  expect(tableContainer).toBeInTheDocument();
+
+  // Find the scrollable area (the div inside Table component)
+  const scrollableArea = tableContainer?.querySelector('[class*="overflow-auto"]') as HTMLElement | null;
+  expect(scrollableArea).toBeInTheDocument();
+
+  // Verify scrollable area exists and has content
+  if (!scrollableArea) {
+    throw new Error('Scrollable area not found');
+  }
+
+  // Get initial scroll position
+  const initialScrollTop = scrollableArea.scrollTop;
+  expect(initialScrollTop).toBe(0);
+
+  // Verify scroll height is greater than client height (content is scrollable)
+  const isScrollable = scrollableArea.scrollHeight > scrollableArea.clientHeight;
+  expect(isScrollable).toBe(true);
+
+  // Find the table header
+  const header = canvasElement.querySelector('thead');
+  expect(header).toBeInTheDocument();
+
+  if (!header) {
+    throw new Error('Table header not found');
+  }
+
+  // Get header position before scrolling
+  const headerBeforeScroll = header.getBoundingClientRect();
+  const headerTopBefore = headerBeforeScroll.top;
+
+  // Scroll down
+  scrollableArea.scrollTop = 200;
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  // Verify that we scrolled (browser may round the scroll position, so check for reasonable scroll amount)
+  expect(scrollableArea.scrollTop).toBeGreaterThan(0);
+  expect(scrollableArea.scrollTop).toBeGreaterThan(100); // Verify we scrolled a reasonable amount
+
+  // Verify header is still visible and sticky
+  const headerAfterScroll = header.getBoundingClientRect();
+  expect(headerAfterScroll).toBeDefined();
+
+  // The header should have sticky positioning
+  const headerStyles = window.getComputedStyle(header);
+  expect(headerStyles.position).toBe('sticky');
+  expect(headerStyles.top).toBe('0px');
+
+  // Verify header position relative to container hasn't changed (it's sticky)
+  const headerTopAfter = headerAfterScroll.top;
+  // Header should remain at the top of the scrollable container
+  expect(headerTopAfter).toBeGreaterThanOrEqual(headerTopBefore - 10); // Allow small margin for rounding
+
+  // Scroll back to top
+  scrollableArea.scrollTop = 0;
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  expect(scrollableArea.scrollTop).toBe(0);
+};
+
+/**
+ * Test initial render for scrolling story
+ */
+const testInitialRenderScrolling = testInitialRender('Data Table with Scrolling and Sticky Header');
 
 // --- Story Configuration ---
 const meta: Meta<typeof DataTableWithBazzaFilters> = {
@@ -430,5 +621,34 @@ function DataTableWithBazzaFilters() {
     await testInitialRenderServerSide(context);
     await testPaginationServerSide(context);
     await testFiltering(context);
+  },
+};
+
+export const WithScrolling: Story = {
+  args: {},
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the data table with vertical scrolling and a sticky header. The table is contained within a fixed-height container (500px) and uses a larger page size (20 rows) to ensure scrolling is needed. The header remains visible while scrolling through table rows.',
+      },
+    },
+  },
+  render: () => <DataTableWithScrolling />,
+  decorators: [
+    withReactRouterStubDecorator({
+      routes: [
+        {
+          path: '/',
+          Component: DataTableWithScrolling,
+          loader: handleDataFetch,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    // Run the tests in sequence
+    await testInitialRenderScrolling(context);
+    await testScrolling(context);
   },
 };
