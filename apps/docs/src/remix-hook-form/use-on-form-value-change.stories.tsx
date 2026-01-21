@@ -4,8 +4,8 @@ import { useOnFormValueChange } from '@lambdacurry/forms/remix-hook-form/hooks/u
 import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within, screen, waitFor } from '@storybook/test';
-import { useState, useMemo } from 'react';
+import { expect, userEvent, within, waitFor } from '@storybook/test';
+import { useState, useMemo, useCallback } from 'react';
 import { useFetcher } from 'react-router';
 import { useRemixForm, RemixFormProvider, getValidatedFormData } from 'remix-hook-form';
 import { z } from 'zod';
@@ -87,16 +87,21 @@ const CascadingDropdownExample = () => {
   });
 
   // When country changes, update available states and reset state selection
-  useOnFormValueChange({
-    name: 'country',
-    methods,
-    onChange: (value) => {
+  const handleCountryChange = useCallback(
+    (value: string) => {
       const states = statesByCountry[value] || [];
       setAvailableStates(states);
       // Reset state when country changes
       methods.setValue('state', '');
       methods.setValue('city', '');
     },
+    [methods],
+  );
+
+  useOnFormValueChange({
+    name: 'country',
+    methods,
+    onChange: handleCountryChange,
   });
 
   // Don't render if methods is not ready
@@ -236,7 +241,7 @@ const AutoCalculationExample = () => {
   // which can disrupt interaction tests using Portals
   const methods = useMemo(() => rawMethods, [rawMethods]);
 
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     const quantity = Number.parseFloat(methods.getValues('quantity') || '0');
     const pricePerUnit = Number.parseFloat(methods.getValues('pricePerUnit') || '0');
     const discount = Number.parseFloat(methods.getValues('discount') || '0');
@@ -244,7 +249,7 @@ const AutoCalculationExample = () => {
     const subtotal = quantity * pricePerUnit;
     const total = subtotal - subtotal * (discount / 100);
     methods.setValue('total', total.toFixed(2));
-  };
+  }, [methods]);
 
   // Recalculate when quantity changes
   useOnFormValueChange({
@@ -409,10 +414,8 @@ const ConditionalFieldsExample = () => {
   const methods = useMemo(() => rawMethods, [rawMethods]);
 
   // Show/hide fields based on delivery type
-  useOnFormValueChange({
-    name: 'deliveryType',
-    methods,
-    onChange: (value) => {
+  const handleDeliveryTypeChange = useCallback(
+    (value: string) => {
       setShowShipping(value === 'delivery');
       setShowPickup(value === 'pickup');
 
@@ -423,6 +426,13 @@ const ConditionalFieldsExample = () => {
         methods.setValue('shippingAddress', '');
       }
     },
+    [methods],
+  );
+
+  useOnFormValueChange({
+    name: 'deliveryType',
+    methods,
+    onChange: handleDeliveryTypeChange,
   });
 
   // Don't render if methods is not ready
