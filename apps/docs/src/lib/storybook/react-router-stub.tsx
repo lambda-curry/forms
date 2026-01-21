@@ -31,6 +31,11 @@ interface RemixStubOptions {
 export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorator => {
   const { routes, initialPath = '/' } = options;
 
+  // We define the Stub component outside the return function to ensure it's not recreated
+  // on every render of the Story component itself.
+  const CachedStub: ComponentType<{ initialEntries?: string[] }> | null = null;
+  const lastMappedRoutes: StubRouteObject[] | null = null;
+
   return (Story, context) => {
     // Map routes to include the Story component if no Component is provided
     const mappedRoutes = useMemo(
@@ -39,18 +44,18 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
           ...route,
           Component: route.Component ?? Story,
         })),
-      [routes, Story],
+      [Story],
     );
 
     // Get the base path (without existing query params from options)
-    const basePath = initialPath.split('?')[0];
+    const basePath = useMemo(() => initialPath.split('?')[0], []);
 
     // Get the current search string from the actual browser window, if available
     // If not available, use a default search string with parameters needed for the data table
     const currentWindowSearch = typeof window !== 'undefined' ? window.location.search : '?page=0&pageSize=10';
 
     // Combine them for the initial entry
-    const actualInitialPath = `${basePath}${currentWindowSearch}`;
+    const actualInitialPath = useMemo(() => `${basePath}${currentWindowSearch}`, [basePath, currentWindowSearch]);
 
     // Use React Router's official createRoutesStub
     // We memoize the Stub component to prevent unnecessary remounts of the entire story

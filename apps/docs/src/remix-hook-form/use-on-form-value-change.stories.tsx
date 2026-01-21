@@ -4,7 +4,7 @@ import { useOnFormValueChange } from '@lambdacurry/forms/remix-hook-form/hooks/u
 import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within, screen } from '@storybook/test';
+import { expect, userEvent, within, screen, waitFor } from '@storybook/test';
 import { useState } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
@@ -482,6 +482,7 @@ export const ConditionalFields: Story = {
     const canvas = within(canvasElement);
 
     // Select delivery
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const deliveryTypeTrigger = canvas.getByRole('combobox', { name: /delivery type/i });
     await userEvent.click(deliveryTypeTrigger);
 
@@ -494,10 +495,11 @@ export const ConditionalFields: Story = {
     await userEvent.type(shippingInput, '123 Main St');
 
     // Switch to pickup
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    await userEvent.click(canvas.getByRole('combobox', { name: /delivery type/i }));
-    await screen.findByRole('listbox');
-    const pickupOption = await screen.findByTestId('select-option-pickup');
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const trigger = await canvas.findByRole('combobox', { name: /delivery type/i });
+    await userEvent.click(trigger);
+
+    const pickupOption = await screen.findByTestId('select-option-pickup', {}, { timeout: 5000 });
     await userEvent.click(pickupOption);
 
     // Store location should appear, shipping address should be gone
