@@ -30,11 +30,13 @@ const TestFormWithError = ({
   formErrorName = '_form',
   customComponents = {},
   className = '',
+  message = '',
 }: {
   initialErrors?: Record<string, { message: string }>;
   formErrorName?: string;
   customComponents?: { FormMessage?: React.ComponentType<FormMessageProps> };
   className?: string;
+  message?: string;
 }) => {
   const mockFetcher = {
     data: { errors: initialErrors },
@@ -55,7 +57,7 @@ const TestFormWithError = ({
   return (
     <RemixFormProvider {...methods}>
       <form onSubmit={methods.handleSubmit}>
-        <FormError name={formErrorName} className={className} components={customComponents} />
+        <FormError name={formErrorName} className={className} components={customComponents} message={message} />
         <TextField name="email" label="Email" />
         <TextField name="password" label="Password" />
         <Button type="submit">Submit</Button>
@@ -310,6 +312,31 @@ describe('FormError Component', () => {
       render(<TestFormWithError initialErrors={errors} />);
 
       expect(screen.getByText(specialMessage)).toBeInTheDocument();
+    });
+  });
+
+  describe('Uncontrolled Mode', () => {
+    it('displays manual message when provided', () => {
+      render(<TestFormWithError message="Manual error message" />);
+
+      expect(screen.getByText('Manual error message')).toBeInTheDocument();
+    });
+
+    it('manual message takes precedence over form state error', () => {
+      const errors = {
+        _form: { message: 'Form state error' },
+      };
+
+      render(<TestFormWithError initialErrors={errors} message="Manual error message" />);
+
+      expect(screen.getByText('Manual error message')).toBeInTheDocument();
+      expect(screen.queryByText('Form state error')).not.toBeInTheDocument();
+    });
+
+    it('renders even when form context is missing if message is provided', () => {
+      // Our implementation should be resilient.
+      render(<FormError message="Context-less error" />);
+      expect(screen.getByText('Context-less error')).toBeInTheDocument();
     });
   });
 

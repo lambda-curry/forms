@@ -7,7 +7,8 @@ export interface FormErrorFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
   control?: Control<TFieldValues>;
-  name: TName;
+  name?: TName;
+  message?: string;
   className?: string;
   components?: Partial<FieldComponents>;
 }
@@ -18,9 +19,22 @@ export const FormErrorField = <
 >({
   control,
   name,
+  message,
   className,
   components,
 }: FormErrorFieldProps<TFieldValues, TName>) => {
+  if (message) {
+    return (
+      <FormItem className={className}>
+        <FormMessage Component={components?.FormMessage}>{message}</FormMessage>
+      </FormItem>
+    );
+  }
+
+  if (!name) {
+    return null;
+  }
+
   return (
     <FormField
       control={control}
