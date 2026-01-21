@@ -10,6 +10,7 @@ export * from './data-table-router-toolbar';
 export * from './date-picker';
 export * from './form';
 export * from './form-error';
+export * from './hooks/use-on-form-value-change';
 export * from './hooks/useScrollToErrorOnSubmit';
 export * from './otp-input';
 export * from './password-field';
