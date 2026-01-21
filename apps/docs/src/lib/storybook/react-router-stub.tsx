@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { Decorator } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
 import {
@@ -32,10 +33,14 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
 
   return (Story, context) => {
     // Map routes to include the Story component if no Component is provided
-    const mappedRoutes = routes.map((route) => ({
-      ...route,
-      Component: route.Component ?? (() => <Story {...context.args} />),
-    }));
+    const mappedRoutes = useMemo(
+      () =>
+        routes.map((route) => ({
+          ...route,
+          Component: route.Component ?? Story,
+        })),
+      [routes, Story],
+    );
 
     // Get the base path (without existing query params from options)
     const basePath = initialPath.split('?')[0];
@@ -48,9 +53,13 @@ export const withReactRouterStubDecorator = (options: RemixStubOptions): Decorat
     const actualInitialPath = `${basePath}${currentWindowSearch}`;
 
     // Use React Router's official createRoutesStub
-    const Stub = createRoutesStub(mappedRoutes);
+    // We memoize the Stub component to prevent unnecessary remounts of the entire story
+    // when the decorator re-renders.
+    const Stub = useMemo(() => createRoutesStub(mappedRoutes), [mappedRoutes]);
 
-    return <Stub initialEntries={[actualInitialPath]} />;
+    const initialEntries = useMemo(() => [actualInitialPath], [actualInitialPath]);
+
+    return <Stub initialEntries={initialEntries} />;
   };
 };
 

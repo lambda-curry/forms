@@ -4,7 +4,7 @@ import { useOnFormValueChange } from '@lambdacurry/forms/remix-hook-form/hooks/u
 import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, within, screen } from '@storybook/test';
 import { useState } from 'react';
 import { type ActionFunctionArgs, useFetcher } from 'react-router';
 import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
@@ -87,6 +87,7 @@ const CascadingDropdownExample = () => {
   // When country changes, update available states and reset state selection
   useOnFormValueChange({
     name: 'country',
+    methods,
     onChange: (value) => {
       const states = statesByCountry[value] || [];
       setAvailableStates(states);
@@ -160,7 +161,7 @@ export const CascadingDropdowns: Story = {
     await userEvent.click(countryTrigger);
 
     // Wait for dropdown to open and select USA
-    const usaOption = await canvas.findByRole('option', { name: /united states/i });
+    const usaOption = await screen.findByTestId('select-option-usa');
     await userEvent.click(usaOption);
 
     // Verify state dropdown is now enabled
@@ -169,7 +170,7 @@ export const CascadingDropdowns: Story = {
 
     // Select a state
     await userEvent.click(stateTrigger);
-    const californiaOption = await canvas.findByRole('option', { name: /california/i });
+    const californiaOption = await screen.findByTestId('select-option-california');
     await userEvent.click(californiaOption);
 
     // Enter city
@@ -240,18 +241,21 @@ const AutoCalculationExample = () => {
   // Recalculate when quantity changes
   useOnFormValueChange({
     name: 'quantity',
+    methods,
     onChange: calculateTotal,
   });
 
   // Recalculate when price changes
   useOnFormValueChange({
     name: 'pricePerUnit',
+    methods,
     onChange: calculateTotal,
   });
 
   // Recalculate when discount changes
   useOnFormValueChange({
     name: 'discount',
+    methods,
     onChange: calculateTotal,
   });
 
@@ -395,6 +399,7 @@ const ConditionalFieldsExample = () => {
   // Show/hide fields based on delivery type
   useOnFormValueChange({
     name: 'deliveryType',
+    methods,
     onChange: (value) => {
       setShowShipping(value === 'delivery');
       setShowPickup(value === 'pickup');
@@ -480,7 +485,7 @@ export const ConditionalFields: Story = {
     const deliveryTypeTrigger = canvas.getByRole('combobox', { name: /delivery type/i });
     await userEvent.click(deliveryTypeTrigger);
 
-    const deliveryOption = await canvas.findByRole('option', { name: /home delivery/i });
+    const deliveryOption = await screen.findByTestId('select-option-delivery');
     await userEvent.click(deliveryOption);
 
     // Shipping address field should appear
@@ -489,8 +494,10 @@ export const ConditionalFields: Story = {
     await userEvent.type(shippingInput, '123 Main St');
 
     // Switch to pickup
-    await userEvent.click(deliveryTypeTrigger);
-    const pickupOption = await canvas.findByRole('option', { name: /store pickup/i });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await userEvent.click(canvas.getByRole('combobox', { name: /delivery type/i }));
+    await screen.findByRole('listbox');
+    const pickupOption = await screen.findByTestId('select-option-pickup');
     await userEvent.click(pickupOption);
 
     // Store location should appear, shipping address should be gone
@@ -499,7 +506,7 @@ export const ConditionalFields: Story = {
 
     // Select a store
     await userEvent.click(storeSelect);
-    const mallOption = await canvas.findByRole('option', { name: /shopping mall/i });
+    const mallOption = await screen.findByTestId('select-option-mall');
     await userEvent.click(mallOption);
 
     // Submit form
