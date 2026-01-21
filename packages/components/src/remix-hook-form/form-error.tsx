@@ -4,14 +4,18 @@ import { FormErrorField } from '../ui/form-error-field';
 
 export type FormErrorProps = {
   name?: string;
+  message?: string;
   className?: string;
   components?: Partial<FieldComponents>;
 };
 
-export function FormError({ name = '_form', ...props }: FormErrorProps) {
-  const { control } = useRemixFormContext();
+export function FormError({ name, message, ...props }: FormErrorProps) {
+  const context = useRemixFormContext();
+  const control = context?.control;
 
-  return <FormErrorField control={control} name={name} {...props} />;
+  const effectiveName = name ?? (message ? undefined : '_form');
+
+  return <FormErrorField control={control} name={effectiveName} message={message} {...props} />;
 }
 
 FormError.displayName = 'FormError';
