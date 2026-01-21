@@ -22,15 +22,15 @@ export async function selectRadixOption(
 
   // 2. Wait for the listbox to appear in the document body (Portal)
   // We use findByRole on screen to wait for the element to mount.
-  await screen.findByRole('listbox');
+  // We use a slightly longer timeout for CI stability.
+  const listbox = await screen.findByRole('listbox', {}, { timeout: 3000 });
 
-  // 3. Find the option
-  // Scoping the search to document.body ensures we find the portal content.
+  // 3. Find the option specifically WITHIN the listbox
   let option: HTMLElement;
   if (optionTestId) {
-    option = await screen.findByTestId(optionTestId);
+    option = await within(listbox).findByTestId(optionTestId);
   } else {
-    option = await screen.findByRole('option', { name: optionName });
+    option = await within(listbox).findByRole('option', { name: optionName });
   }
 
   // 4. Click the option

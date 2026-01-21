@@ -332,7 +332,8 @@ export const AutoCalculation: Story = {
     const canvas = within(canvasElement);
 
     // Initial total should be calculated
-    const totalInput = canvas.getByLabelText(/^total$/i);
+    // Use findBy to bridge the "loading" gap
+    const totalInput = await canvas.findByLabelText(/^total$/i);
     expect(totalInput).toHaveValue('100.00');
 
     // Change quantity
