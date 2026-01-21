@@ -512,10 +512,14 @@ export const ConditionalFields: Story = {
 
     // Shipping address field should appear
     const shippingInput = await canvas.findByLabelText(/shipping address/i);
+    if (!shippingInput) throw new Error('Shipping address input not found');
     expect(shippingInput).toBeInTheDocument();
     await userEvent.type(shippingInput, '123 Main St');
 
     // Switch to pickup
+    // Give the DOM a moment to settle after the previous interaction
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     await selectRadixOption(canvasElement, {
       triggerName: /delivery type/i,
       optionName: /store pickup/i,
@@ -524,6 +528,7 @@ export const ConditionalFields: Story = {
 
     // Store location should appear, shipping address should be gone
     const storeSelect = await canvas.findByRole('combobox', { name: /store location/i });
+    if (!storeSelect) throw new Error('Store location select not found');
     expect(storeSelect).toBeInTheDocument();
 
     // Select a store
@@ -535,6 +540,7 @@ export const ConditionalFields: Story = {
 
     // Submit form
     const submitButton = canvas.getByRole('button', { name: /complete order/i });
+    if (!submitButton) throw new Error('Submit button not found');
     await userEvent.click(submitButton);
 
     // Verify success message
