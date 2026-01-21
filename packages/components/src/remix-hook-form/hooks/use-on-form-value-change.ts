@@ -1,7 +1,21 @@
 import { useEffect } from 'react';
-import type { FieldPath, FieldValues, PathValue } from 'react-hook-form';
-import type { UseRemixFormReturn } from 'remix-hook-form';
-import { useRemixFormContext } from 'remix-hook-form';
+import {
+  useFormContext,
+  type FieldPath,
+  type FieldValues,
+  type PathValue,
+  type UseFormReturn,
+  type WatchObserver,
+} from 'react-hook-form';
+
+/**
+ * Minimal interface for form methods required by useOnFormValueChange.
+ * This helps avoid type conflicts between react-hook-form and remix-hook-form.
+ */
+export interface WatchableFormMethods<TFieldValues extends FieldValues = FieldValues> {
+  watch: UseFormReturn<TFieldValues>['watch'];
+  getValues: UseFormReturn<TFieldValues>['getValues'];
+}
 
 export interface UseOnFormValueChangeOptions<
   TFieldValues extends FieldValues = FieldValues,
@@ -20,7 +34,7 @@ export interface UseOnFormValueChangeOptions<
   /**
    * Optional form methods if not using RemixFormProvider context
    */
-  methods?: UseRemixFormReturn<TFieldValues>;
+  methods?: WatchableFormMethods<TFieldValues>;
   /**
    * Whether the hook is enabled (default: true)
    */
@@ -64,9 +78,11 @@ export const useOnFormValueChange = <
 ) => {
   const { name, onChange, methods: providedMethods, enabled = true } = options;
 
-  // Use provided methods or fall back to context
-  const contextMethods = useRemixFormContext<TFieldValues>();
-  const formMethods = providedMethods || contextMethods;
+  // Use provided methods or fall back to context.
+  // We use useFormContext from react-hook-form instead of useRemixFormContext from remix-hook-form
+  // because useRemixFormContext crashes if it's called outside of a provider.
+  const contextMethods = useFormContext<TFieldValues>();
+  const formMethods = (providedMethods || contextMethods) as WatchableFormMethods<TFieldValues> | null;
 
   useEffect(() => {
     // Early return if no form methods are available or hook is disabled
@@ -75,7 +91,7 @@ export const useOnFormValueChange = <
     const { watch, getValues } = formMethods;
 
     // Subscribe to the field value changes
-    const subscription = watch((value, { name: changedFieldName }) => {
+    const subscription = watch(((value, { name: changedFieldName }) => {
       // Only trigger onChange if the watched field changed
       if (changedFieldName === name) {
         const currentValue = value[name] as PathValue<TFieldValues, TName>;
@@ -84,9 +100,10 @@ export const useOnFormValueChange = <
 
         onChange(currentValue, prevValue);
       }
-    });
+    }) as WatchObserver<TFieldValues>);
 
     // Cleanup subscription on unmount
+
     return () => subscription.unsubscribe();
   }, [name, onChange, enabled, formMethods]);
 };
