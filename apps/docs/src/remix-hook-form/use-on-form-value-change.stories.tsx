@@ -5,10 +5,12 @@ import { Select } from '@lambdacurry/forms/remix-hook-form/select';
 import { TextField } from '@lambdacurry/forms/remix-hook-form/text-field';
 import type { Meta, StoryContext, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within, screen, waitFor } from '@storybook/test';
-import { useState } from 'react';
-import { type ActionFunctionArgs, useFetcher } from 'react-router';
-import { getValidatedFormData, RemixFormProvider, useRemixForm } from 'remix-hook-form';
+import { useState, useMemo } from 'react';
+import { useFetcher } from 'react-router';
+import { useRemixForm, RemixFormProvider, getValidatedFormData } from 'remix-hook-form';
 import { z } from 'zod';
+import type { ActionFunctionArgs } from 'react-router';
+import { selectRadixOption } from '../lib/storybook/test-utils';
 import { withReactRouterStubDecorator } from '../lib/storybook/react-router-stub';
 
 /**
@@ -156,22 +158,24 @@ export const CascadingDropdowns: Story = {
   play: async ({ canvasElement }: StoryContext) => {
     const canvas = within(canvasElement);
 
-    // Select a country
-    const countryTrigger = canvas.getByRole('combobox', { name: /country/i });
-    await userEvent.click(countryTrigger);
+    // Select USA
+    await selectRadixOption(canvasElement, {
+      triggerName: /country/i,
+      optionName: /united states/i,
+      optionTestId: 'select-option-usa',
+    });
 
-    // Wait for dropdown to open and select USA
-    const usaOption = await screen.findByTestId('select-option-usa');
-    await userEvent.click(usaOption);
+    // Select a state (wait for it to be enabled)
+    await waitFor(() => {
+      const stateTrigger = canvas.getByRole('combobox', { name: /state/i });
+      expect(stateTrigger).not.toBeDisabled();
+    });
 
-    // Verify state dropdown is now enabled
-    const stateTrigger = canvas.getByRole('combobox', { name: /state/i });
-    expect(stateTrigger).not.toBeDisabled();
-
-    // Select a state
-    await userEvent.click(stateTrigger);
-    const californiaOption = await screen.findByTestId('select-option-california');
-    await userEvent.click(californiaOption);
+    await selectRadixOption(canvasElement, {
+      triggerName: /state/i,
+      optionName: /california/i,
+      optionTestId: 'select-option-california',
+    });
 
     // Enter city
     const cityInput = canvas.getByLabelText(/city/i);
@@ -213,7 +217,7 @@ type OrderFormData = z.infer<typeof orderSchema>;
 const AutoCalculationExample = () => {
   const fetcher = useFetcher<{ message: string }>();
 
-  const methods = useRemixForm<OrderFormData>({
+  const rawMethods = useRemixForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
       quantity: '1',
@@ -227,6 +231,10 @@ const AutoCalculationExample = () => {
       method: 'post',
     },
   });
+
+  // Memoize methods to prevent unnecessary re-renders of the story tree
+  // which can disrupt interaction tests using Portals
+  const methods = useMemo(() => rawMethods, [rawMethods]);
 
   const calculateTotal = () => {
     const quantity = Number.parseFloat(methods.getValues('quantity') || '0');
@@ -382,7 +390,7 @@ const ConditionalFieldsExample = () => {
   const [showShipping, setShowShipping] = useState(false);
   const [showPickup, setShowPickup] = useState(false);
 
-  const methods = useRemixForm<ShippingFormData>({
+  const rawMethods = useRemixForm<ShippingFormData>({
     resolver: zodResolver(shippingSchema),
     defaultValues: {
       deliveryType: '',
@@ -395,6 +403,9 @@ const ConditionalFieldsExample = () => {
       method: 'post',
     },
   });
+
+  // Memoize methods to prevent unnecessary re-renders of the story tree
+  const methods = useMemo(() => rawMethods, [rawMethods]);
 
   // Show/hide fields based on delivery type
   useOnFormValueChange({
@@ -482,12 +493,11 @@ export const ConditionalFields: Story = {
     const canvas = within(canvasElement);
 
     // Select delivery
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const deliveryTypeTrigger = canvas.getByRole('combobox', { name: /delivery type/i });
-    await userEvent.click(deliveryTypeTrigger);
-
-    const deliveryOption = await screen.findByTestId('select-option-delivery');
-    await userEvent.click(deliveryOption);
+    await selectRadixOption(canvasElement, {
+      triggerName: /delivery type/i,
+      optionName: /home delivery/i,
+      optionTestId: 'select-option-delivery',
+    });
 
     // Shipping address field should appear
     const shippingInput = await canvas.findByLabelText(/shipping address/i);
@@ -495,21 +505,22 @@ export const ConditionalFields: Story = {
     await userEvent.type(shippingInput, '123 Main St');
 
     // Switch to pickup
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const trigger = await canvas.findByRole('combobox', { name: /delivery type/i });
-    await userEvent.click(trigger);
-
-    const pickupOption = await screen.findByTestId('select-option-pickup', {}, { timeout: 5000 });
-    await userEvent.click(pickupOption);
+    await selectRadixOption(canvasElement, {
+      triggerName: /delivery type/i,
+      optionName: /store pickup/i,
+      optionTestId: 'select-option-pickup',
+    });
 
     // Store location should appear, shipping address should be gone
     const storeSelect = await canvas.findByRole('combobox', { name: /store location/i });
     expect(storeSelect).toBeInTheDocument();
 
     // Select a store
-    await userEvent.click(storeSelect);
-    const mallOption = await screen.findByTestId('select-option-mall');
-    await userEvent.click(mallOption);
+    await selectRadixOption(canvasElement, {
+      triggerName: /store location/i,
+      optionName: /shopping mall/i,
+      optionTestId: 'select-option-mall',
+    });
 
     // Submit form
     const submitButton = canvas.getByRole('button', { name: /complete order/i });
