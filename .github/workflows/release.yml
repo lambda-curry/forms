@@ -24,6 +24,7 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+          # registry-url enables OIDC authentication for npm publish
 
       - name: Enable Corepack
         run: corepack enable
@@ -43,3 +44,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # No NPM_TOKEN needed - using trusted publishing via OIDC
+          # The registry-url in setup-node@v4 enables OIDC authentication
+          # npm CLI 11.5.1+ automatically detects OIDC and uses it for publish
