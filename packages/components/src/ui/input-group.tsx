@@ -16,7 +16,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
       role="group"
       className={cn(
         // Simple wrapper with focus-within ring, matching original design
-        'group flex w-full rounded-md transition-all duration-200',
+        'group flex w-full min-w-0 rounded-md transition-all duration-200',
         'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background',
         className,
       )}
@@ -27,11 +27,13 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
 
 function InputGroupAddon({
   className,
-  align = 'start',
+  align = 'inline-start',
   ...props
-}: React.ComponentProps<'div'> & { align?: 'start' | 'end' }) {
-  const isPrefix = align === 'start';
-  const isSuffix = align === 'end';
+}: React.ComponentProps<'div'> & { align?: 'inline-start' | 'inline-end' | 'block-start' | 'block-end' }) {
+  const isInlineStart = align === 'inline-start';
+  const isInlineEnd = align === 'inline-end';
+  const isBlockStart = align === 'block-start';
+  const isBlockEnd = align === 'block-end';
 
   return (
     <div
@@ -39,10 +41,14 @@ function InputGroupAddon({
         // Base styling matching original FieldPrefix/FieldSuffix
         'flex h-10 items-center text-base text-gray-500 group-focus-within:text-gray-700 transition-colors duration-200',
         'border border-input bg-background',
-        // Prefix styling (left side)
-        isPrefix && 'pl-3 pr-0 rounded-l-md border-r-0',
-        // Suffix styling (right side)
-        isSuffix && 'pr-3 pl-0 rounded-r-md border-l-0',
+        // Inline-start styling (left side)
+        isInlineStart && 'pl-3 pr-0 rounded-l-md border-r-0',
+        // Inline-end styling (right side)
+        isInlineEnd && 'pr-3 pl-0 rounded-r-md border-l-0',
+        // Block-start styling (above)
+        isBlockStart && 'border-b-0 rounded-b-none',
+        // Block-end styling (below)
+        isBlockEnd && 'border-t-0 rounded-t-none',
         className,
       )}
       {...props}

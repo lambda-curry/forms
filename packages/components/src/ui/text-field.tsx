@@ -55,10 +55,11 @@ export const TextField = function TextField({
             {label && <FormLabel Component={components?.FormLabel}>{label}</FormLabel>}
             {hasAddon ? (
               // New shadcn/ui InputGroup pattern
+              // Note: Addons are placed after input in DOM for focus management, but align prop handles visual positioning
               <FormControl Component={components?.FormControl}>
                 <InputGroup>
                   {prefix && (
-                    <InputGroupAddon align="start">
+                    <InputGroupAddon align="inline-start">
                       <InputGroupText>{prefix}</InputGroupText>
                     </InputGroupAddon>
                   )}
@@ -67,13 +68,13 @@ export const TextField = function TextField({
                     {...props}
                     ref={ref}
                     aria-invalid={fieldState.error ? 'true' : 'false'}
-                    className={cn(className, {
+                    className={cn({
                       'rounded-l-none border-l-0': prefix,
                       'rounded-r-none border-r-0': suffix,
                     })}
                   />
                   {suffix && (
-                    <InputGroupAddon align="end">
+                    <InputGroupAddon align="inline-end">
                       <InputGroupText>{suffix}</InputGroupText>
                     </InputGroupAddon>
                   )}
@@ -82,7 +83,7 @@ export const TextField = function TextField({
             ) : (
               // Original pattern without addons
               <FormControl Component={components?.FormControl}>
-                <InputComponent {...field} {...props} ref={ref} />
+                <InputComponent {...field} {...props} ref={ref} className={className} />
               </FormControl>
             )}
             {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
