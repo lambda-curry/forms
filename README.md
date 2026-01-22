@@ -128,3 +128,134 @@ The PR preview is deployed to the `gh-pages` branch in a directory structure lik
 ```
 /pr-preview/pr-[PR_NUMBER]/
 ```
+
+## Publishing
+
+Releases can be published either automatically via CI/CD (using npm trusted publishers) or manually from the command line.
+
+### Automatic Publishing (CI/CD)
+
+When you merge changes to `main` with version updates, the GitHub Actions workflow will automatically publish to npm using [npm trusted publishers](https://docs.npmjs.com/trusted-publishers). This uses OIDC authentication and doesn't require npm tokens.
+
+**Setup required:** Configure trusted publishers on npmjs.com for the `@lambdacurry/forms` package (see setup instructions below).
+
+#### Setting Up Trusted Publishers
+
+1. Go to your package on npmjs.com: https://www.npmjs.com/package/@lambdacurry/forms
+2. Navigate to **Settings** → **Trusted Publisher** section
+3. Click **"Select your publisher"** → **GitHub Actions**
+4. Configure the following:
+   - **Organization or user**: `lambda-curry` (or your GitHub username)
+   - **Repository**: `forms`
+   - **Workflow filename**: `release.yml` (must match exactly, including `.yml` extension)
+5. Click **Save**
+
+The workflow file must exist at `.github/workflows/release.yml` in your repository. Once configured, publishes from the `main` branch will use OIDC authentication automatically.
+
+### Manual Publishing
+
+You can also publish manually from the command line when needed.
+
+### Prerequisites
+
+1. **Ensure you're logged into npm:**
+   ```bash
+   npm login
+   ```
+   You must be logged in as a user with publish permissions for the `@lambdacurry` organization.
+
+2. **Verify your npm credentials:**
+   ```bash
+   npm whoami
+   ```
+
+3. **Ensure you're on the `main` branch and up to date:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+### Release Process
+
+#### Step 1: Create Changesets (if needed)
+
+If you have changes that need to be documented in the changelog, create a changeset:
+
+```bash
+yarn changeset
+```
+
+Follow the prompts to:
+- Select which packages to include
+- Choose the version bump type (patch, minor, major)
+- Write a summary of the changes
+
+#### Step 2: Version Packages
+
+This updates package versions and generates the changelog:
+
+```bash
+yarn changeset version
+```
+
+This will:
+- Update `packages/components/package.json` with the new version
+- Update `packages/components/CHANGELOG.md` with the new entries
+- Remove the consumed changeset files
+
+#### Step 3: Build and Test
+
+Before publishing, ensure everything builds and tests pass:
+
+```bash
+yarn build
+yarn test
+```
+
+#### Step 4: Publish to npm
+
+Publish the package to npm using changesets:
+
+```bash
+yarn release
+```
+
+This command runs `changeset publish`, which:
+- Runs `yarn build` (via `prepublishOnly` hook in package.json)
+- Publishes `@lambdacurry/forms` to npm (uses npm under the hood)
+- Creates git tags for the release
+- Requires you to be logged into npm (`npm login`)
+
+**Note:** `changeset publish` uses npm CLI internally, so you must be authenticated with npm. The changeset system handles versioning, changelog generation, and publishing all in one workflow.
+
+#### Step 5: Commit and Push
+
+After successful publishing, commit the version changes and push:
+
+```bash
+git add .
+git commit -m "chore(release): publish vX.Y.Z"
+git push origin main
+```
+
+### Alternative: Direct npm Publish (Without Changesets)
+
+If you need to publish without using changesets (e.g., for a hotfix), you can use npm directly:
+
+```bash
+# From the packages/components directory
+cd packages/components
+npm version patch -m "chore: bump version to %s"
+cd ../..
+yarn install  # Update yarn.lock
+yarn workspace @lambdacurry/forms build
+npm publish --workspace=packages/components
+```
+
+**Note:** This bypasses the changeset workflow, so you'll need to manually update the CHANGELOG.md if you want to document the release.
+
+### Troubleshooting
+
+- **"Not logged in" error**: Run `npm login` and verify with `npm whoami`
+- **"Permission denied"**: Ensure your npm user has publish permissions for `@lambdacurry` organization
+- **Build fails**: Fix build errors before publishing. The `prepublishOnly` hook will prevent publishing if the build fails

@@ -8,7 +8,7 @@ You are an expert release manager for a Yarn 4 monorepo who uses the npm CLI for
 - Treat new components and minor fixes as patch releases when they are additive and low-risk.
 - Reserve minor/major only for notable feature waves or breaking changes.
 
-Note: While the repo supports Changesets for broader release coordination, this rule documents the npm CLI flow for quick iterations.
+Note: The primary release workflow uses Changesets (`yarn changeset` → `yarn changeset version` → automatic CI/CD publish). This rule documents the npm CLI flow for quick iterations when bypassing changesets.
 
 ## What Counts As “Small”
 - Additive components (new UI or form wrappers) without breaking changes
@@ -47,7 +47,8 @@ Guidelines:
 
 ## Open PR and Merge
 - Push your branch and open a PR.
-- When the PR merges into `main`, GitHub CI publishes the package. No manual tagging or `npm publish` needed.
+- When the PR merges into `main`, GitHub CI automatically publishes the package using npm trusted publishers (OIDC). No manual tagging or `npm publish` needed, and no npm tokens required.
+- **Note:** The release workflow uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers) for secure, tokenless publishing. Ensure the trusted publisher is configured on npmjs.com for the package.
 
 ## Minor / Major (When Needed)
 - Minor: larger feature sets or notable additions across multiple components
