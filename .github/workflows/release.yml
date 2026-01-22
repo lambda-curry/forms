@@ -26,6 +26,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           # registry-url enables OIDC authentication for npm publish
 
+      - name: Install npm 11.5.1+ for trusted publishing
+        run: npm install -g npm@latest
+        # Trusted publishing requires npm CLI 11.5.1 or later
+
       - name: Enable Corepack
         run: corepack enable
 
@@ -44,6 +48,14 @@ jobs:
             echo "✓ OIDC environment detected"
           else
             echo "⚠ OIDC environment not detected"
+          fi
+          # Verify npm version meets trusted publishing requirement (11.5.1+)
+          NPM_VERSION=$(npm --version | cut -d. -f1,2)
+          REQUIRED_VERSION="11.5"
+          if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$NPM_VERSION" | sort -V | head -n1)" = "$REQUIRED_VERSION" ]; then
+            echo "✓ npm version meets trusted publishing requirement (11.5.1+)"
+          else
+            echo "⚠ npm version may be too old for trusted publishing (requires 11.5.1+)"
           fi
 
       - name: Create Release Pull Request or Publish to npm
