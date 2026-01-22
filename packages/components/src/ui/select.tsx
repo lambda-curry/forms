@@ -57,7 +57,7 @@ export interface SelectProps<T extends React.Key = string>
 
 // Default search input built on top of CommandInput. Supports cmdk props at runtime.
 const DefaultSearchInput = forwardRef<HTMLInputElement, React.ComponentPropsWithoutRef<typeof CommandInput>>(
-  (props, _ref) => <CommandInput {...props} />,
+  (props, ref) => <CommandInput {...props} />,
 );
 DefaultSearchInput.displayName = 'SelectSearchInput';
 
@@ -97,8 +97,16 @@ export function Select<T extends React.Key = string>({
       return;
     }
     requestAnimationFrame(() => {
-      if (searchable && searchInputRef.current) {
-        searchInputRef.current.focus();
+      if (searchable) {
+        // Query for the input element since CommandInput uses asChild and ref forwarding is complex
+        const inputElement = popoverRef.current?.querySelector<HTMLInputElement>('input[type="text"]');
+        if (inputElement) {
+          inputElement.focus();
+          const selectionEnd = inputElement.value.length;
+          if (selectionEnd > 0) {
+            inputElement.setSelectionRange(selectionEnd, selectionEnd);
+          }
+        }
       }
       const selectedEl = selectedItemRef.current as HTMLElement | null;
       if (selectedEl) selectedEl.scrollIntoView({ block: 'center' });
