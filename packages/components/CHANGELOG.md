@@ -6,6 +6,7 @@
 
 - 39156a7: Enable typing to open and search select dropdowns. When focused on a select trigger, typing any printable character will open the dropdown, focus the search input, and pre-populate the search with the typed character.
 - 6921b25: Fix cursor positioning when focusing search input in select dropdowns. Prevents text selection when opening select dropdown via typing, allowing users to continue typing without overwriting the first character.
+- 1860649: Fix circular dependency in DataTableFilter import by importing directly from component file instead of index.
 - bca6619: Add uncontrolled mode to FormError component via a manual `message` prop.
 
 ## 0.22.2
