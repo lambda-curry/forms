@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.22.6
+
+### Patch Changes
+
+- bca6619: Add uncontrolled mode to FormError component via a manual `message` prop.
+
 ## 0.22.2
 
 ### Patch Changes
