@@ -26,7 +26,15 @@ export default defineConfig({
       input: Object.fromEntries(
         glob
           .sync('src/**/*.{ts,tsx}', {
-            ignore: ['src/**/*.d.ts'],
+            ignore: [
+              'src/**/*.d.ts',
+              'src/**/core/types.ts', // Exclude type-only files to avoid empty chunks
+            ],
+          })
+          .filter((file) => {
+            // Exclude files that are likely type-only (e.g., files that only export types)
+            // This prevents empty chunk warnings
+            return !file.includes('/core/types');
           })
           .map((file) => [
             // The name of the entry point
