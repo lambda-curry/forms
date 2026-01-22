@@ -9,7 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   id-token: write # Required for OIDC trusted publishing
-  contents: read
+  contents: write # Required for pushing git tags after publishing
 
 jobs:
   release:
