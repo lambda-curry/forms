@@ -128,3 +128,105 @@ The PR preview is deployed to the `gh-pages` branch in a directory structure lik
 ```
 /pr-preview/pr-[PR_NUMBER]/
 ```
+
+## Publishing
+
+Releases are published manually from the command line. This ensures full control over the release process and avoids CI/CD token management issues.
+
+### Prerequisites
+
+1. **Ensure you're logged into npm:**
+   ```bash
+   npm login
+   ```
+   You must be logged in as a user with publish permissions for the `@lambdacurry` organization.
+
+2. **Verify your npm credentials:**
+   ```bash
+   npm whoami
+   ```
+
+3. **Ensure you're on the `main` branch and up to date:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+### Release Process
+
+#### Step 1: Create Changesets (if needed)
+
+If you have changes that need to be documented in the changelog, create a changeset:
+
+```bash
+yarn changeset
+```
+
+Follow the prompts to:
+- Select which packages to include
+- Choose the version bump type (patch, minor, major)
+- Write a summary of the changes
+
+#### Step 2: Version Packages
+
+This updates package versions and generates the changelog:
+
+```bash
+yarn changeset version
+```
+
+This will:
+- Update `packages/components/package.json` with the new version
+- Update `packages/components/CHANGELOG.md` with the new entries
+- Remove the consumed changeset files
+
+#### Step 3: Build and Test
+
+Before publishing, ensure everything builds and tests pass:
+
+```bash
+yarn build
+yarn test
+```
+
+#### Step 4: Publish to npm
+
+Publish the package to npm:
+
+```bash
+yarn release
+```
+
+This command:
+- Runs `yarn build` (via `prepublishOnly` hook)
+- Publishes `@lambdacurry/forms` to npm using `changeset publish`
+
+#### Step 5: Commit and Push
+
+After successful publishing, commit the version changes and push:
+
+```bash
+git add .
+git commit -m "chore(release): publish vX.Y.Z"
+git push origin main
+```
+
+### Quick Release (No Changesets)
+
+If you just need to bump the version without changesets (e.g., for a hotfix), you can use npm directly:
+
+```bash
+# From the packages/components directory
+cd packages/components
+npm version patch -m "chore: bump version to %s"
+cd ../..
+yarn install  # Update yarn.lock
+yarn workspace @lambdacurry/forms build
+npm publish --workspace=packages/components
+```
+
+### Troubleshooting
+
+- **"Not logged in" error**: Run `npm login` and verify with `npm whoami`
+- **"Permission denied"**: Ensure your npm user has publish permissions for `@lambdacurry` organization
+- **Build fails**: Fix build errors before publishing. The `prepublishOnly` hook will prevent publishing if the build fails
