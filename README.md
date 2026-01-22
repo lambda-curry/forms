@@ -131,7 +131,30 @@ The PR preview is deployed to the `gh-pages` branch in a directory structure lik
 
 ## Publishing
 
-Releases are published manually from the command line. This ensures full control over the release process and avoids CI/CD token management issues.
+Releases can be published either automatically via CI/CD (using npm trusted publishers) or manually from the command line.
+
+### Automatic Publishing (CI/CD)
+
+When you merge changes to `main` with version updates, the GitHub Actions workflow will automatically publish to npm using [npm trusted publishers](https://docs.npmjs.com/trusted-publishers). This uses OIDC authentication and doesn't require npm tokens.
+
+**Setup required:** Configure trusted publishers on npmjs.com for the `@lambdacurry/forms` package (see setup instructions below).
+
+#### Setting Up Trusted Publishers
+
+1. Go to your package on npmjs.com: https://www.npmjs.com/package/@lambdacurry/forms
+2. Navigate to **Settings** → **Trusted Publisher** section
+3. Click **"Select your publisher"** → **GitHub Actions**
+4. Configure the following:
+   - **Organization or user**: `lambda-curry` (or your GitHub username)
+   - **Repository**: `forms`
+   - **Workflow filename**: `release.yml` (must match exactly, including `.yml` extension)
+5. Click **Save**
+
+The workflow file must exist at `.github/workflows/release.yml` in your repository. Once configured, publishes from the `main` branch will use OIDC authentication automatically.
+
+### Manual Publishing
+
+You can also publish manually from the command line when needed.
 
 ### Prerequisites
 
