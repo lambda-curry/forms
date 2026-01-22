@@ -35,6 +35,17 @@ jobs:
       - name: Install Dependencies
         run: yarn install --immutable
 
+      - name: Verify npm and OIDC setup
+        run: |
+          echo "npm version: $(npm --version)"
+          echo "Node version: $(node --version)"
+          # Check if we're in a GitHub Actions OIDC environment
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "✓ OIDC environment detected"
+          else
+            echo "⚠ OIDC environment not detected"
+          fi
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
