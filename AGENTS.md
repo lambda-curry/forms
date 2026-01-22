@@ -36,10 +36,12 @@
 - PRs: clear description, linked issues, screenshots or Storybook links, notes on testing.
 - Required checks: `yarn lint` passes; build succeeds; tests updated/added.
 - Versioning: when changing published package(s), add a Changeset (`yarn changeset`) before merge.
+- Publishing: Releases are automatically published via CI/CD using [npm trusted publishers](https://docs.npmjs.com/trusted-publishers) (OIDC). No npm tokens required. See README.md for setup instructions.
 
 ## Security & Configuration
 - Node `22.9.0` (`.nvmrc`) and Yarn 4 (`packageManager`).
 - Do not commit secrets. Keep large artifacts out of VCS (`dist`, `node_modules`).
+- Publishing uses npm trusted publishers (OIDC) - no long-lived tokens needed.
 - PR previews for Storybook are published via GitHub Pages; verify links in PR comments.
 
 ## Cursor Rules Review
@@ -48,7 +50,7 @@
 - `.cursor/rules/form-component-patterns.mdc`: Remix Hook Form + Zod wrappers, errors, server actions.
 - `.cursor/rules/storybook-testing.mdc`: Storybook play tests, router stub decorator, local/CI flows.
 - `.cursor/rules/monorepo-organization.mdc`: Imports/exports, package boundaries, Turbo/Vite/TS paths.
-- `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps (patch-first), CI publishes on merge.
+- `.cursor/rules/versioning-with-npm.mdc`: npm CLI version bumps for quick iterations (patch-first). Primary workflow uses Changesets with automatic CI/CD publishing via npm trusted publishers.
 
 ## Agent OS
 
