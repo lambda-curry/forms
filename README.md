@@ -191,15 +191,19 @@ yarn test
 
 #### Step 4: Publish to npm
 
-Publish the package to npm:
+Publish the package to npm using changesets:
 
 ```bash
 yarn release
 ```
 
-This command:
-- Runs `yarn build` (via `prepublishOnly` hook)
-- Publishes `@lambdacurry/forms` to npm using `changeset publish`
+This command runs `changeset publish`, which:
+- Runs `yarn build` (via `prepublishOnly` hook in package.json)
+- Publishes `@lambdacurry/forms` to npm (uses npm under the hood)
+- Creates git tags for the release
+- Requires you to be logged into npm (`npm login`)
+
+**Note:** `changeset publish` uses npm CLI internally, so you must be authenticated with npm. The changeset system handles versioning, changelog generation, and publishing all in one workflow.
 
 #### Step 5: Commit and Push
 
@@ -211,9 +215,9 @@ git commit -m "chore(release): publish vX.Y.Z"
 git push origin main
 ```
 
-### Quick Release (No Changesets)
+### Alternative: Direct npm Publish (Without Changesets)
 
-If you just need to bump the version without changesets (e.g., for a hotfix), you can use npm directly:
+If you need to publish without using changesets (e.g., for a hotfix), you can use npm directly:
 
 ```bash
 # From the packages/components directory
@@ -224,6 +228,8 @@ yarn install  # Update yarn.lock
 yarn workspace @lambdacurry/forms build
 npm publish --workspace=packages/components
 ```
+
+**Note:** This bypasses the changeset workflow, so you'll need to manually update the CHANGELOG.md if you want to document the release.
 
 ### Troubleshooting
 
