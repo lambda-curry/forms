@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   useFormContext,
   type FieldPath,
@@ -84,21 +84,29 @@ export const useOnFormValueChange = <
   const contextMethods = useFormContext<TFieldValues>();
   const formMethods = (providedMethods || contextMethods) as WatchableFormMethods<TFieldValues> | null;
 
+  // Store previous value in a ref
+  const prevValueRef = useRef<PathValue<TFieldValues, TName> | undefined>(
+    formMethods?.getValues ? formMethods.getValues(name) : undefined,
+  );
+
   useEffect(() => {
     // Early return if no form methods are available or hook is disabled
     if (!enabled || !formMethods || !formMethods.watch || !formMethods.getValues) return;
 
-    const { watch, getValues } = formMethods;
+    const { watch } = formMethods;
 
     // Subscribe to the field value changes
     const subscription = watch(((value, { name: changedFieldName }) => {
       // Only trigger onChange if the watched field changed
       if (changedFieldName === name) {
         const currentValue = value[name] as PathValue<TFieldValues, TName>;
-        // Get previous value from the form state
-        const prevValue = getValues(name);
+        // Get previous value from the ref
+        const prevValue = prevValueRef.current as PathValue<TFieldValues, TName>;
 
         onChange(currentValue, prevValue);
+
+        // Update ref with new value
+        prevValueRef.current = currentValue;
       }
     }) as WatchObserver<TFieldValues>);
 
