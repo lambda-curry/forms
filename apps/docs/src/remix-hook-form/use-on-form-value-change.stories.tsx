@@ -347,8 +347,7 @@ export const AutoCalculation: Story = {
     await userEvent.type(quantityInput, '2');
 
     // Total should update to 200.00
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(totalInput).toHaveValue('200.00');
+    await waitFor(() => expect(totalInput).toHaveValue('200.00'));
 
     // Add discount
     const discountInput = canvas.getByLabelText(/discount/i);
@@ -356,8 +355,7 @@ export const AutoCalculation: Story = {
     await userEvent.type(discountInput, '10');
 
     // Total should update to 180.00 (200 - 10%)
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(totalInput).toHaveValue('180.00');
+    await waitFor(() => expect(totalInput).toHaveValue('180.00'));
 
     // Submit form
     const submitButton = canvas.getByRole('button', { name: /submit order/i });
