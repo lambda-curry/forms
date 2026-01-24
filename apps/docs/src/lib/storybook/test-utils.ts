@@ -46,4 +46,8 @@ export async function selectRadixOption(
     const listbox = screen.queryByRole('listbox');
     if (listbox) throw new Error('Listbox still visible');
   });
+
+  // 6. Blur the trigger to ensure any onBlur events are fired (simulating "clicking off")
+  // This helps when interactions depend on the field losing focus (like updating dirty/touched states)
+  await userEvent.click(document.body);
 }

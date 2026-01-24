@@ -8,6 +8,7 @@ import { expect, userEvent, within, waitFor } from '@storybook/test';
 import { useState, useMemo, useCallback } from 'react';
 import { useFetcher } from 'react-router';
 import { useRemixForm, RemixFormProvider, getValidatedFormData } from 'remix-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 import type { ActionFunctionArgs } from 'react-router';
 import { selectRadixOption } from '../lib/storybook/test-utils';
@@ -219,10 +220,85 @@ const orderSchema = z.object({
 
 type OrderFormData = z.infer<typeof orderSchema>;
 
+// biome-ignore lint/suspicious/noExplicitAny: simple story example
+const AutoCalculationForm = ({ fetcher }: { fetcher: any }) => {
+  const { setValue, getValues, handleSubmit } = useFormContext<OrderFormData>();
+
+  const calculateTotal = useCallback(() => {
+    const quantity = Number.parseFloat(getValues('quantity') || '0');
+    const pricePerUnit = Number.parseFloat(getValues('pricePerUnit') || '0');
+    const discount = Number.parseFloat(getValues('discount') || '0');
+
+    const subtotal = quantity * pricePerUnit;
+    const total = subtotal - subtotal * (discount / 100);
+    setValue('total', total.toFixed(2));
+  }, [setValue, getValues]);
+
+  // Recalculate when quantity changes
+  useOnFormValueChange({
+    name: 'quantity',
+    onChange: calculateTotal,
+  });
+
+  // Recalculate when price changes
+  useOnFormValueChange({
+    name: 'pricePerUnit',
+    onChange: calculateTotal,
+  });
+
+  // Recalculate when discount changes
+  useOnFormValueChange({
+    name: 'discount',
+    onChange: calculateTotal,
+  });
+
+  return (
+    <form onSubmit={handleSubmit} className="w-96">
+      <div className="space-y-6">
+        <TextField type="number" name="quantity" label="Quantity" description="Number of items" min={1} />
+
+        <TextField
+          type="number"
+          name="pricePerUnit"
+          label="Price per Unit"
+          description="Price for each item"
+          prefix="$"
+          min={0}
+          step="0.01"
+        />
+
+        <TextField
+          type="number"
+          name="discount"
+          label="Discount"
+          description="Discount percentage (0-100)"
+          suffix="%"
+          min={0}
+          max={100}
+        />
+
+        <TextField
+          name="total"
+          label="Total"
+          description="Automatically calculated total"
+          prefix="$"
+          disabled
+          className="font-semibold"
+        />
+
+        <Button type="submit" className="w-full">
+          Submit Order
+        </Button>
+        {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
+      </div>
+    </form>
+  );
+};
+
 const AutoCalculationExample = () => {
   const fetcher = useFetcher<{ message: string }>();
 
-  const rawMethods = useRemixForm<OrderFormData>({
+  const methods = useRemixForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
       quantity: '1',
@@ -237,41 +313,6 @@ const AutoCalculationExample = () => {
     },
   });
 
-  // Memoize methods to prevent unnecessary re-renders of the story tree
-  // which can disrupt interaction tests using Portals
-  const methods = useMemo(() => rawMethods, [rawMethods]);
-
-  const calculateTotal = useCallback(() => {
-    const quantity = Number.parseFloat(methods.getValues('quantity') || '0');
-    const pricePerUnit = Number.parseFloat(methods.getValues('pricePerUnit') || '0');
-    const discount = Number.parseFloat(methods.getValues('discount') || '0');
-
-    const subtotal = quantity * pricePerUnit;
-    const total = subtotal - subtotal * (discount / 100);
-    methods.setValue('total', total.toFixed(2));
-  }, [methods]);
-
-  // Recalculate when quantity changes
-  useOnFormValueChange({
-    name: 'quantity',
-    methods,
-    onChange: calculateTotal,
-  });
-
-  // Recalculate when price changes
-  useOnFormValueChange({
-    name: 'pricePerUnit',
-    methods,
-    onChange: calculateTotal,
-  });
-
-  // Recalculate when discount changes
-  useOnFormValueChange({
-    name: 'discount',
-    methods,
-    onChange: calculateTotal,
-  });
-
   // Don't render if methods is not ready
   if (!methods || !methods.handleSubmit) {
     return <div>Loading...</div>;
@@ -279,45 +320,7 @@ const AutoCalculationExample = () => {
 
   return (
     <RemixFormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit} className="w-96">
-        <div className="space-y-6">
-          <TextField type="number" name="quantity" label="Quantity" description="Number of items" min={1} />
-
-          <TextField
-            type="number"
-            name="pricePerUnit"
-            label="Price per Unit"
-            description="Price for each item"
-            prefix="$"
-            min={0}
-            step="0.01"
-          />
-
-          <TextField
-            type="number"
-            name="discount"
-            label="Discount"
-            description="Discount percentage (0-100)"
-            suffix="%"
-            min={0}
-            max={100}
-          />
-
-          <TextField
-            name="total"
-            label="Total"
-            description="Automatically calculated total"
-            prefix="$"
-            disabled
-            className="font-semibold"
-          />
-
-          <Button type="submit" className="w-full">
-            Submit Order
-          </Button>
-          {fetcher.data?.message && <p className="mt-2 text-green-600">{fetcher.data.message}</p>}
-        </div>
-      </form>
+      <AutoCalculationForm fetcher={fetcher} />
     </RemixFormProvider>
   );
 };
@@ -347,8 +350,7 @@ export const AutoCalculation: Story = {
     await userEvent.type(quantityInput, '2');
 
     // Total should update to 200.00
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(totalInput).toHaveValue('200.00');
+    await waitFor(() => expect(totalInput).toHaveValue('200.00'));
 
     // Add discount
     const discountInput = canvas.getByLabelText(/discount/i);
@@ -356,8 +358,7 @@ export const AutoCalculation: Story = {
     await userEvent.type(discountInput, '10');
 
     // Total should update to 180.00 (200 - 10%)
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(totalInput).toHaveValue('180.00');
+    await waitFor(() => expect(totalInput).toHaveValue('180.00'));
 
     // Submit form
     const submitButton = canvas.getByRole('button', { name: /submit order/i });
