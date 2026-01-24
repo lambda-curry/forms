@@ -89,11 +89,12 @@ export const useOnFormValueChange = <
     formMethods?.getValues ? formMethods.getValues(name) : undefined,
   );
 
+  const watch = formMethods?.watch;
+  const getValues = formMethods?.getValues;
+
   useEffect(() => {
     // Early return if no form methods are available or hook is disabled
-    if (!enabled || !formMethods || !formMethods.watch || !formMethods.getValues) return;
-
-    const { watch } = formMethods;
+    if (!enabled || !watch || !getValues) return;
 
     // Subscribe to the field value changes
     const subscription = watch(((value, { name: changedFieldName }) => {
@@ -113,5 +114,5 @@ export const useOnFormValueChange = <
     // Cleanup subscription on unmount
 
     return () => subscription.unsubscribe();
-  }, [name, onChange, enabled, formMethods]);
+  }, [name, onChange, enabled, watch, getValues]);
 };
