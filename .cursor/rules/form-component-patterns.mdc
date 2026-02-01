@@ -207,4 +207,51 @@ export type { ComponentNameProps };
 - Verify server-side validation integration
 - Test component composition and customization
 
+## Consumer Application Setup
+
+When consumers use `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 application, they must configure Vite to bundle packages together. Without this, forms may fail with:
+```
+Error: useHref() may be used only in the context of a <Router> component.
+```
+
+### Required Vite Configuration
+```typescript
+// Consumer's vite.config.ts
+export default defineConfig({
+  ssr: {
+    // Bundle these packages to share react-router context
+    noExternal: ['react-hook-form', 'remix-hook-form', '@lambdacurry/forms']
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form'],
+    dedupe: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
+  }
+});
+```
+
+### Why This Is Needed
+- `remix-hook-form`'s `useRemixForm` hook calls `useHref("/")` internally
+- Without `ssr.noExternal`, Vite treats these as external dependencies
+- This causes packages to load with a separate `react-router` instance
+- The hook then fails because it can't find the router context
+
+### Form Submission with createFormData
+When using `submitHandlers.onValid`, always use `createFormData()`:
+```typescript
+const methods = useRemixForm<FormData>({
+  resolver: zodResolver(schema),
+  fetcher,
+  submitHandlers: {
+    onValid: (data) => {
+      fetcher.submit(createFormData(data), {
+        method: 'post',
+        action: '/api/endpoint',
+      });
+    },
+  },
+});
+```
+
+See `/docs/consumer-setup-guide.md` for complete integration patterns.
+
 Remember: Form components are the core of this library. Every form component should be intuitive, accessible, and integrate seamlessly with the Remix Hook Form + Zod validation pattern.

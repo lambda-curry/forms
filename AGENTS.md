@@ -81,3 +81,4 @@ Quick checklist
 - Forms: Zod schemas, proper messages, `fetcher.Form`, show `FormMessage` errors.
 - Tests: per-story decorators, semantic queries, three-phase play tests; run `yarn test`.
 - Monorepo: no cross-package relative imports; verify `exports`, TS `paths`, Turbo outputs.
+- Consumer integration: For React Router v7 setup help, reference `docs/consumer-setup-guide.md` for Vite SSR configuration (ssr.noExternal, optimizeDeps).

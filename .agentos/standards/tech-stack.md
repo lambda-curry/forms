@@ -34,6 +34,13 @@ Build, Dev, and Distribution
 - apps/docs uses Storybook (React + Vite) for docs and interaction tests
 - packages/components builds to dist/ (do not import from dist inside repo packages)
 
+Consumer SSR/Bundling Requirements
+When consumers use @lambdacurry/forms in React Router v7 applications, they must configure Vite to bundle form packages together:
+- `ssr.noExternal`: Include react-hook-form, remix-hook-form, @lambdacurry/forms
+- `optimizeDeps.dedupe`: Include react, react-dom, react-router, react-hook-form, remix-hook-form
+- This prevents the "useHref() may be used only in the context of a <Router>" error
+- See /docs/consumer-setup-guide.md for complete configuration
+
 Quality: Linting, Formatting, and Testing
 - Lint/format: Biome
   - 2-space indentation; max line width 120; single quotes; organized imports

@@ -66,6 +66,31 @@ const MyTable = () => {
 - Full accessibility support (WCAG 2.1 AA)
 - Comprehensive test coverage
 
+## React Router v7 Integration
+
+When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 application, you need to configure Vite to bundle these packages together to share the router context. Without this, you may encounter the error:
+
+```
+Error: useHref() may be used only in the context of a <Router> component.
+```
+
+Add the following to your application's `vite.config.ts`:
+
+```typescript
+export default defineConfig({
+  // ... your other plugins
+  ssr: {
+    noExternal: ['react-hook-form', 'remix-hook-form', '@lambdacurry/forms']
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form'],
+    dedupe: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
+  }
+});
+```
+
+This ensures all packages share the same `react-router` instance. See the [Consumer Setup Guide](./docs/consumer-setup-guide.md) for complete details and recommended form patterns.
+
 ## Getting Started
 
 Step 1: Install dependencies
