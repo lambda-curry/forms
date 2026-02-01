@@ -55,6 +55,10 @@ const RightAlignedSelectExample = () => {
 };
 
 export const RightAligned: Story = {
+  args: {
+    options: fruits,
+    placeholder: 'Select a fruit...',
+  },
   render: () => <RightAlignedSelectExample />,
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -79,7 +83,7 @@ export const RightAligned: Story = {
       await waitFor(() => {
         expect(document.activeElement).toBe(listbox);
       });
-      await userEvent.keyboard('{ArrowDown}', { focusTrap: false });
+      await userEvent.keyboard('{ArrowDown}');
       await waitFor(() => {
         const activeItem = document.querySelector('[cmdk-item][aria-selected="true"]');
         expect(activeItem).not.toBeNull();
