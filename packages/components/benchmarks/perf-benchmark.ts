@@ -1,5 +1,4 @@
-
-import { performance } from 'perf_hooks';
+import { performance } from 'node:perf_hooks';
 import { dataTableRouterParsers } from '../src/remix-hook-form/data-table-router-parsers';
 
 const ITERATIONS = 10000;

@@ -1,15 +1,13 @@
-import { renderHook, act } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router';
-import { describe, it, expect } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import type React from 'react';
+import { type Location, MemoryRouter, useLocation } from 'react-router';
+import { describe, expect, it } from 'vitest';
 import { useDataTableUrlState } from './use-data-table-url-state';
-import React from 'react';
 
 describe('useDataTableUrlState', () => {
   it('should parse initial state from URL', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MemoryRouter initialEntries={['/?search=initial&page=2&pageSize=20']}>
-        {children}
-      </MemoryRouter>
+      <MemoryRouter initialEntries={['/?search=initial&page=2&pageSize=20']}>{children}</MemoryRouter>
     );
 
     const { result } = renderHook(() => useDataTableUrlState(), { wrapper });
@@ -20,7 +18,7 @@ describe('useDataTableUrlState', () => {
   });
 
   it('should update URL state', () => {
-    let testLocation: any;
+    let testLocation: Location | undefined;
 
     const LocationSpy = () => {
       testLocation = useLocation();
@@ -41,6 +39,6 @@ describe('useDataTableUrlState', () => {
     });
 
     expect(result.current.urlState.search).toBe('updated');
-    expect(testLocation.search).toContain('search=updated');
+    expect(testLocation?.search).toContain('search=updated');
   });
 });
