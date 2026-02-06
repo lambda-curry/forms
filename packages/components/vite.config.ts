@@ -28,6 +28,9 @@ export default defineConfig({
           .sync('src/**/*.{ts,tsx}', {
             ignore: [
               'src/**/*.d.ts',
+              'src/**/*.test.tsx',
+              'src/**/*.test.ts',
+              'src/**/test/**',
               'src/**/core/types.ts', // Exclude type-only files to avoid empty chunks
             ],
           })
