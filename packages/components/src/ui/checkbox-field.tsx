@@ -63,38 +63,47 @@ const CheckboxField = ({
     <FormField
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={cn('flex flex-row items-start space-y-0', className)}>
-          <FormControl Component={components?.FormControl}>
-            <CheckboxComponent
-              ref={field.ref}
-              className={isCustomCheckbox ? undefined : defaultCheckboxClassName}
-              checked={field.value}
-              onCheckedChange={field.onChange}
-              data-slot="checkbox"
-              {...props}
-            >
-              <IndicatorComponent
-                className={isCustomIndicator ? undefined : defaultIndicatorClassName}
-                data-slot="checkbox-indicator"
+      render={({ field, fieldState }) => {
+        const hasSupportingText = Boolean(description || fieldState.error);
+
+        return (
+          <FormItem
+            className={cn('flex flex-row gap-3 space-y-0', hasSupportingText ? 'items-start' : 'items-center', className)}
+          >
+            <FormControl Component={components?.FormControl}>
+              <CheckboxComponent
+                ref={field.ref}
+                className={isCustomCheckbox ? undefined : cn(defaultCheckboxClassName, hasSupportingText && 'mt-px')}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                data-slot="checkbox"
+                {...props}
               >
-                <Check className={cn('h-4 w-4', checkClassName)} />
-              </IndicatorComponent>
-            </CheckboxComponent>
-          </FormControl>
-          <div className="space-y-1 leading-none">
-            {label && (
-              <FormLabel Component={components?.FormLabel} className="!text-inherit">
-                {label}
-              </FormLabel>
-            )}
-            {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
-            {fieldState.error && (
-              <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
-            )}
-          </div>
-        </FormItem>
-      )}
+                <IndicatorComponent
+                  className={isCustomIndicator ? undefined : defaultIndicatorClassName}
+                  data-slot="checkbox-indicator"
+                >
+                  <Check className={cn('h-4 w-4', checkClassName)} />
+                </IndicatorComponent>
+              </CheckboxComponent>
+            </FormControl>
+            <div className={cn(hasSupportingText ? 'relative -top-0.5 space-y-1.5 leading-snug' : 'leading-none')}>
+              {label && (
+                <FormLabel
+                  Component={components?.FormLabel}
+                  className={cn('!text-inherit', hasSupportingText ? 'leading-snug' : 'leading-none')}
+                >
+                  {label}
+                </FormLabel>
+              )}
+              {description && <FormDescription Component={components?.FormDescription}>{description}</FormDescription>}
+              {fieldState.error && (
+                <FormMessage Component={components?.FormMessage}>{fieldState.error.message}</FormMessage>
+              )}
+            </div>
+          </FormItem>
+        );
+      }}
     />
   );
 };
