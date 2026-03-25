@@ -15,7 +15,7 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "bundler",
-    "types": ["@react-router/node", "vite/client"],
+    "types": ["@react-router/node", "vite/client", "node"],
     "rootDirs": [".", "./.react-router/types"]
   },
   "include": ["src", ".react-router/types/**/*"],
