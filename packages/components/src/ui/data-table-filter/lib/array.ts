@@ -138,7 +138,8 @@ export function addUniq<T>(arr: T[], values: T[]): T[] {
 }
 
 export function removeUniq<T>(arr: T[], values: T[]): T[] {
-  return arr.filter((v) => !values.includes(v));
+  const set = new Set(values);
+  return arr.filter((v) => !set.has(v));
 }
 
 export function isAnyOf<T>(value: T, values: T[]): boolean {
