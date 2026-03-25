@@ -228,9 +228,8 @@ export function getColumnValues<TData, TType extends ColumnDataType, TVal>(
   }
 
   if (column.options) {
-    return raw
-      .map((v) => column.options?.find((o) => o.value === v)?.value)
-      .filter((v) => v !== undefined && v !== null);
+    const optionsMap = new Map(column.options.map((o) => [o.value, o.value]));
+    return raw.map((v) => optionsMap.get(v as string)).filter((v) => v !== undefined && v !== null);
   }
 
   if (column.transformOptionFn) {
