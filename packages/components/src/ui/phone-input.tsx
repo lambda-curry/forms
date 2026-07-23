@@ -1,8 +1,16 @@
 import { AsYouType } from 'libphonenumber-js';
 import type { ChangeEvent, InputHTMLAttributes, KeyboardEvent, Ref } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { cn } from './utils';
+
+// Constants
+const US_PHONE_LENGTH = 10;
+const US_PHONE_WITH_COUNTRY = 11;
+const US_AREA_CODE_LENGTH = 3;
+const US_PREFIX_LENGTH = 6;
+const DIGITS_REGEX = /\d/g;
+const NUMBER_KEY_REGEX = /^[0-9]$/;
 
 export interface PhoneInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
   /** Controlled value. For US numbers this should be the digits-only 10-char string. For international, E.164 string (e.g. "+12025550123") is recommended. */
@@ -15,26 +23,33 @@ export interface PhoneInputProps extends Omit<InputHTMLAttributes<HTMLInputEleme
   inputClassName?: string;
 }
 
-const DIGITS_REGEX = /\d/g;
-const NUMBER_KEY_REGEX = /^[0-9]$/;
+// ============================================================================
+// Pure utility functions for phone formatting
+// ============================================================================
 
+/** Extract only digits from input string */
 function extractDigits(input: string): string {
   return (input.match(DIGITS_REGEX) || []).join('');
 }
 
-function formatUS(digits: string): string {
-  // Handle case where an 11-digit number with leading "1" is provided (common in autofill)
-  let d = digits;
-  if (digits.length === 11 && digits.startsWith('1')) {
-    d = digits.slice(1); // Remove the leading "1" country code
-  } else {
-    d = digits.slice(0, 10); // Otherwise just take first 10 digits as before
+/** Normalize US digits: remove leading 1 from 11-digit numbers, cap at 10 */
+function normalizeUSDigits(digits: string): string {
+  if (digits.length === US_PHONE_WITH_COUNTRY && digits.startsWith('1')) {
+    return digits.slice(1);
   }
+  return digits.slice(0, US_PHONE_LENGTH);
+}
 
-  if (d.length === 0) return '';
-  if (d.length <= 3) return `(${d}`;
-  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+/** Format US phone number to (XXX) XXX-XXXX */
+function formatUS(digits: string): string {
+  const d = normalizeUSDigits(digits);
+
+  if (!d) return '';
+  if (d.length <= US_AREA_CODE_LENGTH) return `(${d}`;
+  if (d.length <= US_PREFIX_LENGTH) {
+    return `(${d.slice(0, US_AREA_CODE_LENGTH)}) ${d.slice(US_AREA_CODE_LENGTH)}`;
+  }
+  return `(${d.slice(0, US_AREA_CODE_LENGTH)}) ${d.slice(US_AREA_CODE_LENGTH, US_PREFIX_LENGTH)}-${d.slice(US_PREFIX_LENGTH)}`;
 }
 
 function normalizeInternationalInput(raw: string): string {
@@ -45,6 +60,54 @@ function normalizeInternationalInput(raw: string): string {
   return hasPlus ? `+${digits}` : digits.length > 0 ? `+${digits}` : '+';
 }
 
+/**
+ * Calculate cursor position after formatting
+ * Preserves cursor location relative to digits when formatting changes
+ */
+function getCursorPosition(oldValue: string, newValue: string, oldCursor: number): number {
+  // Count how many digits were before the cursor in the old value
+  const digitsBeforeCursor = extractDigits(oldValue.slice(0, oldCursor)).length;
+
+  // Find the position in the new value that has the same number of digits before it
+  let digitCount = 0;
+  for (let i = 0; i < newValue.length; i++) {
+    if (/\d/.test(newValue[i])) {
+      digitCount++;
+      if (digitCount > digitsBeforeCursor) {
+        return i;
+      }
+    }
+  }
+
+  return newValue.length;
+}
+
+/** Set cursor position preserving user's typing position */
+function setCursorPosition(input: HTMLInputElement, position: number): void {
+  requestAnimationFrame(() => {
+    if (input === document.activeElement) {
+      input.setSelectionRange(position, position);
+    }
+  });
+}
+
+/** Format phone number based on type (US or international) */
+function formatPhoneNumber(value: string, isInternational: boolean): string {
+  if (!value) return '';
+
+  if (isInternational) {
+    const normalized = normalizeInternationalInput(value);
+    return new AsYouType().input(normalized);
+  }
+
+  const digits = extractDigits(value);
+  return formatUS(digits);
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
 export const PhoneNumberInput = ({
   value,
   onChange,
@@ -53,68 +116,78 @@ export const PhoneNumberInput = ({
   inputClassName,
   ...props
 }: PhoneInputProps & { ref?: Ref<HTMLInputElement> }) => {
-  const [display, setDisplay] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync controlled value - handle autofill and external changes
+  /**
+   * Sync external value changes to uncontrolled input.
+   *
+   * **Why necessary**: Allows parent components to programmatically set the phone number
+   * (e.g., loading saved user data, autofill, form reset).
+   *
+   * **Why safe**: Only updates when input is not focused, preventing interference with
+   * user typing. Early returns prevent unnecessary DOM updates.
+   *
+   * **Triggers**: [value, isInternational] - when parent passes new value or mode changes.
+   */
   useEffect(() => {
-    if (value == null || value === '') {
-      setDisplay('');
-      return;
-    }
+    if (!inputRef.current || document.activeElement === inputRef.current) return;
 
-    if (isInternational) {
-      const normalized = normalizeInternationalInput(String(value));
-      const typer = new AsYouType();
-      const formatted = typer.input(normalized);
-      setDisplay(formatted);
-    } else {
-      // Remove the slice(0, 10) to allow handling 11-digit numbers with leading 1
-      const digits = extractDigits(String(value));
-      setDisplay(formatUS(digits));
+    const newValue = value == null || value === '' ? '' : formatPhoneNumber(value, isInternational);
+
+    // Only update if different to avoid unnecessary DOM changes
+    if (newValue !== inputRef.current.value) {
+      inputRef.current.value = newValue;
     }
   }, [value, isInternational]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value ?? '';
+    const input = e.currentTarget;
+    const raw = input.value;
+    const oldCursor = input.selectionStart ?? 0;
+    const oldValue = input.value;
+
+    let formatted: string;
+    let normalizedValue: string | undefined;
 
     if (isInternational) {
       const normalized = normalizeInternationalInput(raw);
       const typer = new AsYouType();
-      const formatted = typer.input(normalized);
-      setDisplay(formatted);
-      const numberValue = typer.getNumberValue(); // E.164 including leading + when recognized
-      onChange?.(numberValue || normalized);
-      return;
-    }
-
-    // Remove the slice(0, 10) to allow handling 11-digit numbers with leading 1
-    const digits = extractDigits(raw);
-    // Handle case where an 11-digit number with leading "1" is provided
-    let normalizedDigits = digits;
-    if (digits.length === 11 && digits.startsWith('1')) {
-      normalizedDigits = digits.slice(1); // Remove the leading "1" country code
+      formatted = typer.input(normalized);
+      normalizedValue = typer.getNumberValue() || normalized;
     } else {
-      normalizedDigits = digits.slice(0, 10); // Otherwise just take first 10 digits
+      const digits = extractDigits(raw);
+      const normalizedDigits = normalizeUSDigits(digits);
+      formatted = formatUS(digits);
+      normalizedValue = normalizedDigits.length > 0 ? normalizedDigits : undefined;
     }
 
-    const formatted = formatUS(digits);
-    setDisplay(formatted);
-    onChange?.(normalizedDigits || undefined);
+    // Single update path: calculate cursor position, update value, restore cursor
+    const newCursor = getCursorPosition(oldValue, formatted, oldCursor);
+    input.value = formatted;
+    setCursorPosition(input, newCursor);
+    onChange?.(normalizedValue);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!isInternational) {
-      const currentDigits = extractDigits(display);
+      const input = e.currentTarget;
+      const currentValue = input.value;
+      const currentDigits = extractDigits(currentValue);
       const isNumberKey = NUMBER_KEY_REGEX.test(e.key);
       const isModifier = e.ctrlKey || e.metaKey || e.altKey;
       const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End', 'Enter'];
 
-      // Allow typing if we have fewer than 10 digits or if we have 11 digits but the first is '1'
-      const isComplete = currentDigits.length >= 10 && !(currentDigits.length === 11 && currentDigits.startsWith('1'));
+      // Check if there's a text selection
+      const hasSelection = input.selectionStart !== input.selectionEnd;
 
-      if (!isModifier && isNumberKey && isComplete) {
-        // Prevent adding more digits once 10-digit US number is complete
+      // Allow typing if we have fewer than 10 digits or if we have 11 digits but the first is '1'
+      const isComplete =
+        currentDigits.length >= US_PHONE_LENGTH &&
+        !(currentDigits.length === US_PHONE_WITH_COUNTRY && currentDigits.startsWith('1'));
+
+      // If text is selected, allow typing (selected text will be replaced)
+      // Otherwise, prevent adding more digits once 10-digit US number is complete
+      if (!isModifier && isNumberKey && isComplete && !hasSelection) {
         e.preventDefault();
         return;
       }
@@ -135,8 +208,7 @@ export const PhoneNumberInput = ({
       data-slot="input"
       aria-label={props['aria-label']}
       {...props}
-      value={display}
-      onChange={handleInputChange}
+      onInput={handleInputChange}
       onKeyDown={handleKeyDown}
     />
   );
