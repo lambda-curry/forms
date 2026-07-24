@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { ElementType } from 'react';
 import type { FetcherWithComponents } from 'react-router';
 import type { FormMessageProps } from '@lambdacurry/forms/ui/form';
-import { createRef, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -333,7 +333,7 @@ describe('PhoneInput Component', () => {
   describe('Ref Forwarding (React 19 Compliance)', () => {
     it('forwards ref correctly to input element', () => {
       const TestRefComponent = () => {
-        const ref = createRef<HTMLInputElement>();
+        const ref = useRef<HTMLInputElement>(null);
         const mockFetcher = {
           data: {},
           state: 'idle' as const,

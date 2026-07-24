@@ -207,7 +207,8 @@ export const PhoneNumberInput = ({
       const normalized = normalizeInternationalInput(raw);
       const typer = new AsYouType();
       formatted = typer.input(normalized);
-      normalizedValue = typer.getNumberValue() || normalized;
+      const international = typer.getNumberValue() || normalized;
+      normalizedValue = international === '+' ? undefined : international;
     } else {
       const digits = extractDigits(raw);
       const normalizedDigits = normalizeUSDigits(digits);
