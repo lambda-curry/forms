@@ -114,9 +114,42 @@ export const PhoneNumberInput = ({
   isInternational = false,
   className,
   inputClassName,
+  ref: forwardedRef,
+  onBlur: externalOnBlur,
   ...props
 }: PhoneInputProps & { ref?: Ref<HTMLInputElement> }) => {
+  const internalRef = useRef<HTMLInputElement>(null);
+  const pendingValueRef = useRef<string | undefined>(undefined);
+
+  // Compose forwarded ref with internal ref (React 19 pattern)
   const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const element = inputRef.current;
+    if (!element) return;
+
+    // Set internal ref
+    internalRef.current = element;
+
+    // Forward to external ref if provided
+    if (forwardedRef) {
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(element);
+      } else {
+        (forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = element;
+      }
+    }
+
+    return () => {
+      internalRef.current = null;
+      if (forwardedRef) {
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(null);
+        } else {
+          (forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = null;
+        }
+      }
+    };
+  }, [forwardedRef]);
 
   /**
    * Sync external value changes to uncontrolled input.
@@ -124,20 +157,27 @@ export const PhoneNumberInput = ({
    * **Why necessary**: Allows parent components to programmatically set the phone number
    * (e.g., loading saved user data, autofill, form reset).
    *
-   * **Why safe**: Only updates when input is not focused, preventing interference with
-   * user typing. Early returns prevent unnecessary DOM updates.
+   * **Why safe**: Updates immediately when not focused. When focused, defers the update
+   * to pendingValueRef and applies it on blur to avoid interrupting user typing.
    *
    * **Triggers**: [value, isInternational] - when parent passes new value or mode changes.
    */
   useEffect(() => {
-    if (!inputRef.current || document.activeElement === inputRef.current) return;
+    if (!internalRef.current) return;
 
     const newValue = value == null || value === '' ? '' : formatPhoneNumber(value, isInternational);
 
-    // Only update if different to avoid unnecessary DOM changes
-    if (newValue !== inputRef.current.value) {
-      inputRef.current.value = newValue;
+    // If input is focused, defer the update until blur
+    if (document.activeElement === internalRef.current) {
+      pendingValueRef.current = newValue;
+      return;
     }
+
+    // Apply update immediately when not focused
+    if (newValue !== internalRef.current.value) {
+      internalRef.current.value = newValue;
+    }
+    pendingValueRef.current = undefined;
   }, [value, isInternational]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -166,6 +206,19 @@ export const PhoneNumberInput = ({
     input.value = formatted;
     setCursorPosition(input, newCursor);
     onChange?.(normalizedValue);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Apply any pending value changes that were deferred while focused
+    if (pendingValueRef.current !== undefined && internalRef.current) {
+      if (pendingValueRef.current !== internalRef.current.value) {
+        internalRef.current.value = pendingValueRef.current;
+      }
+      pendingValueRef.current = undefined;
+    }
+
+    // Call original onBlur if provided
+    externalOnBlur?.(e);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -210,6 +263,7 @@ export const PhoneNumberInput = ({
       {...props}
       onInput={handleInputChange}
       onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
     />
   );
 };
