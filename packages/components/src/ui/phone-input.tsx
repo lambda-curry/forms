@@ -1,6 +1,6 @@
 import { AsYouType } from 'libphonenumber-js';
 import type { ChangeEvent, InputHTMLAttributes, KeyboardEvent, Ref } from 'react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { cn } from './utils';
 
@@ -13,9 +13,22 @@ const DIGITS_REGEX = /\d/g;
 const NUMBER_KEY_REGEX = /^[0-9]$/;
 
 export interface PhoneInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
-  /** Controlled value. For US numbers this should be the digits-only 10-char string. For international, E.164 string (e.g. "+12025550123") is recommended. */
-  value?: string;
-  /** onChange fires with a normalized value. US: digits-only (max 10). International: E.164 with leading + when possible, otherwise a '+'-prefixed digits string. */
+  /**
+   * Controlled value. `null` or `undefined` represents empty.
+   *
+   * **Format by mode:**
+   * - **US mode** (`isInternational={false}`): 10-digit string (e.g., `"2025550123"`)
+   * - **International mode** (`isInternational={true}`): E.164 format with `+` (e.g., `"+12025550123"`)
+   */
+  value?: string | null;
+  /**
+   * onChange fires with a normalized value:
+   * - **US mode** (`isInternational={false}`): digits-only, 10 characters max (e.g., `"2025550123"`)
+   * - **International mode** (`isInternational={true}`): E.164 format with leading `+` (e.g., `"+12025550123"`)
+   * - Returns `undefined` when input is empty
+   *
+   * ⚠️ **Important**: Switching modes changes output format. Ensure backend validation handles both.
+   */
   onChange?: (value?: string) => void;
   /** When true, enables international entry (+country code, spaced groups, no strict length cap). Defaults to false (US). */
   isInternational?: boolean;
@@ -120,36 +133,37 @@ export const PhoneNumberInput = ({
 }: PhoneInputProps & { ref?: Ref<HTMLInputElement> }) => {
   const internalRef = useRef<HTMLInputElement>(null);
   const pendingValueRef = useRef<string | undefined>(undefined);
+  const cleanupRef = useRef<(() => void) | undefined>(undefined);
 
-  // Compose forwarded ref with internal ref (React 19 pattern)
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const element = inputRef.current;
-    if (!element) return;
-
-    // Set internal ref
-    internalRef.current = element;
-
-    // Forward to external ref if provided
-    if (forwardedRef) {
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(element);
-      } else {
-        (forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = element;
+  /**
+   * Compose forwarded ref with internal ref at commit time.
+   * Preserves React 19 callback ref cleanup semantics.
+   */
+  const inputRef = useCallback(
+    (element: HTMLInputElement | null) => {
+      // Clean up previous callback ref cleanup
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = undefined;
       }
-    }
 
-    return () => {
-      internalRef.current = null;
+      // Update internal ref
+      internalRef.current = element;
+
+      // Forward to external ref and capture any cleanup
       if (forwardedRef) {
         if (typeof forwardedRef === 'function') {
-          forwardedRef(null);
+          const cleanup = forwardedRef(element);
+          if (typeof cleanup === 'function') {
+            cleanupRef.current = cleanup;
+          }
         } else {
-          (forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = null;
+          forwardedRef.current = element;
         }
       }
-    };
-  }, [forwardedRef]);
+    },
+    [forwardedRef],
+  );
 
   /**
    * Sync external value changes to uncontrolled input.

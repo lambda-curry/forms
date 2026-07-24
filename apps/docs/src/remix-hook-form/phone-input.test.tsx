@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { ElementType } from 'react';
 import type { FetcherWithComponents } from 'react-router';
 import type { FormMessageProps } from '@lambdacurry/forms/ui/form';
+import { createRef, useRef, useEffect } from 'react';
 
 // Mock useFetcher
 jest.mock('react-router', () => ({
@@ -184,6 +185,340 @@ describe('PhoneInput Component', () => {
       // Verify labels are properly associated with inputs
       expect(screen.getByLabelText('USA Phone Number')).toBeInTheDocument();
       expect(screen.getByLabelText('International Phone Number')).toBeInTheDocument();
+    });
+  });
+
+  describe('MI-1188: Selection Replacement and Cursor Positioning', () => {
+    it('replaces selected middle digits when typing (AC #1)', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type initial number
+      await user.type(input, '2025550123');
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0123');
+      });
+
+      // Select middle digits "555" (positions 6-8 in formatted string "(202) 555-0123")
+      input.focus();
+      input.setSelectionRange(6, 9);
+
+      // Type replacement digits
+      await user.keyboard('999');
+
+      // Should replace selected "555" with "999"
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 999-0123');
+      });
+    });
+
+    it('replaces entire number when all text selected (AC #2)', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type initial number
+      await user.type(input, '2025550123');
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0123');
+      });
+
+      // Select all text
+      input.focus();
+      input.setSelectionRange(0, input.value.length);
+
+      // Type new number
+      await user.keyboard('310');
+
+      // Should replace entire value
+      await waitFor(() => {
+        expect(input.value).toBe('(310');
+      });
+    });
+
+    it('maintains cursor position after formatting during typing', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type partial number
+      await user.type(input, '202555');
+
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555');
+        // Cursor should be at end after typing
+        expect(input.selectionStart).toBeGreaterThan(0);
+      });
+    });
+
+    it('handles backspace correctly with cursor positioning', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type full number
+      await user.type(input, '2025550123');
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0123');
+      });
+
+      // Backspace once
+      await user.keyboard('{Backspace}');
+
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-012');
+      });
+    });
+  });
+
+  describe('Paste Events', () => {
+    it('formats pasted plain digits correctly', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number');
+
+      await user.click(input);
+      await user.paste('2025550123');
+
+      await waitFor(() => {
+        expect((input as HTMLInputElement).value).toBe('(202) 555-0123');
+      });
+    });
+
+    it('handles pasted formatted number', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number');
+
+      await user.click(input);
+      await user.paste('(202) 555-0123');
+
+      await waitFor(() => {
+        expect((input as HTMLInputElement).value).toBe('(202) 555-0123');
+      });
+    });
+
+    it('handles paste with selection replacement', async () => {
+      const user = userEvent.setup();
+      render(<TestPhoneInputForm />);
+
+      const input = screen.getByLabelText('USA Phone Number') as HTMLInputElement;
+
+      // Type initial number
+      await user.type(input, '2025550123');
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0123');
+      });
+
+      // Select middle portion
+      input.focus();
+      input.setSelectionRange(6, 9);
+
+      // Paste replacement
+      await user.paste('999');
+
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 999-0123');
+      });
+    });
+  });
+
+  describe('Ref Forwarding (React 19 Compliance)', () => {
+    it('forwards ref correctly to input element', () => {
+      const TestRefComponent = () => {
+        const ref = createRef<HTMLInputElement>();
+        const mockFetcher = {
+          data: {},
+          state: 'idle' as const,
+          submit: jest.fn(),
+          Form: 'form' as ElementType,
+        } as unknown as FetcherWithComponents<unknown>;
+
+        mockUseFetcher.mockReturnValue(mockFetcher);
+
+        const methods = useRemixForm<TestFormData>({
+          resolver: zodResolver(testSchema),
+          defaultValues: { usaPhone: '', internationalPhone: '' },
+          fetcher: mockFetcher,
+          submitConfig: { action: '/test', method: 'post' },
+        });
+
+        return (
+          <RemixFormProvider {...methods}>
+            <form>
+              <PhoneInput name="usaPhone" label="Phone" ref={ref} />
+              <div data-testid="ref-check">
+                {ref.current ? 'ref-attached' : 'no-ref'}
+              </div>
+            </form>
+          </RemixFormProvider>
+        );
+      };
+
+      const { rerender } = render(<TestRefComponent />);
+      
+      // Trigger rerender to ensure ref is attached
+      rerender(<TestRefComponent />);
+
+      const refCheck = screen.getByTestId('ref-check');
+      expect(refCheck.textContent).toBe('ref-attached');
+    });
+
+    it('calls callback ref cleanup on unmount', () => {
+      const cleanup = jest.fn();
+      const callbackRef = jest.fn(() => cleanup);
+
+      const TestRefComponent = () => {
+        const mockFetcher = {
+          data: {},
+          state: 'idle' as const,
+          submit: jest.fn(),
+          Form: 'form' as ElementType,
+        } as unknown as FetcherWithComponents<unknown>;
+
+        mockUseFetcher.mockReturnValue(mockFetcher);
+
+        const methods = useRemixForm<TestFormData>({
+          resolver: zodResolver(testSchema),
+          defaultValues: { usaPhone: '', internationalPhone: '' },
+          fetcher: mockFetcher,
+          submitConfig: { action: '/test', method: 'post' },
+        });
+
+        return (
+          <RemixFormProvider {...methods}>
+            <form>
+              <PhoneInput name="usaPhone" label="Phone" ref={callbackRef} />
+            </form>
+          </RemixFormProvider>
+        );
+      };
+
+      const { unmount } = render(<TestRefComponent />);
+
+      expect(callbackRef).toHaveBeenCalledWith(expect.any(HTMLInputElement));
+
+      unmount();
+
+      expect(cleanup).toHaveBeenCalled();
+    });
+  });
+
+  describe('Focus/Blur Value Synchronization', () => {
+    it('defers external value updates while focused', async () => {
+      const TestValueSyncComponent = ({ value }: { value: string }) => {
+        const mockFetcher = {
+          data: {},
+          state: 'idle' as const,
+          submit: jest.fn(),
+          Form: 'form' as ElementType,
+        } as unknown as FetcherWithComponents<unknown>;
+
+        mockUseFetcher.mockReturnValue(mockFetcher);
+
+        const methods = useRemixForm<TestFormData>({
+          resolver: zodResolver(testSchema),
+          defaultValues: { usaPhone: value, internationalPhone: '' },
+          fetcher: mockFetcher,
+          submitConfig: { action: '/test', method: 'post' },
+        });
+
+        useEffect(() => {
+          methods.setValue('usaPhone', value);
+        }, [value, methods]);
+
+        return (
+          <RemixFormProvider {...methods}>
+            <form>
+              <PhoneInput name="usaPhone" label="Phone" />
+            </form>
+          </RemixFormProvider>
+        );
+      };
+
+      const user = userEvent.setup();
+      const { rerender } = render(<TestValueSyncComponent value="2025550100" />);
+
+      const input = screen.getByLabelText('Phone') as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0100');
+      });
+
+      // Focus the input
+      await user.click(input);
+      expect(input).toHaveFocus();
+
+      // External value change while focused
+      rerender(<TestValueSyncComponent value="3105550200" />);
+
+      // Should still show old value while focused
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0100');
+      });
+
+      // Blur the input
+      await user.tab();
+
+      // Should now show new value after blur
+      await waitFor(() => {
+        expect(input.value).toBe('(310) 555-0200');
+      });
+    });
+
+    it('applies external value updates immediately when not focused', async () => {
+      const TestValueSyncComponent = ({ value }: { value: string }) => {
+        const mockFetcher = {
+          data: {},
+          state: 'idle' as const,
+          submit: jest.fn(),
+          Form: 'form' as ElementType,
+        } as unknown as FetcherWithComponents<unknown>;
+
+        mockUseFetcher.mockReturnValue(mockFetcher);
+
+        const methods = useRemixForm<TestFormData>({
+          resolver: zodResolver(testSchema),
+          defaultValues: { usaPhone: value, internationalPhone: '' },
+          fetcher: mockFetcher,
+          submitConfig: { action: '/test', method: 'post' },
+        });
+
+        useEffect(() => {
+          methods.setValue('usaPhone', value);
+        }, [value, methods]);
+
+        return (
+          <RemixFormProvider {...methods}>
+            <form>
+              <PhoneInput name="usaPhone" label="Phone" />
+            </form>
+          </RemixFormProvider>
+        );
+      };
+
+      const { rerender } = render(<TestValueSyncComponent value="2025550100" />);
+
+      const input = screen.getByLabelText('Phone') as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(input.value).toBe('(202) 555-0100');
+      });
+
+      // External value change while NOT focused
+      rerender(<TestValueSyncComponent value="3105550200" />);
+
+      // Should apply new value immediately
+      await waitFor(() => {
+        expect(input.value).toBe('(310) 555-0200');
+      });
     });
   });
 });
