@@ -250,8 +250,8 @@ describe('PhoneInput Component', () => {
 
       await waitFor(() => {
         expect(input.value).toBe('(202) 555');
-        // Cursor should be at end after typing
-        expect(input.selectionStart).toBeGreaterThan(0);
+        // Cursor should be at exact position after last digit (after "555")
+        expect(input.selectionStart).toBe(9); // "(202) 555" length
       });
     });
 
@@ -404,10 +404,14 @@ describe('PhoneInput Component', () => {
       const { unmount } = render(<TestRefComponent />);
 
       expect(callbackRef).toHaveBeenCalledWith(expect.any(HTMLInputElement));
+      expect(callbackRef).toHaveBeenCalledTimes(1);
 
       unmount();
 
       expect(cleanup).toHaveBeenCalled();
+      // React 19: cleanup-returning callback should NOT be called with null
+      expect(callbackRef).toHaveBeenCalledTimes(1); // Still only 1 call
+      expect(callbackRef).not.toHaveBeenCalledWith(null);
     });
   });
 

@@ -133,34 +133,49 @@ export const PhoneNumberInput = ({
 }: PhoneInputProps & { ref?: Ref<HTMLInputElement> }) => {
   const internalRef = useRef<HTMLInputElement>(null);
   const pendingValueRef = useRef<string | undefined>(undefined);
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
 
   /**
    * Compose forwarded ref with internal ref at commit time.
-   * Preserves React 19 callback ref cleanup semantics.
+   * Preserves React 19 callback ref cleanup semantics by returning cleanup
+   * that invokes forwarded cleanup (if exists) instead of calling ref(null).
    */
   const inputRef = useCallback(
     (element: HTMLInputElement | null) => {
-      // Clean up previous callback ref cleanup
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = undefined;
-      }
-
-      // Update internal ref
       internalRef.current = element;
 
+      if (!element) return; // No cleanup needed on detach
+
       // Forward to external ref and capture any cleanup
+      let forwardedCleanup: (() => void) | undefined;
+
       if (forwardedRef) {
         if (typeof forwardedRef === 'function') {
           const cleanup = forwardedRef(element);
+          // Only capture if it's actually a function (not void)
           if (typeof cleanup === 'function') {
-            cleanupRef.current = cleanup;
+            forwardedCleanup = cleanup;
           }
         } else {
           forwardedRef.current = element;
         }
       }
+
+      // Return composed cleanup
+      return () => {
+        internalRef.current = null;
+
+        if (forwardedCleanup) {
+          // Cleanup-returning callback - invoke its cleanup
+          forwardedCleanup();
+        } else if (forwardedRef) {
+          // Non-cleanup callback or object ref - manual cleanup
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(null);
+          } else {
+            forwardedRef.current = null;
+          }
+        }
+      };
     },
     [forwardedRef],
   );
