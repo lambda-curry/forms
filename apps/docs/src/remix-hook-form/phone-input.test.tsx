@@ -354,16 +354,14 @@ describe('PhoneInput Component', () => {
           <RemixFormProvider {...methods}>
             <form>
               <PhoneInput name="usaPhone" label="Phone" ref={ref} />
-              <div data-testid="ref-check">
-                {ref.current ? 'ref-attached' : 'no-ref'}
-              </div>
+              <div data-testid="ref-check">{ref.current ? 'ref-attached' : 'no-ref'}</div>
             </form>
           </RemixFormProvider>
         );
       };
 
       const { rerender } = render(<TestRefComponent />);
-      
+
       // Trigger rerender to ensure ref is attached
       rerender(<TestRefComponent />);
 
