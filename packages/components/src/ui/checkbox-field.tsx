@@ -68,7 +68,11 @@ const CheckboxField = ({
 
         return (
           <FormItem
-            className={cn('flex flex-row gap-3 space-y-0', hasSupportingText ? 'items-start' : 'items-center', className)}
+            className={cn(
+              'flex flex-row gap-3 space-y-0',
+              hasSupportingText ? 'items-start' : 'items-center',
+              className,
+            )}
           >
             <FormControl Component={components?.FormControl}>
               <CheckboxComponent
