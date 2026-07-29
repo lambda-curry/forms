@@ -10,6 +10,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   id-token: write # Required for OIDC trusted publishing
   contents: write # Required for pushing git tags after publishing
+  pull-requests: write # Required for Changesets to create the release PR
 
 jobs:
   release:
