@@ -7,14 +7,13 @@ const unpublishedPackages = publishablePackages.filter((packagePath) => {
   const localPackage = JSON.parse(readFileSync(packagePath, "utf8"));
 
   try {
-    const publishedVersion = JSON.parse(
-      execFileSync("npm", ["view", localPackage.name, "version", "--json"], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      }),
-    );
+    const exactVersion = execFileSync(
+      "npm",
+      ["view", `${localPackage.name}@${localPackage.version}`, "version"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    ).trim();
 
-    return publishedVersion !== localPackage.version;
+    return exactVersion !== localPackage.version;
   } catch {
     return true;
   }
