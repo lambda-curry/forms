@@ -1,5 +1,11 @@
 # @lambdacurry/forms
 
+## 0.22.7
+
+### Patch Changes
+
+- 034ad60: Fix phone input cursor positioning and text selection.
+
 ## 0.22.6
 
 ### Patch Changes
