@@ -17,7 +17,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "prerelease": "turbo run build",
-    "release": "changeset publish",
+    "release": "node scripts/release-if-needed.mjs",
     "build-storybook": "turbo run build-storybook"
   },
   "devDependencies": {
