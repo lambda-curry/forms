@@ -95,6 +95,7 @@ export type ColumnConfig<TData, TType extends ColumnDataType = any, TVal = unkno
   id: TId;
   accessor: TAccessorFn<TData, TVal>;
   displayName: string;
+  pluralDisplayName?: string;
   icon: ReactElementType;
   type: TType;
   options?: TType extends OptionBasedColumnDataType ? ColumnOption[] : never;
