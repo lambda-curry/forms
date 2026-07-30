@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { type DataTableRouterState, dataTableRouterParsers } from './data-table-router-parsers';
 
@@ -14,18 +14,20 @@ export function useDataTableUrlState() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Parse URL search parameters using our custom parsers
-  const urlState: DataTableRouterState = {
-    search: dataTableRouterParsers.search.parse(searchParams.get('search')),
-    filters: dataTableRouterParsers.filters.parse(searchParams.get('filters')),
-    page: dataTableRouterParsers.page.parse(searchParams.get('page')),
-    pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')),
-    sortField: dataTableRouterParsers.sortField.parse(searchParams.get('sortField')),
-    // 'asc' or 'desc'
-    sortOrder: dataTableRouterParsers.sortOrder.parse(searchParams.get('sortOrder')),
-  };
+  const urlState: DataTableRouterState = useMemo(
+    () => ({
+      search: dataTableRouterParsers.search.parse(searchParams.get('search')),
+      filters: dataTableRouterParsers.filters.parse(searchParams.get('filters')),
+      page: dataTableRouterParsers.page.parse(searchParams.get('page')),
+      pageSize: dataTableRouterParsers.pageSize.parse(searchParams.get('pageSize')),
+      sortField: dataTableRouterParsers.sortField.parse(searchParams.get('sortField')),
+      // 'asc' or 'desc'
+      sortOrder: dataTableRouterParsers.sortOrder.parse(searchParams.get('sortOrder')),
+    }),
+    [searchParams],
+  );
 
   // Function to update URL search parameters
-  // biome-ignore lint/correctness/useExhaustiveDependencies: setSearchParams is stable; urlState is read at call time
   const setUrlState = useCallback(
     (newState: Partial<DataTableRouterState>) => {
       const updatedState = { ...urlState, ...newState };
@@ -65,7 +67,7 @@ export function useDataTableUrlState() {
       // Update the URL with the new search parameters
       setSearchParams(newParams, { replace: true });
     },
-    [setSearchParams],
+    [setSearchParams, urlState],
   );
 
   // Return the current URL state and the function to update it
