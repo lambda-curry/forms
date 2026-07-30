@@ -97,9 +97,19 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export function uniq<T>(arr: T[]): T[] {
   // Use a Map where key is the deep hash and value is an array of items sharing the same hash.
   const seen = new Map<string, T[]>();
+  const primitives = new Set<unknown>();
   const result: T[] = [];
 
   for (const item of arr) {
+    const type = typeof item;
+    if (item === null || (type !== 'object' && type !== 'function')) {
+      if (!primitives.has(item)) {
+        primitives.add(item);
+        result.push(item);
+      }
+      continue;
+    }
+
     const hash = deepHash(item);
     if (seen.has(hash)) {
       // There is a potential duplicate; check the stored items with the same hash.
