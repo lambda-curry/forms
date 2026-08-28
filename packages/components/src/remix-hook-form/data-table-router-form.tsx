@@ -22,7 +22,7 @@ import { DataTablePagination } from '../ui/data-table/data-table-pagination';
 import {
   useDataTableFilters, // The hook from bazza/ui
   // createColumnConfigHelper, // Assume columnsConfig is pre-built and passed in
-} from '../ui/data-table-filter'; // Adjusted path
+} from '../ui/data-table-filter/hooks/use-data-table-filters'; // Adjusted path
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import type { BazzaFiltersState, DataTableRouterState } from './data-table-router-parsers';
 import { DataTableRouterToolbar } from './data-table-router-toolbar';

@@ -1,4 +1,4 @@
-import { extname, relative } from 'node:path';
+import { extname, isAbsolute, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { glob } from 'glob';
@@ -45,39 +45,22 @@ export default defineConfig({
             fileURLToPath(new URL(file, import.meta.url)),
           ]),
       ),
-      external: [
-        'react',
-        'react/jsx-runtime',
-        '@radix-ui/react-alert-dialog',
-        '@radix-ui/react-avatar',
-        '@radix-ui/react-checkbox',
-        '@radix-ui/react-dialog',
-        '@radix-ui/react-dropdown-menu',
-        '@radix-ui/react-icons',
-        '@radix-ui/react-label',
-        '@radix-ui/react-popover',
-        '@radix-ui/react-radio-group',
-        '@radix-ui/react-scroll-area',
-        '@radix-ui/react-slot',
-        '@radix-ui/react-switch',
-        '@radix-ui/react-tooltip',
-        'react-router',
-        'react-router-dom',
-        '@react-router/node',
-        'class-variance-authority',
-        'clsx',
-        'date-fns',
-        'input-otp',
-        'lucide-react',
-        'next-themes',
-        'react-day-picker',
-        'react-hook-form',
-        'remix-hook-form',
-        'sonner',
-        'tailwind-merge',
-        'tailwindcss-animate',
-        'zod',
-      ],
+      // Externalize every bare module specifier (npm packages) so no dependency
+      // code is bundled into dist. Only relative/absolute paths and the '@/'
+      // source alias are treated as internal.
+      external: (id) => !id.startsWith('.') && !isAbsolute(id) && !id.startsWith('@/') && !id.startsWith('\0'),
+      output: {
+        // Emit one output module per source module instead of merged shared
+        // chunks. Merged chunks force Rollup to hoist transitive external
+        // imports as bare side-effect imports (`import "date-fns"`) into every
+        // entry stub, which defeats tree shaking in consumer bundlers.
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        entryFileNames: '[name].js',
+        // Belt and braces: never inject transitive dependencies as bare
+        // imports into entry modules.
+        hoistTransitiveImports: false,
+      },
     },
   },
   resolve: {
