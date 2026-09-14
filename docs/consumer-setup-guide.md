@@ -2,7 +2,7 @@
 
 This guide covers how to integrate `@lambdacurry/forms` with React Router v7 or v8 applications using remix-hook-form.
 
-`react-router` (`^7 || ^8`) and `remix-hook-form` are peer dependencies of `@lambdacurry/forms`; install them in your application. The package no longer references `react-router-dom`, which was removed in React Router v8.
+`react-router` (`^7 || ^8`) and `remix-hook-form` are peer dependencies of `@lambdacurry/forms`; install them in your application. The package no longer references `react-router-dom`, which was removed in React Router v8. React Router v8 requires Node 22.22 or newer.
 
 ## React Router Vite Configuration
 
@@ -34,11 +34,13 @@ export default defineConfig({
     // CRITICAL: Bundle these packages with the app to share react-router context
     noExternal: ['react-hook-form', 'remix-hook-form', '@lambdacurry/forms']
   },
-  optimizeDeps: {
-    // Pre-bundle dependencies to avoid runtime context issues
-    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form'],
+  resolve: {
     // Ensure single instances of these packages
     dedupe: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
+  },
+  optimizeDeps: {
+    // Pre-bundle dependencies to avoid runtime context issues
+    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
   }
 });
 ```
@@ -49,7 +51,7 @@ export default defineConfig({
 |---------|---------|
 | `ssr.noExternal` | Forces Vite to bundle `remix-hook-form`, `react-hook-form`, and `@lambdacurry/forms` with the application instead of treating them as external dependencies. This ensures they share the same `react-router` instance. |
 | `optimizeDeps.include` | Pre-bundles these packages during dev, avoiding lazy loading that can cause context issues. |
-| `optimizeDeps.dedupe` | Ensures only one copy of each package exists, preventing multiple React or react-router instances. |
+| `resolve.dedupe` | Ensures only one copy of each package exists, preventing multiple React or react-router instances. |
 
 ## Recommended Form Pattern
 

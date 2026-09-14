@@ -68,7 +68,7 @@ const MyTable = () => {
 
 ## React Router v7 / v8 Integration
 
-`react-router` (v7 or v8) and `remix-hook-form` are peer dependencies: install them in your application so every package shares the single router instance your app provides.
+`react-router` (v7 or v8) and `remix-hook-form` are peer dependencies: install them in your application so the library resolves the router your app provides. React Router v8 itself requires Node 22.22 or newer in the consuming application.
 
 When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 or v8 application, you need to configure Vite to bundle these packages together to share the router context. Without this, you may encounter the error:
 
@@ -84,9 +84,11 @@ export default defineConfig({
   ssr: {
     noExternal: ['react-hook-form', 'remix-hook-form', '@lambdacurry/forms']
   },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form'],
+  resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
   }
 });
 ```
