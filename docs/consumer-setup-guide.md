@@ -1,10 +1,12 @@
 # Consumer Setup Guide
 
-This guide covers how to integrate `@lambdacurry/forms` with React Router v7 applications using remix-hook-form.
+This guide covers how to integrate `@lambdacurry/forms` with React Router v7 or v8 applications using remix-hook-form.
 
-## React Router v7 Vite Configuration
+`react-router` (`^7 || ^8`) and `remix-hook-form` are peer dependencies of `@lambdacurry/forms`; install them in your application. The package no longer references `react-router-dom`, which was removed in React Router v8.
 
-When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 application, you must configure Vite to bundle these packages together. Without this configuration, forms that render conditionally (e.g., triggered by a button click) will fail with:
+## React Router Vite Configuration
+
+When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 or v8 application, you must configure Vite to bundle these packages together. Without this configuration, forms that render conditionally (e.g., triggered by a button click) will fail with:
 
 ```
 Error: useHref() may be used only in the context of a <Router> component.

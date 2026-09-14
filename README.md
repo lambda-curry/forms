@@ -66,9 +66,11 @@ const MyTable = () => {
 - Full accessibility support (WCAG 2.1 AA)
 - Comprehensive test coverage
 
-## React Router v7 Integration
+## React Router v7 / v8 Integration
 
-When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 application, you need to configure Vite to bundle these packages together to share the router context. Without this, you may encounter the error:
+`react-router` (v7 or v8) and `remix-hook-form` are peer dependencies: install them in your application so every package shares the single router instance your app provides.
+
+When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 or v8 application, you need to configure Vite to bundle these packages together to share the router context. Without this, you may encounter the error:
 
 ```
 Error: useHref() may be used only in the context of a <Router> component.
