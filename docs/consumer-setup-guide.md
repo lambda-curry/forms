@@ -2,7 +2,7 @@
 
 This guide covers how to integrate `@lambdacurry/forms` with React Router v7 or v8 applications using remix-hook-form.
 
-`react-router` (`^7 || ^8`) and `remix-hook-form` are peer dependencies of `@lambdacurry/forms`; install them in your application. The package no longer references `react-router-dom`, which was removed in React Router v8. React Router v8 requires Node 22.22 or newer.
+`@lambdacurry/forms` declares four peer dependencies that your application must install: `react` (`^19`), `react-router` (`^7 || ^8`), `remix-hook-form` (`7.1.0`) and `zod` (`^3.24 || ^4`). The package no longer references `react-router-dom`, which was removed in React Router v8. React Router v8 requires Node 22.22 or newer.
 
 ## React Router Vite Configuration
 

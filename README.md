@@ -68,7 +68,7 @@ const MyTable = () => {
 
 ## React Router v7 / v8 Integration
 
-`react-router` (v7 or v8) and `remix-hook-form` are peer dependencies: install them in your application so the library resolves the router your app provides. React Router v8 itself requires Node 22.22 or newer in the consuming application.
+`react`, `react-router` (v7 or v8), `remix-hook-form` and `zod` are peer dependencies: install them in your application so the library resolves the router (and React) your app provides. React Router v8 itself requires Node 22.22 or newer in the consuming application.
 
 When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 or v8 application, you need to configure Vite to bundle these packages together to share the router context. Without this, you may encounter the error:
 
