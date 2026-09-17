@@ -130,7 +130,7 @@ function MyForm({ onSuccess }: { onSuccess: () => void }) {
 
 **Cause**: Vite is treating `remix-hook-form` or `react-hook-form` as external dependencies, causing them to load with a separate `react-router` instance.
 
-**Solution**: Add the `ssr.noExternal` and `optimizeDeps` configuration shown above.
+**Solution**: Add the `ssr.noExternal`, `resolve.dedupe` and `optimizeDeps.include` configuration shown above.
 
 ### Form works on initial render but fails when opened dynamically
 
@@ -142,7 +142,7 @@ function MyForm({ onSuccess }: { onSuccess: () => void }) {
 
 **Cause**: Dependencies are being duplicated in the bundle.
 
-**Solution**: Add `optimizeDeps.dedupe` with React and related packages.
+**Solution**: Add `resolve.dedupe` with React and related packages, as in the configuration above.
 
 ## Related Documentation
 
