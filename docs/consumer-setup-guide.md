@@ -1,10 +1,12 @@
 # Consumer Setup Guide
 
-This guide covers how to integrate `@lambdacurry/forms` with React Router v7 applications using remix-hook-form.
+This guide covers how to integrate `@lambdacurry/forms` with React Router v7 or v8 applications using remix-hook-form.
 
-## React Router v7 Vite Configuration
+`@lambdacurry/forms` declares four peer dependencies that your application must install: `react` (`^19.0.0`), `react-router` (`^7.0.0 || ^8.0.0`), `remix-hook-form` (`7.1.0`) and `zod` (`^3.24.1 || ^4.0.0`). The package no longer references `react-router-dom`, which was removed in React Router v8. React Router v8 requires Node 22.22 or newer.
 
-When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 application, you must configure Vite to bundle these packages together. Without this configuration, forms that render conditionally (e.g., triggered by a button click) will fail with:
+## React Router Vite Configuration
+
+When using `@lambdacurry/forms` with `remix-hook-form` in a React Router v7 or v8 application, you must configure Vite to bundle these packages together. Without this configuration, forms that render conditionally (e.g., triggered by a button click) will fail with:
 
 ```
 Error: useHref() may be used only in the context of a <Router> component.
@@ -32,11 +34,13 @@ export default defineConfig({
     // CRITICAL: Bundle these packages with the app to share react-router context
     noExternal: ['react-hook-form', 'remix-hook-form', '@lambdacurry/forms']
   },
-  optimizeDeps: {
-    // Pre-bundle dependencies to avoid runtime context issues
-    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form'],
+  resolve: {
     // Ensure single instances of these packages
     dedupe: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
+  },
+  optimizeDeps: {
+    // Pre-bundle dependencies to avoid runtime context issues
+    include: ['react', 'react-dom', 'react-router', 'react-hook-form', 'remix-hook-form']
   }
 });
 ```
@@ -47,7 +51,7 @@ export default defineConfig({
 |---------|---------|
 | `ssr.noExternal` | Forces Vite to bundle `remix-hook-form`, `react-hook-form`, and `@lambdacurry/forms` with the application instead of treating them as external dependencies. This ensures they share the same `react-router` instance. |
 | `optimizeDeps.include` | Pre-bundles these packages during dev, avoiding lazy loading that can cause context issues. |
-| `optimizeDeps.dedupe` | Ensures only one copy of each package exists, preventing multiple React or react-router instances. |
+| `resolve.dedupe` | Ensures only one copy of each package exists, preventing multiple React or react-router instances. |
 
 ## Recommended Form Pattern
 
@@ -126,7 +130,7 @@ function MyForm({ onSuccess }: { onSuccess: () => void }) {
 
 **Cause**: Vite is treating `remix-hook-form` or `react-hook-form` as external dependencies, causing them to load with a separate `react-router` instance.
 
-**Solution**: Add the `ssr.noExternal` and `optimizeDeps` configuration shown above.
+**Solution**: Add the `ssr.noExternal`, `resolve.dedupe` and `optimizeDeps.include` configuration shown above.
 
 ### Form works on initial render but fails when opened dynamically
 
@@ -138,7 +142,7 @@ function MyForm({ onSuccess }: { onSuccess: () => void }) {
 
 **Cause**: Dependencies are being duplicated in the bundle.
 
-**Solution**: Add `optimizeDeps.dedupe` with React and related packages.
+**Solution**: Add `resolve.dedupe` with React and related packages, as in the configuration above.
 
 ## Related Documentation
 
