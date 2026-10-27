@@ -1,6 +1,6 @@
 import { flexRender, type Table as TableType } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table';
-import { cn } from '../utils';
+import { cn } from '../utils/cn';
 import { DataTablePagination } from './data-table-pagination';
 
 interface DataTableProps<TData> {

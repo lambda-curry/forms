@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
-    "@playwright/test": "^1.54.2",
+    "@playwright/test": "^1.64.1",
     "@types/react-dom": "^19",
     "turbo": "^2.3.3"
   },

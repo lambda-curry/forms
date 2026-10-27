@@ -33,6 +33,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "scripts": {
     "prepublishOnly": "yarn run build",
     "build": "vite build",

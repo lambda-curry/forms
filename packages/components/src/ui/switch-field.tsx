@@ -2,7 +2,7 @@ import * as SwitchPrimitives from '@radix-ui/react-switch';
 import type * as React from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { type FieldComponents, FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 // Default styled Switch component
 const DefaultSwitchPrimitive = (props: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>) => (

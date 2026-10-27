@@ -2,7 +2,7 @@ import { AsYouType } from 'libphonenumber-js';
 import type { ChangeEvent, InputHTMLAttributes, KeyboardEvent, Ref } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 // Constants
 const US_PHONE_LENGTH = 10;

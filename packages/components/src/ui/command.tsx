@@ -3,7 +3,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import type * as React from 'react';
 import { forwardRef } from 'react';
 
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 const Command = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive>) => (
   <CommandPrimitive

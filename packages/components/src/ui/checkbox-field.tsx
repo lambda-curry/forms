@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from './form';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export interface CheckboxFieldComponents extends FieldComponents {
   Checkbox?: React.ComponentType<React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>>;

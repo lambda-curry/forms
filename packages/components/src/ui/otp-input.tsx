@@ -1,5 +1,5 @@
 import { OTPInput as OTPInputPrimitive, type OTPInputProps } from 'input-otp';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export type { OTPInputProps };
 

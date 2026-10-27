@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Controller, type ControllerProps, type FieldPath, type FieldValues } from 'react-hook-form';
 import { Label } from './label';
 import type { InputProps } from './text-input';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export interface FieldComponents {
   FormControl: React.ComponentType<FormControlProps>;

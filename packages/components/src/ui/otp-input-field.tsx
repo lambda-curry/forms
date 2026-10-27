@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from './form';
 import { OTPInput } from './otp-input';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export type { OTPInputProps };
 

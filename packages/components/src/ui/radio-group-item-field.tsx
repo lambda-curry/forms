@@ -1,7 +1,7 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import type * as React from 'react';
 import { Label } from './label';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export interface RadioGroupItemFieldComponents {
   RadioGroupItem?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>>;
