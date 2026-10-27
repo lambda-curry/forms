@@ -1,7 +1,7 @@
 import { FilterXIcon } from 'lucide-react';
 import { memo } from 'react';
 import { Button } from '../../button';
-import { cn } from '../../utils';
+import { cn } from '../../utils/cn';
 import type { DataTableFilterActions } from '../core/types';
 import { type Locale, t } from '../lib/i18n';
 

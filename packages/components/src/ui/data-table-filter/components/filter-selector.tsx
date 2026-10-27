@@ -4,7 +4,7 @@ import { Button } from '../../button';
 import { Checkbox } from '../../checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../command';
 import { Popover, PopoverContent, PopoverTrigger } from '../../popover';
-import { cn } from '../../utils';
+import { cn } from '../../utils/cn';
 import type {
   Column,
   ColumnDataType,

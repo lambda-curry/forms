@@ -4,6 +4,14 @@ import react from '@vitejs/plugin-react';
 import { glob } from 'glob';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+import pkg from './package.json' with { type: 'json' };
+
+const externalPackages = [
+  ...Object.keys(pkg.dependencies),
+  ...Object.keys(pkg.peerDependencies),
+  'react-dom',
+  '@react-router/node',
+];
 
 export default defineConfig({
   plugins: [
@@ -45,38 +53,20 @@ export default defineConfig({
             fileURLToPath(new URL(file, import.meta.url)),
           ]),
       ),
-      external: [
-        'react',
-        'react/jsx-runtime',
-        '@radix-ui/react-alert-dialog',
-        '@radix-ui/react-avatar',
-        '@radix-ui/react-checkbox',
-        '@radix-ui/react-dialog',
-        '@radix-ui/react-dropdown-menu',
-        '@radix-ui/react-icons',
-        '@radix-ui/react-label',
-        '@radix-ui/react-popover',
-        '@radix-ui/react-radio-group',
-        '@radix-ui/react-scroll-area',
-        '@radix-ui/react-slot',
-        '@radix-ui/react-switch',
-        '@radix-ui/react-tooltip',
-        'react-router',
-        '@react-router/node',
-        'class-variance-authority',
-        'clsx',
-        'date-fns',
-        'input-otp',
-        'lucide-react',
-        'next-themes',
-        'react-day-picker',
-        'react-hook-form',
-        'remix-hook-form',
-        'sonner',
-        'tailwind-merge',
-        'tailwindcss-animate',
-        'zod',
-      ],
+      // Externalize every declared dependency and peer dependency (including subpaths such as
+      // `react/jsx-runtime`) so consumers dedupe them instead of getting inlined copies.
+      external: (id) => externalPackages.some((name) => id === name || id.startsWith(`${name}/`)),
+      output: {
+        // Emit one file per source module so each subpath (e.g. `ui/checkbox.js`) only pulls in
+        // the modules it actually imports, instead of hash-named shared chunks that mix unrelated code.
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        // Keep each file's imports limited to its direct dependencies (no hoisted `import 'x'` lines).
+        hoistTransitiveImports: false,
+        // Undeclared third-party code that still gets bundled (e.g. libphonenumber-js) would land in
+        // `dist/node_modules`, which npm strips from published tarballs, so emit it under `dist/_vendor`.
+        entryFileNames: (chunk) => `${chunk.name.replace(/(^|\/)node_modules\//g, '$1_vendor/')}.js`,
+      },
     },
   },
   resolve: {

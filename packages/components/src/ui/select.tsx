@@ -3,7 +3,7 @@ import { Popover } from '@radix-ui/react-popover';
 import { Check as DefaultCheckIcon, ChevronDown as DefaultChevronIcon } from 'lucide-react';
 import { useOverlayTriggerState } from 'react-stately';
 import { PopoverTrigger } from './popover';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
 import {
   forwardRef,

@@ -18,7 +18,7 @@ import { DebouncedInput } from '../../debounced-input';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../popover';
 import { Slider } from '../../slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../tabs';
-import { cn } from '../../utils';
+import { cn } from '../../utils/cn';
 import { numberFilterOperators } from '../core/operators';
 import type {
   Column,

@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from './form';
 import { type PhoneInputProps, PhoneNumberInput } from './phone-input';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export interface PhoneInputFieldProps extends Omit<PhoneInputProps, 'value' | 'onChange'> {
   control?: Control<FieldValues>;

@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from './form';
 import { type InputProps, TextInput } from './text-input';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export const FieldPrefix = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (

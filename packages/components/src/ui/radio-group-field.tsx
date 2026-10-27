@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from './form';
 import { RadioGroup } from './radio-group';
-import { cn } from './utils';
+import { cn } from './utils/cn';
 
 export interface RadioGroupFieldComponents extends FieldComponents {
   RadioGroup?: React.ComponentType<React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>>;
