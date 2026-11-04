@@ -31,7 +31,7 @@ import type {
 import { useDebounceCallback } from '../hooks/use-debounce-callback';
 import { take } from '../lib/array';
 import { createNumberRange } from '../lib/helpers';
-import { type Locale, t } from '../lib/i18n';
+import { type Locale, pluralize, t } from '../lib/i18n';
 
 interface FilterValueProps<TData, TType extends ColumnDataType> {
   filter: FilterModel<TType>;
@@ -137,7 +137,7 @@ export function FilterValueOptionDisplay<TData>({
   filter,
   column,
   actions,
-  locale: _locale = 'en',
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'option'>) {
   const options = useMemo(() => column.getOptions(), [column]);
   const selected = options.filter((o) => filter?.values.includes(o.value));
@@ -160,8 +160,7 @@ export function FilterValueOptionDisplay<TData>({
     );
   }
   const name = column.displayName.toLowerCase();
-  // TODO: Better pluralization for different languages
-  const pluralName = name.endsWith('s') ? `${name}es` : `${name}s`;
+  const pluralName = column.pluralDisplayName ?? pluralize(name, locale);
 
   const hasOptionIcons = !options?.some((o) => !o.icon);
 
@@ -183,7 +182,7 @@ export function FilterValueMultiOptionDisplay<TData>({
   filter,
   column,
   actions,
-  locale: _locale = 'en',
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'multiOption'>) {
   const options = useMemo(() => column.getOptions(), [column]);
   const selected = options.filter((o) => filter.values.includes(o.value));
@@ -201,6 +200,7 @@ export function FilterValueMultiOptionDisplay<TData>({
   }
 
   const name = column.displayName.toLowerCase();
+  const pluralName = column.pluralDisplayName ?? pluralize(name, locale);
 
   const hasOptionIcons = !options?.some((o) => !o.icon);
 
@@ -215,7 +215,7 @@ export function FilterValueMultiOptionDisplay<TData>({
         </div>
       )}
       <span>
-        {selected.length} {name}
+        {selected.length} {pluralName}
       </span>
     </div>
   );
